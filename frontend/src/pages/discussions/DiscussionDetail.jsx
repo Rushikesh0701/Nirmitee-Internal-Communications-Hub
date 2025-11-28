@@ -1,0 +1,518 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { discussionAPI } from '../../services/discussionApi';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../../store/authStore';
+
+// Recursive component to render comments with nested replies
+// Defined outside to prevent recreation on every render
+const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState }) => {
+  const commentId = comment._id || comment.id;
+  // Removed maxDepth limit - allow unlimited nesting
+  
+  return (
+    <div className={`${depth > 0 ? 'ml-8 mt-4' : ''}`}>
+      <div className="border-l-4 border-purple-500 pl-4 py-2">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-gray-800">
+              {(() => {
+                const author = comment.authorId || comment.Author || comment.author;
+                if (author) {
+                  if (typeof author === 'object') {
+                    // Author is populated object
+                    if (author.firstName || author.lastName) {
+                      return `${author.firstName || ''} ${author.lastName || ''}`.trim();
+                    }
+                    if (author.displayName) {
+                      return author.displayName;
+                    }
+                    if (author.name) {
+                      return author.name;
+                    }
+                    if (author.email) {
+                      return author.email.split('@')[0];
+                    }
+                  } else if (typeof author === 'string') {
+                    return author;
+                  }
+                }
+                // Fallback to email if available
+                if (comment.authorEmail) {
+                  return comment.authorEmail.split('@')[0];
+                }
+                return 'Unknown User';
+              })()}
+            </span>
+            <span className="text-sm text-gray-500">
+              {new Date(comment.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+        <p className="text-gray-700 mb-3">
+          {comment.content}
+        </p>
+        
+        {isAuthenticated && user && (
+          <div className="mb-3">
+            <button
+              onClick={() => onToggleReply(commentId)}
+              className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+            >
+              {isReplying ? 'Cancel' : 'Reply'}
+            </button>
+          </div>
+        )}
+        
+        {isReplying && isAuthenticated && user && (
+          <form 
+            onSubmit={(e) => onAddReply(commentId, e)}
+            className="mb-4"
+          >
+            <textarea
+              key={`textarea-${commentId}`}
+              value={replyContent || ''}
+              onChange={(e) => onReplyChange(commentId, e.target.value)}
+              placeholder="Write a reply..."
+              required
+              rows="3"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm mb-2"
+            />
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+              >
+                Post Reply
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleReply(commentId)}
+                className="px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+      
+      {/* Render nested replies */}
+      {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
+        <div className="mt-2">
+          {comment.replies.map((reply) => {
+            const replyId = reply._id || reply.id;
+            if (!replyId) return null;
+            return (
+              <CommentItem 
+                key={`reply-${replyId}`} 
+                comment={reply} 
+                depth={depth + 1}
+                isReplying={showReplyForm[replyId]}
+                replyContent={replyContentState[replyId]}
+                onReplyChange={onReplyChange}
+                onToggleReply={onToggleReply}
+                onAddReply={onAddReply}
+                isAuthenticated={isAuthenticated}
+                user={user}
+                showReplyForm={showReplyForm}
+                replyContentState={replyContentState}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  // Return true if props are equal (skip re-render), false if different (re-render)
+  const prevId = String(prevProps.comment._id || prevProps.comment.id);
+  const nextId = String(nextProps.comment._id || nextProps.comment.id);
+  
+  // If comment ID changed, re-render
+  if (prevId !== nextId) return false;
+  
+  // If depth changed, re-render
+  if (prevProps.depth !== nextProps.depth) return false;
+  
+  // If reply form state changed, re-render
+  if (prevProps.isReplying !== nextProps.isReplying) return false;
+  
+  // If reply content changed, re-render (this is important for typing)
+  if (prevProps.replyContent !== nextProps.replyContent) return false;
+  
+  // If handlers changed (shouldn't happen with useCallback), re-render
+  if (prevProps.onReplyChange !== nextProps.onReplyChange) return false;
+  if (prevProps.onToggleReply !== nextProps.onToggleReply) return false;
+  if (prevProps.onAddReply !== nextProps.onAddReply) return false;
+  
+  // All relevant props are equal, skip re-render
+  return true;
+});
+
+CommentItem.displayName = 'CommentItem';
+
+const DiscussionDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [discussion, setDiscussion] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [commentContent, setCommentContent] = useState('');
+  const [replyContent, setReplyContent] = useState({});
+  const [showReplyForm, setShowReplyForm] = useState({});
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Validate ID before making request
+  if (!id || id === 'undefined' || id === 'null') {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Discussion ID</h2>
+          <p className="text-gray-600 mb-4">The discussion ID is missing or invalid.</p>
+          <button
+            onClick={() => navigate('/discussions')}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Back to Discussions
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const fetchDiscussion = useCallback(async () => {
+    if (!id || id === 'undefined' || id === 'null') {
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await discussionAPI.getById(id);
+      // API returns { success: true, data: {...} }
+      // axios wraps the response, so response.data is the actual API response
+      const apiResponse = response.data;
+      // If apiResponse has a 'data' property (from sendSuccess), use it; otherwise use apiResponse directly
+      const discussionData = apiResponse.data || apiResponse;
+      setDiscussion(discussionData);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to fetch discussion');
+      navigate('/discussions');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchDiscussion();
+  }, [fetchDiscussion]);
+
+  // Organize comments into a tree structure
+  const organizeComments = (comments) => {
+    if (!comments || !Array.isArray(comments)) return [];
+    
+    const commentMap = new Map();
+    const rootComments = [];
+    
+    // Helper function to get comment ID as string
+    const getCommentId = (comment) => {
+      if (!comment) return null;
+      return String(comment._id || comment.id || comment);
+    };
+    
+    // Helper function to get parent ID
+    const getParentId = (comment) => {
+      if (!comment.parentCommentId) return null;
+      
+      // Handle different formats
+      if (typeof comment.parentCommentId === 'object') {
+        return String(comment.parentCommentId._id || comment.parentCommentId.id || comment.parentCommentId);
+      }
+      return String(comment.parentCommentId);
+    };
+    
+    // First pass: create map of all comments with empty replies array
+    comments.forEach(comment => {
+      const commentId = getCommentId(comment);
+      if (commentId) {
+        commentMap.set(commentId, { ...comment, replies: [] });
+      }
+    });
+    
+    // Second pass: organize into tree
+    comments.forEach(comment => {
+      const commentId = getCommentId(comment);
+      const parentId = getParentId(comment);
+      
+      if (!commentId) return;
+      
+      if (parentId && commentMap.has(parentId)) {
+        // This is a reply - add to parent's replies array
+        const parentComment = commentMap.get(parentId);
+        const replyComment = commentMap.get(commentId);
+        
+        // Check if reply already exists to avoid duplicates
+        const replyExists = parentComment.replies.some(r => {
+          const rId = getCommentId(r);
+          return rId === commentId;
+        });
+        
+        if (!replyExists) {
+          parentComment.replies.push(replyComment);
+        }
+      } else if (!parentId) {
+        // This is a root comment
+        const rootComment = commentMap.get(commentId);
+        if (rootComment && !rootComments.some(r => getCommentId(r) === commentId)) {
+          rootComments.push(rootComment);
+        }
+      }
+    });
+    
+    // Sort replies by creation date recursively
+    const sortReplies = (comment) => {
+      if (comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0) {
+        comment.replies.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0);
+          const dateB = new Date(b.createdAt || 0);
+          return dateA - dateB;
+        });
+        comment.replies.forEach(sortReplies);
+      }
+    };
+    
+    // Sort root comments and their replies
+    rootComments.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
+      return dateA - dateB;
+    });
+    rootComments.forEach(sortReplies);
+    
+    return rootComments;
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!commentContent.trim()) return;
+    
+    try {
+      const response = await discussionAPI.addComment(id, {
+        content: commentContent,
+      });
+      // API returns { success: true, data: comment }
+      const apiResponse = response.data;
+      const newComment = apiResponse.data || apiResponse;
+      
+      setDiscussion({
+        ...discussion,
+        Comments: [...(discussion.Comments || []), newComment],
+        commentCount: (discussion.commentCount || 0) + 1,
+      });
+      setCommentContent('');
+      toast.success('Comment added!');
+      // Refresh the discussion to get updated data
+      fetchDiscussion();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add comment');
+    }
+  };
+
+  const handleAddReply = async (parentCommentId, e) => {
+    e.preventDefault();
+    const replyText = replyContent[parentCommentId];
+    if (!replyText || !replyText.trim()) return;
+    
+    try {
+      // Ensure parentCommentId is a string
+      const parentId = String(parentCommentId);
+      
+      const response = await discussionAPI.addComment(id, {
+        content: replyText.trim(),
+        parentCommentId: parentId,
+      });
+      // API returns { success: true, data: comment }
+      const apiResponse = response.data;
+      const newReply = apiResponse.data || apiResponse;
+      
+      // Clear the reply form
+      setReplyContent({ ...replyContent, [parentCommentId]: '' });
+      setShowReplyForm({ ...showReplyForm, [parentCommentId]: false });
+      
+      toast.success('Reply added!');
+      // Refresh the discussion to get updated data with proper structure
+      await fetchDiscussion();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add reply');
+    }
+  };
+
+  const toggleReplyForm = useCallback((commentId) => {
+    setShowReplyForm(prev => {
+      const wasOpen = prev[commentId];
+      // Clear content when closing
+      if (wasOpen) {
+        setReplyContent(prevContent => {
+          const newContent = { ...prevContent };
+          delete newContent[commentId];
+          return newContent;
+        });
+      }
+      return {
+        ...prev,
+        [commentId]: !wasOpen
+      };
+    });
+  }, []);
+
+  const handleReplyContentChange = useCallback((commentId, value) => {
+    setReplyContent(prev => ({
+      ...prev,
+      [commentId]: value
+    }));
+  }, []);
+
+  // Memoize organized comments to prevent unnecessary recalculations
+  const organizedComments = useMemo(() => {
+    return organizeComments(discussion?.Comments || []);
+  }, [discussion?.Comments]);
+
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <div className="text-2xl text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!discussion) {
+    return null;
+  }
+
+  const getAuthorName = (author) => {
+    if (!author) return 'Unknown User';
+    
+    if (typeof author === 'object') {
+      // Author is populated object
+      if (author.firstName || author.lastName) {
+        return `${author.firstName || ''} ${author.lastName || ''}`.trim();
+      }
+      if (author.displayName) {
+        return author.displayName;
+      }
+      if (author.name) {
+        return author.name;
+      }
+      if (author.email) {
+        return author.email.split('@')[0];
+      }
+    } else if (typeof author === 'string') {
+      return author;
+    }
+    return 'Unknown User';
+  };
+
+  const authorName = getAuthorName(discussion.authorId || discussion.Author || discussion.author);
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        onClick={() => navigate('/discussions')}
+        className="mb-4 text-purple-600 hover:underline"
+      >
+        ← Back to Discussions
+      </motion.button>
+
+      <motion.article
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg shadow-lg p-8 mb-6"
+      >
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          {discussion.title}
+        </h1>
+
+        <div className="flex items-center space-x-4 mb-4 text-gray-600">
+          <span>👤 {authorName}</span>
+          <span>📅 {new Date(discussion.createdAt).toLocaleDateString()}</span>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          {discussion.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="px-3 py-1 bg-purple-100 text-purple-800 rounded"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <p className="text-gray-700 mb-6 whitespace-pre-wrap">
+          {discussion.content}
+        </p>
+
+      </motion.article>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="bg-white rounded-lg shadow-lg p-8 mb-6"
+      >
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Comments ({discussion.Comments?.length || discussion.commentCount || 0})
+        </h2>
+
+        {isAuthenticated && user && (
+          <form onSubmit={handleAddComment} className="mb-6">
+            <textarea
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              placeholder="Write your comment..."
+              required
+              rows="4"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Post Comment
+            </button>
+          </form>
+        )}
+
+        <div className="space-y-6">
+          {organizedComments.map((comment) => {
+            const commentId = comment._id || comment.id;
+            return (
+              <CommentItem 
+                key={commentId} 
+                comment={comment} 
+                depth={0}
+                isReplying={showReplyForm[commentId]}
+                replyContent={replyContent[commentId]}
+                onReplyChange={handleReplyContentChange}
+                onToggleReply={toggleReplyForm}
+                onAddReply={handleAddReply}
+                isAuthenticated={isAuthenticated}
+                user={user}
+                showReplyForm={showReplyForm}
+                replyContentState={replyContent}
+              />
+            );
+          })}
+          {(!discussion.Comments || discussion.Comments.length === 0) && (
+            <p className="text-gray-500 text-center py-8">No comments yet. Be the first to comment!</p>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default DiscussionDetail;

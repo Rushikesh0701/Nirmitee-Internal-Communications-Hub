@@ -1,0 +1,244 @@
+const { Notification } = require('../models/sequelize/index');
+const dummyDataService = require('./dummyDataService');
+const logger = require('../utils/logger');
+
+/**
+ * Create a notification
+ */
+const createNotification = async (notificationData) => {
+  const { userId, type, content, metadata } = notificationData;
+
+  const notification = await Notification.create({
+    userId,
+    type,
+    content,
+    metadata: metadata || null
+  });
+
+  // TODO: Send email notification (placeholder)
+  // await sendEmailNotification(userId, type, content);
+
+  return notification;
+};
+
+/**
+ * Create notifications for multiple users
+ */
+const createBulkNotifications = async (userIds, notificationData) => {
+  const { type, content, metadata } = notificationData;
+
+  const notifications = userIds.map(userId => ({
+    userId,
+    type,
+    content,
+    metadata: metadata || null
+  }));
+
+  await Notification.bulkCreate(notifications);
+
+  // TODO: Send email notifications
+  return { count: notifications.length };
+};
+
+/**
+ * Get user notifications
+ */
+const getUserNotifications = async (userId, options = {}) => {
+  try {
+    const { page = 1, limit = 20, isRead } = options;
+    const offset = (page - 1) * limit;
+
+    const where = { userId };
+    if (isRead !== undefined) {
+      where.isRead = isRead === 'true';
+    }
+
+    const { count, rows } = await Notification.findAndCountAll({
+      where,
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    return {
+      notifications: rows,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(count / limit)
+      },
+      unreadCount: await Notification.count({
+        where: { userId, isRead: false }
+      })
+    };
+  } catch (error) {
+    // Database unavailable - return dummy data
+    if (error.name === 'SequelizeConnectionRefusedError' || 
+        error.name === 'SequelizeConnectionError') {
+      logger.warn('Database unavailable, using dummy notifications', { userId });
+      return dummyDataService.getDummyNotifications(userId, options);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Mark notification as read
+ */
+const markAsRead = async (notificationId, userId) => {
+  try {
+    const notification = await Notification.findOne({
+      where: { id: notificationId, userId }
+    });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    notification.isRead = true;
+    await notification.save();
+
+    return notification;
+  } catch (error) {
+    // Database unavailable - return dummy success
+    if (error.name === 'SequelizeConnectionRefusedError' || 
+        error.name === 'SequelizeConnectionError') {
+      logger.warn('Database unavailable, using dummy mark as read', { notificationId });
+      return { id: notificationId, isRead: true };
+    }
+    throw error;
+  }
+};
+
+/**
+ * Mark all notifications as read
+ */
+const markAllAsRead = async (userId) => {
+  try {
+    await Notification.update(
+      { isRead: true },
+      { where: { userId, isRead: false } }
+    );
+
+    return { success: true };
+  } catch (error) {
+    // Database unavailable - return dummy success
+    if (error.name === 'SequelizeConnectionRefusedError' || 
+        error.name === 'SequelizeConnectionError') {
+      logger.warn('Database unavailable, using dummy mark all as read', { userId });
+      return { success: true };
+    }
+    throw error;
+  }
+};
+
+/**
+ * Get unread count
+ */
+const getUnreadCount = async (userId) => {
+  try {
+    const count = await Notification.count({
+      where: { userId, isRead: false }
+    });
+
+    return { unreadCount: count };
+  } catch (error) {
+    // Database unavailable - return dummy data
+    if (error.name === 'SequelizeConnectionRefusedError' || 
+        error.name === 'SequelizeConnectionError') {
+      logger.warn('Database unavailable, using dummy unread count', { userId });
+      return dummyDataService.getDummyUnreadCount(userId);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Trigger notification for mention
+ */
+const notifyMention = async (mentionedUserIds, postId, mentionedBy, postType) => {
+  if (!mentionedUserIds || mentionedUserIds.length === 0) return;
+
+  const content = `${mentionedBy} mentioned you in a ${postType}`;
+  
+  await createBulkNotifications(mentionedUserIds, {
+    type: 'MENTION',
+    content,
+    metadata: { postId, postType }
+  });
+};
+
+/**
+ * Trigger notification for recognition
+ */
+const notifyRecognition = async (receiverId, senderName, points) => {
+  const content = `${senderName} recognized you${points ? ` and awarded ${points} points` : ''}`;
+  
+  await createNotification({
+    userId: receiverId,
+    type: 'RECOGNITION',
+    content,
+    metadata: { points }
+  });
+};
+
+/**
+ * Trigger notification for group post
+ */
+const notifyGroupPost = async (groupMemberIds, groupName, postId) => {
+  if (!groupMemberIds || groupMemberIds.length === 0) return;
+
+  const content = `New post in ${groupName}`;
+  
+  await createBulkNotifications(groupMemberIds, {
+    type: 'GROUP_POST',
+    content,
+    metadata: { groupName, postId }
+  });
+};
+
+/**
+ * Trigger notification for survey published
+ */
+const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
+  if (!userIds || userIds.length === 0) return;
+
+  const content = `New survey: ${surveyTitle}`;
+  
+  await createBulkNotifications(userIds, {
+    type: 'SURVEY_PUBLISHED',
+    content,
+    metadata: { surveyId, surveyTitle }
+  });
+};
+
+/**
+ * Trigger notification for announcement
+ */
+const notifyAnnouncement = async (userIds, announcementTitle, announcementId) => {
+  if (!userIds || userIds.length === 0) return;
+
+  const content = `New announcement: ${announcementTitle}`;
+  
+  await createBulkNotifications(userIds, {
+    type: 'ANNOUNCEMENT',
+    content,
+    metadata: { announcementId, announcementTitle }
+  });
+};
+
+module.exports = {
+  createNotification,
+  createBulkNotifications,
+  getUserNotifications,
+  markAsRead,
+  markAllAsRead,
+  getUnreadCount,
+  notifyMention,
+  notifyRecognition,
+  notifyGroupPost,
+  notifySurveyPublished,
+  notifyAnnouncement
+};
+

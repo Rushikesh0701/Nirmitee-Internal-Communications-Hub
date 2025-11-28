@@ -1,0 +1,239 @@
+/* Medium-style blog content styling */
+.blog-content-medium {
+  max-width: 680px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 21px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+  color: rgba(0, 0, 0, 0.84);
+}
+
+.blog-content-medium img {
+  max-width: 100%;
+  border-radius: 3px;
+}
+
+.blog-content-medium img:not([style*="float"]) {
+  display: block;
+  margin: 43px auto;
+  max-height: 600px;
+  object-fit: contain;
+}
+
+.blog-content-medium img[style*="float: left"] {
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.blog-content-medium img[style*="float: right"] {
+  float: right;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.blog-content-medium p:has(img[style*="float"])::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.blog-content-medium p {
+  margin: 0 0 29px;
+  font-size: 21px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+}
+
+.blog-content-medium p::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.blog-content-medium p:has(img:not([style*="float"])) {
+  margin: 0;
+}
+
+.blog-content-medium p:has(img:not([style*="float"])) img {
+  margin: 43px auto;
+}
+
+.blog-content-medium h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-top: 56px;
+  margin-bottom: 6px;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+}
+
+.blog-content-medium h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-top: 43px;
+  margin-bottom: 4px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.blog-content-medium h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 39px;
+  margin-bottom: 4px;
+  line-height: 1.22;
+  letter-spacing: -0.012em;
+}
+
+.blog-content-medium h4 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 34px;
+  margin-bottom: 4px;
+  line-height: 1.33;
+}
+
+.blog-content-medium h5 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.blog-content-medium h6 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 29px;
+  margin-bottom: 4px;
+  line-height: 1.45;
+}
+
+.blog-content-medium ul,
+.blog-content-medium ol {
+  margin: 29px 0;
+  padding-left: 30px;
+}
+
+.blog-content-medium ul {
+  list-style-type: disc;
+}
+
+.blog-content-medium ol {
+  list-style-type: decimal;
+}
+
+.blog-content-medium li {
+  margin: 8px 0;
+  font-size: 21px;
+  line-height: 1.58;
+}
+
+.blog-content-medium blockquote {
+  border-left: 3px solid rgba(0, 0, 0, 0.84);
+  padding-left: 20px;
+  margin: 29px 0 29px -23px;
+  padding-bottom: 3px;
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.58;
+}
+
+.blog-content-medium code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.blog-content-medium pre {
+  background-color: #f3f4f6;
+  padding: 1em;
+  border-radius: 3px;
+  overflow-x: auto;
+  margin: 29px 0;
+}
+
+.blog-content-medium pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.blog-content-medium a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.blog-content-medium video {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  margin: 43px 0;
+  display: block;
+  border-radius: 3px;
+}
+
+.blog-content-medium iframe {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  min-height: 400px;
+  margin: 43px 0;
+  border: none;
+  display: block;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .blog-content-medium {
+    font-size: 18px;
+    line-height: 1.58;
+  }
+
+  .blog-content-medium h1 {
+    font-size: 32px;
+  }
+
+  .blog-content-medium h2 {
+    font-size: 28px;
+  }
+
+  .blog-content-medium h3 {
+    font-size: 24px;
+  }
+
+  .blog-content-medium p,
+  .blog-content-medium li,
+  .blog-content-medium blockquote {
+    font-size: 18px;
+  }
+
+  .blog-content-medium blockquote {
+    margin-left: -20px;
+    padding-left: 15px;
+  }
+
+  .blog-content-medium img:not([style*="float"]) {
+    margin: 32px auto;
+    max-height: 400px;
+  }
+
+  .blog-content-medium img[style*="float: left"],
+  .blog-content-medium img[style*="float: right"] {
+    max-width: 50%;
+  }
+
+  .blog-content-medium video,
+  .blog-content-medium iframe {
+    margin: 32px 0;
+  }
+
+  .blog-content-medium iframe {
+    min-height: 300px;
+  }
+}
+
+
