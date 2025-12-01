@@ -32,6 +32,7 @@ function NewsList() {
     { value: 'startups', label: 'Startups' },
     { value: 'business', label: 'Business Tech' },
     { value: 'science', label: 'Science & Research' },
+    { value: 'HealthcareIT', label: 'Healthcare IT' },
   ];
 
   const dateRanges = [
@@ -135,12 +136,7 @@ function NewsList() {
   const fetchNews = async (isNewSearch = false) => {
     const currentQuery = buildSearchQuery();
 
-    if (!currentQuery && !category) {
-      setError('Please enter a search term or select a category.');
-      setLoading(false);
-      return;
-    }
-
+    // Allow fetching news without query or category - backend supports it
     if (isNewSearch) {
       setLoading(true);
       setArticles([]);
@@ -245,11 +241,10 @@ function NewsList() {
     setError('');
   };
 
-  // Initial load
+  // Initial load - fetch news on component mount
   useEffect(() => {
-    if (!query.trim()) {
-      fetchNews(true);
-    }
+    fetchNews(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Active filters count
@@ -567,7 +562,8 @@ function NewsList() {
               const description = article.summary || article.content || article.description || '';
               const imageUrl = article.imageUrl || article.image_url;
               const date = article.publishedAt || article.pubDate || article.createdAt;
-              const link = article.sourceUrl || article.link;
+              // Handle Google News RSS redirect URLs
+              let link = article.sourceUrl || article.link;
               const source = article.sourceType === 'rss' ? 'RSS Feed' : (article.source_name || 'Internal');
               const isRss = article.sourceType === 'rss' || !!article.sourceUrl;
 
@@ -577,6 +573,8 @@ function NewsList() {
                   className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
                   onClick={() => {
                     if (link) {
+                      // Open the link - backend should have extracted the actual URL
+                      // If it's still a Google News URL, the browser will handle the redirect
                       window.open(link, '_blank', 'noopener,noreferrer');
                     }
                   }}

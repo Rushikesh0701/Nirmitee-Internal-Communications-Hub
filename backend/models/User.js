@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
   },
   rssSubscriptions: {
     type: [String],
-    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity'],
+    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity', 'HealthcareIT'],
     default: [],
     validate: {
       validator: function(v) {

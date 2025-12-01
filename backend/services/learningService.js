@@ -21,33 +21,34 @@ const createCourse = async (courseData) => {
  */
 const getAllCourses = async (options = {}) => {
   const { page = 1, limit = 10, difficulty, search } = options;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  const where = {};
+  const query = {};
   if (difficulty) {
-    where.difficulty = difficulty;
+    query.difficulty = difficulty;
   }
   if (search) {
-    where[Op.or] = [
-      { title: { [Op.iLike]: `%${search}%` } },
-      { description: { [Op.iLike]: `%${search}%` } }
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
     ];
   }
 
-  const { count, rows } = await Course.findAndCountAll({
-    where,
-    order: [['createdAt', 'DESC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
-  });
+  const [courses, totalCount] = await Promise.all([
+    Course.find(query)
+      .sort({ createdAt: -1 })
+      .skip(parseInt(skip))
+      .limit(parseInt(limit)),
+    Course.countDocuments(query)
+  ]);
 
   return {
-    courses: rows,
+    courses,
     pagination: {
-      total: count,
+      total: totalCount,
       page: parseInt(page),
       limit: parseInt(limit),
-      pages: Math.ceil(count / limit)
+      pages: Math.ceil(totalCount / limit)
     }
   };
 };
@@ -56,29 +57,20 @@ const getAllCourses = async (options = {}) => {
  * Get course by ID with modules
  */
 const getCourseById = async (courseId, userId = null) => {
-  const course = await Course.findByPk(courseId, {
-    include: [
-      {
-        model: Module,
-        as: 'modules'
-      }
-    ],
-    order: [
-      [{ model: Module, as: 'modules' }, 'order', 'ASC']
-    ]
-  });
+  const course = await Course.findById(courseId).lean();
 
   if (!course) {
     throw new Error('Course not found');
   }
 
+  // Get modules
+  const modules = await Module.find({ courseId }).sort({ order: 1 });
+  course.modules = modules;
+
   // If userId provided, get enrollment status
   if (userId) {
-    const enrollment = await UserCourse.findOne({
-      where: { userId, courseId }
-    });
-
-    course.dataValues.enrollment = enrollment || null;
+    const enrollment = await UserCourse.findOne({ userId, courseId });
+    course.enrollment = enrollment || null;
   }
 
   return course;
@@ -93,10 +85,8 @@ const createModule = async (courseId, moduleData) => {
   // Get max order if not provided
   let moduleOrder = order;
   if (moduleOrder === undefined) {
-    const maxOrder = await Module.max('order', {
-      where: { courseId }
-    });
-    moduleOrder = (maxOrder || 0) + 1;
+    const lastModule = await Module.findOne({ courseId }).sort({ order: -1 });
+    moduleOrder = (lastModule?.order || 0) + 1;
   }
 
   const module = await Module.create({
@@ -115,23 +105,23 @@ const createModule = async (courseId, moduleData) => {
  * Get modules for a course
  */
 const getCourseModules = async (courseId) => {
-  return await Module.findAll({
-    where: { courseId },
-    order: [['order', 'ASC']]
-  });
+  return await Module.find({ courseId }).sort({ order: 1 });
 };
 
 /**
  * Update course progress
  */
 const updateCourseProgress = async (userId, courseId, progressPercentage) => {
-  const [userCourse, created] = await UserCourse.findOrCreate({
-    where: { userId, courseId },
-    defaults: {
+  let userCourse = await UserCourse.findOne({ userId, courseId });
+
+  if (!userCourse) {
+    userCourse = await UserCourse.create({
+      userId,
+      courseId,
       progressPercentage: 0,
       status: 'ENROLLED'
-    }
-  });
+    });
+  }
 
   userCourse.progressPercentage = Math.min(100, Math.max(0, parseInt(progressPercentage)));
 
@@ -151,17 +141,18 @@ const updateCourseProgress = async (userId, courseId, progressPercentage) => {
  * Enroll user in course
  */
 const enrollInCourse = async (userId, courseId) => {
-  const [userCourse, created] = await UserCourse.findOrCreate({
-    where: { userId, courseId },
-    defaults: {
-      progressPercentage: 0,
-      status: 'ENROLLED'
-    }
-  });
+  const existingEnrollment = await UserCourse.findOne({ userId, courseId });
 
-  if (!created) {
+  if (existingEnrollment) {
     throw new Error('User is already enrolled in this course');
   }
+
+  const userCourse = await UserCourse.create({
+    userId,
+    courseId,
+    progressPercentage: 0,
+    status: 'ENROLLED'
+  });
 
   return userCourse;
 };
@@ -171,18 +162,14 @@ const enrollInCourse = async (userId, courseId) => {
  */
 const generateCertificate = async (userId, courseId) => {
   // Check if course is completed
-  const userCourse = await UserCourse.findOne({
-    where: { userId, courseId }
-  });
+  const userCourse = await UserCourse.findOne({ userId, courseId });
 
   if (!userCourse || userCourse.progressPercentage < 100) {
     throw new Error('Course must be completed to generate certificate');
   }
 
   // Check if certificate already exists
-  const existingCertificate = await Certificate.findOne({
-    where: { userId, courseId }
-  });
+  const existingCertificate = await Certificate.findOne({ userId, courseId });
 
   if (existingCertificate) {
     return existingCertificate;
@@ -201,54 +188,27 @@ const generateCertificate = async (userId, courseId) => {
   userCourse.status = 'CERTIFIED';
   await userCourse.save();
 
-  return await Certificate.findByPk(certificate.id, {
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      },
-      {
-        model: Course,
-        as: 'course',
-        attributes: ['id', 'title', 'description']
-      }
-    ]
-  });
+  return await Certificate.findById(certificate._id)
+    .populate('user', 'id name email')
+    .populate('course', 'id title description');
 };
 
 /**
  * Get user's certificates
  */
 const getUserCertificates = async (userId) => {
-  return await Certificate.findAll({
-    where: { userId },
-    include: [
-      {
-        model: Course,
-        as: 'course',
-        attributes: ['id', 'title', 'description']
-      }
-    ],
-    order: [['issuedAt', 'DESC']]
-  });
+  return await Certificate.find({ userId })
+    .populate('course', 'id title description')
+    .sort({ issuedAt: -1 });
 };
 
 /**
  * Get user's enrolled courses
  */
 const getUserCourses = async (userId) => {
-  return await UserCourse.findAll({
-    where: { userId },
-    include: [
-      {
-        model: Course,
-        as: 'course',
-        attributes: ['id', 'title', 'description', 'difficulty', 'duration']
-      }
-    ],
-    order: [['updatedAt', 'DESC']]
-  });
+  return await UserCourse.find({ userId })
+    .populate('course', 'id title description difficulty duration')
+    .sort({ updatedAt: -1 });
 };
 
 /**
@@ -257,11 +217,9 @@ const getUserCourses = async (userId) => {
 const createMentorship = async (mentorId, menteeId) => {
   // Check if mentorship already exists
   const existing = await Mentorship.findOne({
-    where: {
-      mentorId,
-      menteeId,
-      status: { [Op.in]: ['PENDING', 'ACTIVE'] }
-    }
+    mentorId,
+    menteeId,
+    status: { $in: ['PENDING', 'ACTIVE'] }
   });
 
   if (existing) {
@@ -274,34 +232,23 @@ const createMentorship = async (mentorId, menteeId) => {
     status: 'PENDING'
   });
 
-  return await Mentorship.findByPk(mentorship.id, {
-    include: [
-      {
-        model: User,
-        as: 'mentor',
-        attributes: ['id', 'name', 'email', 'avatar']
-      },
-      {
-        model: User,
-        as: 'mentee',
-        attributes: ['id', 'name', 'email', 'avatar']
-      }
-    ]
-  });
+  return await Mentorship.findById(mentorship._id)
+    .populate('mentor', 'id name email avatar')
+    .populate('mentee', 'id name email avatar');
 };
 
 /**
  * Update mentorship status
  */
 const updateMentorshipStatus = async (mentorshipId, status, userId) => {
-  const mentorship = await Mentorship.findByPk(mentorshipId);
+  const mentorship = await Mentorship.findById(mentorshipId);
   if (!mentorship) {
     throw new Error('Mentorship not found');
   }
 
   // Only mentor can approve/reject, mentee can cancel
   if (status === 'ACTIVE' || status === 'REJECTED') {
-    if (mentorship.mentorId !== userId) {
+    if (mentorship.mentorId.toString() !== userId) {
       throw new Error('Only mentor can approve or reject mentorship');
     }
   }
@@ -309,46 +256,23 @@ const updateMentorshipStatus = async (mentorshipId, status, userId) => {
   mentorship.status = status;
   await mentorship.save();
 
-  return await Mentorship.findByPk(mentorship.id, {
-    include: [
-      {
-        model: User,
-        as: 'mentor',
-        attributes: ['id', 'name', 'email', 'avatar']
-      },
-      {
-        model: User,
-        as: 'mentee',
-        attributes: ['id', 'name', 'email', 'avatar']
-      }
-    ]
-  });
+  return await Mentorship.findById(mentorship._id)
+    .populate('mentor', 'id name email avatar')
+    .populate('mentee', 'id name email avatar');
 };
 
 /**
  * Get user's mentorships
  */
 const getUserMentorships = async (userId, role = 'mentee') => {
-  const where = role === 'mentor'
+  const query = role === 'mentor'
     ? { mentorId: userId }
     : { menteeId: userId };
 
-  return await Mentorship.findAll({
-    where,
-    include: [
-      {
-        model: User,
-        as: 'mentor',
-        attributes: ['id', 'name', 'email', 'avatar']
-      },
-      {
-        model: User,
-        as: 'mentee',
-        attributes: ['id', 'name', 'email', 'avatar']
-      }
-    ],
-    order: [['createdAt', 'DESC']]
-  });
+  return await Mentorship.find(query)
+    .populate('mentor', 'id name email avatar')
+    .populate('mentee', 'id name email avatar')
+    .sort({ createdAt: -1 });
 };
 
 module.exports = {

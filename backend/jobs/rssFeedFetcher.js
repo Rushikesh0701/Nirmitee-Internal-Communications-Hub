@@ -32,6 +32,35 @@ const fetchRssFeeds = async () => {
     console.log(`   - Failed feeds: ${failCount}`);
     console.log(`   - New articles stored: ${totalArticles}`);
 
+    // Sync RSS feeds to news
+    try {
+      console.log('🔄 Syncing RSS feeds to news...');
+
+      // Find first admin user or system user for RSS-sourced news
+      const adminRole = await Role.findOne({ name: 'Admin' });
+      let systemUser = null;
+
+      if (adminRole) {
+        systemUser = await User.findOne({ roleId: adminRole._id });
+      }
+
+      if (!systemUser) {
+        // Fallback to first user if no admin found
+        systemUser = await User.findOne();
+      }
+
+      if (systemUser) {
+        const newsSyncResult = await newsService.syncRSSFeedsToNews(systemUser._id);
+        console.log(`✅ RSS to News sync completed:`);
+        console.log(`   - New news items created: ${newsSyncResult.totalNewsCreated}`);
+      } else {
+        console.warn('⚠️  No system user found for RSS to News sync');
+      }
+    } catch (error) {
+      console.error('❌ Error syncing RSS feeds to news:', error.message);
+      // Don't throw - RSS article fetch was successful
+    }
+
     return results;
   } catch (error) {
     console.error('❌ Error in RSS feed fetch job:', error);

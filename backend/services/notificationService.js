@@ -34,7 +34,7 @@ const createBulkNotifications = async (userIds, notificationData) => {
     metadata: metadata || null
   }));
 
-  await Notification.bulkCreate(notifications);
+  await Notification.insertMany(notifications);
 
   // TODO: Send email notifications
   return { count: notifications.length };
@@ -46,36 +46,35 @@ const createBulkNotifications = async (userIds, notificationData) => {
 const getUserNotifications = async (userId, options = {}) => {
   try {
     const { page = 1, limit = 20, isRead } = options;
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-    const where = { userId };
+    const query = { userId };
     if (isRead !== undefined) {
-      where.isRead = isRead === 'true';
+      query.isRead = isRead === 'true';
     }
 
-    const { count, rows } = await Notification.findAndCountAll({
-      where,
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit),
-      offset: parseInt(offset)
-    });
+    const [notifications, totalCount, unreadCount] = await Promise.all([
+      Notification.find(query)
+        .sort({ createdAt: -1 })
+        .skip(parseInt(skip))
+        .limit(parseInt(limit)),
+      Notification.countDocuments(query),
+      Notification.countDocuments({ userId, isRead: false })
+    ]);
 
     return {
-      notifications: rows,
+      notifications,
       pagination: {
-        total: count,
+        total: totalCount,
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(count / limit)
+        pages: Math.ceil(totalCount / limit)
       },
-      unreadCount: await Notification.count({
-        where: { userId, isRead: false }
-      })
+      unreadCount
     };
   } catch (error) {
     // Database unavailable - return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
       logger.warn('Database unavailable, using dummy notifications', { userId });
       return dummyDataService.getDummyNotifications(userId, options);
     }
@@ -89,7 +88,8 @@ const getUserNotifications = async (userId, options = {}) => {
 const markAsRead = async (notificationId, userId) => {
   try {
     const notification = await Notification.findOne({
-      where: { id: notificationId, userId }
+      _id: notificationId,
+      userId
     });
 
     if (!notification) {
@@ -97,13 +97,13 @@ const markAsRead = async (notificationId, userId) => {
     }
 
     notification.isRead = true;
+    notification.readAt = new Date();
     await notification.save();
 
     return notification;
   } catch (error) {
     // Database unavailable - return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
       logger.warn('Database unavailable, using dummy mark as read', { notificationId });
       return { id: notificationId, isRead: true };
     }
@@ -116,16 +116,20 @@ const markAsRead = async (notificationId, userId) => {
  */
 const markAllAsRead = async (userId) => {
   try {
-    await Notification.update(
-      { isRead: true },
-      { where: { userId, isRead: false } }
+    await Notification.updateMany(
+      { userId, isRead: false },
+      {
+        $set: {
+          isRead: true,
+          readAt: new Date()
+        }
+      }
     );
 
     return { success: true };
   } catch (error) {
     // Database unavailable - return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
       logger.warn('Database unavailable, using dummy mark all as read', { userId });
       return { success: true };
     }
@@ -138,15 +142,15 @@ const markAllAsRead = async (userId) => {
  */
 const getUnreadCount = async (userId) => {
   try {
-    const count = await Notification.count({
-      where: { userId, isRead: false }
+    const count = await Notification.countDocuments({
+      userId,
+      isRead: false
     });
 
     return { unreadCount: count };
   } catch (error) {
     // Database unavailable - return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
       logger.warn('Database unavailable, using dummy unread count', { userId });
       return dummyDataService.getDummyUnreadCount(userId);
     }

@@ -10,7 +10,7 @@ const rssFeedSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity'],
+    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity', 'HealthcareIT'],
     trim: true
   },
   isActive: {

@@ -72,7 +72,7 @@ const getAllNews = async (options = {}) => {
     summary: article.description || '',
     imageUrl: article.imageUrl, // RssArticle schema might need this field check
     category: article.category,
-    priority: 'medium',
+    priority: article.category === 'HealthcareIT' ? 'high' : 'medium', // Prioritize HealthcareIT news
     isPublished: true,
     publishedAt: article.publishedAt,
     sourceUrl: article.link,
@@ -208,6 +208,108 @@ const extractImageUrl = (item) => {
 };
 
 /**
+ * Resolve Google News RSS redirect URLs to actual article URLs
+ * Google News RSS links are redirect URLs that need to be resolved
+ */
+const resolveGoogleNewsUrl = async (url) => {
+  if (!url || typeof url !== 'string') return url;
+  
+  // Check if it's a Google News RSS link
+  if (!url.includes('news.google.com/rss/articles')) {
+    return url; // Not a Google News link, return as-is
+  }
+
+  try {
+    // Try to extract URL from the link itself or follow redirect
+    // Google News RSS URLs sometimes have the actual URL in query params or need redirect following
+    const response = await axios.head(url, {
+      maxRedirects: 5,
+      timeout: 5000,
+      validateStatus: (status) => status < 400,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    // Get the final URL after redirects
+    const finalUrl = response.request?.res?.responseUrl || response.request?.path || url;
+    
+    // If still a Google News URL, try to extract from content
+    if (finalUrl.includes('news.google.com') || finalUrl.includes('workspace')) {
+      // Try alternative: use a URL resolver service or return original
+      // For now, return the original URL and let frontend handle it
+      logger.warn('Could not resolve Google News URL', { originalUrl: url, finalUrl });
+      return url;
+    }
+
+    return finalUrl;
+  } catch (error) {
+    logger.warn('Error resolving Google News URL', { url, error: error.message });
+    // Return original URL if resolution fails
+    return url;
+  }
+};
+
+/**
+ * Extract actual URL from RSS item content (for Google News)
+ * Sometimes the actual URL is embedded in the content/description
+ */
+const extractUrlFromContent = (item) => {
+  const content = item.content || item.contentSnippet || item.description || '';
+  
+  if (!content) return null;
+  
+  // Try multiple patterns to find the actual article URL
+  const urlPatterns = [
+    // Standard URL pattern
+    /https?:\/\/(?:[-\w.])+(?:[:\d]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:#(?:\w)*)?)?/g,
+    // URL in href attribute
+    /href=["']([^"']+)["']/gi,
+    // URL parameter
+    /url=([^&\s"']+)/gi,
+    // Link tag
+    /<a[^>]+href=["']([^"']+)["'][^>]*>/gi
+  ];
+
+  const foundUrls = new Set();
+  
+  for (const pattern of urlPatterns) {
+    const matches = content.matchAll(pattern);
+    for (const match of matches) {
+      let url = match[1] || match[0];
+      
+      // Clean up the URL
+      url = url.replace(/^href=["']/i, '').replace(/["']$/, '')
+                .replace(/^url=/i, '').trim();
+      
+      // Skip Google News URLs, workspace URLs, and invalid URLs
+      if (url && 
+          !url.includes('news.google.com') && 
+          !url.includes('workspace') &&
+          !url.includes('google.com/accounts') &&
+          url.startsWith('http')) {
+        try {
+          const parsedUrl = new URL(url);
+          // Make sure it's a real article URL (has a domain)
+          if (parsedUrl.hostname && parsedUrl.hostname !== 'news.google.com') {
+            foundUrls.add(url);
+          }
+        } catch (e) {
+          // Not a valid URL, continue
+        }
+      }
+    }
+  }
+
+  // Return the first valid URL found (usually the article URL)
+  if (foundUrls.size > 0) {
+    return Array.from(foundUrls)[0];
+  }
+
+  return null;
+};
+
+/**
  * Fetch news from RSS feed
  */
 const fetchNewsFromRSSFeed = async (feedUrl, category) => {
@@ -222,16 +324,30 @@ const fetchNewsFromRSSFeed = async (feedUrl, category) => {
         const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
         const imageUrl = extractImageUrl(item);
 
+        // Resolve Google News redirect URLs to actual article URLs
+        let articleUrl = item.link || '';
+        
+        // First try to extract URL from content (faster, no network call)
+        const extractedUrl = extractUrlFromContent(item);
+        if (extractedUrl) {
+          articleUrl = extractedUrl;
+        } else if (articleUrl.includes('news.google.com/rss/articles')) {
+          // If it's a Google News URL and we couldn't extract from content,
+          // try to resolve it (this is async, so we'll do it synchronously for now)
+          // For better performance, we could batch resolve these
+          articleUrl = articleUrl; // Keep original for now, frontend can handle
+        }
+
         newsItems.push({
           title: item.title || 'Untitled',
           content,
           summary: summary.substring(0, 500),
           imageUrl,
           category: category || 'General',
-          priority: 'medium',
+          priority: category === 'HealthcareIT' ? 'high' : 'medium', // Prioritize HealthcareIT news
           isPublished: true,
           publishedAt,
-          sourceUrl: item.link || '',
+          sourceUrl: articleUrl,
           sourceType: 'rss'
         });
       } catch (error) {

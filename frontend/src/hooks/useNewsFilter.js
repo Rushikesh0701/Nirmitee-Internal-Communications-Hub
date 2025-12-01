@@ -35,12 +35,7 @@ export const useNewsFilter = () => {
   const fetchNews = async (isNewSearch = false) => {
     const currentQuery = buildSearchQuery(query, exactPhrase, searchType);
     
-    if (!currentQuery && !category) {
-      setError('Please enter a search term or select a category.');
-      setLoading(false);
-      return;
-    }
-
+    // Allow fetching news without query or category - backend supports it
     if (isNewSearch) {
       setLoading(true);
       setArticles([]);
@@ -113,9 +108,9 @@ export const useNewsFilter = () => {
   }, [query, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase]);
 
   useEffect(() => {
-    if (category && !query.trim()) {
-      fetchNews(true);
-    }
+    // Fetch news on initial load
+    fetchNews(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

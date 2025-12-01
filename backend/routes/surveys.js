@@ -5,7 +5,7 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { isModerator } = require('../middleware/rbac');
 
 // Public/authenticated routes
-router.get('/list', optionalAuth, surveyController.getSurveyList);
+router.get('/', optionalAuth, surveyController.getSurveyList);
 router.get('/:id', optionalAuth, surveyController.getSurveyById);
 router.post('/:id/submit', surveyController.submitSurveyResponse); // Anonymous submission
 

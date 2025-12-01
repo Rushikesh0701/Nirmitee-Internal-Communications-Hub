@@ -2,7 +2,6 @@
 module.exports = {
   Role: require('./Role'),
   User: require('./User'),
-  News: require('./News'),
   Blog: require('./Blog'),
   BlogComment: require('./BlogComment'),
   RSSFeed: require('./RSSFeed'),

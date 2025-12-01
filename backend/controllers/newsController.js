@@ -46,9 +46,74 @@ const getDummyNewsFallback = (queryParams) => {
 };
 
 /**
- * Handle NewsData.io API request
+ * Normalize database news to NewsData.io format
  */
-const handleNewsDataRequest = async (req, res) => {
+const normalizeDatabaseNews = (dbNews) => {
+  if (!dbNews || !dbNews.news) return [];
+  
+  return dbNews.news.map(item => ({
+    article_id: item._id?.toString() || item.id || `db-${Date.now()}-${Math.random()}`,
+    title: item.title || 'Untitled',
+    description: item.summary || item.content || '',
+    link: item.sourceUrl || '#',
+    image_url: item.imageUrl || null,
+    pubDate: item.publishedAt || item.createdAt || new Date().toISOString(),
+    source_id: item.sourceType === 'rss' ? 'rss' : 'internal',
+    source_name: item.sourceType === 'rss' ? 'RSS Feed' : (item.Author ? `${item.Author.firstName} ${item.Author.lastName}` : 'Internal'),
+    category: item.category || 'technology',
+    creator: item.Author ? [`${item.Author.firstName} ${item.Author.lastName}`] : [],
+    content: item.content || item.summary || '',
+    sourceType: item.sourceType || 'internal'
+  }));
+};
+
+/**
+ * Merge and deduplicate news from multiple sources
+ * Prioritizes HealthcareIT news and high priority items
+ */
+const mergeNewsSources = (newsDataArticles, dbNewsArticles) => {
+  const allArticles = [...newsDataArticles, ...dbNewsArticles];
+  const seenTitles = new Set();
+  const merged = [];
+
+  // Deduplicate by title (case-insensitive)
+  for (const article of allArticles) {
+    const titleKey = (article.title || '').toLowerCase().trim();
+    if (titleKey && !seenTitles.has(titleKey)) {
+      seenTitles.add(titleKey);
+      merged.push(article);
+    }
+  }
+
+  // Sort by priority (HealthcareIT/high priority first), then by date (newest first)
+  const priorityOrder = { 'urgent': 4, 'high': 3, 'medium': 2, 'low': 1 };
+  return merged.sort((a, b) => {
+    // Check if article is HealthcareIT category
+    const isAHealthcareIT = a.category === 'HealthcareIT' || a.category === 'healthcareit';
+    const isBHealthcareIT = b.category === 'HealthcareIT' || b.category === 'healthcareit';
+    
+    // HealthcareIT articles get highest priority
+    if (isAHealthcareIT && !isBHealthcareIT) return -1;
+    if (!isAHealthcareIT && isBHealthcareIT) return 1;
+    
+    // Then sort by priority level
+    const priorityA = priorityOrder[a.priority] || 2;
+    const priorityB = priorityOrder[b.priority] || 2;
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA; // Higher priority first
+    }
+    
+    // Finally sort by date (newest first)
+    const dateA = new Date(a.pubDate || 0);
+    const dateB = new Date(b.pubDate || 0);
+    return dateB - dateA;
+  });
+};
+
+/**
+ * Handle NewsData.io API request (with optional database merge)
+ */
+const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
   const {
     page = 1,
     limit = 10,
@@ -62,10 +127,15 @@ const handleNewsDataRequest = async (req, res) => {
     nextPage
   } = req.query;
 
+  let newsDataResults = [];
+  let newsDataNextPage = null;
+  let newsDataError = null;
+
+  // Always try to fetch from NewsData.io
   try {
     const newsData = await newsService.fetchNewsFromNewsData({
       q: q || undefined,
-      category: category || undefined,
+      category: category || 'technology', // Default to technology if no category
       from: from || undefined,
       to: to || undefined,
       language,
@@ -76,35 +146,107 @@ const handleNewsDataRequest = async (req, res) => {
       nextPage: nextPage || undefined
     });
 
-    if (!newsData.results || newsData.results.length === 0) {
-      return sendSuccess(res, {
-              results: [],
-              totalResults: 0,
-              nextPage: null,
-              status: 'success'
-      }, newsData.message || 'No articles found for your query. Please try a different search term or category.');
+    if (newsData.results && newsData.results.length > 0) {
+      newsDataResults = newsData.results;
+      newsDataNextPage = newsData.nextPage || null;
     }
+  } catch (error) {
+    logger.warn('NewsData.io API error (will try database fallback)', { error: error.message });
+    newsDataError = error;
+  }
 
-    return sendSuccess(res, newsData);
-  } catch (newsDataError) {
-    logger.error('NewsData.io API error', { error: newsDataError.message });
-    
+  // If merging with database or NewsData.io failed, fetch from database
+  if (mergeWithDatabase || newsDataError) {
     try {
+      // Fetch more items from database to account for deduplication when merging
+      const fetchLimit = parseInt(limit) * 2; // Fetch more to account for deduplication
+      const dbNews = await newsService.getAllNews({
+        page: parseInt(page),
+        limit: fetchLimit,
+        category,
+        priority: undefined,
+        published: undefined
+      });
+
+      const normalizedDbNews = normalizeDatabaseNews(dbNews);
+
+      if (newsDataResults.length > 0) {
+        // Merge both sources
+        const merged = mergeNewsSources(newsDataResults, normalizedDbNews);
+        const paginatedMerged = merged.slice((parseInt(page) - 1) * parseInt(limit), parseInt(page) * parseInt(limit));
+        
+        // Determine if there are more pages:
+        // 1. If NewsData.io has nextPage token, use it (highest priority - it's a token string)
+        // 2. Otherwise, check if there might be more results:
+        //    - NewsData.io returned full limit (might have more)
+        //    - Merged results exceed current page limit
+        //    - Database has more pages
+        const newsDataMightHaveMore = !newsDataNextPage && newsDataResults.length >= parseInt(limit);
+        const hasMoreMerged = merged.length > (parseInt(page) * parseInt(limit));
+        const dbHasMore = dbNews.pagination && dbNews.pagination.page < dbNews.pagination.pages;
+        
+        // Use NewsData.io token if available, otherwise use page number if there might be more
+        const finalNextPage = newsDataNextPage || (newsDataMightHaveMore || hasMoreMerged || dbHasMore ? (parseInt(page) + 1).toString() : null);
+
+        return sendSuccess(res, {
+          results: paginatedMerged,
+          totalResults: merged.length,
+          nextPage: finalNextPage,
+          status: 'success'
+        }, newsDataError ? getNewsDataErrorMessage(newsDataError) : 'News from multiple sources');
+      } else {
+        // Only database news available
+        const transformedDbNews = normalizedDbNews.map(item => ({
+          ...item,
+          source_name: item.source_name || 'Internal'
+        }));
+
+        // Check if database has more pages
+        const dbHasMore = dbNews.pagination && dbNews.pagination.page < dbNews.pagination.pages;
+        const dbNextPage = dbHasMore ? (parseInt(page) + 1).toString() : null;
+
+        return sendSuccess(res, {
+          results: transformedDbNews,
+          totalResults: transformedDbNews.length,
+          nextPage: dbNextPage,
+          status: 'success'
+        }, newsDataError ? getNewsDataErrorMessage(newsDataError) : null);
+      }
+    } catch (dbError) {
+      logger.error('Database error', { error: dbError.message });
+      
+      // Fallback to dummy data
+      if (newsDataResults.length > 0) {
+        return sendSuccess(res, {
+          results: newsDataResults,
+          totalResults: newsDataResults.length,
+          nextPage: newsDataNextPage,
+          status: 'success'
+        }, newsDataError ? getNewsDataErrorMessage(newsDataError) : null);
+      }
+
       const dummyNews = getDummyNewsFallback(req.query);
       const transformedDummyNews = transformDummyNewsToNewsDataFormat(dummyNews, category);
-      const userMessage = getNewsDataErrorMessage(newsDataError);
-      
-      return sendSuccess(res, transformedDummyNews, userMessage);
-    } catch (fallbackError) {
-      logger.error('Error in fallback dummy data', { error: fallbackError.message });
-      return sendSuccess(res, {
-        results: [],
-        totalResults: 0,
-        nextPage: null,
-        status: 'success'
-      }, 'Unable to load news at this time. Please try again later.');
-        }
-      }
+      return sendSuccess(res, transformedDummyNews, newsDataError ? getNewsDataErrorMessage(newsDataError) : 'Using sample data');
+    }
+  }
+
+  // Only NewsData.io results (no merge requested and no error)
+  if (newsDataResults.length === 0) {
+    return sendSuccess(res, {
+      results: [],
+      totalResults: 0,
+      nextPage: null,
+      status: 'success'
+    }, newsDataError ? getNewsDataErrorMessage(newsDataError) : 'No articles found for your query. Please try a different search term or category.');
+  }
+
+  return sendSuccess(res, {
+    results: newsDataResults,
+    totalResults: newsDataResults.length,
+    nextPage: newsDataNextPage,
+    status: 'success'
+  });
 };
 
 /**
@@ -137,17 +279,22 @@ const handleDatabaseNewsRequest = async (req, res) => {
 
 /**
  * GET /api/news - Get all news
+ * Always tries NewsData.io first, then merges with database/RSS if available
  */
 const getAllNews = async (req, res, next) => {
   try {
-    if (isNewsDataRequest(req.query)) {
-      return await handleNewsDataRequest(req, res);
-    }
-    return await handleDatabaseNewsRequest(req, res);
+    // Always try NewsData.io and merge with database/RSS
+    return await handleNewsDataRequest(req, res, true);
   } catch (error) {
-    logger.warn('Error in getAllNews, using dummy data', { error: error.message });
-    const dummyNews = getDummyNewsFallback(req.query);
-    return sendSuccess(res, dummyNews);
+    logger.warn('Error in getAllNews, using fallback', { error: error.message });
+    try {
+      // Try database as fallback
+      return await handleDatabaseNewsRequest(req, res);
+    } catch (fallbackError) {
+      // Last resort: dummy data
+      const dummyNews = getDummyNewsFallback(req.query);
+      return sendSuccess(res, dummyNews, 'Using sample data due to service unavailability');
+    }
   }
 };
 

@@ -1,5 +1,6 @@
-const { Announcement } = require('../models');
+const { Announcement, User } = require('../models');
 const dummyDataService = require('./dummyDataService');
+const notificationService = require('./notificationService');
 
 const getAllAnnouncements = async (options = {}) => {
   const { page = 1, limit = 10, tags, scheduled, published } = options;
@@ -143,14 +144,11 @@ const deleteAnnouncement = async (id) => {
 // Helper function to notify all users about an announcement
 const notifyAllUsers = async (announcement) => {
   try {
-    // Get all active Sequelize users
-    const users = await SequelizeUser.findAll({
-      where: { isActive: true },
-      attributes: ['id']
-    });
+    // Get all active users
+    const users = await User.find({ isActive: true }).select('_id');
 
     if (users.length > 0) {
-      const userIds = users.map(u => u.id);
+      const userIds = users.map(u => u._id);
       await notificationService.notifyAnnouncement(
         userIds,
         announcement.title,

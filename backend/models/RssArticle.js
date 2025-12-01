@@ -16,14 +16,10 @@ const rssArticleSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  imageUrl: {
-    type: String,
-    trim: true
-  },
   category: {
     type: String,
     required: true,
-    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity'],
+    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity', 'HealthcareIT'],
     trim: true
   },
   publishedAt: {

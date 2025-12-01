@@ -21,16 +21,18 @@ const getOverview = async () => {
     totalUsers,
     activeSurveys,
     completedCourses,
-    totalPointsAwarded
+    pointsAggregation
   ] = await Promise.all([
-    Recognition.count(),
-    Survey.count(),
-    Course.count(),
-    User.count({ where: { isActive: true } }),
-    Survey.count({ where: { status: 'ACTIVE' } }),
-    UserCourse.count({ where: { status: 'COMPLETED' } }),
-    UserPoints.sum('totalPoints')
+    Recognition.countDocuments(),
+    SurveyModel.countDocuments(),
+    Course.countDocuments(),
+    User.countDocuments({ isActive: true }),
+    SurveyModel.countDocuments({ status: 'ACTIVE' }),
+    UserCourse.countDocuments({ status: 'COMPLETED' }),
+    UserPoints.aggregate([{ $group: { _id: null, total: { $sum: '$totalPoints' } } }])
   ]);
+
+  const totalPointsAwarded = pointsAggregation.length > 0 ? pointsAggregation[0].total : 0;
 
   return {
     recognitions: {
@@ -57,73 +59,68 @@ const getOverview = async () => {
  * Get engagement metrics by time range
  */
 const getEngagementMetrics = async (range = 'daily') => {
-  let dateFormat, groupBy;
+  let dateFormat;
   const now = new Date();
   let startDate;
 
   switch (range) {
     case 'daily':
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
-      dateFormat = 'YYYY-MM-DD';
-      groupBy = Sequelize.fn('DATE', Sequelize.col('createdAt'));
+      dateFormat = '%Y-%m-%d';
       break;
     case 'weekly':
       startDate = new Date(now.getTime() - 12 * 7 * 24 * 60 * 60 * 1000);
-      dateFormat = 'YYYY-"W"WW';
-      groupBy = Sequelize.fn('TO_CHAR', Sequelize.col('createdAt'), 'YYYY-"W"WW');
+      dateFormat = '%Y-W%V';
       break;
     case 'monthly':
       startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
-      dateFormat = 'YYYY-MM';
-      groupBy = Sequelize.fn('TO_CHAR', Sequelize.col('createdAt'), 'YYYY-MM');
+      dateFormat = '%Y-%m';
       break;
     default:
       startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      dateFormat = 'YYYY-MM-DD';
-      groupBy = Sequelize.fn('DATE', Sequelize.col('createdAt'));
+      dateFormat = '%Y-%m-%d';
   }
 
-  const where = {
-    createdAt: {
-      [Op.gte]: startDate
-    }
+  const matchStage = {
+    createdAt: { $gte: startDate }
   };
 
+  const groupStage = {
+    _id: { $dateToString: { format: dateFormat, date: '$createdAt' } },
+    count: { $sum: 1 }
+  };
+
+  const projectStage = {
+    date: '$_id',
+    count: 1,
+    _id: 0
+  };
+
+  const sortStage = { date: 1 };
+
   // Get recognitions over time
-  const recognitionData = await Recognition.findAll({
-    where,
-    attributes: [
-      [groupBy, 'date'],
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-    ],
-    group: ['date'],
-    order: [['date', 'ASC']],
-    raw: true
-  });
+  const recognitionData = await Recognition.aggregate([
+    { $match: matchStage },
+    { $group: groupStage },
+    { $project: projectStage },
+    { $sort: sortStage }
+  ]);
 
   // Get survey responses over time
-  const surveyResponseData = await SurveyResponse.findAll({
-    where,
-    attributes: [
-      [groupBy, 'date'],
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-    ],
-    group: ['date'],
-    order: [['date', 'ASC']],
-    raw: true
-  });
+  const surveyResponseData = await SurveyResponse.aggregate([
+    { $match: matchStage },
+    { $group: groupStage },
+    { $project: projectStage },
+    { $sort: sortStage }
+  ]);
 
   // Get course enrollments over time
-  const enrollmentData = await UserCourse.findAll({
-    where,
-    attributes: [
-      [groupBy, 'date'],
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-    ],
-    group: ['date'],
-    order: [['date', 'ASC']],
-    raw: true
-  });
+  const enrollmentData = await UserCourse.aggregate([
+    { $match: matchStage },
+    { $group: groupStage },
+    { $project: projectStage },
+    { $sort: sortStage }
+  ]);
 
   return {
     recognitions: recognitionData,
@@ -136,26 +133,29 @@ const getEngagementMetrics = async (range = 'daily') => {
  * Get survey analytics
  */
 const getSurveyAnalytics = async () => {
-  const surveys = await Survey.findAll({
-    include: [
-      {
-        model: SurveyResponse,
-        as: 'responses',
-        attributes: []
+  const surveys = await SurveyModel.aggregate([
+    {
+      $lookup: {
+        from: 'surveyresponses',
+        localField: '_id',
+        foreignField: 'surveyId',
+        as: 'responses'
       }
-    ],
-    attributes: [
-      'id',
-      'title',
-      'status',
-      [Sequelize.fn('COUNT', Sequelize.col('responses.id')), 'responseCount']
-    ],
-    group: ['Survey.id'],
-    order: [['createdAt', 'DESC']]
-  });
+    },
+    {
+      $project: {
+        id: '$_id',
+        title: 1,
+        status: 1,
+        responseCount: { $size: '$responses' },
+        createdAt: 1
+      }
+    },
+    { $sort: { createdAt: -1 } }
+  ]);
 
-  const totalResponses = await SurveyResponse.count();
-  const activeSurveys = await Survey.count({ where: { status: 'ACTIVE' } });
+  const totalResponses = await SurveyResponse.countDocuments();
+  const activeSurveys = await SurveyModel.countDocuments({ status: 'ACTIVE' });
 
   return {
     totalSurveys: surveys.length,
@@ -165,7 +165,7 @@ const getSurveyAnalytics = async () => {
       id: s.id,
       title: s.title,
       status: s.status,
-      responseCount: parseInt(s.dataValues.responseCount) || 0
+      responseCount: s.responseCount || 0
     }))
   };
 };
@@ -174,53 +174,79 @@ const getSurveyAnalytics = async () => {
  * Get recognition analytics
  */
 const getRecognitionAnalytics = async () => {
-  const totalRecognitions = await Recognition.count();
-  const totalPointsAwarded = await Recognition.sum('points') || 0;
+  const totalRecognitions = await Recognition.countDocuments();
+
+  const pointsAggregation = await Recognition.aggregate([
+    { $group: { _id: null, total: { $sum: '$points' } } }
+  ]);
+  const totalPointsAwarded = pointsAggregation.length > 0 ? pointsAggregation[0].total : 0;
 
   // Top receivers
-  const topReceivers = await Recognition.findAll({
-    attributes: [
-      'receiverId',
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count'],
-      [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints']
-    ],
-    group: ['receiverId'],
-    order: [[Sequelize.literal('count'), 'DESC']],
-    limit: 10,
-    include: [
-      {
-        model: User,
-        as: 'receiver',
-        attributes: ['id', 'name', 'email', 'avatar']
+  const topReceivers = await Recognition.aggregate([
+    {
+      $group: {
+        _id: '$receiverId',
+        count: { $sum: 1 },
+        totalPoints: { $sum: '$points' }
       }
-    ]
-  });
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'receiver'
+      }
+    },
+    { $unwind: '$receiver' },
+    {
+      $project: {
+        receiver: {
+          id: '$receiver._id',
+          name: '$receiver.name',
+          email: '$receiver.email',
+          avatar: '$receiver.avatar'
+        },
+        count: 1,
+        totalPoints: 1
+      }
+    }
+  ]);
 
   // Badge distribution
-  const badgeDistribution = await Recognition.findAll({
-    attributes: [
-      'badge',
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-    ],
-    where: {
-      badge: { [Op.ne]: null }
+  const badgeDistribution = await Recognition.aggregate([
+    {
+      $match: {
+        badge: { $ne: null }
+      }
     },
-    group: ['badge'],
-    order: [[Sequelize.literal('count'), 'DESC']]
-  });
+    {
+      $group: {
+        _id: '$badge',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    {
+      $project: {
+        badge: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
 
   return {
     totalRecognitions,
     totalPointsAwarded,
     topReceivers: topReceivers.map(r => ({
       user: r.receiver,
-      recognitionCount: parseInt(r.dataValues.count),
-      totalPoints: parseInt(r.dataValues.totalPoints) || 0
+      recognitionCount: r.count,
+      totalPoints: r.totalPoints || 0
     })),
-    badgeDistribution: badgeDistribution.map(b => ({
-      badge: b.badge,
-      count: parseInt(b.dataValues.count)
-    }))
+    badgeDistribution
   };
 };
 
@@ -228,7 +254,7 @@ const getRecognitionAnalytics = async () => {
  * Get blog engagement analytics
  */
 const getBlogAnalytics = async () => {
-  // This would need Blog model from Sequelize
+  // This would need Blog model
   // For now, return placeholder structure
   return {
     totalBlogs: 0,
@@ -246,26 +272,21 @@ const getMAU = async () => {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   // Count users who have logged in this month
-  const mau = await User.count({
-    where: {
-      lastLogin: {
-        [Op.gte]: startOfMonth
-      },
-      isActive: true
-    }
+  const mau = await User.countDocuments({
+    lastLogin: { $gte: startOfMonth },
+    isActive: true
   });
 
   // Get previous month for comparison
   const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+  const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-  const previousMAU = await User.count({
-    where: {
-      lastLogin: {
-        [Op.between]: [previousMonthStart, previousMonthEnd]
-      },
-      isActive: true
-    }
+  const previousMAU = await User.countDocuments({
+    lastLogin: {
+      $gte: previousMonthStart,
+      $lte: previousMonthEnd
+    },
+    isActive: true
   });
 
   return {

@@ -1,5 +1,6 @@
 const { Recognition, RewardCatalog, Redemption, UserPoints, User } = require('../models');
 const notificationService = require('./notificationService');
+const mongoose = require('mongoose');
 
 /**
  * Send a recognition and award points
@@ -22,20 +23,9 @@ const sendRecognition = async (recognitionData) => {
   }
 
   // Fetch with associations
-  const fullRecognition = await Recognition.findByPk(recognition.id, {
-    include: [
-      {
-        model: User,
-        as: 'sender',
-        attributes: ['id', 'name', 'email', 'avatar']
-      },
-      {
-        model: User,
-        as: 'receiver',
-        attributes: ['id', 'name', 'email', 'avatar']
-      }
-    ]
-  });
+  const fullRecognition = await Recognition.findById(recognition._id)
+    .populate('sender', 'id name email avatar')
+    .populate('receiver', 'id name email avatar');
 
   // Send notification to receiver
   try {
@@ -54,39 +44,30 @@ const sendRecognition = async (recognitionData) => {
  */
 const getRecognitionFeed = async (options = {}) => {
   const { page = 1, limit = 10, receiverId } = options;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  const where = {};
+  const query = {};
   if (receiverId) {
-    where.receiverId = receiverId;
+    query.receiverId = receiverId;
   }
 
-  const { count, rows } = await Recognition.findAndCountAll({
-    where,
-    include: [
-      {
-        model: User,
-        as: 'sender',
-        attributes: ['id', 'name', 'email', 'avatar']
-      },
-      {
-        model: User,
-        as: 'receiver',
-        attributes: ['id', 'name', 'email', 'avatar']
-      }
-    ],
-    order: [['createdAt', 'DESC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
-  });
+  const [recognitions, totalCount] = await Promise.all([
+    Recognition.find(query)
+      .populate('sender', 'id name email avatar')
+      .populate('receiver', 'id name email avatar')
+      .sort({ createdAt: -1 })
+      .skip(parseInt(skip))
+      .limit(parseInt(limit)),
+    Recognition.countDocuments(query)
+  ]);
 
   return {
-    recognitions: rows,
+    recognitions,
     pagination: {
-      total: count,
+      total: totalCount,
       page: parseInt(page),
       limit: parseInt(limit),
-      pages: Math.ceil(count / limit)
+      pages: Math.ceil(totalCount / limit)
     }
   };
 };
@@ -95,13 +76,15 @@ const getRecognitionFeed = async (options = {}) => {
  * Award points to a user
  */
 const awardPoints = async (userId, points) => {
-  const [userPoints, created] = await UserPoints.findOrCreate({
-    where: { userId },
-    defaults: { totalPoints: 0 }
-  });
+  const userPoints = await UserPoints.findOneAndUpdate(
+    { userId },
+    {
+      $inc: { totalPoints: points },
+      $setOnInsert: { userId }
+    },
+    { new: true, upsert: true }
+  );
 
-  userPoints.totalPoints += points;
-  await userPoints.save();
   return userPoints;
 };
 
@@ -109,9 +92,7 @@ const awardPoints = async (userId, points) => {
  * Get user's total points
  */
 const getUserPoints = async (userId) => {
-  const userPoints = await UserPoints.findOne({
-    where: { userId }
-  });
+  const userPoints = await UserPoints.findOne({ userId });
 
   return userPoints ? userPoints.totalPoints : 0;
 };
@@ -122,15 +103,12 @@ const getUserPoints = async (userId) => {
 const getRewardsCatalog = async (options = {}) => {
   const { isActive = true } = options;
 
-  const where = {};
+  const query = {};
   if (isActive !== undefined) {
-    where.isActive = isActive;
+    query.isActive = isActive;
   }
 
-  return await RewardCatalog.findAll({
-    where,
-    order: [['points', 'ASC']]
-  });
+  return await RewardCatalog.find(query).sort({ points: 1 });
 };
 
 /**
@@ -138,7 +116,7 @@ const getRewardsCatalog = async (options = {}) => {
  */
 const redeemReward = async (userId, rewardId) => {
   // Get reward details
-  const reward = await RewardCatalog.findByPk(rewardId);
+  const reward = await RewardCatalog.findById(rewardId);
   if (!reward) {
     throw new Error('Reward not found');
   }
@@ -162,26 +140,15 @@ const redeemReward = async (userId, rewardId) => {
 
   // Deduct points immediately (or wait for approval based on business logic)
   // For now, deducting immediately
-  const userPointsRecord = await UserPoints.findOne({ where: { userId } });
+  const userPointsRecord = await UserPoints.findOne({ userId });
   if (userPointsRecord) {
     userPointsRecord.totalPoints -= reward.points;
     await userPointsRecord.save();
   }
 
-  return await Redemption.findByPk(redemption.id, {
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      },
-      {
-        model: RewardCatalog,
-        as: 'reward',
-        attributes: ['id', 'title', 'description', 'points', 'image']
-      }
-    ]
-  });
+  return await Redemption.findById(redemption._id)
+    .populate('user', 'id name email')
+    .populate('reward', 'id title description points image');
 };
 
 /**
@@ -189,7 +156,6 @@ const redeemReward = async (userId, rewardId) => {
  */
 const getLeaderboard = async (options = {}) => {
   const { limit = 50, period = 'all-time' } = options;
-  const { Op } = require('sequelize');
 
   // Calculate date range based on period
   const now = new Date();
@@ -198,19 +164,11 @@ const getLeaderboard = async (options = {}) => {
   switch (period) {
     case 'monthly':
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      dateFilter = {
-        createdAt: {
-          [Op.gte]: monthStart
-        }
-      };
+      dateFilter = { createdAt: { $gte: monthStart } };
       break;
     case 'weekly':
       const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      dateFilter = {
-        createdAt: {
-          [Op.gte]: weekStart
-        }
-      };
+      dateFilter = { createdAt: { $gte: weekStart } };
       break;
     case 'all-time':
     default:
@@ -219,32 +177,45 @@ const getLeaderboard = async (options = {}) => {
   }
 
   // Get recognitions for the period
-  const recognitions = await Recognition.findAll({
-    where: dateFilter,
-    attributes: [
-      'receiverId',
-      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
-      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
-    ],
-    group: ['receiverId'],
-    order: [[require('sequelize').literal('totalPoints'), 'DESC']],
-    limit: parseInt(limit),
-    include: [
-      {
-        model: User,
-        as: 'receiver',
-        attributes: ['id', 'name', 'email', 'avatar']
+  const leaderboard = await Recognition.aggregate([
+    { $match: dateFilter },
+    {
+      $group: {
+        _id: '$receiverId',
+        count: { $sum: 1 },
+        totalPoints: { $sum: '$points' }
       }
-    ]
-  });
+    },
+    { $sort: { totalPoints: -1 } },
+    { $limit: parseInt(limit) },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        userId: '$_id',
+        user: {
+          id: '$user._id',
+          name: '$user.name',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        recognitionCount: '$count',
+        points: '$totalPoints',
+        period: { $literal: period }
+      }
+    }
+  ]);
 
-  return recognitions.map((entry, index) => ({
-    rank: index + 1,
-    userId: entry.receiverId,
-    user: entry.receiver,
-    recognitionCount: parseInt(entry.dataValues.count),
-    points: parseInt(entry.dataValues.totalPoints) || 0,
-    period
+  return leaderboard.map((entry, index) => ({
+    ...entry,
+    rank: index + 1
   }));
 };
 
@@ -252,8 +223,6 @@ const getLeaderboard = async (options = {}) => {
  * Get monthly recognition summary
  */
 const getMonthlyRecognitionSummary = async (year, month) => {
-  const { Op } = require('sequelize');
-
   // Default to current month if not specified
   const now = new Date();
   const targetYear = year || now.getFullYear();
@@ -264,69 +233,114 @@ const getMonthlyRecognitionSummary = async (year, month) => {
 
   const dateFilter = {
     createdAt: {
-      [Op.between]: [monthStart, monthEnd]
+      $gte: monthStart,
+      $lte: monthEnd
     }
   };
 
   // Total recognitions this month
-  const totalRecognitions = await Recognition.count({ where: dateFilter });
+  const totalRecognitions = await Recognition.countDocuments(dateFilter);
 
   // Total points awarded
-  const totalPointsAwarded = await Recognition.sum('points', { where: dateFilter }) || 0;
+  const pointsAggregation = await Recognition.aggregate([
+    { $match: dateFilter },
+    { $group: { _id: null, total: { $sum: '$points' } } }
+  ]);
+  const totalPointsAwarded = pointsAggregation.length > 0 ? pointsAggregation[0].total : 0;
 
   // Top givers
-  const topGivers = await Recognition.findAll({
-    where: dateFilter,
-    attributes: [
-      'senderId',
-      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
-      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
-    ],
-    group: ['senderId'],
-    order: [[require('sequelize').literal('count'), 'DESC']],
-    limit: 10,
-    include: [
-      {
-        model: User,
-        as: 'sender',
-        attributes: ['id', 'name', 'email', 'avatar']
+  const topGivers = await Recognition.aggregate([
+    { $match: dateFilter },
+    {
+      $group: {
+        _id: '$senderId',
+        count: { $sum: 1 },
+        totalPoints: { $sum: '$points' }
       }
-    ]
-  });
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          name: '$user.name',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        recognitionsGiven: '$count',
+        pointsAwarded: '$totalPoints'
+      }
+    }
+  ]);
 
   // Top receivers
-  const topReceivers = await Recognition.findAll({
-    where: dateFilter,
-    attributes: [
-      'receiverId',
-      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
-      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
-    ],
-    group: ['receiverId'],
-    order: [[require('sequelize').literal('totalPoints'), 'DESC']],
-    limit: 10,
-    include: [
-      {
-        model: User,
-        as: 'receiver',
-        attributes: ['id', 'name', 'email', 'avatar']
+  const topReceivers = await Recognition.aggregate([
+    { $match: dateFilter },
+    {
+      $group: {
+        _id: '$receiverId',
+        count: { $sum: 1 },
+        totalPoints: { $sum: '$points' }
       }
-    ]
-  });
+    },
+    { $sort: { totalPoints: -1 } },
+    { $limit: 10 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          name: '$user.name',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        recognitionsReceived: '$count',
+        pointsEarned: '$totalPoints'
+      }
+    }
+  ]);
 
   // Badge distribution
-  const badgeDistribution = await Recognition.findAll({
-    where: {
-      ...dateFilter,
-      badge: { [Op.ne]: null }
+  const badgeDistribution = await Recognition.aggregate([
+    {
+      $match: {
+        ...dateFilter,
+        badge: { $ne: null }
+      }
     },
-    attributes: [
-      'badge',
-      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count']
-    ],
-    group: ['badge'],
-    order: [[require('sequelize').literal('count'), 'DESC']]
-  });
+    {
+      $group: {
+        _id: '$badge',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    {
+      $project: {
+        badge: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
 
   return {
     period: {
@@ -339,20 +353,9 @@ const getMonthlyRecognitionSummary = async (year, month) => {
       totalPointsAwarded,
       averagePointsPerRecognition: totalRecognitions > 0 ? (totalPointsAwarded / totalRecognitions).toFixed(2) : 0
     },
-    topGivers: topGivers.map(g => ({
-      user: g.sender,
-      recognitionsGiven: parseInt(g.dataValues.count),
-      pointsAwarded: parseInt(g.dataValues.totalPoints) || 0
-    })),
-    topReceivers: topReceivers.map(r => ({
-      user: r.receiver,
-      recognitionsReceived: parseInt(r.dataValues.count),
-      pointsEarned: parseInt(r.dataValues.totalPoints) || 0
-    })),
-    badgeDistribution: badgeDistribution.map(b => ({
-      badge: b.badge,
-      count: parseInt(b.dataValues.count)
-    }))
+    topGivers,
+    topReceivers,
+    badgeDistribution
   };
 };
 
@@ -360,17 +363,9 @@ const getMonthlyRecognitionSummary = async (year, month) => {
  * Get user's redemption history
  */
 const getUserRedemptions = async (userId) => {
-  return await Redemption.findAll({
-    where: { userId },
-    include: [
-      {
-        model: RewardCatalog,
-        as: 'reward',
-        attributes: ['id', 'title', 'description', 'points', 'image']
-      }
-    ],
-    order: [['createdAt', 'DESC']]
-  });
+  return await Redemption.find({ userId })
+    .populate('reward', 'id title description points image')
+    .sort({ createdAt: -1 });
 };
 
 module.exports = {

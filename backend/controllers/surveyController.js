@@ -61,9 +61,15 @@ const updateSurvey = async (req, res, next) => {
  */
 const getSurveyList = async (req, res, next) => {
   try {
-    const { status, page, limit } = req.query;
+    const { status, active, page, limit } = req.query;
+
+    let queryStatus = status;
+    if (active === 'true') {
+      queryStatus = 'ACTIVE';
+    }
+
     const result = await surveyService.getSurveyList({
-      status,
+      status: queryStatus,
       page,
       limit
     });

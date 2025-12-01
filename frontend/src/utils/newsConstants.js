@@ -11,6 +11,7 @@ export const TECH_CATEGORIES = [
   { value: 'startups', label: 'Startups' },
   { value: 'business', label: 'Business Tech' },
   { value: 'science', label: 'Science & Research' },
+  { value: 'HealthcareIT', label: 'Healthcare IT' },
 ];
 
 export const DATE_RANGES = [

@@ -38,7 +38,7 @@ const updateReward = async (req, res, next) => {
     const { id } = req.params;
     const { title, description, points, image, isActive } = req.body;
 
-    const reward = await RewardCatalog.findByPk(id);
+    const reward = await RewardCatalog.findById(id);
     if (!reward) {
       return res.status(404).json({
         success: false,
@@ -70,7 +70,7 @@ const deleteReward = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const reward = await RewardCatalog.findByPk(id);
+    const reward = await RewardCatalog.findById(id);
     if (!reward) {
       return res.status(404).json({
         success: false,
@@ -78,7 +78,7 @@ const deleteReward = async (req, res, next) => {
       });
     }
 
-    await reward.destroy();
+    await RewardCatalog.findByIdAndDelete(id);
 
     res.json({
       success: true,
@@ -94,9 +94,7 @@ const deleteReward = async (req, res, next) => {
  */
 const getAllRewards = async (req, res, next) => {
   try {
-    const rewards = await RewardCatalog.findAll({
-      order: [['createdAt', 'DESC']]
-    });
+    const rewards = await RewardCatalog.find().sort({ createdAt: -1 });
 
     res.json({
       success: true,
@@ -114,41 +112,32 @@ const getAllRedemptions = async (req, res, next) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
 
-    const where = {};
+    const query = {};
     if (status) {
-      where.status = status.toUpperCase();
+      query.status = status.toUpperCase();
     }
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const { count, rows } = await Redemption.findAndCountAll({
-      where,
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email', 'avatar']
-        },
-        {
-          model: RewardCatalog,
-          as: 'reward',
-          attributes: ['id', 'title', 'description', 'points', 'image']
-        }
-      ],
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit),
-      offset
-    });
+    const [redemptions, totalCount] = await Promise.all([
+      Redemption.find(query)
+        .populate('user', 'id name email avatar')
+        .populate('reward', 'id title description points image')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      Redemption.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
       data: {
-        redemptions: rows,
+        redemptions,
         pagination: {
-          total: count,
+          total: totalCount,
           page: parseInt(page),
           limit: parseInt(limit),
-          pages: Math.ceil(count / parseInt(limit))
+          pages: Math.ceil(totalCount / parseInt(limit))
         }
       }
     });
@@ -164,7 +153,7 @@ const approveRedemption = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const redemption = await Redemption.findByPk(id);
+    const redemption = await Redemption.findById(id);
     if (!redemption) {
       return res.status(404).json({
         success: false,
@@ -182,20 +171,9 @@ const approveRedemption = async (req, res, next) => {
     redemption.status = 'APPROVED';
     await redemption.save();
 
-    const fullRedemption = await Redemption.findByPk(id, {
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: RewardCatalog,
-          as: 'reward',
-          attributes: ['id', 'title', 'points']
-        }
-      ]
-    });
+    const fullRedemption = await Redemption.findById(id)
+      .populate('user', 'id name email')
+      .populate('reward', 'id title points');
 
     res.json({
       success: true,
@@ -214,14 +192,7 @@ const rejectRedemption = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const redemption = await Redemption.findByPk(id, {
-      include: [
-        {
-          model: RewardCatalog,
-          as: 'reward'
-        }
-      ]
-    });
+    const redemption = await Redemption.findById(id).populate('reward');
 
     if (!redemption) {
       return res.status(404).json({
@@ -238,7 +209,7 @@ const rejectRedemption = async (req, res, next) => {
     }
 
     // Refund points to user
-    const userPoints = await UserPoints.findOne({ where: { userId: redemption.userId } });
+    const userPoints = await UserPoints.findOne({ userId: redemption.userId });
     if (userPoints) {
       userPoints.totalPoints += redemption.reward.points;
       await userPoints.save();
@@ -247,20 +218,9 @@ const rejectRedemption = async (req, res, next) => {
     redemption.status = 'REJECTED';
     await redemption.save();
 
-    const fullRedemption = await Redemption.findByPk(id, {
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: RewardCatalog,
-          as: 'reward',
-          attributes: ['id', 'title', 'points']
-        }
-      ]
-    });
+    const fullRedemption = await Redemption.findById(id)
+      .populate('user', 'id name email')
+      .populate('reward', 'id title points');
 
     res.json({
       success: true,

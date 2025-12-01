@@ -14,7 +14,8 @@ const mapCategoryToNewsData = (category) => {
     gadgets: 'technology',
     startups: 'business',
     business: 'business',
-    science: 'science'
+    science: 'science',
+    HealthcareIT: 'technology' // HealthcareIT maps to technology for NewsData.io
   };
   return categoryMap[category] || category;
 };
@@ -90,7 +91,7 @@ const isNewsDataRequest = (query) => {
   const { q, category } = query;
   const newsDataCategories = [
     'technology', 'ai', 'software', 'cybersecurity',
-    'gadgets', 'startups', 'business', 'science'
+    'gadgets', 'startups', 'business', 'science', 'HealthcareIT'
   ];
   return !!(q || (category && newsDataCategories.includes(category)));
 };

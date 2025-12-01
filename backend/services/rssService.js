@@ -142,23 +142,26 @@ const fetchAndStoreFeedArticles = async (feedId) => {
           continue; // Skip duplicates
         }
 
-        // Helper to extract image URL
-        const extractImageUrl = (item) => {
-          if (item.enclosure?.url) return item.enclosure.url;
-          if (item['media:content']?.$?.url) return item['media:content'].$.url;
-          if (item['media:thumbnail']?.$?.url) return item['media:thumbnail'].$.url;
-          if (item.content) {
-            const match = item.content.match(/<img[^>]+src="([^"]+)"/);
-            if (match) return match[1];
+        // Try to extract actual URL from Google News RSS items
+        let articleLink = item.link || '';
+        if (articleLink.includes('news.google.com/rss/articles')) {
+          // Try to extract URL from content
+          const content = item.content || item.contentSnippet || item.description || '';
+          const urlMatch = content.match(/https?:\/\/[^\s<>"']+/);
+          if (urlMatch && !urlMatch[0].includes('news.google.com') && !urlMatch[0].includes('workspace')) {
+            try {
+              new URL(urlMatch[0]); // Validate URL
+              articleLink = urlMatch[0];
+            } catch (e) {
+              // Keep original link if extraction fails
+            }
           }
-          return null;
-        };
+        }
 
         const article = await RssArticle.create({
           title: item.title || 'Untitled',
-          link: item.link || '',
+          link: articleLink,
           description: item.contentSnippet || item.content || item.description || '',
-          imageUrl: extractImageUrl(item),
           category: feed.category,
           publishedAt,
           feedId: feed._id
