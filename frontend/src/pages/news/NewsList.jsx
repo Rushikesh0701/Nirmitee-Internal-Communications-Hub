@@ -4,14 +4,14 @@ import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDow
 
 function NewsList() {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('technology');
+  const [category, setCategory] = useState('');
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
   const [nextPage, setNextPage] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  
+
   // Advanced filter states
   const [dateRange, setDateRange] = useState('all'); // all, today, week, month, year
   const [sortBy, setSortBy] = useState('relevance'); // relevance, date, popularity
@@ -23,6 +23,7 @@ function NewsList() {
   const [maxDate, setMaxDate] = useState('');
 
   const techCategories = [
+    { value: '', label: 'All Categories' },
     { value: 'technology', label: 'Technology' },
     { value: 'ai', label: 'AI & Machine Learning' },
     { value: 'software', label: 'Software Development' },
@@ -87,10 +88,10 @@ function NewsList() {
     if (dateRange === 'custom' && minDate && maxDate) {
       return { from: minDate, to: maxDate };
     }
-    
+
     const now = new Date();
     let from = null;
-    
+
     switch (dateRange) {
       case 'today':
         from = new Date(now.setHours(0, 0, 0, 0)).toISOString().split('T')[0];
@@ -107,33 +108,33 @@ function NewsList() {
       default:
         return null;
     }
-    
+
     return from ? { from } : null;
   };
 
   // Build enhanced search query
   const buildSearchQuery = () => {
     let searchQuery = query.trim();
-    
+
     // Handle exact phrase search
     if (exactPhrase && searchQuery && !searchQuery.startsWith('"') && !searchQuery.endsWith('"')) {
       searchQuery = `"${searchQuery}"`;
     }
-    
+
     // Handle search type
     if (searchType === 'title' && searchQuery) {
       searchQuery = `title:${searchQuery}`;
     } else if (searchType === 'content' && searchQuery) {
       searchQuery = `content:${searchQuery}`;
     }
-    
+
     return searchQuery;
   };
 
   // Fetch news with enhanced filters
   const fetchNews = async (isNewSearch = false) => {
     const currentQuery = buildSearchQuery();
-    
+
     if (!currentQuery && !category) {
       setError('Please enter a search term or select a category.');
       setLoading(false);
@@ -151,17 +152,17 @@ function NewsList() {
 
     try {
       const params = new URLSearchParams();
-      
+
       // Add search query
       if (currentQuery) {
         params.append('q', currentQuery);
       }
-      
+
       // Add category
       if (category) {
         params.append('category', category);
       }
-      
+
       // Add date range
       const dateParams = getDateRangeParams();
       if (dateParams?.from) {
@@ -170,27 +171,27 @@ function NewsList() {
       if (dateParams?.to) {
         params.append('to', dateParams.to);
       }
-      
+
       // Add language
       if (language && language !== 'en') {
         params.append('language', language);
       }
-      
+
       // Add source filter
       if (sourceFilter) {
         params.append('source', sourceFilter);
       }
-      
+
       // Add sort
       if (sortBy && sortBy !== 'relevance') {
         params.append('sort', sortBy);
       }
-      
+
       // Add pagination
       if (!isNewSearch && nextPage) {
         params.append('nextPage', nextPage);
       }
-      
+
       params.append('limit', '10');
 
       const response = await api.get(`/news?${params.toString()}`);
@@ -246,7 +247,7 @@ function NewsList() {
 
   // Initial load
   useEffect(() => {
-    if (category && !query.trim()) {
+    if (!query.trim()) {
       fetchNews(true);
     }
   }, []);
@@ -560,58 +561,74 @@ function NewsList() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {articles.map((article, index) => (
-              <div
-                key={article.article_id || article._id || `article-${index}`}
-                className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
-                onClick={() => {
-                  if (article.link || article.sourceUrl) {
-                    window.open(article.link || article.sourceUrl, '_blank', 'noopener,noreferrer');
-                  }
-                }}
-              >
-                {article.image_url && (
-                  <div className="relative w-full h-32 overflow-hidden bg-gray-100">
-                    <img
-                      src={article.image_url}
-                      alt={article.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-                <div className="p-3 flex flex-col flex-1">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
-                      {article.title}
-                    </h3>
-                    {article.pubDate && (
-                      <span className="text-xs text-gray-500">
-                        {new Date(article.pubDate).toLocaleDateString()}
+            {articles.map((article, index) => {
+              // Map fields to handle both RSS and internal news structure
+              const title = article.title;
+              const description = article.summary || article.content || article.description || '';
+              const imageUrl = article.imageUrl || article.image_url;
+              const date = article.publishedAt || article.pubDate || article.createdAt;
+              const link = article.sourceUrl || article.link;
+              const source = article.sourceType === 'rss' ? 'RSS Feed' : (article.source_name || 'Internal');
+              const isRss = article.sourceType === 'rss' || !!article.sourceUrl;
+
+              return (
+                <div
+                  key={article._id || article.article_id || `article-${index}`}
+                  className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
+                  onClick={() => {
+                    if (link) {
+                      window.open(link, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  {imageUrl && (
+                    <div className="relative w-full h-32 overflow-hidden bg-gray-100">
+                      <img
+                        src={imageUrl}
+                        alt={title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      {isRss && (
+                        <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-sm flex items-center gap-1">
+                          <Globe size={10} />
+                          RSS
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div className="p-3 flex flex-col flex-1">
+                    <div className="mb-2">
+                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
+                        {title}
+                      </h3>
+                      {date && (
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <Clock size={10} />
+                          {new Date(date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600 mb-3 line-clamp-2 flex-1">
+                      {description.replace(/<[^>]*>/g, '')}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                      <span className="text-xs text-gray-500 truncate flex-1 mr-2 flex items-center gap-1">
+                        <User size={12} />
+                        {source}
                       </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-600 mb-3 line-clamp-2 flex-1">
-                    {article.description || article.content || ''}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                    {article.source_name && (
-                      <span className="text-xs text-gray-500 truncate flex-1 mr-2">
-                        <User size={12} className="inline mr-1" />
-                        {article.source_name}
-                      </span>
-                    )}
-                    {article.category && (
-                      <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs whitespace-nowrap">
-                        {article.category}
-                      </span>
-                    )}
+                      {article.category && (
+                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs whitespace-nowrap">
+                          {article.category}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

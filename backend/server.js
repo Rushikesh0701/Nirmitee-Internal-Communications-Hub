@@ -7,9 +7,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
-const sequelize = require('./config/sequelize');
 const initializeData = require('./config/initializeData');
-const initializeSequelizeUsers = require('./config/initializeSequelizeUsers');
 const errorHandler = require('./middleware/errorHandler');
 const cron = require('node-cron');
 const { fetchRssFeeds } = require('./jobs/rssFeedFetcher');
@@ -32,6 +30,7 @@ const feedRoutes = require('./routes/feed');
 const recognitionRewardRoutes = require('./routes/recognitionRewards');
 const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
+const moderationRoutes = require('./routes/moderation');
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -124,6 +123,7 @@ app.use('/api/feed', feedRoutes);
 app.use('/api/recognitions', recognitionRewardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/moderation', moderationRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
@@ -131,25 +131,11 @@ app.use(errorHandler);
 // Database connection and server start
 const startServer = async () => {
   try {
+    // Connect to MongoDB
     await connectDB();
-    logger.info('MongoDB connected');
+    logger.info('MongoDB connected successfully');
 
-    try {
-      await sequelize.authenticate();
-      logger.info('Sequelize database connected');
-
-      if (process.env.NODE_ENV === 'development') {
-        await sequelize.sync({ alter: true });
-        logger.info('Sequelize models synchronized');
-      }
-
-      await initializeSequelizeUsers();
-    } catch (sequelizeError) {
-      logger.warn('Sequelize connection failed (continuing with MongoDB only)', {
-        error: sequelizeError.message
-      });
-    }
-
+    // Initialize roles and test users
     await initializeData();
 
     const apiKey = process.env.NEWSDATA_API_KEY;

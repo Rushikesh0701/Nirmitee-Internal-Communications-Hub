@@ -7,28 +7,26 @@ const courseSchema = new mongoose.Schema({
     trim: true
   },
   description: {
-    type: String
+    type: String,
+    required: true
   },
-  content: {
-    type: mongoose.Schema.Types.Mixed
+  difficulty: {
+    type: String,
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+    default: 'BEGINNER'
+  },
+  duration: {
+    type: Number,
+    required: true,
+    comment: 'Duration in minutes'
   },
   instructorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
   category: {
     type: String,
     trim: true
-  },
-  level: {
-    type: String,
-    enum: ['beginner', 'intermediate', 'advanced'],
-    default: 'beginner'
-  },
-  duration: {
-    type: Number,
-    comment: 'Duration in minutes'
   },
   thumbnail: {
     type: String
@@ -46,9 +44,18 @@ const courseSchema = new mongoose.Schema({
     default: 0,
     min: 0,
     max: 5
+  },
+  ratingCount: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
 });
+
+// Indexes
+courseSchema.index({ isPublished: 1, createdAt: -1 });
+courseSchema.index({ category: 1 });
+courseSchema.index({ difficulty: 1 });
 
 module.exports = mongoose.model('Course', courseSchema);

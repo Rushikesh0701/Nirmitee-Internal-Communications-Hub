@@ -31,6 +31,18 @@ const announcementSchema = new mongoose.Schema({
   },
   publishedAt: {
     type: Date
+  },
+  moderationStatus: {
+    type: String,
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+    default: 'APPROVED' // HR/Admin announcements auto-approved
+  },
+  moderatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  moderatedAt: {
+    type: Date
   }
 }, {
   timestamps: true

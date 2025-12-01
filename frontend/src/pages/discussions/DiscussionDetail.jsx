@@ -9,66 +9,62 @@ import { useAuthStore } from '../../store/authStore';
 // Defined outside to prevent recreation on every render
 const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState }) => {
   const commentId = comment._id || comment.id;
-  // Removed maxDepth limit - allow unlimited nesting
-  
+
   return (
-    <div className={`${depth > 0 ? 'ml-8 mt-4' : ''}`}>
-      <div className="border-l-4 border-purple-500 pl-4 py-2">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold text-gray-800">
+    <div className={`${depth > 0 ? 'ml-4 sm:ml-6 md:ml-8 mt-3 sm:mt-4' : ''}`}>
+      <div className="border-l-2 sm:border-l-4 border-purple-500 pl-3 sm:pl-4 py-2">
+        {/* Comment Header - Responsive */}
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-900 text-sm sm:text-base">
               {(() => {
                 const author = comment.authorId || comment.Author || comment.author;
                 if (author) {
                   if (typeof author === 'object') {
-                    // Author is populated object
                     if (author.firstName || author.lastName) {
                       return `${author.firstName || ''} ${author.lastName || ''}`.trim();
                     }
-                    if (author.displayName) {
-                      return author.displayName;
-                    }
-                    if (author.name) {
-                      return author.name;
-                    }
-                    if (author.email) {
-                      return author.email.split('@')[0];
-                    }
+                    if (author.displayName) return author.displayName;
+                    if (author.name) return author.name;
+                    if (author.email) return author.email.split('@')[0];
                   } else if (typeof author === 'string') {
                     return author;
                   }
                 }
-                // Fallback to email if available
                 if (comment.authorEmail) {
                   return comment.authorEmail.split('@')[0];
                 }
                 return 'Unknown User';
               })()}
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-xs sm:text-sm text-gray-500">
               {new Date(comment.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
-        <p className="text-gray-700 mb-3">
+
+        {/* Comment Content - Responsive */}
+        <p className="text-gray-700 mb-2 sm:mb-3 text-sm sm:text-base leading-relaxed">
           {comment.content}
         </p>
-        
+
+        {/* Reply Button - Responsive */}
         {isAuthenticated && user && (
-          <div className="mb-3">
+          <div className="mb-2 sm:mb-3">
             <button
               onClick={() => onToggleReply(commentId)}
-              className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+              className="text-xs sm:text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
               {isReplying ? 'Cancel' : 'Reply'}
             </button>
           </div>
         )}
-        
+
+        {/* Reply Form - Responsive */}
         {isReplying && isAuthenticated && user && (
-          <form 
+          <form
             onSubmit={(e) => onAddReply(commentId, e)}
-            className="mb-4"
+            className="mb-3 sm:mb-4"
           >
             <textarea
               key={`textarea-${commentId}`}
@@ -77,19 +73,23 @@ const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, 
               placeholder="Write a reply..."
               required
               rows="3"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm mb-2"
+              className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg 
+                         focus:outline-none focus:ring-2 focus:ring-purple-500 
+                         text-xs sm:text-sm mb-2 resize-none"
             />
             <div className="flex gap-2">
               <button
                 type="submit"
-                className="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                className="px-3 py-1.5 bg-purple-600 text-white rounded-lg 
+                           hover:bg-purple-700 transition-colors text-xs sm:text-sm"
               >
                 Post Reply
               </button>
               <button
                 type="button"
                 onClick={() => onToggleReply(commentId)}
-                className="px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                className="px-3 py-1.5 bg-gray-500 text-white rounded-lg 
+                           hover:bg-gray-600 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </button>
@@ -97,17 +97,17 @@ const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, 
           </form>
         )}
       </div>
-      
-      {/* Render nested replies */}
+
+      {/* Nested Replies - Responsive */}
       {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
         <div className="mt-2">
           {comment.replies.map((reply) => {
             const replyId = reply._id || reply.id;
             if (!replyId) return null;
             return (
-              <CommentItem 
-                key={`reply-${replyId}`} 
-                comment={reply} 
+              <CommentItem
+                key={`reply-${replyId}`}
+                comment={reply}
                 depth={depth + 1}
                 isReplying={showReplyForm[replyId]}
                 replyContent={replyContentState[replyId]}
@@ -129,24 +129,24 @@ const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, 
   // Return true if props are equal (skip re-render), false if different (re-render)
   const prevId = String(prevProps.comment._id || prevProps.comment.id);
   const nextId = String(nextProps.comment._id || nextProps.comment.id);
-  
+
   // If comment ID changed, re-render
   if (prevId !== nextId) return false;
-  
+
   // If depth changed, re-render
   if (prevProps.depth !== nextProps.depth) return false;
-  
+
   // If reply form state changed, re-render
   if (prevProps.isReplying !== nextProps.isReplying) return false;
-  
+
   // If reply content changed, re-render (this is important for typing)
   if (prevProps.replyContent !== nextProps.replyContent) return false;
-  
+
   // If handlers changed (shouldn't happen with useCallback), re-render
   if (prevProps.onReplyChange !== nextProps.onReplyChange) return false;
   if (prevProps.onToggleReply !== nextProps.onToggleReply) return false;
   if (prevProps.onAddReply !== nextProps.onAddReply) return false;
-  
+
   // All relevant props are equal, skip re-render
   return true;
 });
@@ -186,7 +186,7 @@ const DiscussionDetail = () => {
       setLoading(false);
       return;
     }
-    
+
     try {
       setLoading(true);
       const response = await discussionAPI.getById(id);
@@ -211,27 +211,27 @@ const DiscussionDetail = () => {
   // Organize comments into a tree structure
   const organizeComments = (comments) => {
     if (!comments || !Array.isArray(comments)) return [];
-    
+
     const commentMap = new Map();
     const rootComments = [];
-    
+
     // Helper function to get comment ID as string
     const getCommentId = (comment) => {
       if (!comment) return null;
       return String(comment._id || comment.id || comment);
     };
-    
+
     // Helper function to get parent ID
     const getParentId = (comment) => {
       if (!comment.parentCommentId) return null;
-      
+
       // Handle different formats
       if (typeof comment.parentCommentId === 'object') {
         return String(comment.parentCommentId._id || comment.parentCommentId.id || comment.parentCommentId);
       }
       return String(comment.parentCommentId);
     };
-    
+
     // First pass: create map of all comments with empty replies array
     comments.forEach(comment => {
       const commentId = getCommentId(comment);
@@ -239,25 +239,25 @@ const DiscussionDetail = () => {
         commentMap.set(commentId, { ...comment, replies: [] });
       }
     });
-    
+
     // Second pass: organize into tree
     comments.forEach(comment => {
       const commentId = getCommentId(comment);
       const parentId = getParentId(comment);
-      
+
       if (!commentId) return;
-      
+
       if (parentId && commentMap.has(parentId)) {
         // This is a reply - add to parent's replies array
         const parentComment = commentMap.get(parentId);
         const replyComment = commentMap.get(commentId);
-        
+
         // Check if reply already exists to avoid duplicates
         const replyExists = parentComment.replies.some(r => {
           const rId = getCommentId(r);
           return rId === commentId;
         });
-        
+
         if (!replyExists) {
           parentComment.replies.push(replyComment);
         }
@@ -269,7 +269,7 @@ const DiscussionDetail = () => {
         }
       }
     });
-    
+
     // Sort replies by creation date recursively
     const sortReplies = (comment) => {
       if (comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0) {
@@ -281,7 +281,7 @@ const DiscussionDetail = () => {
         comment.replies.forEach(sortReplies);
       }
     };
-    
+
     // Sort root comments and their replies
     rootComments.sort((a, b) => {
       const dateA = new Date(a.createdAt || 0);
@@ -289,14 +289,14 @@ const DiscussionDetail = () => {
       return dateA - dateB;
     });
     rootComments.forEach(sortReplies);
-    
+
     return rootComments;
   };
 
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-    
+
     try {
       const response = await discussionAPI.addComment(id, {
         content: commentContent,
@@ -304,7 +304,7 @@ const DiscussionDetail = () => {
       // API returns { success: true, data: comment }
       const apiResponse = response.data;
       const newComment = apiResponse.data || apiResponse;
-      
+
       setDiscussion({
         ...discussion,
         Comments: [...(discussion.Comments || []), newComment],
@@ -323,11 +323,11 @@ const DiscussionDetail = () => {
     e.preventDefault();
     const replyText = replyContent[parentCommentId];
     if (!replyText || !replyText.trim()) return;
-    
+
     try {
       // Ensure parentCommentId is a string
       const parentId = String(parentCommentId);
-      
+
       const response = await discussionAPI.addComment(id, {
         content: replyText.trim(),
         parentCommentId: parentId,
@@ -335,11 +335,11 @@ const DiscussionDetail = () => {
       // API returns { success: true, data: comment }
       const apiResponse = response.data;
       const newReply = apiResponse.data || apiResponse;
-      
+
       // Clear the reply form
       setReplyContent({ ...replyContent, [parentCommentId]: '' });
       setShowReplyForm({ ...showReplyForm, [parentCommentId]: false });
-      
+
       toast.success('Reply added!');
       // Refresh the discussion to get updated data with proper structure
       await fetchDiscussion();
@@ -393,7 +393,7 @@ const DiscussionDetail = () => {
 
   const getAuthorName = (author) => {
     if (!author) return 'Unknown User';
-    
+
     if (typeof author === 'object') {
       // Author is populated object
       if (author.firstName || author.lastName) {
@@ -417,56 +417,75 @@ const DiscussionDetail = () => {
   const authorName = getAuthorName(discussion.authorId || discussion.Author || discussion.author);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container-responsive animate-fade-in">
+      {/* Back Button - Compact */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={() => navigate('/discussions')}
-        className="mb-4 text-purple-600 hover:underline"
+        className="mb-3 sm:mb-4 text-purple-600 hover:text-purple-700 
+                   flex items-center gap-1 text-sm sm:text-base font-medium"
       >
-        ← Back to Discussions
+        <span>←</span> Back to Discussions
       </motion.button>
 
+      {/* Discussion Content - Responsive */}
       <motion.article
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-lg p-8 mb-6"
+        className="bg-white rounded-xl shadow-md p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 
+                   border border-gray-200"
       >
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        {/* Title - Responsive */}
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
           {discussion.title}
         </h1>
 
-        <div className="flex items-center space-x-4 mb-4 text-gray-600">
-          <span>👤 {authorName}</span>
-          <span>📅 {new Date(discussion.createdAt).toLocaleDateString()}</span>
+        {/* Meta Info - Responsive */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4 
+                        text-xs sm:text-sm text-gray-600">
+          <span className="flex items-center gap-1">
+            <span className="text-base">👤</span> {authorName}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="text-base">📅</span>
+            {new Date(discussion.createdAt).toLocaleDateString()}
+          </span>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {discussion.tags?.map((tag) => (
-            <span
-              key={tag}
-              className="px-3 py-1 bg-purple-100 text-purple-800 rounded"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        {/* Tags - Responsive */}
+        {discussion.tags && discussion.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+            {discussion.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 sm:px-3 py-1 bg-purple-50 text-purple-700 
+                           rounded-full text-xs sm:text-sm font-medium"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
 
-        <p className="text-gray-700 mb-6 whitespace-pre-wrap">
+        {/* Content - Responsive */}
+        <p className="text-sm sm:text-base text-gray-700 whitespace-pre-wrap leading-relaxed">
           {discussion.content}
         </p>
-
       </motion.article>
 
+      {/* Comments Section - Responsive */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-white rounded-lg shadow-lg p-8 mb-6"
+        className="bg-white rounded-xl shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200"
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        {/* Comments Header */}
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
           Comments ({discussion.Comments?.length || discussion.commentCount || 0})
         </h2>
 
+        {/* Add Comment Form - Responsive */}
         {isAuthenticated && user && (
           <form onSubmit={handleAddComment} className="mb-6">
             <textarea
@@ -475,24 +494,29 @@ const DiscussionDetail = () => {
               placeholder="Write your comment..."
               required
               rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg 
+                         focus:outline-none focus:ring-2 focus:ring-purple-500 
+                         text-sm sm:text-base mb-3 resize-none"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 
+                         text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 
+                         transition-all shadow-md hover:shadow-lg text-sm sm:text-base font-medium"
             >
               Post Comment
             </button>
           </form>
         )}
 
-        <div className="space-y-6">
+        {/* Comments List - Responsive */}
+        <div className="space-y-4 sm:space-y-6">
           {organizedComments.map((comment) => {
             const commentId = comment._id || comment.id;
             return (
-              <CommentItem 
-                key={commentId} 
-                comment={comment} 
+              <CommentItem
+                key={commentId}
+                comment={comment}
                 depth={0}
                 isReplying={showReplyForm[commentId]}
                 replyContent={replyContent[commentId]}
@@ -507,7 +531,12 @@ const DiscussionDetail = () => {
             );
           })}
           {(!discussion.Comments || discussion.Comments.length === 0) && (
-            <p className="text-gray-500 text-center py-8">No comments yet. Be the first to comment!</p>
+            <div className="text-center py-8 sm:py-12">
+              <div className="text-4xl sm:text-5xl mb-3">💬</div>
+              <p className="text-gray-500 text-sm sm:text-base">
+                No comments yet. Be the first to comment!
+              </p>
+            </div>
           )}
         </div>
       </motion.div>

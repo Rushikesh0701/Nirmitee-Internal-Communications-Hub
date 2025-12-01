@@ -115,8 +115,8 @@ const redeemReward = async (req, res, next) => {
  */
 const getLeaderboard = async (req, res, next) => {
   try {
-    const { limit } = req.query;
-    const leaderboard = await recognitionRewardService.getLeaderboard({ limit });
+    const { limit, period } = req.query; // period can be 'monthly', 'weekly', or 'all-time'
+    const leaderboard = await recognitionRewardService.getLeaderboard({ limit, period });
 
     res.json({
       success: true,
@@ -161,6 +161,26 @@ const getUserRedemptions = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /recognitions/summary/monthly
+ */
+const getMonthlyRecognitionSummary = async (req, res, next) => {
+  try {
+    const { year, month } = req.query; // month is 0-indexed (0 = January)
+    const targetYear = year ? parseInt(year) : undefined;
+    const targetMonth = month !== undefined ? parseInt(month) : undefined;
+
+    const summary = await recognitionRewardService.getMonthlyRecognitionSummary(targetYear, targetMonth);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   sendRecognition,
   getRecognitionFeed,
@@ -168,6 +188,6 @@ module.exports = {
   redeemReward,
   getLeaderboard,
   getUserPoints,
-  getUserRedemptions
+  getUserRedemptions,
+  getMonthlyRecognitionSummary
 };
-

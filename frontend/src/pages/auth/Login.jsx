@@ -3,12 +3,13 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { LogIn, Mail, Lock } from 'lucide-react'
+import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
 const Login = () => {
   const navigate = useNavigate()
   const { login, initialize, isAuthenticated } = useAuthStore()
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const {
     register,
     handleSubmit,
@@ -72,7 +73,7 @@ const Login = () => {
                 }
               })}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
-              placeholder="you@company.com"
+              placeholder="your.name@nirmitee.io"
             />
           </div>
           {errors.email && (
@@ -87,7 +88,7 @@ const Login = () => {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               {...register('password', { 
                 required: 'Password is required',
                 minLength: {
@@ -95,9 +96,17 @@ const Login = () => {
                   message: 'Password must be at least 6 characters'
                 }
               })}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+              className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
               placeholder="••••••••"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           {errors.password && (
             <p className="mt-1 text-sm text-red-600">

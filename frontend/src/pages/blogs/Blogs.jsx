@@ -8,12 +8,14 @@ import BlogCard from '../../components/blog/BlogCard';
 import { useQuery } from 'react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
+import { useBookmarks } from '../../hooks/useBookmarks';
 
 const Blogs = () => {
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { user, isAuthenticated } = useAuthStore();
+  const { bookmarks } = useBookmarks();
 
   const { data, isLoading, error } = useQuery(
     ['blogs', filter, categoryFilter],
@@ -63,7 +65,11 @@ const Blogs = () => {
     
     const matchesCategory = categoryFilter === 'all' || blog.category === categoryFilter;
     
-    return matchesSearch && matchesCategory;
+    // Filter by bookmarks if the bookmarked filter is selected
+    const blogId = (blog._id || blog.id)?.toString();
+    const matchesBookmark = filter !== 'bookmarked' || bookmarks.includes(blogId);
+    
+    return matchesSearch && matchesCategory && matchesBookmark;
   });
 
   // Skeleton loader component
@@ -131,11 +137,12 @@ const Blogs = () => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
-          title={filter === 'drafts' ? 'View your unpublished blog drafts' : filter === 'my-blogs' ? 'View all your blogs (published and drafts)' : 'View all published blogs'}
+          title={filter === 'drafts' ? 'View your unpublished blog drafts' : filter === 'my-blogs' ? 'View all your blogs (published and drafts)' : filter === 'bookmarked' ? 'View your bookmarked blogs' : 'View all published blogs'}
         >
           <option value="all">All Blogs (Published)</option>
           {isAuthenticated && user && <option value="my-blogs">My Blogs (All)</option>}
           {isAuthenticated && user && <option value="drafts">My Drafts (Unpublished)</option>}
+          <option value="bookmarked"> Bookmarked Blogs</option>
         </select>
         <select
           value={categoryFilter}
@@ -181,7 +188,9 @@ const Blogs = () => {
                     ? "You don't have any draft blogs. Create a blog without publishing it to see it here."
                     : filter === 'my-blogs'
                       ? "You haven't created any blogs yet. Click 'Create Blog' to get started!"
-                      : "Try adjusting your filters"}
+                      : filter === 'bookmarked'
+                        ? "You haven't bookmarked any blogs yet. Click the bookmark icon on any blog to save it here!"
+                        : "Try adjusting your filters"}
               </p>
             </div>
           )}

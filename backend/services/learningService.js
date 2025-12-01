@@ -1,5 +1,4 @@
-const { Course, Module, UserCourse, Certificate, Mentorship, User } = require('../models/sequelize/index');
-const { Op } = require('sequelize');
+const { Course, Module, UserCourse, Certificate, Mentorship, User } = require('../models');
 
 /**
  * Create a new course
@@ -135,7 +134,7 @@ const updateCourseProgress = async (userId, courseId, progressPercentage) => {
   });
 
   userCourse.progressPercentage = Math.min(100, Math.max(0, parseInt(progressPercentage)));
-  
+
   // Update status based on progress
   if (userCourse.progressPercentage === 100) {
     userCourse.status = 'COMPLETED';
@@ -330,7 +329,7 @@ const updateMentorshipStatus = async (mentorshipId, status, userId) => {
  * Get user's mentorships
  */
 const getUserMentorships = async (userId, role = 'mentee') => {
-  const where = role === 'mentor' 
+  const where = role === 'mentor'
     ? { mentorId: userId }
     : { menteeId: userId };
 

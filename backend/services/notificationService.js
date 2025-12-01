@@ -1,4 +1,4 @@
-const { Notification } = require('../models/sequelize/index');
+const { Notification } = require('../models');
 const dummyDataService = require('./dummyDataService');
 const logger = require('../utils/logger');
 
@@ -74,8 +74,8 @@ const getUserNotifications = async (userId, options = {}) => {
     };
   } catch (error) {
     // Database unavailable - return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       logger.warn('Database unavailable, using dummy notifications', { userId });
       return dummyDataService.getDummyNotifications(userId, options);
     }
@@ -102,8 +102,8 @@ const markAsRead = async (notificationId, userId) => {
     return notification;
   } catch (error) {
     // Database unavailable - return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       logger.warn('Database unavailable, using dummy mark as read', { notificationId });
       return { id: notificationId, isRead: true };
     }
@@ -124,8 +124,8 @@ const markAllAsRead = async (userId) => {
     return { success: true };
   } catch (error) {
     // Database unavailable - return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       logger.warn('Database unavailable, using dummy mark all as read', { userId });
       return { success: true };
     }
@@ -145,8 +145,8 @@ const getUnreadCount = async (userId) => {
     return { unreadCount: count };
   } catch (error) {
     // Database unavailable - return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       logger.warn('Database unavailable, using dummy unread count', { userId });
       return dummyDataService.getDummyUnreadCount(userId);
     }
@@ -161,7 +161,7 @@ const notifyMention = async (mentionedUserIds, postId, mentionedBy, postType) =>
   if (!mentionedUserIds || mentionedUserIds.length === 0) return;
 
   const content = `${mentionedBy} mentioned you in a ${postType}`;
-  
+
   await createBulkNotifications(mentionedUserIds, {
     type: 'MENTION',
     content,
@@ -174,7 +174,7 @@ const notifyMention = async (mentionedUserIds, postId, mentionedBy, postType) =>
  */
 const notifyRecognition = async (receiverId, senderName, points) => {
   const content = `${senderName} recognized you${points ? ` and awarded ${points} points` : ''}`;
-  
+
   await createNotification({
     userId: receiverId,
     type: 'RECOGNITION',
@@ -190,7 +190,7 @@ const notifyGroupPost = async (groupMemberIds, groupName, postId) => {
   if (!groupMemberIds || groupMemberIds.length === 0) return;
 
   const content = `New post in ${groupName}`;
-  
+
   await createBulkNotifications(groupMemberIds, {
     type: 'GROUP_POST',
     content,
@@ -205,7 +205,7 @@ const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
   if (!userIds || userIds.length === 0) return;
 
   const content = `New survey: ${surveyTitle}`;
-  
+
   await createBulkNotifications(userIds, {
     type: 'SURVEY_PUBLISHED',
     content,
@@ -220,7 +220,7 @@ const notifyAnnouncement = async (userIds, announcementTitle, announcementId) =>
   if (!userIds || userIds.length === 0) return;
 
   const content = `New announcement: ${announcementTitle}`;
-  
+
   await createBulkNotifications(userIds, {
     type: 'ANNOUNCEMENT',
     content,

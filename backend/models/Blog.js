@@ -50,7 +50,19 @@ const blogSchema = new mongoose.Schema({
   likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  moderationStatus: {
+    type: String,
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+    default: 'APPROVED' // Auto-approve by default, can be changed to PENDING for moderation
+  },
+  moderatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  moderatedAt: {
+    type: Date
+  }
 }, {
   timestamps: true
 });

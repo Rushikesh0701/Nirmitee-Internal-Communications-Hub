@@ -1,4 +1,4 @@
-// Export all models
+// Export all MongoDB models
 module.exports = {
   Role: require('./Role'),
   User: require('./User'),
@@ -10,12 +10,21 @@ module.exports = {
   Discussion: require('./Discussion'),
   DiscussionComment: require('./DiscussionComment'),
   Recognition: require('./Recognition'),
-  Survey: require('./Survey'),
+  SurveyModel: require('./SurveyModel'),
+  SurveyResponse: require('./SurveyResponse'),
   Course: require('./Course'),
+  Module: require('./Module'),
+  UserCourse: require('./UserCourse'),
+  Certificate: require('./Certificate'),
   Analytics: require('./Analytics'),
   Announcement: require('./Announcement'),
   Group: require('./Group'),
   GroupMember: require('./GroupMember'),
   GroupPost: require('./GroupPost'),
-  GroupComment: require('./GroupComment')
+  GroupComment: require('./GroupComment'),
+  UserPoints: require('./UserPoints'),
+  RewardCatalog: require('./RewardCatalog'),
+  Redemption: require('./Redemption'),
+  Mentorship: require('./Mentorship'),
+  Notification: require('./Notification')
 };

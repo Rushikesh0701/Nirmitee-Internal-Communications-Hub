@@ -48,42 +48,44 @@ const Layout = () => {
     { path: '/rss', icon: Rss, label: 'RSS Feeds' },
     ...(isAdminOrModerator
       ? [
-          { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-          { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' }
-        ]
+        { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+        { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' }
+      ]
       : [])
   ]
 
   return (
-    <div className="h-screen bg-gray-50 overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile header */}
-      <div className="lg:hidden bg-white shadow-sm border-b">
+      <div className="lg:hidden bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-30">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-primary-600">Nirmitee Hub</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      <div className="flex h-full lg:h-screen">
+      <div className="flex min-h-screen">
         {/* Sidebar - Fixed on all screen sizes */}
         <aside
-          className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300`}
+          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg 
+             transition-transform duration-300 ease-in-out`}
         >
           <div className="h-full flex flex-col">
-            <div className="p-6 border-b">
+            {/* Sidebar Header */}
+            <div className="p-6 border-b hidden lg:block">
               <h1 className="text-2xl font-bold text-primary-600">
                 Nirmitee Hub
               </h1>
               <p className="text-sm text-gray-500 mt-1">Internal Communications</p>
             </div>
 
+            {/* Navigation - Scrollable */}
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
               {navItems.map((item) => {
                 const Icon = item.icon
@@ -92,7 +94,8 @@ const Layout = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 
+                               hover:bg-primary-50 hover:text-primary-600 transition-colors"
                   >
                     <Icon size={20} />
                     <span>{item.label}</span>
@@ -101,17 +104,19 @@ const Layout = () => {
               })}
             </nav>
 
+            {/* User Profile Section */}
             <div className="p-4 border-t">
               <Link
                 to="/profile"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg 
+                           hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                   {user?.avatar ? (
-                    <img 
-                      src={user.avatar} 
-                      alt={user?.name || 'User'} 
+                    <img
+                      src={user.avatar}
+                      alt={user?.name || 'User'}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
@@ -130,7 +135,8 @@ const Layout = () => {
               <div className="space-y-2">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg 
+                             text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <LogOut size={18} />
                   <span>Logout</span>
@@ -148,12 +154,16 @@ const Layout = () => {
           />
         )}
 
-        {/* Main content - Scrollable */}
-        <main className="flex-1 lg:ml-64 h-full overflow-y-auto">
-          <div className="bg-white border-b px-4 lg:px-8 py-4 flex items-center justify-end sticky top-0 z-10">
+        {/* Main content - Fully Scrollable */}
+        <main className="flex-1 lg:ml-64 min-h-screen flex flex-col pt-16 lg:pt-0">
+          {/* Top bar with notification */}
+          <div className="bg-white border-b px-4 lg:px-8 py-4 flex items-center justify-end 
+                          sticky top-0 lg:top-0 z-20">
             <NotificationBell />
           </div>
-          <div className="p-4 lg:p-8">
+
+          {/* Page content - Scrollable */}
+          <div className="flex-1 p-4 lg:p-8">
             <Outlet />
           </div>
         </main>
@@ -163,4 +173,3 @@ const Layout = () => {
 }
 
 export default Layout
-

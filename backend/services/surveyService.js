@@ -1,57 +1,41 @@
-const { Survey, SurveyQuestion, SurveyResponse, User } = require('../models/sequelize/index');
-const { Op } = require('sequelize');
-const { Sequelize } = require('sequelize');
+const { SurveyModel, SurveyResponse, User } = require('../models');
+const mongoose = require('mongoose');
 
 /**
- * Create a new survey with questions
+ * Create a new survey with questions (MongoDB only)
  */
 const createSurvey = async (surveyData) => {
-  const { title, description, questions, createdBy } = surveyData;
+  const { title, description, questions, createdBy, startDate, endDate, isAnonymous } = surveyData;
 
-  const survey = await Survey.create({
+  const survey = await SurveyModel.create({
     title,
     description,
     createdBy,
-    status: 'ACTIVE'
+    status: 'ACTIVE',
+    questions: questions.map((q, index) => ({
+      questionText: q.questionText,
+      type: q.type,
+      options: q.options || [],
+      required: q.required || false,
+      orderIndex: index
+    })),
+    startDate,
+    endDate,
+    isAnonymous: isAnonymous !== undefined ? isAnonymous : true
   });
 
-  // Create questions
-  if (questions && questions.length > 0) {
-    const questionPromises = questions.map((q, index) =>
-      SurveyQuestion.create({
-        surveyId: survey.id,
-        type: q.type,
-        questionText: q.questionText,
-        options: q.options || null,
-        order: index
-      })
-    );
-    await Promise.all(questionPromises);
-  }
+  // Populate creator
+  await survey.populate('createdBy', 'firstName lastName email');
 
-  return await Survey.findByPk(survey.id, {
-    include: [
-      {
-        model: SurveyQuestion,
-        as: 'questions'
-      },
-      {
-        model: User,
-        as: 'creator',
-        attributes: ['id', 'name', 'email']
-      }
-    ],
-    order: [
-      [{ model: SurveyQuestion, as: 'questions' }, 'order', 'ASC']
-    ]
-  });
+  return survey;
 };
 
 /**
- * Update survey
+ * Update survey (MongoDB only)
  */
 const updateSurvey = async (surveyId, updateData) => {
-  const survey = await Survey.findByPk(surveyId);
+  const survey = await SurveyModel.findById(surveyId);
+
   if (!survey) {
     throw new Error('Survey not found');
   }
@@ -62,96 +46,62 @@ const updateSurvey = async (surveyId, updateData) => {
   if (description !== undefined) survey.description = description;
   if (status) survey.status = status;
 
-  await survey.save();
-
   // Update questions if provided
   if (questions) {
-    // Delete existing questions
-    await SurveyQuestion.destroy({ where: { surveyId } });
-
-    // Create new questions
-    const questionPromises = questions.map((q, index) =>
-      SurveyQuestion.create({
-        surveyId: survey.id,
-        type: q.type,
-        questionText: q.questionText,
-        options: q.options || null,
-        order: index
-      })
-    );
-    await Promise.all(questionPromises);
+    survey.questions = questions.map((q, index) => ({
+      questionText: q.questionText,
+      type: q.type,
+      options: q.options || [],
+      required: q.required || false,
+      orderIndex: index
+    }));
   }
 
-  return await Survey.findByPk(survey.id, {
-    include: [
-      {
-        model: SurveyQuestion,
-        as: 'questions'
-      }
-    ],
-    order: [
-      [{ model: SurveyQuestion, as: 'questions' }, 'order', 'ASC']
-    ]
-  });
+  await survey.save();
+  await survey.populate('createdBy', 'firstName lastName email');
+
+  return survey;
 };
 
 /**
- * Get survey list
+ * Get survey list (MongoDB only)
  */
 const getSurveyList = async (options = {}) => {
   const { status, page = 1, limit = 10 } = options;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  const where = {};
+  const query = {};
+
   if (status) {
-    where.status = status;
+    query.status = status;
   }
 
-  const { count, rows } = await Survey.findAndCountAll({
-    where,
-    include: [
-      {
-        model: User,
-        as: 'creator',
-        attributes: ['id', 'name', 'email']
-      }
-    ],
-    order: [['createdAt', 'DESC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
-  });
+  const total = await SurveyModel.countDocuments(query);
+
+  const surveys = await SurveyModel.find(query)
+    .populate('createdBy', 'firstName lastName email')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip(parseInt(skip))
+    .lean();
 
   return {
-    surveys: rows,
+    surveys,
     pagination: {
-      total: count,
+      total,
       page: parseInt(page),
       limit: parseInt(limit),
-      pages: Math.ceil(count / limit)
+      pages: Math.ceil(total / limit)
     }
   };
 };
 
 /**
- * Get survey by ID with questions
+ * Get survey by ID with questions (MongoDB only)
  */
 const getSurveyById = async (surveyId) => {
-  const survey = await Survey.findByPk(surveyId, {
-    include: [
-      {
-        model: SurveyQuestion,
-        as: 'questions'
-      },
-      {
-        model: User,
-        as: 'creator',
-        attributes: ['id', 'name', 'email']
-      }
-    ],
-    order: [
-      [{ model: SurveyQuestion, as: 'questions' }, 'order', 'ASC']
-    ]
-  });
+  const survey = await SurveyModel.findById(surveyId)
+    .populate('createdBy', 'firstName lastName email');
 
   if (!survey) {
     throw new Error('Survey not found');
@@ -161,11 +111,12 @@ const getSurveyById = async (surveyId) => {
 };
 
 /**
- * Submit survey response (anonymous)
+ * Submit survey response (anonymous - MongoDB only)
  */
 const submitSurveyResponse = async (surveyId, responses) => {
   // Verify survey exists and is active
-  const survey = await Survey.findByPk(surveyId);
+  const survey = await SurveyModel.findById(surveyId);
+
   if (!survey) {
     throw new Error('Survey not found');
   }
@@ -175,100 +126,84 @@ const submitSurveyResponse = async (surveyId, responses) => {
   }
 
   // Validate responses
-  const questions = await SurveyQuestion.findAll({
-    where: { surveyId }
-  });
-
-  if (responses.length !== questions.length) {
+  if (responses.length !== survey.questions.length) {
     throw new Error('All questions must be answered');
   }
 
-  // Create responses (no userId stored for anonymity)
-  const responsePromises = responses.map(response =>
-    SurveyResponse.create({
-      surveyId,
-      questionId: response.questionId,
-      responseValue: response.responseValue
-    })
-  );
+  // Create response document (anonymous - no userId)
+  const responseDoc = {
+    surveyId,
+    responses: responses.map(r => ({
+      questionId: r.questionId,
+      questionText: r.questionText,
+      questionType: r.questionType,
+      answer: r.answer,
+      selectedOption: r.selectedOption
+    })),
+    submittedAt: new Date()
+  };
 
-  await Promise.all(responsePromises);
+  await SurveyResponse.create(responseDoc);
+
+  // Increment response count
+  await SurveyModel.findByIdAndUpdate(surveyId, {
+    $inc: { responseCount: 1 }
+  });
 
   return { success: true, message: 'Response submitted successfully' };
 };
 
 /**
- * Get survey analytics
+ * Get survey analytics (MongoDB only)
  */
 const getSurveyAnalytics = async (surveyId) => {
-  const survey = await Survey.findByPk(surveyId, {
-    include: [
-      {
-        model: SurveyQuestion,
-        as: 'questions'
-      }
-    ],
-    order: [
-      [{ model: SurveyQuestion, as: 'questions' }, 'order', 'ASC']
-    ]
-  });
+  const survey = await SurveyModel.findById(surveyId);
 
   if (!survey) {
     throw new Error('Survey not found');
   }
 
+  // Get all responses for this survey
+  const responses = await SurveyResponse.find({ surveyId });
+
   const analytics = {
-    surveyId: survey.id,
+    surveyId: survey._id,
     title: survey.title,
-    totalResponses: 0,
+    totalResponses: responses.length,
     questions: []
   };
 
-  // Get total response count (count unique question responses per survey)
-  // Since responses are anonymous, we approximate by counting all responses
-  const totalResponses = await SurveyResponse.count({
-    where: { surveyId }
-  });
-
-  // Count unique responses by grouping (approximate)
-  const responseGroups = await SurveyResponse.findAll({
-    where: { surveyId },
-    attributes: [
-      'questionId',
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'responseCount']
-    ],
-    group: ['questionId']
-  });
-
-  const responseCountMap = {};
-  responseGroups.forEach(group => {
-    responseCountMap[group.questionId] = parseInt(group.dataValues.responseCount);
-  });
-
-  // Calculate analytics for each question
+  // Analyze each question
   for (const question of survey.questions) {
+    const questionId = question._id.toString();
+
     const questionAnalytics = {
-      questionId: question.id,
+      questionId: questionId,
       questionText: question.questionText,
       type: question.type,
-      responseCount: responseCountMap[question.id] || 0
+      responseCount: 0
     };
+
+    // Get all answers for this question
+    const answers = [];
+    responses.forEach(response => {
+      const answer = response.responses.find(
+        r => r.questionId.toString() === questionId
+      );
+      if (answer) {
+        answers.push(answer.answer);
+        questionAnalytics.responseCount++;
+      }
+    });
 
     if (question.type === 'RATING') {
       // Calculate average rating
-      const ratingResponses = await SurveyResponse.findAll({
-        where: {
-          surveyId,
-          questionId: question.id
-        },
-        attributes: ['responseValue']
-      });
+      const ratings = answers.filter(a => !isNaN(parseFloat(a))).map(a => parseFloat(a));
 
-      if (ratingResponses.length > 0) {
-        const ratings = ratingResponses.map(r => parseFloat(r.responseValue)).filter(r => !isNaN(r));
-        questionAnalytics.averageRating = ratings.length > 0
-          ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
-          : 0;
+      if (ratings.length > 0) {
+        questionAnalytics.averageRating = (
+          ratings.reduce((a, b) => a + b, 0) / ratings.length
+        ).toFixed(2);
         questionAnalytics.ratingDistribution = {
           min: Math.min(...ratings),
           max: Math.max(...ratings),
@@ -277,18 +212,10 @@ const getSurveyAnalytics = async (surveyId) => {
       }
     } else if (question.type === 'MCQ') {
       // Count responses per option
-      const mcqResponses = await SurveyResponse.findAll({
-        where: {
-          surveyId,
-          questionId: question.id
-        },
-        attributes: ['responseValue']
-      });
-
       const optionCounts = {};
-      mcqResponses.forEach(response => {
-        const option = response.responseValue;
-        optionCounts[option] = (optionCounts[option] || 0) + 1;
+
+      answers.forEach(answer => {
+        optionCounts[answer] = (optionCounts[answer] || 0) + 1;
       });
 
       questionAnalytics.optionDistribution = optionCounts;
@@ -296,16 +223,33 @@ const getSurveyAnalytics = async (surveyId) => {
     } else if (question.type === 'TEXT') {
       // For text responses, just count them
       questionAnalytics.textResponseCount = questionAnalytics.responseCount;
+      // Optionally include sample responses (first 5)
+      questionAnalytics.sampleResponses = answers.slice(0, 5);
     }
 
     analytics.questions.push(questionAnalytics);
   }
 
-  // Calculate total unique responses (approximate - use max question response count)
-  // Since responses are anonymous, we use the maximum response count across all questions
-  analytics.totalResponses = Math.max(...analytics.questions.map(q => q.responseCount), 0);
-
   return analytics;
+};
+
+/**
+ * Delete survey (MongoDB only)
+ */
+const deleteSurvey = async (surveyId) => {
+  const survey = await SurveyModel.findById(surveyId);
+
+  if (!survey) {
+    throw new Error('Survey not found');
+  }
+
+  // Delete all responses
+  await SurveyResponse.deleteMany({ surveyId });
+
+  // Delete survey
+  await SurveyModel.findByIdAndDelete(surveyId);
+
+  return { success: true, message: 'Survey deleted successfully' };
 };
 
 module.exports = {
@@ -314,5 +258,6 @@ module.exports = {
   getSurveyList,
   getSurveyById,
   submitSurveyResponse,
-  getSurveyAnalytics
+  getSurveyAnalytics,
+  deleteSurvey
 };

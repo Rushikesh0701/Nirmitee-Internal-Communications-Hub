@@ -58,15 +58,15 @@ const deleteFeed = async (id, user) => {
 // Article management
 const getArticlesByCategory = async (category, page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
-  
+
   const articles = await RssArticle.find({ category })
     .populate('feedId', 'feedUrl category')
     .sort({ publishedAt: -1 })
     .skip(skip)
     .limit(limit);
-  
+
   const total = await RssArticle.countDocuments({ category });
-  
+
   return {
     articles,
     pagination: {
@@ -81,15 +81,15 @@ const getArticlesByCategory = async (category, page = 1, limit = 20) => {
 const getAllArticles = async (categories = [], page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
   const query = categories.length > 0 ? { category: { $in: categories } } : {};
-  
+
   const articles = await RssArticle.find(query)
     .populate('feedId', 'feedUrl category')
     .sort({ publishedAt: -1 })
     .skip(skip)
     .limit(limit);
-  
+
   const total = await RssArticle.countDocuments(query);
-  
+
   return {
     articles,
     pagination: {
@@ -103,11 +103,11 @@ const getAllArticles = async (categories = [], page = 1, limit = 20) => {
 
 const getArticlesGroupedByCategory = async (categories = []) => {
   const query = categories.length > 0 ? { category: { $in: categories } } : {};
-  
+
   const articles = await RssArticle.find(query)
     .populate('feedId', 'feedUrl category')
     .sort({ publishedAt: -1 });
-  
+
   // Group by category
   const grouped = {};
   articles.forEach(article => {
@@ -116,7 +116,7 @@ const getArticlesGroupedByCategory = async (categories = []) => {
     }
     grouped[article.category].push(article);
   });
-  
+
   return grouped;
 };
 
@@ -130,37 +130,50 @@ const fetchAndStoreFeedArticles = async (feedId) => {
   try {
     const feedData = await parser.parseURL(feed.feedUrl);
     const articles = [];
-    
+
     for (const item of feedData.items || []) {
       try {
         // Parse published date
         const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
-        
+
         // Check if article already exists
         const existingArticle = await RssArticle.findOne({ link: item.link });
         if (existingArticle) {
           continue; // Skip duplicates
         }
-        
+
+        // Helper to extract image URL
+        const extractImageUrl = (item) => {
+          if (item.enclosure?.url) return item.enclosure.url;
+          if (item['media:content']?.$?.url) return item['media:content'].$.url;
+          if (item['media:thumbnail']?.$?.url) return item['media:thumbnail'].$.url;
+          if (item.content) {
+            const match = item.content.match(/<img[^>]+src="([^"]+)"/);
+            if (match) return match[1];
+          }
+          return null;
+        };
+
         const article = await RssArticle.create({
           title: item.title || 'Untitled',
           link: item.link || '',
           description: item.contentSnippet || item.content || item.description || '',
+          imageUrl: extractImageUrl(item),
           category: feed.category,
           publishedAt,
           feedId: feed._id
         });
-        
+
         articles.push(article);
       } catch (error) {
         logger.error('Error storing article from feed', { feedId, error: error.message });
         // Continue with next article
       }
     }
-    
+
     // Update last fetched time
     await RSSFeed.findByIdAndUpdate(feedId, { lastFetchedAt: new Date() });
-    
+
     return {
       feedId: feed._id,
       feedUrl: feed.feedUrl,
@@ -177,7 +190,7 @@ const fetchAndStoreFeedArticles = async (feedId) => {
 const fetchAllFeeds = async () => {
   const feeds = await RSSFeed.find({ isActive: true });
   const results = [];
-  
+
   for (const feed of feeds) {
     try {
       const result = await fetchAndStoreFeedArticles(feed._id);
@@ -191,7 +204,7 @@ const fetchAllFeeds = async () => {
       });
     }
   }
-  
+
   return results;
 };
 
@@ -210,25 +223,25 @@ const updateUserSubscriptions = async (userEmail, categories) => {
   if (!user) {
     throw new Error('User not found in MongoDB. Please ensure your account is properly synced.');
   }
-  
+
   // Validate categories
   const validCategories = ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity'];
   const invalidCategories = categories.filter(cat => !validCategories.includes(cat));
   if (invalidCategories.length > 0) {
     throw new Error(`Invalid categories: ${invalidCategories.join(', ')}`);
   }
-  
+
   // Validate minimum 3 categories
   if (categories.length < 3) {
     throw new Error('Each employee must subscribe to at least 3 RSS categories');
   }
-  
+
   // Remove duplicates
   const uniqueCategories = [...new Set(categories)];
-  
+
   user.rssSubscriptions = uniqueCategories;
   await user.save();
-  
+
   return user.rssSubscriptions;
 };
 
@@ -241,7 +254,7 @@ const fetchFeedItems = async (id) => {
 
   try {
     const feedData = await parser.parseURL(feed.feedUrl);
-    
+
     // Update last fetched time
     await RSSFeed.findByIdAndUpdate(id, { lastFetchedAt: new Date() });
 

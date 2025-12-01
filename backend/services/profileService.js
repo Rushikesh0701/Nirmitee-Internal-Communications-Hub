@@ -1,320 +1,184 @@
-const { User, UserPoints, Recognition } = require('../models/sequelize/index');
-const { Op, Sequelize } = require('sequelize');
+const { User, UserPoints, Recognition } = require('../models');
 const mongoose = require('mongoose');
-const { User: MongoUser } = require('../models');
 
 /**
- * Check if Sequelize/PostgreSQL is available
- */
-const isSequelizeAvailable = async () => {
-  try {
-    await User.sequelize.authenticate();
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-/**
- * Convert MongoDB ObjectId to Sequelize UUID by finding user by email
- * Returns the original ID if it's already a Sequelize UUID
- */
-const convertToSequelizeUserId = async (userId) => {
-  // If it's a MongoDB ObjectId (24 hex characters), convert it
-  if (mongoose.Types.ObjectId.isValid(userId) && userId.length === 24) {
-    try {
-      const mongoUser = await MongoUser.findById(userId);
-      if (mongoUser) {
-        // Check if Sequelize is available
-        const sequelizeAvailable = await isSequelizeAvailable();
-        if (!sequelizeAvailable) {
-          // If Sequelize not available, return MongoDB ID (will use MongoDB fallback)
-          return userId;
-        }
-        
-        // Find Sequelize user by email
-        const sequelizeUser = await User.findOne({ 
-          where: { email: mongoUser.email.toLowerCase() } 
-        });
-        if (sequelizeUser) {
-          return sequelizeUser.id;
-        } else {
-          // If Sequelize user doesn't exist, return MongoDB ID for fallback
-          return userId;
-        }
-      }
-    } catch (error) {
-      // If Sequelize connection error, return MongoDB ID for fallback
-      if (error.name === 'SequelizeConnectionError' || 
-          error.name === 'SequelizeConnectionRefusedError' ||
-          error.message?.includes('role') ||
-          error.message?.includes('does not exist')) {
-        console.warn('PostgreSQL not available, using MongoDB fallback:', error.message);
-        return userId;
-      }
-      console.warn('MongoDB lookup failed, trying Sequelize directly:', error.message);
-    }
-  }
-  // Return as-is if it's already a Sequelize UUID or if conversion failed
-  return userId;
-};
-
-/**
- * Get user profile by ID
- * Handles both Sequelize UUID and MongoDB ObjectId
- * Falls back to MongoDB user data if PostgreSQL is not available
+ * Get user profile by ID (MongoDB only)
  */
 const getProfileById = async (userId) => {
-  const sequelizeUserId = await convertToSequelizeUserId(userId);
-  const isMongoId = mongoose.Types.ObjectId.isValid(userId) && userId.length === 24;
-  
-  // Try Sequelize first if available
-  try {
-    const sequelizeAvailable = await isSequelizeAvailable();
-    
-    if (sequelizeAvailable && !isMongoId) {
-      // Try Sequelize user lookup
-      const user = await User.findByPk(sequelizeUserId, {
-        attributes: {
-          exclude: ['password']
-        },
-        include: [
-          {
-            model: UserPoints,
-            as: 'points',
-            attributes: ['totalPoints']
-          }
-        ]
-      });
+  const user = await User.findById(userId)
+    .populate('roleId', 'name description')
+    .select('-password');
 
-      if (user) {
-        // Get recognition badges
-        let badges = [];
-        try {
-          const recognitions = await Recognition.findAll({
-            where: { 
-              receiverId: sequelizeUserId,
-              badge: { [Op.ne]: null }
-            },
-            attributes: ['badge'],
-            raw: true
-          });
-          badges = [...new Set(recognitions.map(r => r.badge).filter(Boolean))];
-        } catch (error) {
-          console.warn('Could not fetch badges:', error.message);
-        }
+  if (!user) {
+    throw new Error('User not found');
+  }
 
-        return {
-          ...user.toJSON(),
-          badges,
-          points: user.points ? user.points.totalPoints : 0
-        };
-      }
-    }
-  } catch (error) {
-    // If Sequelize fails, fall back to MongoDB
-    if (error.name === 'SequelizeConnectionError' || 
-        error.name === 'SequelizeConnectionRefusedError' ||
-        error.message?.includes('role') ||
-        error.message?.includes('does not exist')) {
-      console.warn('PostgreSQL not available, using MongoDB fallback');
-    } else {
-      throw error;
-    }
-  }
-  
-  // Fallback to MongoDB user data
-  if (isMongoId) {
-    const mongoUser = await MongoUser.findById(userId).populate('roleId', 'name description');
-    if (!mongoUser) {
-      throw new Error('User not found');
-    }
-    
-    // Map MongoDB user to profile format
-    return {
-      _id: mongoUser._id,
-      id: mongoUser._id.toString(),
-      name: mongoUser.displayName || `${mongoUser.firstName} ${mongoUser.lastName}`,
-      email: mongoUser.email,
-      avatar: mongoUser.avatar,
-      department: mongoUser.department,
-      designation: mongoUser.position,
-      bio: null, // MongoDB schema doesn't have bio field
-      badges: [],
-      points: 0,
-      role: mongoUser.roleId?.name || 'Employee',
-      isActive: mongoUser.isActive
-    };
-  }
-  
-  throw new Error('User not found');
+  // Get user points
+  const userPoints = await UserPoints.findOne({ userId: user._id });
+
+  // Get recognition badges
+  const recognitions = await Recognition.find({
+    receiverId: user._id,
+    badge: { $ne: null }
+  }).select('badge');
+
+  const badges = [...new Set(recognitions.map(r => r.badge).filter(Boolean))];
+
+  return {
+    _id: user._id,
+    id: user._id.toString(),
+    name: user.displayName || `${user.firstName} ${user.lastName}`,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    avatar: user.avatar,
+    department: user.department,
+    designation: user.position,
+    bio: user.bio,
+    badges,
+    points: userPoints ? userPoints.totalPoints : 0,
+    role: user.roleId?.name || 'Employee',
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
 };
 
 /**
- * Update user profile
- * Handles both Sequelize and MongoDB users
+ * Update user profile (MongoDB only)
  */
 const updateProfile = async (userId, updateData) => {
-  const isMongoId = mongoose.Types.ObjectId.isValid(userId) && userId.length === 24;
-  
-  // Try Sequelize first if available
-  try {
-    const sequelizeAvailable = await isSequelizeAvailable();
-    
-    if (sequelizeAvailable) {
-      let sequelizeUserId;
-      try {
-        sequelizeUserId = await convertToSequelizeUserId(userId);
-      } catch (convertError) {
-        // If conversion fails (e.g., Sequelize user doesn't exist), fall through to MongoDB
-        console.warn('Could not convert to Sequelize user, using MongoDB:', convertError.message);
-        sequelizeUserId = userId;
-      }
-      
-      // Only try Sequelize if we got a valid UUID back (not MongoDB ID)
-      if (!isMongoId || sequelizeUserId !== userId) {
-        const user = await User.findByPk(sequelizeUserId);
-        if (user) {
-          const { designation, department, bio, interests, avatar } = updateData;
+  const user = await User.findById(userId);
 
-          if (designation !== undefined) user.designation = designation;
-          if (department !== undefined) user.department = department;
-          if (bio !== undefined) user.bio = bio;
-          if (interests !== undefined) user.interests = interests;
-          if (avatar !== undefined) user.avatar = avatar;
+  if (!user) {
+    throw new Error('User not found');
+  }
 
-          await user.save();
-          return user.toSafeObject ? user.toSafeObject() : user.toJSON();
-        }
-      }
-    }
-  } catch (error) {
-    // If Sequelize fails, fall back to MongoDB
-    if (error.name === 'SequelizeConnectionError' || 
-        error.name === 'SequelizeConnectionRefusedError' ||
-        error.message?.includes('role') ||
-        error.message?.includes('does not exist')) {
-      console.warn('PostgreSQL not available, using MongoDB fallback for update');
-    } else if (error.message !== 'User not found' && !isMongoId) {
-      // Re-throw if it's not a connection error and not a MongoDB ID (which we can fall back to)
-      throw error;
-    }
-  }
-  
-  // Fallback to MongoDB user update
-  if (isMongoId) {
-    const mongoUser = await MongoUser.findById(userId);
-    if (!mongoUser) {
-      throw new Error('User not found');
-    }
-    
-    const { designation, department, bio, interests, avatar } = updateData;
-    
-    // Map Sequelize fields to MongoDB fields
-    if (designation !== undefined) mongoUser.position = designation;
-    if (department !== undefined) mongoUser.department = department;
-    if (avatar !== undefined) mongoUser.avatar = avatar;
-    // Note: MongoDB schema doesn't have bio or interests fields
-    
-    await mongoUser.save();
-    
-    // Return updated user in profile format
-    return {
-      _id: mongoUser._id,
-      id: mongoUser._id.toString(),
-      name: mongoUser.displayName || `${mongoUser.firstName} ${mongoUser.lastName}`,
-      email: mongoUser.email,
-      avatar: mongoUser.avatar,
-      department: mongoUser.department,
-      designation: mongoUser.position,
-      bio: null,
-      badges: [],
-      points: 0,
-      role: mongoUser.roleId?.name || 'Employee',
-      isActive: mongoUser.isActive
-    };
-  }
-  
-  throw new Error('User not found');
+  const { designation, department, bio, interests, avatar } = updateData;
+
+  if (designation !== undefined) user.position = designation;
+  if (department !== undefined) user.department = department;
+  if (bio !== undefined) user.bio = bio;
+  if (avatar !== undefined) user.avatar = avatar;
+
+  await user.save();
+
+  return {
+    _id: user._id,
+    id: user._id.toString(),
+    name: user.displayName || `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    avatar: user.avatar,
+    department: user.department,
+    designation: user.position,
+    bio: user.bio,
+    role: user.roleId?.name || 'Employee',
+    isActive: user.isActive
+  };
 };
 
 /**
- * Search employee directory
+ * Search employee directory (MongoDB only)
  */
 const searchDirectory = async (options = {}) => {
   const { search, department, page = 1, limit = 20 } = options;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  const where = {
+  const query = {
     isActive: true
   };
 
+  // Build search query
   if (search) {
-    where[Op.or] = [
-      { name: { [Op.iLike]: `%${search}%` } },
-      { email: { [Op.iLike]: `%${search}%` } },
-      { designation: { [Op.iLike]: `%${search}%` } },
-      { department: { [Op.iLike]: `%${search}%` } }
+    query.$or = [
+      { firstName: { $regex: search, $options: 'i' } },
+      { lastName: { $regex: search, $options: 'i' } },
+      { displayName: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+      { position: { $regex: search, $options: 'i' } },
+      { department: { $regex: search, $options: 'i' } }
     ];
   }
 
   if (department) {
-    where.department = department;
+    query.department = department;
   }
 
-  const { count, rows } = await User.findAndCountAll({
-    where,
-    attributes: {
-      exclude: ['password']
-    },
-    include: [
-      {
-        model: UserPoints,
-        as: 'points',
-        attributes: ['totalPoints']
-      }
-    ],
-    order: [['name', 'ASC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
+  // Get total count
+  const total = await User.countDocuments(query);
+
+  // Get users with pagination
+  const users = await User.find(query)
+    .select('-password')
+    .populate('roleId', 'name')
+    .sort({ firstName: 1, lastName: 1 })
+    .limit(parseInt(limit))
+    .skip(parseInt(skip))
+    .lean();
+
+  // Get points for all users
+  const userIds = users.map(u => u._id);
+  const points = await UserPoints.find({ userId: { $in: userIds } });
+  const pointsMap = {};
+  points.forEach(p => {
+    pointsMap[p.userId.toString()] = p.totalPoints;
   });
 
+  // Map users with points
+  const usersWithPoints = users.map(user => ({
+    _id: user._id,
+    id: user._id.toString(),
+    name: user.displayName || `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    avatar: user.avatar,
+    department: user.department,
+    designation: user.position,
+    role: user.roleId?.name || 'Employee',
+    points: pointsMap[user._id.toString()] || 0,
+    isActive: user.isActive
+  }));
+
   return {
-    users: rows.map(user => ({
-      ...user.toJSON(),
-      points: user.points ? user.points.totalPoints : 0
-    })),
+    users: usersWithPoints,
     pagination: {
-      total: count,
+      total,
       page: parseInt(page),
       limit: parseInt(limit),
-      pages: Math.ceil(count / limit)
+      pages: Math.ceil(total / limit)
     }
   };
 };
 
 /**
- * Get user's recognition badges
+ * Get user's recognition badges (MongoDB only)
  */
 const getUserBadges = async (userId) => {
-  const sequelizeUserId = await convertToSequelizeUserId(userId);
-  const recognitions = await Recognition.findAll({
-    where: { 
-      receiverId: sequelizeUserId,
-      badge: { [Op.ne]: null }
+  const recognitions = await Recognition.aggregate([
+    {
+      $match: {
+        receiverId: new mongoose.Types.ObjectId(userId),
+        badge: { $ne: null }
+      }
     },
-    attributes: [
-      'badge',
-      [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-    ],
-    group: ['badge'],
-    order: [[Sequelize.literal('count'), 'DESC']]
-  });
+    {
+      $group: {
+        _id: '$badge',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $project: {
+        _id: 0,
+        badge: '$_id',
+        count: 1
+      }
+    }
+  ]);
 
-  return recognitions.map(r => ({
-    badge: r.badge,
-    count: parseInt(r.dataValues.count)
-  }));
+  return recognitions;
 };
 
 module.exports = {
@@ -323,4 +187,3 @@ module.exports = {
   searchDirectory,
   getUserBadges
 };
-

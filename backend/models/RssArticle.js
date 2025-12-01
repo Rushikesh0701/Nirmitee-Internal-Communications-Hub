@@ -16,6 +16,10 @@ const rssArticleSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  imageUrl: {
+    type: String,
+    trim: true
+  },
   category: {
     type: String,
     required: true,

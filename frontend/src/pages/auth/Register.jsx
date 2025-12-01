@@ -3,12 +3,14 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { UserPlus } from 'lucide-react'
+import { UserPlus, Eye, EyeOff } from 'lucide-react'
 
 const Register = () => {
   const navigate = useNavigate()
   const { register: registerUser, login } = useAuthStore()
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const {
     register,
     handleSubmit,
@@ -118,17 +120,27 @@ const Register = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Password
           </label>
-          <input
-            type="password"
-            {...register('password', {
-              required: 'Password is required',
-              minLength: {
-                value: 6,
-                message: 'Password must be at least 6 characters'
-              }
-            })}
-            className="input"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              })}
+              className="input pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {errors.password && (
             <p className="mt-1 text-sm text-red-600">
               {errors.password.message}
@@ -140,15 +152,25 @@ const Register = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Confirm Password
           </label>
-          <input
-            type="password"
-            {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) =>
-                value === password || 'Passwords do not match'
-            })}
-            className="input"
-          />
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              {...register('confirmPassword', {
+                required: 'Please confirm your password',
+                validate: (value) =>
+                  value === password || 'Passwords do not match'
+              })}
+              className="input pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="mt-1 text-sm text-red-600">
               {errors.confirmPassword.message}

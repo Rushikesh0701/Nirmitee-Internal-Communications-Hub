@@ -1,5 +1,4 @@
-const { Recognition, RewardCatalog, Redemption, UserPoints, User } = require('../models/sequelize/index');
-const { Op } = require('sequelize');
+const { Recognition, RewardCatalog, Redemption, UserPoints, User } = require('../models');
 const notificationService = require('./notificationService');
 
 /**
@@ -122,7 +121,7 @@ const getUserPoints = async (userId) => {
  */
 const getRewardsCatalog = async (options = {}) => {
   const { isActive = true } = options;
-  
+
   const where = {};
   if (isActive !== undefined) {
     where.isActive = isActive;
@@ -186,29 +185,175 @@ const redeemReward = async (userId, rewardId) => {
 };
 
 /**
- * Get leaderboard
+ * Get leaderboard with time period filter
  */
 const getLeaderboard = async (options = {}) => {
-  const { limit = 50 } = options;
+  const { limit = 50, period = 'all-time' } = options;
+  const { Op } = require('sequelize');
 
-  const leaderboard = await UserPoints.findAll({
+  // Calculate date range based on period
+  const now = new Date();
+  let dateFilter = {};
+
+  switch (period) {
+    case 'monthly':
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      dateFilter = {
+        createdAt: {
+          [Op.gte]: monthStart
+        }
+      };
+      break;
+    case 'weekly':
+      const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      dateFilter = {
+        createdAt: {
+          [Op.gte]: weekStart
+        }
+      };
+      break;
+    case 'all-time':
+    default:
+      // No filter for all-time
+      break;
+  }
+
+  // Get recognitions for the period
+  const recognitions = await Recognition.findAll({
+    where: dateFilter,
+    attributes: [
+      'receiverId',
+      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
+      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
+    ],
+    group: ['receiverId'],
+    order: [[require('sequelize').literal('totalPoints'), 'DESC']],
+    limit: parseInt(limit),
     include: [
       {
         model: User,
-        as: 'user',
+        as: 'receiver',
         attributes: ['id', 'name', 'email', 'avatar']
       }
-    ],
-    order: [['totalPoints', 'DESC']],
-    limit: parseInt(limit)
+    ]
   });
 
-  return leaderboard.map((entry, index) => ({
+  return recognitions.map((entry, index) => ({
     rank: index + 1,
-    userId: entry.userId,
-    user: entry.user,
-    points: entry.totalPoints
+    userId: entry.receiverId,
+    user: entry.receiver,
+    recognitionCount: parseInt(entry.dataValues.count),
+    points: parseInt(entry.dataValues.totalPoints) || 0,
+    period
   }));
+};
+
+/**
+ * Get monthly recognition summary
+ */
+const getMonthlyRecognitionSummary = async (year, month) => {
+  const { Op } = require('sequelize');
+
+  // Default to current month if not specified
+  const now = new Date();
+  const targetYear = year || now.getFullYear();
+  const targetMonth = month !== undefined ? month : now.getMonth();
+
+  const monthStart = new Date(targetYear, targetMonth, 1);
+  const monthEnd = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59);
+
+  const dateFilter = {
+    createdAt: {
+      [Op.between]: [monthStart, monthEnd]
+    }
+  };
+
+  // Total recognitions this month
+  const totalRecognitions = await Recognition.count({ where: dateFilter });
+
+  // Total points awarded
+  const totalPointsAwarded = await Recognition.sum('points', { where: dateFilter }) || 0;
+
+  // Top givers
+  const topGivers = await Recognition.findAll({
+    where: dateFilter,
+    attributes: [
+      'senderId',
+      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
+      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
+    ],
+    group: ['senderId'],
+    order: [[require('sequelize').literal('count'), 'DESC']],
+    limit: 10,
+    include: [
+      {
+        model: User,
+        as: 'sender',
+        attributes: ['id', 'name', 'email', 'avatar']
+      }
+    ]
+  });
+
+  // Top receivers
+  const topReceivers = await Recognition.findAll({
+    where: dateFilter,
+    attributes: [
+      'receiverId',
+      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count'],
+      [require('sequelize').fn('SUM', require('sequelize').col('points')), 'totalPoints']
+    ],
+    group: ['receiverId'],
+    order: [[require('sequelize').literal('totalPoints'), 'DESC']],
+    limit: 10,
+    include: [
+      {
+        model: User,
+        as: 'receiver',
+        attributes: ['id', 'name', 'email', 'avatar']
+      }
+    ]
+  });
+
+  // Badge distribution
+  const badgeDistribution = await Recognition.findAll({
+    where: {
+      ...dateFilter,
+      badge: { [Op.ne]: null }
+    },
+    attributes: [
+      'badge',
+      [require('sequelize').fn('COUNT', require('sequelize').col('id')), 'count']
+    ],
+    group: ['badge'],
+    order: [[require('sequelize').literal('count'), 'DESC']]
+  });
+
+  return {
+    period: {
+      year: targetYear,
+      month: targetMonth + 1, // 1-indexed for display
+      monthName: new Date(targetYear, targetMonth).toLocaleString('default', { month: 'long' })
+    },
+    summary: {
+      totalRecognitions,
+      totalPointsAwarded,
+      averagePointsPerRecognition: totalRecognitions > 0 ? (totalPointsAwarded / totalRecognitions).toFixed(2) : 0
+    },
+    topGivers: topGivers.map(g => ({
+      user: g.sender,
+      recognitionsGiven: parseInt(g.dataValues.count),
+      pointsAwarded: parseInt(g.dataValues.totalPoints) || 0
+    })),
+    topReceivers: topReceivers.map(r => ({
+      user: r.receiver,
+      recognitionsReceived: parseInt(r.dataValues.count),
+      pointsEarned: parseInt(r.dataValues.totalPoints) || 0
+    })),
+    badgeDistribution: badgeDistribution.map(b => ({
+      badge: b.badge,
+      count: parseInt(b.dataValues.count)
+    }))
+  };
 };
 
 /**
@@ -236,6 +381,6 @@ module.exports = {
   getRewardsCatalog,
   redeemReward,
   getLeaderboard,
-  getUserRedemptions
+  getUserRedemptions,
+  getMonthlyRecognitionSummary
 };
-

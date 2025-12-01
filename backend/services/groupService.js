@@ -1,6 +1,5 @@
 const { Group, GroupMember, GroupPost, GroupComment, User } = require('../models');
 const notificationService = require('./notificationService');
-const { User: SequelizeUser } = require('../models/sequelize');
 const { getSequelizeUserIdSafe } = require('../utils/userMappingHelper');
 
 /**
@@ -18,7 +17,7 @@ const extractMentions = (text) => {
  */
 const findMentionedUsers = async (mentions) => {
   if (!mentions || mentions.length === 0) return [];
-  
+
   const users = await User.find({
     $or: [
       { firstName: { $in: mentions } },
@@ -27,7 +26,7 @@ const findMentionedUsers = async (mentions) => {
       { email: { $in: mentions } }
     ]
   }).select('_id');
-  
+
   return users.map(u => u._id);
 };
 
@@ -36,14 +35,14 @@ const findMentionedUsers = async (mentions) => {
  */
 const createMentionNotifications = async (mentionedUserIds, postId, authorId, type = 'post') => {
   if (!mentionedUserIds || mentionedUserIds.length === 0) return;
-  
+
   try {
     // Get author info
     const author = await User.findById(authorId).select('firstName lastName displayName');
     if (!author) return;
-    
+
     const authorName = author.displayName || `${author.firstName} ${author.lastName}`;
-    
+
     // Convert MongoDB user IDs to Sequelize user IDs for notifications
     const sequelizeUserIds = [];
     for (const mongoUserId of mentionedUserIds) {
@@ -56,7 +55,7 @@ const createMentionNotifications = async (mentionedUserIds, postId, authorId, ty
         console.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize`, error.message);
       }
     }
-    
+
     // Create notifications for mentioned users
     if (sequelizeUserIds.length > 0) {
       await notificationService.notifyMention(
@@ -80,14 +79,14 @@ const getAllGroups = async (userId, options = {}) => {
   const skip = (page - 1) * limit;
 
   // Get user's group memberships
-  const userMemberships = userId 
+  const userMemberships = userId
     ? await GroupMember.find({ userId }).select('groupId')
     : [];
   const userGroupIds = userMemberships.map(m => m.groupId);
 
   // Build query
   const query = {};
-  
+
   if (isPublic !== undefined) {
     query.isPublic = isPublic === 'true';
   } else {
@@ -434,7 +433,7 @@ const updateGroupPost = async (postId, updateData, userId, userRole) => {
   if (updateData.content) {
     const mentionTexts = extractMentions(updateData.content);
     updateData.mentions = await findMentionedUsers(mentionTexts);
-    
+
     // Create notifications for new mentions
     if (updateData.mentions.length > 0) {
       await createMentionNotifications(updateData.mentions, postId, userId, 'post');
@@ -587,7 +586,7 @@ const updateComment = async (commentId, updateData, userId, userRole) => {
   if (updateData.content) {
     const mentionTexts = extractMentions(updateData.content);
     updateData.mentions = await findMentionedUsers(mentionTexts);
-    
+
     // Create notifications for new mentions
     if (updateData.mentions.length > 0) {
       await createMentionNotifications(updateData.mentions, commentId, userId, 'comment');

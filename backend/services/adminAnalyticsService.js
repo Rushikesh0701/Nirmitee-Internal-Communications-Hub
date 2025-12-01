@@ -1,14 +1,14 @@
-const { 
-  Recognition, 
-  Survey, 
-  SurveyResponse, 
-  UserCourse, 
+const {
+  Recognition,
+  SurveyModel,
+  SurveyResponse,
+  UserCourse,
   Course,
   Notification,
   User,
   UserPoints
-} = require('../models/sequelize/index');
-const { Op, Sequelize } = require('sequelize');
+} = require('../models');
+const mongoose = require('mongoose');
 
 /**
  * Get overview statistics
@@ -176,7 +176,7 @@ const getSurveyAnalytics = async () => {
 const getRecognitionAnalytics = async () => {
   const totalRecognitions = await Recognition.count();
   const totalPointsAwarded = await Recognition.sum('points') || 0;
-  
+
   // Top receivers
   const topReceivers = await Recognition.findAll({
     attributes: [
@@ -244,7 +244,7 @@ const getBlogAnalytics = async () => {
 const getMAU = async () => {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  
+
   // Count users who have logged in this month
   const mau = await User.count({
     where: {
@@ -258,7 +258,7 @@ const getMAU = async () => {
   // Get previous month for comparison
   const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-  
+
   const previousMAU = await User.count({
     where: {
       lastLogin: {
@@ -294,6 +294,51 @@ const getPostsAndCommentsCount = async () => {
   };
 };
 
+/**
+ * Get sentiment analysis for feedback/surveys/blogs
+ * PLACEHOLDER: Structure for AI-based sentiment analysis
+ */
+const getSentimentAnalysis = async (options = {}) => {
+  const { contentType = 'survey', startDate, endDate } = options;
+
+  // Placeholder structure - in production, this would call an AI service
+  // like Google Cloud Natural Language API, AWS Comprehend, or custom ML model
+
+  return {
+    contentType,
+    period: {
+      startDate: startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      endDate: endDate || new Date()
+    },
+    overall: {
+      sentiment: 'POSITIVE', // POSITIVE, NEGATIVE, NEUTRAL, MIXED
+      score: 0.75, // -1 to 1 scale
+      confidence: 0.85 // 0 to 1 scale
+    },
+    distribution: {
+      positive: 65, // percentage
+      neutral: 25,
+      negative: 10
+    },
+    topKeywords: [
+      { word: 'great', frequency: 45, sentiment: 'positive' },
+      { word: 'helpful', frequency: 32, sentiment: 'positive' },
+      { word: 'improve', frequency: 28, sentiment: 'neutral' }
+    ],
+    trends: [
+      {
+        date: '2024-01-01',
+        positiveScore: 0.7,
+        neutralScore: 0.2,
+        negativeScore: 0.1
+      }
+    ],
+    // Placeholder for future implementation
+    aiServiceStatus: 'NOT_IMPLEMENTED',
+    message: 'Sentiment analysis is a placeholder. Implement with AI service like Google NLP, AWS Comprehend, or custom model.'
+  };
+};
+
 module.exports = {
   getOverview,
   getEngagementMetrics,
@@ -301,6 +346,6 @@ module.exports = {
   getRecognitionAnalytics,
   getBlogAnalytics,
   getMAU,
-  getPostsAndCommentsCount
+  getPostsAndCommentsCount,
+  getSentimentAnalysis
 };
-

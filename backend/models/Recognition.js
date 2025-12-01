@@ -1,44 +1,47 @@
 const mongoose = require('mongoose');
 
 const recognitionSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+  senderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
-  description: {
+  receiverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  message: {
     type: String,
     required: true
+  },
+  badge: {
+    type: String,
+    enum: ['STAR_PERFORMER', 'TEAM_PLAYER', 'INNOVATOR', 'PROBLEM_SOLVER', 'MENTOR', 'LEADER', 'HELPER', 'OTHER'],
+    default: 'OTHER'
+  },
+  points: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  isPublic: {
+    type: Boolean,
+    default: true
   },
   category: {
     type: String,
     enum: ['achievement', 'teamwork', 'innovation', 'leadership', 'customer_service', 'other'],
     default: 'achievement'
-  },
-  givenById: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  receivedById: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  badge: {
-    type: String,
-    trim: true
-  },
-  points: {
-    type: Number,
-    default: 0
-  },
-  isPublic: {
-    type: Boolean,
-    default: true
   }
 }, {
   timestamps: true
 });
+
+// Indexes
+recognitionSchema.index({ receiverId: 1, createdAt: -1 });
+recognitionSchema.index({ senderId: 1, createdAt: -1 });
+recognitionSchema.index({ createdAt: -1 });
+recognitionSchema.index({ isPublic: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Recognition', recognitionSchema);

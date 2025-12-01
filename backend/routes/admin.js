@@ -10,5 +10,10 @@ router.post('/rewards', authenticateToken, isModerator, adminRewardController.cr
 router.put('/rewards/:id', authenticateToken, isModerator, adminRewardController.updateReward);
 router.delete('/rewards/:id', authenticateToken, isModerator, adminRewardController.deleteReward);
 
+// Redemption management
+router.get('/redemptions', authenticateToken, isModerator, adminRewardController.getAllRedemptions);
+router.put('/redemptions/:id/approve', authenticateToken, isModerator, adminRewardController.approveRedemption);
+router.put('/redemptions/:id/reject', authenticateToken, isModerator, adminRewardController.rejectRedemption);
+
 module.exports = router;
 

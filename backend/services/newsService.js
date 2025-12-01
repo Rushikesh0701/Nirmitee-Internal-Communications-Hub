@@ -19,27 +19,91 @@ const {
 /**
  * Get all news from database
  */
+/**
+ * Get all news from database (Internal News + RSS Articles)
+ */
 const getAllNews = async (options = {}) => {
   const { page = 1, limit = 10, category, priority, published } = options;
   const skip = (page - 1) * limit;
 
-  const query = {};
-  if (category) query.category = category;
-  if (priority) query.priority = priority;
-  if (published !== undefined) query.isPublished = published;
+  // 1. Build queries for both collections
+  const newsQuery = {};
+  const rssQuery = {};
 
-  const [news, total] = await Promise.all([
-    News.find(query)
+  if (category) {
+    newsQuery.category = category;
+    rssQuery.category = category;
+  }
+
+  if (priority) {
+    newsQuery.priority = priority;
+    // RSS articles don't have priority, so we might exclude them if priority is set
+    // or assume they are 'medium'
+  }
+
+  if (published !== undefined) {
+    newsQuery.isPublished = published;
+    // RSS articles are always considered published
+  }
+
+  // 2. Fetch from both sources
+  // We fetch (skip + limit) from both to ensure we have enough candidates for the current page
+  // This is a simplified federated search strategy
+  const fetchLimit = skip + limit;
+
+  const [internalNews, rssArticles] = await Promise.all([
+    News.find(newsQuery)
       .populate('authorId', 'firstName lastName email avatar')
       .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip)
+      .limit(fetchLimit)
       .lean(),
-    News.countDocuments(query)
+    RssArticle.find(rssQuery)
+      .populate('feedId', 'feedUrl category')
+      .sort({ publishedAt: -1 })
+      .limit(fetchLimit)
+      .lean()
   ]);
 
+  // 3. Normalize RSS articles to match News schema
+  const normalizedRss = rssArticles.map(article => ({
+    _id: article._id,
+    title: article.title,
+    content: article.description || '',
+    summary: article.description || '',
+    imageUrl: article.imageUrl, // RssArticle schema might need this field check
+    category: article.category,
+    priority: 'medium',
+    isPublished: true,
+    publishedAt: article.publishedAt,
+    sourceUrl: article.link,
+    sourceType: 'rss',
+    authorId: {
+      firstName: 'RSS',
+      lastName: 'Feed',
+      email: 'rss@nirmitee.com'
+    },
+    createdAt: article.publishedAt
+  }));
+
+  // 4. Merge and Sort
+  const allNews = [...internalNews, ...normalizedRss].sort((a, b) => {
+    const dateA = new Date(a.publishedAt || a.createdAt);
+    const dateB = new Date(b.publishedAt || b.createdAt);
+    return dateB - dateA; // Descending order
+  });
+
+  // 5. Paginate the merged result
+  const paginatedNews = allNews.slice(skip, skip + limit);
+
+  // 6. Get total counts (approximate)
+  const [totalNews, totalRss] = await Promise.all([
+    News.countDocuments(newsQuery),
+    RssArticle.countDocuments(rssQuery)
+  ]);
+  const total = totalNews + totalRss;
+
   return {
-    news,
+    news: paginatedNews,
     pagination: {
       total,
       page,
@@ -73,11 +137,11 @@ const validateObjectId = (id, fieldName = 'id') => {
   if (!id) {
     throw new Error(`${fieldName} is required`);
   }
-  
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error(`Invalid ${fieldName} format. Must be a valid MongoDB ObjectId.`);
   }
-  
+
   return typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
 };
 
@@ -86,7 +150,7 @@ const validateObjectId = (id, fieldName = 'id') => {
  */
 const createNews = async (newsData) => {
   const authorId = validateObjectId(newsData.authorId, 'authorId');
-  
+
   const news = await News.create({ ...newsData, authorId });
   return await News.findById(news._id)
     .populate('authorId', 'firstName lastName email avatar');
@@ -195,7 +259,7 @@ const syncRSSFeedsToNews = async (systemUserId) => {
     for (const feed of feeds) {
       try {
         const newsItems = await fetchNewsFromRSSFeed(feed.feedUrl, feed.category);
-        
+
         for (const newsItem of newsItems) {
           try {
             const existingNews = await News.findOne({
@@ -247,21 +311,21 @@ const syncRSSFeedsToNews = async (systemUserId) => {
  * Get news from RSS feed
  */
 const getNewsFromRSSFeed = async (feedUrl, category, limit = 10) => {
-    const newsItems = await fetchNewsFromRSSFeed(feedUrl, category);
-    return newsItems.slice(0, limit);
+  const newsItems = await fetchNewsFromRSSFeed(feedUrl, category);
+  return newsItems.slice(0, limit);
 };
 
 /**
  * Validate NewsData.io API key
  */
 const validateNewsDataApiKey = () => {
-    const apiKey = process.env.NEWSDATA_API_KEY;
+  const apiKey = process.env.NEWSDATA_API_KEY;
 
-    if (!apiKey || apiKey === 'your_newsdata_api_key_here' || apiKey.trim() === '') {
-      logger.error('NewsData.io API key validation failed');
-      throw new Error('NewsData.io API key is not configured. Please set NEWSDATA_API_KEY in your .env file');
-    }
-    
+  if (!apiKey || apiKey === 'your_newsdata_api_key_here' || apiKey.trim() === '') {
+    logger.error('NewsData.io API key validation failed');
+    throw new Error('NewsData.io API key is not configured. Please set NEWSDATA_API_KEY in your .env file');
+  }
+
   return apiKey;
 };
 
@@ -270,9 +334,9 @@ const validateNewsDataApiKey = () => {
  */
 const buildNewsDataParams = (options, apiKey) => {
   const { q, category, from, to, language = 'en', source, sort, limit = 10, nextPage } = options;
-    const params = new URLSearchParams();
-    
-    params.append('apikey', apiKey);
+  const params = new URLSearchParams();
+
+  params.append('apikey', apiKey);
   if (language) params.append('language', language);
   if (category) params.append('category', mapCategoryToNewsData(category));
   if (q?.trim()) params.append('q', q.trim());
@@ -280,7 +344,7 @@ const buildNewsDataParams = (options, apiKey) => {
   if (to && isValidDateFormat(to)) params.append('to_date', to);
   if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
   if (limit && limit > 0) params.append('size', Math.min(limit, 50));
-  
+
   return params;
 };
 
@@ -305,10 +369,10 @@ const handleNewsDataApiError = (error) => {
 
     if (statusCode === 401) {
       throw new Error('Invalid NewsData.io API key. Please check your NEWSDATA_API_KEY in .env file. Make sure you replaced the placeholder with your actual API key from https://newsdata.io/');
-        }
+    }
     if (statusCode === 429) {
       throw new Error('NewsData.io API rate limit exceeded. Please try again later');
-      }
+    }
     if (statusCode >= 500) {
       throw new Error('NewsData.io API server error. Please try again later');
     }
@@ -317,8 +381,8 @@ const handleNewsDataApiError = (error) => {
 
   if (error.request) {
     throw new Error('Unable to connect to NewsData.io API. Please check your internet connection');
-    }
-    
+  }
+
   throw new Error(`Error fetching news: ${error.message}`);
 };
 
@@ -350,9 +414,9 @@ const fetchNewsFromNewsData = async (options = {}) => {
 
     const params = buildNewsDataParams(options, apiKey);
     const apiUrl = `https://newsdata.io/api/1/news?${params.toString()}`;
-    
+
     logger.info('Fetching news from NewsData.io');
-    
+
     let response;
     try {
       response = await axios.get(apiUrl, {
@@ -368,7 +432,7 @@ const fetchNewsFromNewsData = async (options = {}) => {
 
     const articles = response.data?.results || [];
     logger.info('NewsData.io articles received', { count: articles.length });
-    
+
     if (articles.length === 0) {
       return {
         results: [],
@@ -380,11 +444,11 @@ const fetchNewsFromNewsData = async (options = {}) => {
     }
 
     let transformedArticles = transformNewsDataArticles(articles, category);
-    
+
     if (source) {
       transformedArticles = filterArticlesBySource(transformedArticles, source);
     }
-    
+
     if (sort === 'date') {
       transformedArticles = sortArticlesByDate(transformedArticles);
     }

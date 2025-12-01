@@ -16,5 +16,8 @@ router.post('/redeem', authenticateToken, recognitionRewardController.redeemRewa
 // Leaderboard endpoint
 router.get('/leaderboard', authenticateToken, recognitionRewardController.getLeaderboard);
 
+// Recognition summary
+router.get('/summary/monthly', authenticateToken, recognitionRewardController.getMonthlyRecognitionSummary);
+
 module.exports = router;
 
