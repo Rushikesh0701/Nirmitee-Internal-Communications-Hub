@@ -47,6 +47,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://21bl2sv2-5174.inc1.devtunnels.ms',
+  'https://nirmitee-hub.netlify.app',
   process.env.FRONTEND_URL
 ];
 
