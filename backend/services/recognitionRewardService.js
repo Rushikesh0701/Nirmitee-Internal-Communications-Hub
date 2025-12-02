@@ -3,6 +3,47 @@ const notificationService = require('./notificationService');
 const mongoose = require('mongoose');
 
 /**
+ * Helper function to get user name from user object
+ */
+const getUserName = (user) => {
+  if (!user) return null;
+  return user.displayName || 
+         (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null) ||
+         user.firstName ||
+         user.email?.split('@')[0] ||
+         'Unknown';
+};
+
+/**
+ * Helper function to transform recognition with sender/receiver aliases
+ */
+const transformRecognition = (recognition) => {
+  if (!recognition) return recognition;
+  
+  const recognitionObj = recognition.toObject ? recognition.toObject() : recognition;
+  
+  // Add sender alias with name field
+  if (recognitionObj.senderId) {
+    recognitionObj.sender = {
+      ...recognitionObj.senderId,
+      id: recognitionObj.senderId._id || recognitionObj.senderId.id,
+      name: getUserName(recognitionObj.senderId)
+    };
+  }
+  
+  // Add receiver alias with name field
+  if (recognitionObj.receiverId) {
+    recognitionObj.receiver = {
+      ...recognitionObj.receiverId,
+      id: recognitionObj.receiverId._id || recognitionObj.receiverId.id,
+      name: getUserName(recognitionObj.receiverId)
+    };
+  }
+  
+  return recognitionObj;
+};
+
+/**
  * Send a recognition and award points
  */
 const sendRecognition = async (recognitionData) => {
@@ -24,19 +65,20 @@ const sendRecognition = async (recognitionData) => {
 
   // Fetch with associations
   const fullRecognition = await Recognition.findById(recognition._id)
-    .populate('sender', 'id name email avatar')
-    .populate('receiver', 'id name email avatar');
+    .populate('senderId', '_id firstName lastName displayName email avatar')
+    .populate('receiverId', '_id firstName lastName displayName email avatar');
 
   // Send notification to receiver
   try {
-    const senderName = fullRecognition.sender?.name || 'Someone';
+    const senderName = getUserName(fullRecognition.senderId) || 'Someone';
     await notificationService.notifyRecognition(receiverId, senderName, points);
   } catch (error) {
     console.error('Error sending recognition notification:', error);
     // Don't fail the recognition if notification fails
   }
 
-  return fullRecognition;
+  // Transform to add sender/receiver aliases for frontend compatibility
+  return transformRecognition(fullRecognition);
 };
 
 /**
@@ -53,16 +95,19 @@ const getRecognitionFeed = async (options = {}) => {
 
   const [recognitions, totalCount] = await Promise.all([
     Recognition.find(query)
-      .populate('sender', 'id name email avatar')
-      .populate('receiver', 'id name email avatar')
+      .populate('senderId', '_id firstName lastName displayName email avatar')
+      .populate('receiverId', '_id firstName lastName displayName email avatar')
       .sort({ createdAt: -1 })
       .skip(parseInt(skip))
       .limit(parseInt(limit)),
     Recognition.countDocuments(query)
   ]);
 
+  // Transform recognitions to add sender/receiver aliases
+  const transformedRecognitions = recognitions.map(transformRecognition);
+
   return {
-    recognitions,
+    recognitions: transformedRecognitions,
     pagination: {
       total: totalCount,
       page: parseInt(page),

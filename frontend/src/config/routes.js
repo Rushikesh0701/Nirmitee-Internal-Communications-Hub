@@ -37,7 +37,7 @@ import AnnouncementForm from '../pages/announcements/AnnouncementForm'
 import GroupsList from '../pages/groups/GroupsList'
 import GroupDetail from '../pages/groups/GroupDetail'
 import GroupForm from '../pages/groups/GroupForm'
-import Feed from '../pages/feed/Feed'
+import SurveyAnalytics from '../pages/surveys/SurveyAnalytics'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 
@@ -74,6 +74,7 @@ export const protectedRoutes = [
   { path: '/surveys/create', component: SurveyForm, admin: true },
   { path: '/surveys/:id', component: SurveyDetail },
   { path: '/surveys/:id/edit', component: SurveyForm, admin: true },
+  { path: '/surveys/:id/analytics', component: SurveyAnalytics, admin: true },
   { path: '/learning', component: LearningList },
   { path: '/learning/new', component: CourseForm, admin: true },
   { path: '/learning/:id', component: CourseDetail },
@@ -89,6 +90,5 @@ export const protectedRoutes = [
   { path: '/groups/new', component: GroupForm, admin: true },
   { path: '/groups/:id', component: GroupDetail },
   { path: '/groups/:id/edit', component: GroupForm, admin: true },
-  { path: '/feed', component: Feed }
 ]
 

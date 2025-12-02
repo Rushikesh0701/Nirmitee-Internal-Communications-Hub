@@ -1,13 +1,18 @@
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '../../store/authStore'
+import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
-import { ClipboardList, Calendar, Users } from 'lucide-react'
+import { ClipboardList, Calendar, Users, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 
 const SurveysList = () => {
+  const { user } = useAuthStore()
   const { data, isLoading } = useQuery('surveys', () =>
     api.get('/surveys?active=true').then((res) => res.data.data)
   )
+
+  const canCreateSurvey = isAdminOrModerator(user)
 
   if (isLoading) {
     return <div className="text-center py-12">Loading surveys...</div>
@@ -15,9 +20,17 @@ const SurveysList = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Surveys</h1>
-        <p className="text-gray-600 mt-1">Share your feedback</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Surveys</h1>
+          <p className="text-gray-600 mt-1">Share your feedback</p>
+        </div>
+        {canCreateSurvey && (
+          <Link to="/surveys/create" className="btn btn-primary flex items-center gap-2">
+            <Plus size={18} />
+            Create Survey
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

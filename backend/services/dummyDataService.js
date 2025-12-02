@@ -836,101 +836,6 @@ const DUMMY_COURSES = [
   }
 ];
 
-// Dummy feed items - structured to match feedService.mapToFeedItem output
-const DUMMY_FEED_ITEMS = [
-  {
-    id: 'feed-1',
-    type: 'announcement',
-    title: DUMMY_ANNOUNCEMENTS[0].title,
-    content: DUMMY_ANNOUNCEMENTS[0].content,
-    image: DUMMY_ANNOUNCEMENTS[0].image,
-    tags: DUMMY_ANNOUNCEMENTS[0].tags || [],
-    author: DUMMY_ADMIN_USER,
-    publishedAt: DUMMY_ANNOUNCEMENTS[0].publishedAt,
-    isPublished: DUMMY_ANNOUNCEMENTS[0].isPublished,
-    scheduledAt: DUMMY_ANNOUNCEMENTS[0].scheduledAt,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'feed-2',
-    type: 'blog',
-    title: DUMMY_BLOGS[0].title,
-    content: DUMMY_BLOGS[0].content,
-    excerpt: DUMMY_BLOGS[0].excerpt,
-    coverImage: DUMMY_BLOGS[0].coverImage,
-    tags: DUMMY_BLOGS[0].tags || [],
-    author: DUMMY_USER,
-    views: DUMMY_BLOGS[0].views || 0,
-    likes: DUMMY_BLOGS[0].likes || 0,
-    isPublished: DUMMY_BLOGS[0].isPublished,
-    publishedAt: DUMMY_BLOGS[0].publishedAt,
-    createdAt: new Date(Date.now() - 3600000),
-    updatedAt: new Date(Date.now() - 3600000)
-  },
-  {
-    id: 'feed-3',
-    type: 'recognition',
-    title: DUMMY_RECOGNITIONS[0].title,
-    content: DUMMY_RECOGNITIONS[0].description,
-    category: DUMMY_RECOGNITIONS[0].category,
-    badge: DUMMY_RECOGNITIONS[0].badge,
-    points: DUMMY_RECOGNITIONS[0].points || 0,
-    author: DUMMY_ADMIN_USER,
-    recipient: DUMMY_USER,
-    isPublic: DUMMY_RECOGNITIONS[0].isPublic,
-    createdAt: new Date(Date.now() - 7200000),
-    updatedAt: new Date(Date.now() - 7200000)
-  },
-  {
-    id: 'feed-4',
-    type: 'groupPost',
-    content: DUMMY_GROUP_POSTS[0].content,
-    images: DUMMY_GROUP_POSTS[0].images || [],
-    author: DUMMY_USER,
-    group: DUMMY_GROUPS[0]._id,
-    groupName: DUMMY_GROUPS[0].name,
-    mentions: DUMMY_GROUP_POSTS[0].mentions || [],
-    commentCount: DUMMY_GROUP_POSTS[0].commentCount || 0,
-    likes: DUMMY_GROUP_POSTS[0].likes || 0,
-    isLiked: false,
-    isPinned: DUMMY_GROUP_POSTS[0].isPinned || false,
-    isEdited: DUMMY_GROUP_POSTS[0].isEdited || false,
-    createdAt: new Date(Date.now() - 10800000),
-    updatedAt: new Date(Date.now() - 10800000)
-  },
-  {
-    id: 'feed-5',
-    type: 'announcement',
-    title: DUMMY_ANNOUNCEMENTS[1].title,
-    content: DUMMY_ANNOUNCEMENTS[1].content,
-    image: DUMMY_ANNOUNCEMENTS[1].image,
-    tags: DUMMY_ANNOUNCEMENTS[1].tags || [],
-    author: DUMMY_ADMIN_USER,
-    publishedAt: DUMMY_ANNOUNCEMENTS[1].publishedAt,
-    isPublished: DUMMY_ANNOUNCEMENTS[1].isPublished,
-    scheduledAt: DUMMY_ANNOUNCEMENTS[1].scheduledAt,
-    createdAt: new Date(Date.now() - 14400000),
-    updatedAt: new Date(Date.now() - 14400000)
-  },
-  {
-    id: 'feed-6',
-    type: 'blog',
-    title: DUMMY_BLOGS[1].title,
-    content: DUMMY_BLOGS[1].content,
-    excerpt: DUMMY_BLOGS[1].excerpt,
-    coverImage: DUMMY_BLOGS[1].coverImage,
-    tags: DUMMY_BLOGS[1].tags || [],
-    author: DUMMY_USER,
-    views: DUMMY_BLOGS[1].views || 0,
-    likes: DUMMY_BLOGS[1].likes || 0,
-    isPublished: DUMMY_BLOGS[1].isPublished,
-    publishedAt: DUMMY_BLOGS[1].publishedAt,
-    createdAt: new Date(Date.now() - 18000000),
-    updatedAt: new Date(Date.now() - 18000000)
-  }
-];
-
 /**
  * Get dummy notifications
  */
@@ -986,33 +891,6 @@ const getDummyAnnouncements = (options = {}) => {
       limit: parseInt(limit),
       total: announcements.length,
       pages: Math.ceil(announcements.length / limit)
-    }
-  };
-};
-
-/**
- * Get dummy feed
- */
-const getDummyFeed = (options = {}) => {
-  const { page = 1, limit = 20, type = 'all' } = options;
-  let feed = [...DUMMY_FEED_ITEMS];
-
-  if (type && type !== 'all') {
-    feed = feed.filter(f => f.type === type.toLowerCase());
-  }
-
-  const start = (page - 1) * limit;
-  const end = start + parseInt(limit);
-  const paginatedFeed = feed.slice(start, end);
-
-  return {
-    feed: paginatedFeed,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total: feed.length,
-      pages: Math.ceil(feed.length / limit),
-      hasMore: end < feed.length
     }
   };
 };
@@ -1213,12 +1091,29 @@ const getDummyRecognitions = (options = {}) => {
  * Get dummy surveys
  */
 const getDummySurveys = (options = {}) => {
-  const { page = 1, limit = 10, isActive } = options;
+  const { page = 1, limit = 10, status, isActive } = options;
   let surveys = [...DUMMY_SURVEYS];
 
-  if (isActive !== undefined) {
-    surveys = surveys.filter(s => s.isActive === (isActive === 'true' || isActive === true));
+  // Map isActive to status for compatibility
+  let filterStatus = status;
+  if (isActive === 'true' || isActive === true) {
+    filterStatus = 'ACTIVE';
   }
+
+  // Filter by status if provided
+  if (filterStatus) {
+    surveys = surveys.filter(s => {
+      // Check both status and isActive for backward compatibility
+      return (s.status === filterStatus) || 
+             (filterStatus === 'ACTIVE' && s.isActive === true);
+    });
+  }
+
+  // Convert isActive to status for consistency
+  surveys = surveys.map(s => ({
+    ...s,
+    status: s.status || (s.isActive ? 'ACTIVE' : 'DRAFT')
+  }));
 
   const start = (page - 1) * limit;
   const end = start + parseInt(limit);
@@ -1333,11 +1228,9 @@ module.exports = {
   DUMMY_RECOGNITIONS,
   DUMMY_SURVEYS,
   DUMMY_COURSES,
-  DUMMY_FEED_ITEMS,
   getDummyNotifications,
   getDummyUnreadCount,
   getDummyAnnouncements,
-  getDummyFeed,
   getDummyNews,
   getDummyBlogs,
   getDummyDiscussions,

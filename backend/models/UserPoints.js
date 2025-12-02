@@ -41,7 +41,7 @@ const userPointsSchema = new mongoose.Schema({
 });
 
 // Index for quick lookups
-userPointsSchema.index({ userId: 1 });
+// userId index is automatically created by unique: true
 userPointsSchema.index({ totalPoints: -1 }); // For leaderboard
 
 module.exports = mongoose.model('UserPoints', userPointsSchema);

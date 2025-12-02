@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
+import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
-import { Plus, Users, Lock, Search } from 'lucide-react'
+import { Plus, Users, Lock, Search, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
 
 const GroupsList = () => {
   const { user } = useAuthStore()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all') // all, public, private, my-groups
+  const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery(
     ['groups', search, filter],
@@ -22,7 +25,26 @@ const GroupsList = () => {
     }
   )
 
-  const isAdminOrModerator = user?.role === 'Admin' || user?.role === 'Moderator'
+  const joinMutation = useMutation(
+    (groupId) => api.post(`/groups/${groupId}/join`),
+    {
+      onSuccess: () => {
+        toast.success('Joined group successfully')
+        queryClient.invalidateQueries(['groups', search, filter])
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to join group')
+      }
+    }
+  )
+
+  const canCreateGroup = isAdminOrModerator(user)
+
+  const handleJoin = (e, groupId) => {
+    e.preventDefault()
+    e.stopPropagation()
+    joinMutation.mutate(groupId)
+  }
 
   if (isLoading) {
     return <div className="text-center py-12">Loading groups...</div>
@@ -37,7 +59,7 @@ const GroupsList = () => {
           <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
           <p className="text-gray-600 mt-1">Join communities and start discussions</p>
         </div>
-        {isAdminOrModerator && (
+        {canCreateGroup && (
           <Link to="/groups/new" className="btn btn-primary flex items-center gap-2">
             <Plus size={18} />
             Create Group
@@ -110,11 +132,22 @@ const GroupsList = () => {
                   <div className="text-xs text-gray-500">
                     Created {format(new Date(group.createdAt), 'MMM d, yyyy')}
                   </div>
-                  {group.isMember && (
-                    <span className="px-2 py-1 text-xs font-semibold rounded bg-primary-100 text-primary-800">
-                      Member
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {group.isMember ? (
+                      <span className="px-2 py-1 text-xs font-semibold rounded bg-primary-100 text-primary-800">
+                        Member
+                      </span>
+                    ) : group.isPublic && user ? (
+                      <button
+                        onClick={(e) => handleJoin(e, groupId)}
+                        disabled={joinMutation.isLoading}
+                        className="px-3 py-1 text-xs font-semibold rounded bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 flex items-center gap-1"
+                      >
+                        <LogIn size={14} />
+                        Join
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </Link>

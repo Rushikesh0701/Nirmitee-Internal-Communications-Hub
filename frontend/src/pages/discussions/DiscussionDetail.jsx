@@ -7,8 +7,9 @@ import { useAuthStore } from '../../store/authStore';
 
 // Recursive component to render comments with nested replies
 // Defined outside to prevent recreation on every render
-const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState }) => {
+const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
   const commentId = comment._id || comment.id;
+  const INITIAL_REPLIES_LIMIT = 3;
 
   return (
     <div className={`${depth > 0 ? 'ml-4 sm:ml-6 md:ml-8 mt-3 sm:mt-4' : ''}`}>
@@ -101,26 +102,78 @@ const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, 
       {/* Nested Replies - Responsive */}
       {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
         <div className="mt-2">
-          {comment.replies.map((reply) => {
-            const replyId = reply._id || reply.id;
-            if (!replyId) return null;
+          {(() => {
+            const isExpanded = expandedReplies && expandedReplies[commentId];
+            const repliesToShow = isExpanded ? comment.replies : comment.replies.slice(0, INITIAL_REPLIES_LIMIT);
+            
+            return repliesToShow.map((reply) => {
+              const replyId = reply._id || reply.id;
+              if (!replyId) return null;
+              return (
+                <CommentItem
+                  key={`reply-${replyId}`}
+                  comment={reply}
+                  depth={depth + 1}
+                  isReplying={showReplyForm[replyId]}
+                  replyContent={replyContentState[replyId]}
+                  onReplyChange={onReplyChange}
+                  onToggleReply={onToggleReply}
+                  onAddReply={onAddReply}
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                  showReplyForm={showReplyForm}
+                  replyContentState={replyContentState}
+                  expandedReplies={expandedReplies || {}}
+                  onToggleExpandReplies={onToggleExpandReplies || (() => {})}
+                />
+              );
+            });
+          })()}
+          
+          {/* View More/Less Button - Works at all nesting levels (reply to reply to reply...) */}
+          {(() => {
+            const hasReplies = comment.replies && Array.isArray(comment.replies);
+            const replyCount = hasReplies ? comment.replies.length : 0;
+            const shouldShowButton = replyCount > INITIAL_REPLIES_LIMIT;
+            
+            if (!shouldShowButton) return null;
+            
+            const isExpanded = expandedReplies && expandedReplies[commentId];
+            const hiddenCount = replyCount - INITIAL_REPLIES_LIMIT;
+            
             return (
-              <CommentItem
-                key={`reply-${replyId}`}
-                comment={reply}
-                depth={depth + 1}
-                isReplying={showReplyForm[replyId]}
-                replyContent={replyContentState[replyId]}
-                onReplyChange={onReplyChange}
-                onToggleReply={onToggleReply}
-                onAddReply={onAddReply}
-                isAuthenticated={isAuthenticated}
-                user={user}
-                showReplyForm={showReplyForm}
-                replyContentState={replyContentState}
-              />
+              <div className={`mt-3 ${depth > 0 ? 'ml-2' : 'ml-4'}`} style={{ minHeight: '40px' }}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onToggleExpandReplies) {
+                      onToggleExpandReplies(commentId);
+                    }
+                  }}
+                  className="text-purple-600 hover:text-purple-700 text-xs sm:text-sm font-semibold flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-purple-50 active:bg-purple-100 transition-all border-2 border-purple-500 bg-white shadow-lg hover:shadow-xl z-10 relative cursor-pointer"
+                  style={{ 
+                    minWidth: '150px',
+                    display: 'inline-flex'
+                  }}
+                  aria-label={isExpanded ? "View less replies" : "View more replies"}
+                >
+                  {isExpanded ? (
+                    <>
+                      <span className="text-lg sm:text-xl font-bold">▲</span> 
+                      <span>View less</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg sm:text-xl font-bold">▼</span> 
+                      <span>View {hiddenCount} more {hiddenCount === 1 ? 'reply' : 'replies'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
             );
-          })}
+          })()}
         </div>
       )}
     </div>
@@ -142,10 +195,14 @@ const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, 
   // If reply content changed, re-render (this is important for typing)
   if (prevProps.replyContent !== nextProps.replyContent) return false;
 
+  // If expanded replies state changed for this comment, re-render
+  if (prevProps.expandedReplies !== nextProps.expandedReplies) return false;
+
   // If handlers changed (shouldn't happen with useCallback), re-render
   if (prevProps.onReplyChange !== nextProps.onReplyChange) return false;
   if (prevProps.onToggleReply !== nextProps.onToggleReply) return false;
   if (prevProps.onAddReply !== nextProps.onAddReply) return false;
+  if (prevProps.onToggleExpandReplies !== nextProps.onToggleExpandReplies) return false;
 
   // All relevant props are equal, skip re-render
   return true;
@@ -161,6 +218,7 @@ const DiscussionDetail = () => {
   const [commentContent, setCommentContent] = useState('');
   const [replyContent, setReplyContent] = useState({});
   const [showReplyForm, setShowReplyForm] = useState({});
+  const [expandedReplies, setExpandedReplies] = useState({});
   const { user, isAuthenticated } = useAuthStore();
 
   // Validate ID before making request
@@ -373,6 +431,13 @@ const DiscussionDetail = () => {
     }));
   }, []);
 
+  const toggleExpandReplies = useCallback((commentId) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
+  }, []);
+
   // Memoize organized comments to prevent unnecessary recalculations
   const organizedComments = useMemo(() => {
     return organizeComments(discussion?.Comments || []);
@@ -527,6 +592,8 @@ const DiscussionDetail = () => {
                 user={user}
                 showReplyForm={showReplyForm}
                 replyContentState={replyContent}
+                expandedReplies={expandedReplies}
+                onToggleExpandReplies={toggleExpandReplies}
               />
             );
           })}

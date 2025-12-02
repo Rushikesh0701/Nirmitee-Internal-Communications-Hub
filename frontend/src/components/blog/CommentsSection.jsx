@@ -18,6 +18,8 @@ const CommentsSection = ({
   isLoading 
 }) => {
   const [replyingTo, setReplyingTo] = useState(null);
+  const [expandedReplies, setExpandedReplies] = useState({});
+  const INITIAL_REPLIES_LIMIT = 3;
 
   const handleReply = (commentId) => {
     setReplyingTo(commentId);
@@ -30,6 +32,13 @@ const CommentsSection = ({
   const handleSubmitReply = (content, parentCommentId) => {
     onAddComment({ content, parentCommentId });
     setReplyingTo(null);
+  };
+
+  const toggleExpandReplies = (commentId) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
   };
 
   return (
@@ -97,18 +106,51 @@ const CommentsSection = ({
                 {/* Replies */}
                 {replies.length > 0 && (
                   <div className="ml-8 space-y-3 border-l-2 border-gray-200 pl-4">
-                    {replies.map((reply) => {
-                      const replyId = extractId(reply);
-                      return (
-                        <CommentItem
-                          key={replyId}
-                          comment={reply}
-                          user={user}
-                          onDelete={() => onDeleteComment(replyId)}
-                          isReply={true}
-                        />
-                      );
-                    })}
+                    {(() => {
+                      const isExpanded = expandedReplies[commentId];
+                      const repliesToShow = isExpanded ? replies : replies.slice(0, INITIAL_REPLIES_LIMIT);
+                      
+                      return repliesToShow.map((reply) => {
+                        const replyId = extractId(reply);
+                        return (
+                          <CommentItem
+                            key={replyId}
+                            comment={reply}
+                            user={user}
+                            onDelete={() => onDeleteComment(replyId)}
+                            isReply={true}
+                          />
+                        );
+                      });
+                    })()}
+                    
+                    {/* View More/Less Button - Always show if more than INITIAL_REPLIES_LIMIT replies */}
+                    {replies.length > INITIAL_REPLIES_LIMIT && (
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleExpandReplies(commentId);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-blue-50 transition-colors border-2 border-blue-400 bg-white shadow-md hover:shadow-lg z-10 relative"
+                          aria-label={expandedReplies[commentId] ? "View less replies" : "View more replies"}
+                        >
+                          {expandedReplies[commentId] ? (
+                            <>
+                              <span className="text-base sm:text-lg font-bold">▲</span> 
+                              <span>View less</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-base sm:text-lg font-bold">▼</span> 
+                              <span>View {replies.length - INITIAL_REPLIES_LIMIT} more {replies.length - INITIAL_REPLIES_LIMIT === 1 ? 'reply' : 'replies'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -37,7 +37,7 @@ const rssArticleSchema = new mongoose.Schema({
 
 // Indexes for faster queries
 rssArticleSchema.index({ category: 1, publishedAt: -1 });
-rssArticleSchema.index({ link: 1 });
+// link index is automatically created by unique: true
 rssArticleSchema.index({ feedId: 1 });
 
 module.exports = mongoose.model('RssArticle', rssArticleSchema);

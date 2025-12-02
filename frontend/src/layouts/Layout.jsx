@@ -35,7 +35,6 @@ const Layout = () => {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/feed', icon: Newspaper, label: 'Feed' },
     { path: '/announcements', icon: Megaphone, label: 'Announcements' },
     { path: '/news', icon: Newspaper, label: 'News' },
     { path: '/blogs', icon: BookOpen, label: 'Blogs' },

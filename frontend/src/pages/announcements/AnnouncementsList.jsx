@@ -5,10 +5,11 @@ import api from '../../services/api'
 import { Plus, Calendar, User, Clock, Tag, Filter, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
+import { isAdmin } from '../../utils/userHelpers'
 
 const AnnouncementsList = () => {
   const { user } = useAuthStore()
-  const isAdmin = user?.Role?.name === 'Admin'
+  const userIsAdmin = isAdmin(user)
   
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState({
@@ -64,7 +65,7 @@ const AnnouncementsList = () => {
             <Filter size={18} />
             Filters
           </button>
-          {isAdmin && (
+          {userIsAdmin && (
             <Link to="/announcements/new" className="btn btn-primary flex items-center gap-2">
               <Plus size={18} />
               Create Announcement
@@ -98,7 +99,7 @@ const AnnouncementsList = () => {
                 className="input"
               />
             </div>
-            {isAdmin && (
+            {userIsAdmin && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

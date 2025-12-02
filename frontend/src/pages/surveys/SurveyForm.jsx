@@ -239,8 +239,7 @@ const SurveyForm = () => {
                         className="input"
                       >
                         <option value="TEXT">Text</option>
-                        <option value="MULTIPLE_CHOICE">Multiple Choice</option>
-                        <option value="SINGLE_CHOICE">Single Choice</option>
+                        <option value="MCQ">Multiple Choice (MCQ)</option>
                         <option value="RATING">Rating (1-5)</option>
                       </select>
                     </div>

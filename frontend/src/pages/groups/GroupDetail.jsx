@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
+import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import PostComposer from '../../components/PostComposer'
 import CommentsComponent from '../../components/CommentsComponent'
@@ -124,7 +125,7 @@ const GroupDetail = () => {
   const posts = postsData?.posts || []
   const isMember = group.isMember
   const canPost = isMember || group.isPublic
-  const isAdminOrModerator = user?.role === 'Admin' || user?.role === 'Moderator'
+  const userIsAdminOrModerator = isAdminOrModerator(user)
   const isGroupAdmin = group.memberRole === 'admin' || group.memberRole === 'moderator'
 
   return (
@@ -207,7 +208,7 @@ const GroupDetail = () => {
           posts.map((post) => {
             const postId = post.id || post._id
             const isAuthor = user?.id === post.authorId?.id || user?._id === post.authorId?._id
-            const canEdit = isAuthor || isAdminOrModerator || isGroupAdmin
+            const canEdit = isAuthor || userIsAdminOrModerator || isGroupAdmin
 
             return (
               <div key={postId} className="card">

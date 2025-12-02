@@ -5,13 +5,14 @@ import { ArrowLeft, Calendar, User, Clock, Tag, Edit, Trash2 } from 'lucide-reac
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
+import { isAdmin } from '../../utils/userHelpers'
 
 const AnnouncementDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
-  const isAdmin = user?.Role?.name === 'Admin'
+  const userIsAdmin = isAdmin(user)
 
   const { data: announcement, isLoading } = useQuery(
     ['announcement', id],
@@ -57,7 +58,7 @@ const AnnouncementDetail = () => {
           <ArrowLeft size={18} />
           Back to Announcements
         </Link>
-        {isAdmin && (
+        {userIsAdmin && (
           <div className="flex items-center gap-2">
             <Link
               to={`/announcements/${id}/edit`}
