@@ -152,7 +152,7 @@ const useAuthStore = create((set, get) => ({
       if (error.response) {
         errorMessage = error.response.data?.message || `Server error: ${error.response.status}`
       } else if (error.request) {
-        errorMessage = 'Cannot connect to server. Make sure the backend is running on http://localhost:5002'
+        errorMessage = 'Cannot connect to server. Please check your internet connection.'
       } else {
         errorMessage = error.message || 'Login failed'
       }
