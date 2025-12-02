@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import api from '../../services/api'
+import RoleBadge from '../../components/RoleBadge'
 import { Search, User, Mail, Building, Briefcase, X } from 'lucide-react'
 
 export default function EmployeeDirectory() {
@@ -222,9 +223,14 @@ export default function EmployeeDirectory() {
 
                         {/* User Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 text-base sm:text-lg truncate">
-                            {user.name}
-                          </h3>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-gray-900 text-base sm:text-lg truncate">
+                              {user.name}
+                            </h3>
+                            {user.role && (
+                              <RoleBadge role={user.role} size="sm" />
+                            )}
+                          </div>
 
                           {user.designation && (
                             <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600 mt-1">

@@ -1,6 +1,8 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
+import RoleBadge from '../components/RoleBadge'
+import { getUserRole } from '../utils/userHelpers'
 import {
   LayoutDashboard,
   Newspaper,
@@ -31,7 +33,9 @@ const Layout = () => {
     navigate('/login')
   }
 
-  const isAdminOrModerator = ['ADMIN', 'MODERATOR'].includes(user?.role)
+  const userRole = getUserRole(user)
+  const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) || 
+                             ['ADMIN', 'MODERATOR'].includes(user?.role)
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -126,9 +130,9 @@ const Layout = () => {
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {user?.name || user?.displayName || 'User'}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {user?.role || 'Employee'}
-                  </p>
+                  <div className="mt-1">
+                    <RoleBadge role={userRole || 'Employee'} size="sm" />
+                  </div>
                 </div>
               </Link>
               <div className="space-y-2">

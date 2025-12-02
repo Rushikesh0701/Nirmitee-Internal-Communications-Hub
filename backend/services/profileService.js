@@ -1,4 +1,4 @@
-const { User, UserPoints, Recognition } = require('../models');
+const { User, UserPoints, Recognition, Role } = require('../models');
 const mongoose = require('mongoose');
 
 /**
@@ -46,34 +46,103 @@ const getProfileById = async (userId) => {
 
 /**
  * Update user profile (MongoDB only)
+ * @param {string} currentUserId - ID of the user making the request
+ * @param {Object} updateData - Data to update (can include targetUserId for admin)
  */
-const updateProfile = async (userId, updateData) => {
-  const user = await User.findById(userId);
+const updateProfile = async (currentUserId, updateData) => {
+  // If admin is editing another user's profile, use targetUserId
+  const currentUser = await User.findById(currentUserId).populate('roleId', 'name description');
+  const isAdmin = currentUser?.roleId?.name === 'Admin' || currentUser?.roleId?.name === 'ADMIN';
+  
+  const targetUserId = (isAdmin && updateData.targetUserId) ? updateData.targetUserId : currentUserId;
+  const user = await User.findById(targetUserId).populate('roleId', 'name description');
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  const { designation, department, bio, interests, avatar } = updateData;
+  // Non-admin users can only edit their own profile
+  if (!isAdmin && targetUserId !== currentUserId) {
+    throw new Error('Unauthorized: You can only edit your own profile');
+  }
 
+  // Extract update fields
+  const { 
+    targetUserId: _, // Remove from updateData
+    designation, 
+    department, 
+    bio, 
+    interests, 
+    avatar,
+    firstName,
+    lastName,
+    displayName,
+    email,
+    position,
+    roleId,
+    role, // Accept role name as well
+    isActive
+  } = updateData;
+
+  // Update allowed fields
   if (designation !== undefined) user.position = designation;
+  if (position !== undefined) user.position = position;
   if (department !== undefined) user.department = department;
   if (bio !== undefined) user.bio = bio;
+  if (interests !== undefined) user.interests = interests;
   if (avatar !== undefined) user.avatar = avatar;
+  if (firstName !== undefined) user.firstName = firstName;
+  if (lastName !== undefined) user.lastName = lastName;
+  if (displayName !== undefined) user.displayName = displayName;
+  
+  // Only admin can update these sensitive fields
+  if (isAdmin) {
+    if (email !== undefined) user.email = email;
+    
+    // Handle role update - can be roleId (ObjectId) or role name (string)
+    if (roleId !== undefined || role !== undefined) {
+      if (roleId && mongoose.Types.ObjectId.isValid(roleId)) {
+        // If it's a valid ObjectId, use it directly
+        user.roleId = roleId;
+      } else if (role) {
+        // If it's a role name, find the role
+        const roleRecord = await Role.findOne({ name: role });
+        if (roleRecord) {
+          user.roleId = roleRecord._id;
+        }
+      } else if (roleId) {
+        // Try to find role by name if roleId is provided as string name
+        const roleRecord = await Role.findOne({ name: roleId });
+        if (roleRecord) {
+          user.roleId = roleRecord._id;
+        }
+      }
+    }
+    
+    if (isActive !== undefined) user.isActive = isActive;
+  }
 
   await user.save();
 
+  // Return updated user with populated role
+  const updatedUser = await User.findById(user._id)
+    .populate('roleId', 'name description')
+    .select('-password');
+
   return {
-    _id: user._id,
-    id: user._id.toString(),
-    name: user.displayName || `${user.firstName} ${user.lastName}`,
-    email: user.email,
-    avatar: user.avatar,
-    department: user.department,
-    designation: user.position,
-    bio: user.bio,
-    role: user.roleId?.name || 'Employee',
-    isActive: user.isActive
+    _id: updatedUser._id,
+    id: updatedUser._id.toString(),
+    name: updatedUser.displayName || `${updatedUser.firstName} ${updatedUser.lastName}`,
+    firstName: updatedUser.firstName,
+    lastName: updatedUser.lastName,
+    email: updatedUser.email,
+    avatar: updatedUser.avatar,
+    department: updatedUser.department,
+    designation: updatedUser.position,
+    bio: updatedUser.bio,
+    role: updatedUser.roleId?.name || 'Employee',
+    roleId: updatedUser.roleId,
+    isActive: updatedUser.isActive
   };
 };
 

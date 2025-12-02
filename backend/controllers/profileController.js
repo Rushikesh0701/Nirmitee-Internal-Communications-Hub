@@ -26,18 +26,20 @@ const getProfile = async (req, res, next) => {
 
 /**
  * PUT /profile/update
+ * Allows users to update their own profile, or admins to update any profile
+ * Admin can include targetUserId in request body to edit another user's profile
  */
 const updateProfile = async (req, res, next) => {
   try {
-    const userId = req.userId;
-    if (!userId) {
+    const currentUserId = req.userId;
+    if (!currentUserId) {
       return res.status(401).json({
         success: false,
         message: 'Authentication required'
       });
     }
     
-    const updatedProfile = await profileService.updateProfile(userId, req.body);
+    const updatedProfile = await profileService.updateProfile(currentUserId, req.body);
 
     res.json({
       success: true,
@@ -46,6 +48,13 @@ const updateProfile = async (req, res, next) => {
   } catch (error) {
     if (error.message === 'User not found') {
       return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+    
+    if (error.message.includes('Unauthorized')) {
+      return res.status(403).json({
         success: false,
         message: error.message
       });
