@@ -2,7 +2,7 @@ const analyticsService = require('../services/analyticsService');
 
 const getDashboardStats = async (req, res, next) => {
   try {
-    const stats = await analyticsService.getDashboardStats(req.user);
+    const stats = await analyticsService.getDashboardStats(req.user, req.userRole);
     res.json({ success: true, data: stats });
   } catch (error) {
     next(error);
@@ -16,7 +16,7 @@ const getContentAnalytics = async (req, res, next) => {
       entityType,
       startDate,
       endDate
-    }, req.user);
+    }, req.user, req.userRole);
     res.json({ success: true, data: analytics });
   } catch (error) {
     next(error);
@@ -29,7 +29,7 @@ const getUserEngagement = async (req, res, next) => {
     const engagement = await analyticsService.getUserEngagement({
       startDate,
       endDate
-    }, req.user);
+    }, req.user, req.userRole);
     res.json({ success: true, data: engagement });
   } catch (error) {
     next(error);

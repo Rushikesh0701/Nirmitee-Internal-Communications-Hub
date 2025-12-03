@@ -1,7 +1,9 @@
 const { Analytics, News, Blog, Discussion, User, Survey, Course } = require('../models');
 
-const getDashboardStats = async (user) => {
-  if (!['Admin', 'Moderator'].includes(user.Role?.name)) {
+const getDashboardStats = async (user, userRole) => {
+  // Check role - prefer passed userRole, fallback to extracting from user object
+  const role = userRole || user.roleId?.name || user.role || user.Role?.name;
+  if (!['Admin', 'Moderator'].includes(role)) {
     throw new Error('Unauthorized to view analytics');
   }
 
@@ -47,8 +49,10 @@ const getDashboardStats = async (user) => {
   };
 };
 
-const getContentAnalytics = async (options, user) => {
-  if (!['Admin', 'Moderator'].includes(user.Role?.name)) {
+const getContentAnalytics = async (options, user, userRole) => {
+  // Check role - prefer passed userRole, fallback to extracting from user object
+  const role = userRole || user.roleId?.name || user.role || user.Role?.name;
+  if (!['Admin', 'Moderator'].includes(role)) {
     throw new Error('Unauthorized');
   }
 
@@ -109,8 +113,10 @@ const getContentAnalytics = async (options, user) => {
   return analytics;
 };
 
-const getUserEngagement = async (options, user) => {
-  if (!['Admin', 'Moderator'].includes(user.Role?.name)) {
+const getUserEngagement = async (options, user, userRole) => {
+  // Check role - prefer passed userRole, fallback to extracting from user object
+  const role = userRole || user.roleId?.name || user.role || user.Role?.name;
+  if (!['Admin', 'Moderator'].includes(role)) {
     throw new Error('Unauthorized');
   }
 
