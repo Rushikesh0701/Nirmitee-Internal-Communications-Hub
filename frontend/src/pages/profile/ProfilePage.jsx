@@ -30,6 +30,9 @@ export default function ProfilePage() {
     }
   )
 
+  // Handle axios response structure: response.data = { success: true, data: profile }
+  const profile = profileData?.data?.data
+
   const updateMutation = useMutation(
     (data) => {
       // If admin is editing another user's profile, include targetUserId
@@ -71,9 +74,6 @@ export default function ProfilePage() {
       })
     }
   }, [isEditing, profile])
-
-  // Handle axios response structure: response.data = { success: true, data: profile }
-  const profile = profileData?.data?.data
 
   if (isLoading) {
     return <div className="text-center py-12">Loading profile...</div>
