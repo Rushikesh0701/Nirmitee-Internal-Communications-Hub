@@ -66,12 +66,12 @@ export default function EmployeeDirectory() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8"
+        className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6"
       >
         {/* Search Input with Clear Button */}
         <div className="flex-1 relative">
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
             size={20}
           />
           <input
@@ -79,8 +79,8 @@ export default function EmployeeDirectory() {
             placeholder="Search by name, email, or skills..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-primary-500 
+            className="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-all text-sm sm:text-base"
           />
           {search && (
@@ -96,12 +96,12 @@ export default function EmployeeDirectory() {
         </div>
 
         {/* Department Filter with Clear Button */}
-        <div className="relative min-w-[160px]">
+        <div className="relative sm:min-w-[180px]">
           <select
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
-            className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-primary-500
+            className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-all text-sm sm:text-base appearance-none
                        bg-white cursor-pointer"
           >
@@ -117,7 +117,7 @@ export default function EmployeeDirectory() {
               onClick={clearDepartment}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 
                          text-gray-400 hover:text-gray-600 transition-colors
-                         bg-white rounded-full p-0.5 hover:bg-gray-100"
+                         bg-white rounded-full p-0.5 hover:bg-gray-100 z-10"
               aria-label="Clear department filter"
             >
               <X size={18} />
@@ -182,11 +182,11 @@ export default function EmployeeDirectory() {
           {users.length > 0 ? (
             <>
               {/* Results Count */}
-              <div className="mb-4 text-sm text-gray-600">
+              <div className="mb-5 text-sm text-gray-600 font-medium">
                 Showing {users.length} {users.length === 1 ? 'employee' : 'employees'}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {users.map((user, index) => (
                   <motion.div
                     key={user.id || user._id}
@@ -196,72 +196,78 @@ export default function EmployeeDirectory() {
                   >
                     <Link
                       to={`/profile/${user.id || user._id}`}
-                      className="block bg-white rounded-xl shadow-md p-4 sm:p-6 
-                                 hover:shadow-xl hover:border-primary-100 
+                      className="block bg-white rounded-xl shadow-sm p-6 
+                                 hover:shadow-lg hover:border-primary-200 
                                  transition-all duration-300 border border-gray-200
-                                 h-full"
+                                 h-full flex flex-col"
                     >
-                      <div className="flex items-start gap-3 sm:gap-4">
-                        {/* Avatar */}
+                      {/* Avatar - Centered at top */}
+                      <div className="flex justify-center mb-4">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
                             alt={user.name}
-                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover
+                            className="w-20 h-20 rounded-full object-cover
                                        ring-2 ring-gray-100"
                           />
                         ) : (
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full 
-                                          bg-gradient-to-br from-primary-400 to-primary-600 
+                          <div className="w-20 h-20 rounded-full 
+                                          bg-gradient-to-br from-blue-400 to-blue-600 
                                           flex items-center justify-center
-                                          ring-2 ring-primary-100">
-                            <span className="text-white font-semibold text-lg sm:text-xl">
+                                          ring-2 ring-blue-100">
+                            <span className="text-white font-semibold text-2xl">
                               {user.name?.charAt(0)?.toUpperCase() || 'U'}
                             </span>
                           </div>
                         )}
-
-                        {/* User Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-gray-900 text-base sm:text-lg truncate">
-                              {user.name}
-                            </h3>
-                            {user.role && (
-                              <RoleBadge role={user.role} size="sm" />
-                            )}
-                          </div>
-
-                          {user.designation && (
-                            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600 mt-1">
-                              <Briefcase size={14} className="flex-shrink-0" />
-                              <span className="truncate">{user.designation}</span>
-                            </div>
-                          )}
-
-                          {user.department && (
-                            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 mt-1">
-                              <Building size={14} className="flex-shrink-0" />
-                              <span className="truncate">{user.department}</span>
-                            </div>
-                          )}
-
-                          {user.email && (
-                            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 mt-1">
-                              <Mail size={14} className="flex-shrink-0" />
-                              <span className="truncate">{user.email}</span>
-                            </div>
-                          )}
-
-                          {user.points > 0 && (
-                            <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 
-                                            bg-yellow-50 text-yellow-700 rounded-full text-xs sm:text-sm font-medium">
-                              <span>⭐</span>
-                              <span>{user.points} points</span>
-                            </div>
-                          )}
-                        </div>
                       </div>
+
+                      {/* Name and Role Badge */}
+                      <div className="text-center mb-4">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-2 truncate">
+                          {user.name}
+                        </h3>
+                        {user.role && (
+                          <div className="flex justify-center">
+                            <RoleBadge role={user.role} size="sm" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Details - Vertical list */}
+                      <div className="space-y-2 flex-1">
+                        {user.designation && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Briefcase size={16} className="flex-shrink-0 text-gray-400" />
+                            <span className="truncate">{user.designation}</span>
+                          </div>
+                        )}
+
+                        {user.department && (
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Building size={16} className="flex-shrink-0 text-gray-400" />
+                            <span className="truncate">{user.department}</span>
+                          </div>
+                        )}
+
+                        {user.email && (
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Mail size={16} className="flex-shrink-0 text-gray-400" />
+                            <span className="truncate">{user.email}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Points - Bottom */}
+                      {user.points > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="inline-flex items-center gap-1 px-3 py-1 
+                                          bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                            <span>⭐</span>
+                            <span>{user.points} points</span>
+                          </div>
+                        </div>
+                      )}
                     </Link>
                   </motion.div>
                 ))}
