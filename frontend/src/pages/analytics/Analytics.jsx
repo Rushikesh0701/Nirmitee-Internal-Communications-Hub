@@ -63,12 +63,6 @@ const Analytics = () => {
     { name: 'Discussions', value: stats?.overview?.totalDiscussions || 0, color: COLORS.discussions }
   ].filter(item => item.value > 0)
 
-  const viewsData = [
-    { name: 'News', views: contentAnalytics?.news?.totalViews || 0, color: COLORS.news },
-    { name: 'Blogs', views: contentAnalytics?.blogs?.totalViews || 0, color: COLORS.blogs },
-    { name: 'Discussions', views: contentAnalytics?.discussions?.totalViews || 0, color: COLORS.discussions }
-  ]
-
   // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -155,7 +149,7 @@ const Analytics = () => {
       </div>
 
       {/* Content Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Time Series Line Chart */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">Content Creation Over Time</h2>
@@ -209,35 +203,6 @@ const Analytics = () => {
           ) : (
             <div className="h-64 flex items-center justify-center text-gray-500">
               No data available for the selected period
-            </div>
-          )}
-        </div>
-
-        {/* Views Bar Chart */}
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Total Views by Content Type</h2>
-          {isLoadingContent ? (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              Loading chart data...
-            </div>
-          ) : viewsData.some(item => item.views > 0) ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={viewsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip contentStyle={{ borderRadius: '8px' }} />
-                <Legend />
-                <Bar dataKey="views" fill="#3b82f6" radius={[8, 8, 0, 0]}>
-                  {viewsData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No views data available
             </div>
           )}
         </div>
