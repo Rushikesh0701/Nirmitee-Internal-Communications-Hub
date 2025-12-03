@@ -1,4 +1,4 @@
-const { Analytics, News, Blog, Discussion, User, Survey, Course } = require('../models');
+const { Analytics, News, Blog, Discussion, User, SurveyModel, Course } = require('../models');
 
 const getDashboardStats = async (user, userRole) => {
   // Check role - prefer passed userRole, fallback to extracting from user object
@@ -21,7 +21,7 @@ const getDashboardStats = async (user, userRole) => {
     Blog.countDocuments(),
     Discussion.countDocuments(),
     User.countDocuments({ isActive: true }),
-    Survey.countDocuments({ isActive: true }),
+    SurveyModel.countDocuments({ isActive: true }),
     Course.countDocuments({ isPublished: true }),
     News.find()
       .populate('authorId', 'firstName lastName')
