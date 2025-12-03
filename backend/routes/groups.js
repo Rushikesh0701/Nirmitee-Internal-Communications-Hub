@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const groupController = require('../controllers/groupController');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { isModerator } = require('../middleware/rbac');
 
 // Public routes (groups list)
@@ -20,7 +20,7 @@ router.delete('/posts/:postId', authenticateToken, groupController.deleteGroupPo
 router.post('/posts/:postId/like', authenticateToken, groupController.togglePostLike);
 
 // Group-specific routes
-router.get('/:id', groupController.getGroupById);
+router.get('/:id', optionalAuth, groupController.getGroupById);
 router.get('/:id/posts', authenticateToken, groupController.getGroupPosts);
 router.post('/:id/posts', authenticateToken, groupController.createGroupPost);
 router.post('/:id/join', authenticateToken, groupController.joinGroup);

@@ -115,20 +115,60 @@ const authenticateToken = async (req, res, next) => {
 
 /**
  * Optional authentication - doesn't fail if no auth
+ * Checks both JWT tokens and cookies
  */
 const optionalAuth = async (req, res, next) => {
   try {
-    const userId = req.cookies?.userId;
-    if (userId) {
-      const user = await User.findById(userId).populate('roleId', 'name description');
-      if (user && user.isActive) {
-        req.user = user.toJSON();
-        req.userId = userId;
-        req.userRole = user.roleId?.name || 'Employee';
+    // Check for JWT in Authorization header first
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.userId).populate('roleId', 'name description');
+        
+        if (user && user.isActive) {
+          req.user = user.toJSON();
+          req.userId = decoded.userId;
+          req.userRole = user.roleId?.name || 'Employee';
+          return next();
+        }
+      } catch (jwtError) {
+        // If JWT is invalid/expired, silently continue (optional auth)
+        // Don't fail the request, just proceed without authentication
       }
     }
+    
+    // Fall back to cookie-based auth (backward compatibility)
+    const userId = req.cookies?.userId;
+    if (userId) {
+      try {
+        // Clean up userId - handle JSON-encoded values or extract from string
+        let cleanUserId = userId;
+        if (typeof userId === 'string') {
+          if (userId.startsWith('j:"') && userId.endsWith('"')) {
+            cleanUserId = userId.slice(3, -1);
+          } else if (userId.startsWith('"') && userId.endsWith('"')) {
+            cleanUserId = userId.slice(1, -1);
+          }
+          cleanUserId = cleanUserId.replace(/^["']|["']$/g, '');
+        }
+        
+        const user = await User.findById(cleanUserId).populate('roleId', 'name description');
+        if (user && user.isActive) {
+          req.user = user.toJSON();
+          req.userId = cleanUserId;
+          req.userRole = user.roleId?.name || 'Employee';
+        }
+      } catch (error) {
+        // Silently continue if cookie auth fails (optional auth)
+      }
+    }
+    
     next();
   } catch (error) {
+    // Always continue even if there's an error (optional auth)
     next();
   }
 };
