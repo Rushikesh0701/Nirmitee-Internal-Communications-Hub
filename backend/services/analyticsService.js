@@ -59,55 +59,147 @@ const getContentAnalytics = async (options, user, userRole) => {
   const { entityType, startDate, endDate } = options;
   const dateQuery = {};
   
+  // Default to last 30 days if no dates provided
   if (startDate && endDate) {
     dateQuery.createdAt = {
       $gte: new Date(startDate),
       $lte: new Date(endDate)
     };
+  } else {
+    const end = new Date();
+    const start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    dateQuery.createdAt = {
+      $gte: start,
+      $lte: end
+    };
   }
 
   let analytics = {};
 
-  if (!entityType || entityType === 'news') {
-    const newsStats = await News.aggregate([
+  // Helper function to get time-series data
+  const getTimeSeriesData = async (Model, dateField = 'createdAt') => {
+    const timeSeries = await Model.aggregate([
       { $match: dateQuery },
       {
         $group: {
-          _id: null,
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: `$${dateField}` }
+          },
           count: { $sum: 1 },
           totalViews: { $sum: '$views' }
         }
-      }
+      },
+      { $sort: { _id: 1 } }
     ]);
-    analytics.news = newsStats[0] || { count: 0, totalViews: 0 };
+
+    return timeSeries.map(item => ({
+      date: item._id,
+      count: item.count,
+      views: item.totalViews || 0
+    }));
+  };
+
+  // Get overall stats
+  if (!entityType || entityType === 'news') {
+    const [newsStats, newsTimeSeries] = await Promise.all([
+      News.aggregate([
+        { $match: dateQuery },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            totalViews: { $sum: '$views' }
+          }
+        }
+      ]),
+      getTimeSeriesData(News)
+    ]);
+    analytics.news = {
+      ...(newsStats[0] || { count: 0, totalViews: 0 }),
+      timeSeries: newsTimeSeries
+    };
   }
 
   if (!entityType || entityType === 'blog') {
-    const blogStats = await Blog.aggregate([
-      { $match: dateQuery },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          totalViews: { $sum: '$views' }
+    const [blogStats, blogTimeSeries] = await Promise.all([
+      Blog.aggregate([
+        { $match: dateQuery },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            totalViews: { $sum: '$views' }
+          }
         }
-      }
+      ]),
+      getTimeSeriesData(Blog)
     ]);
-    analytics.blogs = blogStats[0] || { count: 0, totalViews: 0 };
+    analytics.blogs = {
+      ...(blogStats[0] || { count: 0, totalViews: 0 }),
+      timeSeries: blogTimeSeries
+    };
   }
 
   if (!entityType || entityType === 'discussion') {
-    const discussionStats = await Discussion.aggregate([
-      { $match: dateQuery },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          totalViews: { $sum: '$views' }
+    const [discussionStats, discussionTimeSeries] = await Promise.all([
+      Discussion.aggregate([
+        { $match: dateQuery },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            totalViews: { $sum: '$views' }
+          }
         }
-      }
+      ]),
+      getTimeSeriesData(Discussion)
     ]);
-    analytics.discussions = discussionStats[0] || { count: 0, totalViews: 0 };
+    analytics.discussions = {
+      ...(discussionStats[0] || { count: 0, totalViews: 0 }),
+      timeSeries: discussionTimeSeries
+    };
+  }
+
+  // Get combined time-series for all content types
+  if (!entityType) {
+    const [newsSeries, blogSeries, discussionSeries] = await Promise.all([
+      getTimeSeriesData(News),
+      getTimeSeriesData(Blog),
+      getTimeSeriesData(Discussion)
+    ]);
+
+    // Combine all time-series data
+    const dateMap = new Map();
+    
+    // Add all dates from all series
+    [...newsSeries, ...blogSeries, ...discussionSeries].forEach(item => {
+      if (!dateMap.has(item.date)) {
+        dateMap.set(item.date, { date: item.date, news: 0, blogs: 0, discussions: 0 });
+      }
+    });
+
+    // Fill in the counts for each date
+    newsSeries.forEach(item => {
+      if (dateMap.has(item.date)) {
+        dateMap.get(item.date).news = item.count;
+      }
+    });
+    
+    blogSeries.forEach(item => {
+      if (dateMap.has(item.date)) {
+        dateMap.get(item.date).blogs = item.count;
+      }
+    });
+    
+    discussionSeries.forEach(item => {
+      if (dateMap.has(item.date)) {
+        dateMap.get(item.date).discussions = item.count;
+      }
+    });
+
+    analytics.combinedTimeSeries = Array.from(dateMap.values()).sort((a, b) => 
+      a.date.localeCompare(b.date)
+    );
   }
 
   return analytics;
