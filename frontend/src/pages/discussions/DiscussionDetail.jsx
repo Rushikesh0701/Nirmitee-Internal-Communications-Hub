@@ -353,6 +353,8 @@ const DiscussionDetail = () => {
 
   const handleAddComment = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (!commentContent.trim()) return;
 
     try {
@@ -363,22 +365,26 @@ const DiscussionDetail = () => {
       const apiResponse = response.data;
       const newComment = apiResponse.data || apiResponse;
 
-      setDiscussion({
-        ...discussion,
-        Comments: [...(discussion.Comments || []), newComment],
-        commentCount: (discussion.commentCount || 0) + 1,
-      });
+      // Optimistically update the UI without fetching
+      setDiscussion((prevDiscussion) => ({
+        ...prevDiscussion,
+        Comments: [...(prevDiscussion.Comments || []), newComment],
+        commentCount: (prevDiscussion.commentCount || 0) + 1,
+      }));
+      
       setCommentContent('');
       toast.success('Comment added!');
-      // Refresh the discussion to get updated data
-      fetchDiscussion();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add comment');
+      // Only fetch on error to restore correct state
+      fetchDiscussion();
     }
   };
 
   const handleAddReply = async (parentCommentId, e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const replyText = replyContent[parentCommentId];
     if (!replyText || !replyText.trim()) return;
 
@@ -394,15 +400,29 @@ const DiscussionDetail = () => {
       const apiResponse = response.data;
       const newReply = apiResponse.data || apiResponse;
 
+      // Optimistically update the UI without fetching
+      setDiscussion((prevDiscussion) => ({
+        ...prevDiscussion,
+        Comments: [...(prevDiscussion.Comments || []), newReply],
+        commentCount: (prevDiscussion.commentCount || 0) + 1,
+      }));
+
       // Clear the reply form
-      setReplyContent({ ...replyContent, [parentCommentId]: '' });
-      setShowReplyForm({ ...showReplyForm, [parentCommentId]: false });
+      setReplyContent((prev) => {
+        const newState = { ...prev };
+        delete newState[parentCommentId];
+        return newState;
+      });
+      setShowReplyForm((prev) => ({
+        ...prev,
+        [parentCommentId]: false
+      }));
 
       toast.success('Reply added!');
-      // Refresh the discussion to get updated data with proper structure
-      await fetchDiscussion();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add reply');
+      // Only fetch on error to restore correct state
+      await fetchDiscussion();
     }
   };
 

@@ -209,84 +209,33 @@ const Analytics = () => {
       </div>
 
       {/* Content Distribution Pie Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Content Distribution</h2>
-          {pieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: '8px' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No content data available
-            </div>
-          )}
-        </div>
-
-        {/* Content Stats Table */}
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Content Statistics</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">News</p>
-                <p className="text-sm text-gray-600">
-                  {contentAnalytics?.news?.count || 0} articles
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-blue-600">
-                  {contentAnalytics?.news?.totalViews || 0}
-                </p>
-                <p className="text-xs text-gray-500">total views</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">Blogs</p>
-                <p className="text-sm text-gray-600">
-                  {contentAnalytics?.blogs?.count || 0} posts
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-green-600">
-                  {contentAnalytics?.blogs?.totalViews || 0}
-                </p>
-                <p className="text-xs text-gray-500">total views</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">Discussions</p>
-                <p className="text-sm text-gray-600">
-                  {contentAnalytics?.discussions?.count || 0} threads
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-purple-600">
-                  {contentAnalytics?.discussions?.totalViews || 0}
-                </p>
-                <p className="text-xs text-gray-500">total views</p>
-              </div>
-            </div>
+      <div className="card">
+        <h2 className="text-xl font-semibold mb-4">Content Distribution</h2>
+        {pieData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ borderRadius: '8px' }} />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            No content data available
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
