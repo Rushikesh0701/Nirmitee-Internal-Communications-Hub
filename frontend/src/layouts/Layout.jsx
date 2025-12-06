@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
 import RoleBadge from '../components/RoleBadge'
 import { getUserRole } from '../utils/userHelpers'
+import Logo from '../assets/Logo.png'
 import {
   LayoutDashboard,
   Newspaper,
@@ -62,7 +63,9 @@ const Layout = () => {
       {/* Mobile header */}
       <div className="lg:hidden bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-30">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold text-primary-600">Nirmitee Hub</h1>
+          <Link to="/dashboard">
+            <img src={Logo} alt="Nirmitee.io" className="h-8 cursor-pointer hover:opacity-80 transition-opacity" />
+          </Link>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -82,9 +85,9 @@ const Layout = () => {
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
             <div className="p-6 border-b hidden lg:block">
-              <h1 className="text-2xl font-bold text-primary-600">
-                Nirmitee Hub
-              </h1>
+              <Link to="/dashboard">
+                <img src={Logo} alt="Nirmitee.io" className="h-10 mb-2 cursor-pointer hover:opacity-80 transition-opacity" />
+              </Link>
               <p className="text-sm text-gray-500 mt-1">Internal Communications</p>
             </div>
 
