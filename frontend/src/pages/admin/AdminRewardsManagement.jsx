@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save, X } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save } from 'lucide-react'
 
 const AdminRewardsManagement = () => {
   const queryClient = useQueryClient()

@@ -22,7 +22,7 @@ export const sanitizeHtml = (html) => {
       'href', 'src', 'alt', 'title', 'style', 'class', 'target', 
       'rel', 'width', 'height', 'controls', 'allowfullscreen'
     ],
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
   });
 };
 

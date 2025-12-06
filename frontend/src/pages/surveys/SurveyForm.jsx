@@ -14,7 +14,7 @@ const SurveyForm = () => {
   const isEdit = !!id
   const [questions, setQuestions] = useState([])
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     defaultValues: {
       title: '',
       description: '',
@@ -208,7 +208,7 @@ const SurveyForm = () => {
 
             {questions.length === 0 && (
               <p className="text-gray-500 text-center py-8">
-                No questions added yet. Click "Add Question" to get started.
+                No questions added yet. Click &quot;Add Question&quot; to get started.
               </p>
             )}
 

@@ -1,11 +1,10 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ImageModal = ({ 
   isOpen, 
   onClose, 
-  onInsert, 
   editor,
   editingImage = null,
   onEditComplete = () => {}
@@ -44,7 +43,6 @@ const ImageModal = ({
 
     // Build style string based on settings
     let styleString = '';
-    let alignClass = '';
     
     // Handle alignment
     switch(imageSettings.align) {
@@ -165,7 +163,7 @@ const ImageModal = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, [insertImageWithSettings, onClose]);
+  }, [insertImageWithSettings, onClose, editingImage, onEditComplete]);
 
   const triggerFileInput = useCallback(() => {
     if (fileInputRef.current) {

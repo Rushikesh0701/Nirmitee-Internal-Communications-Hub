@@ -137,8 +137,6 @@ const BlogForm = () => {
     mode: 'onChange' // Validate on change for better UX
   })
 
-  const isPublished = watch('isPublished')
-
   // Load existing blog if editing
   const { data: blog, isLoading } = useQuery(
     ['blog', id],

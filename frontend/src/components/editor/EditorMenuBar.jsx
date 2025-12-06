@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Bold,
   Italic,
@@ -43,6 +43,28 @@ const EditorMenuBar = ({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
   const [showFontFamilyPicker, setShowFontFamilyPicker] = useState(false);
+  
+  // Close dropdowns when clicking outside - must be declared before early return
+  const colorPickerRef = useRef(null);
+  const fontSizePickerRef = useRef(null);
+  const fontFamilyPickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target)) {
+        setShowColorPicker(false);
+      }
+      if (fontSizePickerRef.current && !fontSizePickerRef.current.contains(event.target)) {
+        setShowFontSizePicker(false);
+      }
+      if (fontFamilyPickerRef.current && !fontFamilyPickerRef.current.contains(event.target)) {
+        setShowFontFamilyPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!editor) return null;
 
@@ -137,7 +159,7 @@ const EditorMenuBar = ({
         
         const textNodes = [];
         let node;
-        while (node = walker.nextNode()) {
+        while ((node = walker.nextNode())) {
           textNodes.push(node);
         }
         
@@ -197,30 +219,6 @@ const EditorMenuBar = ({
       toast.error('Failed to auto-format content');
     }
   };
-
-  // Close dropdowns when clicking outside
-  const colorPickerRef = useRef(null);
-  const fontSizePickerRef = useRef(null);
-  const fontFamilyPickerRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target)) {
-        setShowColorPicker(false);
-      }
-      if (fontSizePickerRef.current && !fontSizePickerRef.current.contains(event.target)) {
-        setShowFontSizePicker(false);
-      }
-      if (fontFamilyPickerRef.current && !fontFamilyPickerRef.current.contains(event.target)) {
-        setShowFontFamilyPicker(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   return (
     <div className="border-b border-gray-200 bg-white rounded-t-lg">

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const LottieEmptyState = ({ message = 'No items found', subMessage = '' }) => {
   return (
     <div className="text-center py-12">

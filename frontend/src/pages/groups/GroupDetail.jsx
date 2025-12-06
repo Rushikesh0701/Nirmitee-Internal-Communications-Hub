@@ -1,17 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
 import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import PostComposer from '../../components/PostComposer'
 import CommentsComponent from '../../components/CommentsComponent'
-import { ArrowLeft, Users, Lock, Pin, Heart, Edit2, Trash2, LogOut, LogIn } from 'lucide-react'
+import { ArrowLeft, Users, Lock, Pin, Heart, Trash2, LogOut, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
 
 const GroupDetail = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
 

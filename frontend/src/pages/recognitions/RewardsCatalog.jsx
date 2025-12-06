@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
-import { Gift, Star, CheckCircle } from 'lucide-react'
+import { Gift, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function RewardsCatalog() {

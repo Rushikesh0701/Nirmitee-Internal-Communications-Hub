@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { blogAPI } from '../../services/blogApi';
@@ -22,26 +22,9 @@ const EditBlog = () => {
   });
   const [tagInput, setTagInput] = useState('');
   const [coverImagePreview, setCoverImagePreview] = useState('');
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
 
-  // Validate ID
-  if (!id || id === 'undefined' || id === 'null') {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
-          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
-          <button
-            onClick={() => navigate('/blogs')}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
-          >
-            ← Back to Blogs
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  // All hooks must be called before any early returns
   const { data: blogData, isLoading } = useQuery(
     ['blog', id],
     async () => {
@@ -93,6 +76,24 @@ const EditBlog = () => {
       }
     }
   );
+
+  // Validate ID after hooks
+  if (!id || id === 'undefined' || id === 'null') {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
+          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
+          <button
+            onClick={() => navigate('/blogs')}
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
+          >
+            ← Back to Blogs
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (e) => {
     setFormData({

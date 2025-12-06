@@ -22,11 +22,13 @@ export const useBlogMutations = (blogId) => {
   );
 
   const addCommentMutation = useMutation(
-    ({ content, parentCommentId }) => blogAPI.addComment(blogId, content, parentCommentId),
+    ({ content, parentCommentId }) => {
+      return blogAPI.addComment(blogId, content, parentCommentId);
+    },
     {
-      onSuccess: () => {
+      onSuccess: (_, variables) => {
         queryClient.invalidateQueries(['blog', blogId]);
-        toast.success(parentCommentId ? 'Reply added!' : 'Comment added!');
+        toast.success(variables.parentCommentId ? 'Reply added!' : 'Comment added!');
       },
       onError: () => {
         toast.error('Failed to add comment');

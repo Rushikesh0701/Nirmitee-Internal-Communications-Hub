@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
-import { Edit, Award, Star, Mail, Building, Briefcase } from 'lucide-react'
+import { Edit, Award, Star, Mail, Building } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
@@ -10,7 +10,6 @@ import toast from 'react-hot-toast'
 
 export default function ProfilePage() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user: currentUser } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
@@ -110,7 +109,7 @@ export default function ProfilePage() {
           {isAdmin(currentUser) && !isOwnProfile && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Admin Mode:</strong> You are editing another user's profile. All fields are editable.
+                <strong>Admin Mode:</strong> You are editing another user&apos;s profile. All fields are editable.
               </p>
             </div>
           )}

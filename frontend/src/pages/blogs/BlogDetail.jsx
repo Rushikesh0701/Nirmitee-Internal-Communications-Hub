@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from 'react-query';
@@ -41,25 +41,7 @@ const BlogDetail = () => {
   const { user, isAuthenticated, requireAuth } = useAuthGuard();
   const { toggleBookmark, isBookmarked } = useBookmarks();
 
-  // Validate blog ID early
-  if (!isValidBlogId(id)) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
-          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
-          <Link
-            to="/blogs"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
-          >
-            ← Back to Blogs
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Fetch blog data
+  // Fetch blog data (hooks must be called before any returns)
   const { data: blog, isLoading, error } = useQuery(
     ['blog', id],
     async () => {
@@ -95,6 +77,24 @@ const BlogDetail = () => {
       sanitizedContent: sanitizeHtml(blog.content)
     };
   }, [blog, user, isBookmarked]);
+
+  // Validate blog ID after hooks
+  if (!isValidBlogId(id)) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
+          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
+          <Link
+            to="/blogs"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
+          >
+            ← Back to Blogs
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Event Handlers
   const handleLike = () => {
@@ -156,7 +156,7 @@ const BlogDetail = () => {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Blog not found</h2>
           <p className="text-gray-600 mb-4">
-            The blog you're looking for doesn't exist or has been removed.
+            The blog you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
           <Link
             to="/blogs"

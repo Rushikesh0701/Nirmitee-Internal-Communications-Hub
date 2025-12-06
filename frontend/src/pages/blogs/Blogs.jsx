@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
@@ -17,7 +17,7 @@ const Blogs = () => {
   const { user, isAuthenticated } = useAuthStore();
   const { bookmarks } = useBookmarks();
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading } = useQuery(
     ['blogs', filter, categoryFilter],
     async () => {
       const params = {};

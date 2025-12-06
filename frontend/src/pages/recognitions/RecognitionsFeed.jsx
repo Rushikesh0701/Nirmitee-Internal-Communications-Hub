@@ -20,7 +20,7 @@ export default function RecognitionsFeed() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Recognition Feed</h1>
-          <p className="text-gray-600 mt-1">Celebrate your colleagues' achievements</p>
+          <p className="text-gray-600 mt-1">Celebrate your colleagues&apos; achievements</p>
         </div>
         <Link
           to="/recognitions/new"

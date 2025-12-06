@@ -5,8 +5,6 @@ import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-reac
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,

@@ -2,12 +2,10 @@ import { useQuery } from 'react-query'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, GraduationCap, Users, Star, Clock } from 'lucide-react'
-import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
 
 const CourseDetail = () => {
   const { id } = useParams()
-  const { user } = useAuthStore()
 
   const { data: course, isLoading } = useQuery(
     ['course', id],

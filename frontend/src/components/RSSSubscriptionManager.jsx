@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import api from '../services/api'
 import toast from 'react-hot-toast'
-import { CheckCircle2, XCircle, Mail, AlertCircle } from 'lucide-react'
+import { CheckCircle2, Mail, AlertCircle } from 'lucide-react'
 
 const CATEGORIES = ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity']
 
@@ -11,7 +11,7 @@ const RSSSubscriptionManager = () => {
   const [selectedCategories, setSelectedCategories] = useState([])
 
   // Fetch current subscriptions
-  const { data: subscriptions, isLoading } = useQuery(
+  const { isLoading } = useQuery(
     'rss-subscriptions',
     () => api.get('/rss/subscriptions').then((res) => res.data.data),
     {
@@ -77,7 +77,7 @@ const RSSSubscriptionManager = () => {
             RSS News Subscriptions
           </h2>
           <p className="text-gray-600">
-            Select at least 3 categories to receive RSS news updates. You'll receive a daily digest email with the latest articles from your subscribed categories.
+            Select at least 3 categories to receive RSS news updates. You&apos;ll receive a daily digest email with the latest articles from your subscribed categories.
           </p>
         </div>
       </div>
@@ -138,7 +138,7 @@ const RSSSubscriptionManager = () => {
           <div>
             <h3 className="font-semibold text-gray-900 mb-1">Daily Digest Email</h3>
             <p className="text-sm text-gray-600">
-              You'll receive a daily email digest with the latest articles from your subscribed categories. 
+              You&apos;ll receive a daily email digest with the latest articles from your subscribed categories. 
               This feature will be enabled soon.
             </p>
           </div>

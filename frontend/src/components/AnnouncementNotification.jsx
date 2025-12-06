@@ -61,7 +61,7 @@ const AnnouncementNotification = () => {
     if (recentAnnouncements.length > 0) {
       recentAnnouncements.forEach((announcement) => {
         toast.success(
-          (t) => (
+          () => (
             <div className="flex items-center gap-2">
               <Bell size={16} />
               <span>
@@ -76,7 +76,7 @@ const AnnouncementNotification = () => {
         )
       })
     }
-  }, [recentAnnouncements.length]) // Only trigger when count changes
+  }, [recentAnnouncements]) // Only trigger when announcements change
 
   if (recentAnnouncements.length === 0) {
     return null

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
-import { ArrowLeft, ClipboardList, BarChart3, Users, TrendingUp } from 'lucide-react'
+import { ArrowLeft, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
 
 const SurveyAnalytics = () => {
@@ -162,7 +162,7 @@ const SurveyAnalytics = () => {
                               key={idx}
                               className="p-3 bg-white rounded border border-gray-200 text-sm text-gray-700"
                             >
-                              "{response}"
+                              &quot;{response}&quot;
                             </div>
                           ))}
                         </div>

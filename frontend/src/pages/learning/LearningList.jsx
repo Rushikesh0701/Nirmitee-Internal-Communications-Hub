@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import api from '../../services/api'
-import { GraduationCap, Users, Star, Clock } from 'lucide-react'
+import { Users, Star, Clock } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 
 const LearningList = () => {

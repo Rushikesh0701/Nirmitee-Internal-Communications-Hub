@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import api from '../../services/api'
 import RoleBadge from '../../components/RoleBadge'
-import { Search, User, Mail, Building, Briefcase, X } from 'lucide-react'
+import { Search, Mail, Building, Briefcase, X } from 'lucide-react'
 
 export default function EmployeeDirectory() {
   const [search, setSearch] = useState('')
@@ -137,7 +137,7 @@ export default function EmployeeDirectory() {
           {search && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 
                              text-primary-700 rounded-full text-sm">
-              Search: "{search}"
+              Search: &quot;{search}&quot;
               <button
                 onClick={clearSearch}
                 className="hover:bg-primary-100 rounded-full p-0.5 transition-colors"

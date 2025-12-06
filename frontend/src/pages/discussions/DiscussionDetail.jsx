@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { discussionAPI } from '../../services/discussionApi';
@@ -7,7 +7,7 @@ import { useAuthStore } from '../../store/authStore';
 
 // Recursive component to render comments with nested replies
 // Defined outside to prevent recreation on every render
-const CommentItem = React.memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
+const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
   const commentId = comment._id || comment.id;
   const INITIAL_REPLIES_LIMIT = 3;
 
@@ -221,24 +221,7 @@ const DiscussionDetail = () => {
   const [expandedReplies, setExpandedReplies] = useState({});
   const { user, isAuthenticated } = useAuthStore();
 
-  // Validate ID before making request
-  if (!id || id === 'undefined' || id === 'null') {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Discussion ID</h2>
-          <p className="text-gray-600 mb-4">The discussion ID is missing or invalid.</p>
-          <button
-            onClick={() => navigate('/discussions')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            Back to Discussions
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  // All hooks must be called before any early returns
   const fetchDiscussion = useCallback(async () => {
     if (!id || id === 'undefined' || id === 'null') {
       setLoading(false);
@@ -463,6 +446,23 @@ const DiscussionDetail = () => {
     return organizeComments(discussion?.Comments || []);
   }, [discussion?.Comments]);
 
+  // Validate ID after all hooks
+  if (!id || id === 'undefined' || id === 'null') {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Discussion ID</h2>
+          <p className="text-gray-600 mb-4">The discussion ID is missing or invalid.</p>
+          <button
+            onClick={() => navigate('/discussions')}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Back to Discussions
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

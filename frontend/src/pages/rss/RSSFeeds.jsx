@@ -3,15 +3,13 @@ import { useQuery } from 'react-query'
 import api from '../../services/api'
 import { Rss, ExternalLink, Settings, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import RSSSubscriptionManager from '../../components/RSSSubscriptionManager'
-import { useAuthStore } from '../../store/authStore'
 
 const RSSFeeds = () => {
-  const { user } = useAuthStore()
   const [showSubscriptions, setShowSubscriptions] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState({})
 
   // Fetch articles grouped by category
-  const { data: articlesGrouped, isLoading, refetch } = useQuery(
+  const { data: articlesGrouped, isLoading } = useQuery(
     'rss-articles-grouped',
     () => api.get('/rss/articles/grouped').then((res) => res.data.data),
     {

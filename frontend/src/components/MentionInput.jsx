@@ -58,7 +58,6 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
     const lastAtIndex = textBeforeCursor.lastIndexOf('@')
 
     if (lastAtIndex !== -1) {
-      const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1)
       const mentionText = `@${user.firstName} ${user.lastName}`
       const newText = 
         text.substring(0, lastAtIndex) + 
@@ -93,23 +92,6 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
         setShowSuggestions(false)
       }
     }
-  }
-
-  // Highlight mentions in text
-  const renderTextWithMentions = (text) => {
-    if (!text) return ''
-    
-    const parts = text.split(/(@\w+\s*\w*)/g)
-    return parts.map((part, index) => {
-      if (part.startsWith('@')) {
-        return (
-          <span key={index} className="text-primary-600 font-medium">
-            {part}
-          </span>
-        )
-      }
-      return <span key={index}>{part}</span>
-    })
   }
 
   return (

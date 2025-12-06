@@ -8,7 +8,6 @@ import {
   Award,
   ClipboardList,
   GraduationCap,
-  TrendingUp,
   Users
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -40,7 +39,7 @@ const Dashboard = () => {
           Welcome back, {user?.firstName || 'User'}!
         </h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">
-          Here's what's happening in your organization
+          Here&apos;s what&apos;s happening in your organization
         </p>
       </div>
 

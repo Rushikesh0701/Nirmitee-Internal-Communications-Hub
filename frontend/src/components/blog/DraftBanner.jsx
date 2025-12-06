@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -17,7 +16,7 @@ const DraftBanner = ({ onPublish, isPublishing }) => {
             📝 This blog is saved as a draft
           </p>
           <p className="text-yellow-700 text-sm">
-            It's only visible to you. Publish it to make it visible to everyone.
+            It&apos;s only visible to you. Publish it to make it visible to everyone.
           </p>
         </div>
         <button
