@@ -108,9 +108,9 @@ const BlogDetail = () => {
     toast.success(isNowBookmarked ? 'Bookmarked!' : 'Removed from bookmarks');
   };
 
-  const handleAddComment = ({ content, parentCommentId }) => {
+  const handleAddComment = ({ content, parentCommentId, onComplete }) => {
     if (!requireAuth('Please login to comment')) return;
-    addCommentMutation.mutate({ content, parentCommentId });
+    addCommentMutation.mutate({ content, parentCommentId, onComplete });
   };
 
   const handleDeleteComment = (commentId) => {

@@ -5,7 +5,7 @@ import { blogAPI } from '../../services/blogApi';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
-import BlogEditor from '../../components/blog/BlogEditor';
+import Editor from '../../components/blog/Editor';
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -299,7 +299,7 @@ const EditBlog = () => {
           <label className="block text-gray-700 mb-2">
             Content <span className="text-red-500">*</span>
           </label>
-          <BlogEditor
+          <Editor
             content={formData.content}
             onChange={handleContentChange}
             placeholder="Write your blog content here..."

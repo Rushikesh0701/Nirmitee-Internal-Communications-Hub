@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { blogAPI } from '../../services/blogApi';
 import { useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
-import BlogEditor from '../../components/blog/BlogEditor';
+import Editor from '../../components/blog/Editor';
+import { useCreationStore } from '../../store/creationStore';
 
 const CreateBlog = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { startCreation, endCreation, isAnyCreationInProgress } = useCreationStore();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -29,9 +31,11 @@ const CreateBlog = () => {
         const blogId = blogData._id || blogData.id;
         toast.success('Blog created successfully!');
         queryClient.invalidateQueries('blogs');
+        endCreation();
         navigate(`/blogs/${blogId}`);
       },
       onError: (error) => {
+        endCreation();
         const errorMessage = error.response?.data?.message || 'Failed to create blog';
         toast.error(errorMessage);
       }
@@ -106,32 +110,49 @@ const CreateBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Prevent multiple submissions
+    if (createMutation.isLoading) {
+      return;
+    }
+    
+    // Prevent if any other creation is in progress
+    if (isAnyCreationInProgress()) {
+      toast.error('Please wait for the current creation to complete');
+      return;
+    }
+    
+    // Start creation process
+    if (!startCreation('blog')) {
+      toast.error('Another creation is already in progress');
+      return;
+    }
+    
     // Validate required fields
     if (!formData.title || !formData.title.trim()) {
+      endCreation();
       toast.error('Title is required');
       return;
     }
     
     if (!formData.excerpt || !formData.excerpt.trim()) {
+      endCreation();
       toast.error('Excerpt is required');
       return;
     }
     
     if (!formData.content || formData.content.trim() === '' || formData.content === '<p></p>') {
+      endCreation();
       toast.error('Content is required');
       return;
     }
     
     if (!formData.category || !formData.category.trim()) {
+      endCreation();
       toast.error('Category is required');
       return;
     }
     
-    try {
     createMutation.mutate(formData);
-    } catch (error) {
-      toast.error('Failed to create blog');
-    }
   };
 
   return (
@@ -234,7 +255,7 @@ const CreateBlog = () => {
           <label className="block text-gray-700 mb-2">
             Content <span className="text-red-500">*</span>
           </label>
-          <BlogEditor
+          <Editor
             content={formData.content}
             onChange={handleContentChange}
             placeholder="Write your blog content here..."
@@ -322,7 +343,7 @@ const CreateBlog = () => {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             type="submit"
-            disabled={createMutation.isLoading}
+            disabled={createMutation.isLoading || isAnyCreationInProgress()}
             className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {createMutation.isLoading ? 'Creating...' : (

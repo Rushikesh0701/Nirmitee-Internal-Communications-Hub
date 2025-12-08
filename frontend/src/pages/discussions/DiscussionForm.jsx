@@ -6,11 +6,14 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '../../store/authStore'
+import { isAdmin } from '../../utils/userHelpers'
 
 const DiscussionForm = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user } = useAuthStore()
   const isEdit = !!id
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
@@ -33,6 +36,20 @@ const DiscussionForm = () => {
 
   useEffect(() => {
     if (discussion) {
+      // Check permissions for editing
+      if (isEdit) {
+        const discussionAuthorId = discussion.authorId?._id || discussion.authorId || discussion.authorId?.toString();
+        const userId = user?._id || user?.id;
+        const isOwner = discussionAuthorId && userId && discussionAuthorId.toString() === userId.toString();
+        const userIsAdmin = isAdmin(user);
+        
+        if (!isOwner && !userIsAdmin) {
+          toast.error('You are not authorized to edit this discussion');
+          navigate(`/discussions/${id}`);
+          return;
+        }
+      }
+      
       setValue('title', discussion.title)
       setValue('content', discussion.content)
       setValue('category', discussion.category || 'General')
@@ -40,7 +57,7 @@ const DiscussionForm = () => {
       setValue('isPinned', discussion.isPinned || false)
       setValue('isLocked', discussion.isLocked || false)
     }
-  }, [discussion, setValue])
+  }, [discussion, setValue, isEdit, user, id, navigate])
 
   const createMutation = useMutation(
     (data) => api.post('/discussions', data),

@@ -96,14 +96,17 @@ const updateDiscussion = async (id, updateData, userId, user) => {
     throw new Error('Discussion not found');
   }
 
-  if (discussion.isLocked && !['Admin', 'Moderator'].includes(user.Role?.name)) {
+  // Check user role (handle multiple possible user object structures)
+  const userRole = user?.roleId?.name || user?.Role?.name || user?.role;
+  const isAdminOrModerator = ['Admin', 'Moderator', 'ADMIN', 'MODERATOR'].includes(userRole);
+
+  if (discussion.isLocked && !isAdminOrModerator) {
     throw new Error('Discussion is locked');
   }
 
   const isAuthor = discussion.authorId.toString() === userId.toString();
-  const isModerator = ['Admin', 'Moderator'].includes(user.Role?.name);
 
-  if (!isAuthor && !isModerator) {
+  if (!isAuthor && !isAdminOrModerator) {
     throw new Error('Unauthorized');
   }
 
@@ -119,10 +122,13 @@ const deleteDiscussion = async (id, userId, user) => {
     throw new Error('Discussion not found');
   }
 
-  const isAuthor = discussion.authorId.toString() === userId.toString();
-  const isModerator = ['Admin', 'Moderator'].includes(user.Role?.name);
+  // Check user role (handle multiple possible user object structures)
+  const userRole = user?.roleId?.name || user?.Role?.name || user?.role;
+  const isAdminOrModerator = ['Admin', 'Moderator', 'ADMIN', 'MODERATOR'].includes(userRole);
 
-  if (!isAuthor && !isModerator) {
+  const isAuthor = discussion.authorId.toString() === userId.toString();
+
+  if (!isAuthor && !isAdminOrModerator) {
     throw new Error('Unauthorized');
   }
 

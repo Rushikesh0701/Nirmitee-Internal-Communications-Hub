@@ -29,8 +29,8 @@ const CommentsSection = ({
     setReplyingTo(null);
   };
 
-  const handleSubmitReply = (content, parentCommentId) => {
-    onAddComment({ content, parentCommentId });
+  const handleSubmitReply = (content, parentCommentId, onComplete) => {
+    onAddComment({ content, parentCommentId, onComplete });
     setReplyingTo(null);
   };
 
@@ -55,10 +55,13 @@ const CommentsSection = ({
       {isAuthenticated && user ? (
         <div className="mb-6">
           <CommentForm
-            onSubmit={(content) => onAddComment({ content })}
+            onSubmit={(content, onComplete) => {
+              onAddComment({ content, onComplete });
+            }}
             isLoading={isLoading}
             placeholder="Write a comment..."
             buttonText="Post Comment"
+            commentType="blog"
           />
         </div>
       ) : (
@@ -92,12 +95,15 @@ const CommentsSection = ({
                   {isReplying && isAuthenticated && user && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <CommentForm
-                        onSubmit={(content) => handleSubmitReply(content, commentId)}
+                        onSubmit={(content, onComplete) => {
+                          handleSubmitReply(content, commentId, onComplete);
+                        }}
                         isLoading={isLoading}
                         placeholder="Write a reply..."
                         buttonText="Post Reply"
                         onCancel={handleCancelReply}
                         rows={2}
+                        commentType="blog"
                       />
                     </div>
                   )}

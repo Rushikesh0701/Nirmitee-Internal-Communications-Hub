@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useMutation, useQueryClient } from 'react-query';
 import { discussionAPI } from '../../services/discussionApi';
 import toast from 'react-hot-toast';
+import { useCreationStore } from '../../store/creationStore';
 
 const CreateDiscussion = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { startCreation, endCreation, isAnyCreationInProgress } = useCreationStore();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -37,15 +41,59 @@ const CreateDiscussion = () => {
     });
   };
 
+  const createMutation = useMutation(
+    (data) => discussionAPI.create(data),
+    {
+      onSuccess: (response) => {
+        const discussionData = response.data?.data || response.data || response;
+        const discussionId = discussionData._id || discussionData.id;
+        toast.success('Discussion created successfully!');
+        queryClient.invalidateQueries('discussions');
+        endCreation();
+        navigate(`/discussions/${discussionId}`);
+      },
+      onError: (error) => {
+        endCreation();
+        toast.error(error.response?.data?.message || 'Failed to create discussion');
+      }
+    }
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await discussionAPI.create(formData);
-      toast.success('Discussion created successfully!');
-      navigate(`/discussions/${response.data.data?.id || response.data.id}`);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create discussion');
+    e.stopPropagation();
+    
+    // Prevent multiple submissions
+    if (createMutation.isLoading) {
+      return;
     }
+    
+    // Prevent if any other creation is in progress
+    if (isAnyCreationInProgress()) {
+      toast.error('Please wait for the current creation to complete');
+      return;
+    }
+    
+    // Start creation process
+    if (!startCreation('discussion')) {
+      toast.error('Another creation is already in progress');
+      return;
+    }
+    
+    // Validate required fields
+    if (!formData.title || !formData.title.trim()) {
+      endCreation();
+      toast.error('Title is required');
+      return;
+    }
+    
+    if (!formData.content || !formData.content.trim()) {
+      endCreation();
+      toast.error('Content is required');
+      return;
+    }
+    
+    createMutation.mutate(formData);
   };
 
   return (
@@ -137,10 +185,15 @@ const CreateDiscussion = () => {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             type="submit"
-            className="px-4 sm:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm sm:text-base"
+            disabled={createMutation.isLoading || isAnyCreationInProgress()}
+            className="px-4 sm:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="md:hidden">Post</span>
-            <span className="hidden md:inline">Post Discussion</span>
+            {createMutation.isLoading ? 'Posting...' : (
+              <>
+                <span className="md:hidden">Post</span>
+                <span className="hidden md:inline">Post Discussion</span>
+              </>
+            )}
           </button>
           <button
             type="button"

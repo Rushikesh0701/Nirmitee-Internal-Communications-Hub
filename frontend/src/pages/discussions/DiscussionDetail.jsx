@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useMutation, useQueryClient } from 'react-query';
 import { discussionAPI } from '../../services/discussionApi';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
+import { isAdmin } from '../../utils/userHelpers';
+import { useCreationStore } from '../../store/creationStore';
 
 // Recursive component to render comments with nested replies
 // Defined outside to prevent recreation on every render
@@ -219,7 +222,10 @@ const DiscussionDetail = () => {
   const [replyContent, setReplyContent] = useState({});
   const [showReplyForm, setShowReplyForm] = useState({});
   const [expandedReplies, setExpandedReplies] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
+  const { startCommentPosting, endCommentPosting, isAnyCommentPosting } = useCreationStore();
 
   // All hooks must be called before any early returns
   const fetchDiscussion = useCallback(async () => {
@@ -248,6 +254,45 @@ const DiscussionDetail = () => {
   useEffect(() => {
     fetchDiscussion();
   }, [fetchDiscussion]);
+
+  // Delete mutation
+  const deleteMutation = useMutation(
+    () => discussionAPI.delete(id),
+    {
+      onSuccess: () => {
+        toast.success('Discussion deleted successfully');
+        queryClient.invalidateQueries('discussions');
+        navigate('/discussions');
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to delete discussion');
+        setIsDeleting(false);
+      }
+    }
+  );
+
+  // Check if user can edit (owner or admin)
+  const canEdit = useMemo(() => {
+    if (!user || !discussion) return false;
+    
+    // Check if user is owner
+    const discussionAuthorId = discussion.authorId?._id || discussion.authorId || discussion.authorId?.toString();
+    const userId = user._id || user.id;
+    const isOwner = discussionAuthorId && userId && discussionAuthorId.toString() === userId.toString();
+    
+    // Check if user is admin
+    const userIsAdmin = isAdmin(user);
+    
+    return isOwner || userIsAdmin;
+  }, [user, discussion]);
+
+  // Handle delete
+  const handleDelete = useCallback(() => {
+    if (window.confirm('Are you sure you want to delete this discussion? This action cannot be undone.')) {
+      setIsDeleting(true);
+      deleteMutation.mutate();
+    }
+  }, [deleteMutation]);
 
   // Organize comments into a tree structure
   const organizeComments = (comments) => {
@@ -338,7 +383,22 @@ const DiscussionDetail = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!commentContent.trim()) return;
+    // Prevent multiple submissions
+    if (isAnyCommentPosting()) {
+      toast.error('Please wait for the current comment to be posted');
+      return;
+    }
+    
+    // Start comment posting process
+    if (!startCommentPosting('discussion')) {
+      toast.error('Another comment is already being posted');
+      return;
+    }
+    
+    if (!commentContent.trim()) {
+      endCommentPosting();
+      return;
+    }
 
     try {
       const response = await discussionAPI.addComment(id, {
@@ -356,8 +416,10 @@ const DiscussionDetail = () => {
       }));
       
       setCommentContent('');
+      endCommentPosting();
       toast.success('Comment added!');
     } catch (error) {
+      endCommentPosting();
       toast.error(error.response?.data?.message || 'Failed to add comment');
       // Only fetch on error to restore correct state
       fetchDiscussion();
@@ -368,8 +430,23 @@ const DiscussionDetail = () => {
     e.preventDefault();
     e.stopPropagation();
     
+    // Prevent multiple submissions
+    if (isAnyCommentPosting()) {
+      toast.error('Please wait for the current comment to be posted');
+      return;
+    }
+    
+    // Start comment posting process
+    if (!startCommentPosting('discussion')) {
+      toast.error('Another comment is already being posted');
+      return;
+    }
+    
     const replyText = replyContent[parentCommentId];
-    if (!replyText || !replyText.trim()) return;
+    if (!replyText || !replyText.trim()) {
+      endCommentPosting();
+      return;
+    }
 
     try {
       // Ensure parentCommentId is a string
@@ -401,8 +478,10 @@ const DiscussionDetail = () => {
         [parentCommentId]: false
       }));
 
+      endCommentPosting();
       toast.success('Reply added!');
     } catch (error) {
+      endCommentPosting();
       toast.error(error.response?.data?.message || 'Failed to add reply');
       // Only fetch on error to restore correct state
       await fetchDiscussion();
@@ -521,10 +600,36 @@ const DiscussionDetail = () => {
         className="bg-white rounded-xl shadow-md p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 
                    border border-gray-200"
       >
-        {/* Title - Responsive */}
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
-          {discussion.title}
-        </h1>
+        {/* Header with Title and Actions */}
+        <div className="flex items-start justify-between gap-4 mb-3 sm:mb-4">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex-1">
+            {discussion.title}
+          </h1>
+          
+          {/* Edit/Delete Buttons - For owners and admins */}
+          {canEdit && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link
+                to={`/discussions/${id}/edit`}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg 
+                           hover:bg-blue-700 transition-colors text-xs sm:text-sm font-medium shadow-md"
+                aria-label="Edit discussion"
+              >
+                ✏️ Edit
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg 
+                           hover:bg-red-700 transition-colors text-xs sm:text-sm font-medium 
+                           shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Delete discussion"
+              >
+                {isDeleting ? 'Deleting...' : '🗑️ Delete'}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Meta Info - Responsive */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4 
@@ -579,17 +684,20 @@ const DiscussionDetail = () => {
               placeholder="Write your comment..."
               required
               rows="4"
+              disabled={isAnyCommentPosting()}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg 
                          focus:outline-none focus:ring-2 focus:ring-purple-500 
-                         text-sm sm:text-base mb-3 resize-none"
+                         text-sm sm:text-base mb-3 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
               type="submit"
+              disabled={isAnyCommentPosting()}
               className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 
                          text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 
-                         transition-all shadow-md hover:shadow-lg text-sm sm:text-base font-medium"
+                         transition-all shadow-md hover:shadow-lg text-sm sm:text-base font-medium
+                         disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Post Comment
+              {isAnyCommentPosting() ? 'Posting...' : 'Post Comment'}
             </button>
           </form>
         )}

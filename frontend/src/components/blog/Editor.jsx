@@ -20,7 +20,7 @@ import ImageModal from '../editor/ImageModal';
 import VideoModal from '../editor/VideoModal';
 import LinkModal from '../editor/LinkModal';
 
-const BlogEditor = ({ 
+const Editor = ({ 
   content = '', 
   onChange = () => {}, 
   onSave = () => {},
@@ -373,5 +373,5 @@ const BlogEditor = ({
   );
 };
 
-export default BlogEditor;
+export default Editor;
 

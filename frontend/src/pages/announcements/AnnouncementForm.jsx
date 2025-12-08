@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
@@ -6,132 +6,20 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-// Simple rich text editor component
-// Note: For production, consider using react-quill or similar library
-const RichTextEditor = ({ value, onChange }) => {
-  const [content, setContent] = useState(value || '')
-
-  useEffect(() => {
-    setContent(value || '')
-  }, [value])
-
-  const handleChange = (e) => {
-    const newContent = e.target.value
-    setContent(newContent)
-    onChange(newContent)
-  }
-
-  const insertTag = (tag) => {
-    const textarea = document.getElementById('content-editor')
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selectedText = content.substring(start, end)
-    const before = content.substring(0, start)
-    const after = content.substring(end)
-    
-    let replacement = ''
-    switch(tag) {
-      case 'bold':
-        replacement = `<strong>${selectedText || 'bold text'}</strong>`
-        break
-      case 'italic':
-        replacement = `<em>${selectedText || 'italic text'}</em>`
-        break
-      case 'ul':
-        replacement = `<ul>\n<li>${selectedText || 'list item'}</li>\n</ul>`
-        break
-      case 'ol':
-        replacement = `<ol>\n<li>${selectedText || 'list item'}</li>\n</ol>`
-        break
-      case 'link':
-        replacement = `<a href="${selectedText || 'https://example.com'}">${selectedText || 'link text'}</a>`
-        break
-      default:
-        replacement = selectedText
-    }
-    
-    const newContent = before + replacement + after
-    setContent(newContent)
-    onChange(newContent)
-    
-    // Restore cursor position
-    setTimeout(() => {
-      textarea.focus()
-      textarea.setSelectionRange(start + replacement.length, start + replacement.length)
-    }, 0)
-  }
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg border">
-        <button
-          type="button"
-          onClick={() => insertTag('bold')}
-          className="px-3 py-1 text-sm font-bold bg-white rounded hover:bg-gray-200"
-          title="Bold"
-        >
-          B
-        </button>
-        <button
-          type="button"
-          onClick={() => insertTag('italic')}
-          className="px-3 py-1 text-sm italic bg-white rounded hover:bg-gray-200"
-          title="Italic"
-        >
-          I
-        </button>
-        <button
-          type="button"
-          onClick={() => insertTag('ul')}
-          className="px-3 py-1 text-sm bg-white rounded hover:bg-gray-200"
-          title="Bullet List"
-        >
-          •
-        </button>
-        <button
-          type="button"
-          onClick={() => insertTag('ol')}
-          className="px-3 py-1 text-sm bg-white rounded hover:bg-gray-200"
-          title="Numbered List"
-        >
-          1.
-        </button>
-        <button
-          type="button"
-          onClick={() => insertTag('link')}
-          className="px-3 py-1 text-sm bg-white rounded hover:bg-gray-200"
-          title="Link"
-        >
-          🔗
-        </button>
-      </div>
-      <textarea
-        id="content-editor"
-        value={content}
-        onChange={handleChange}
-        rows={15}
-        className="input font-mono text-sm"
-        placeholder="Enter announcement content. Use HTML tags for formatting."
-      />
-      <p className="text-xs text-gray-500">
-        Tip: You can use HTML tags like &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt; for formatting
-      </p>
-    </div>
-  )
-}
+import Editor from '../../components/blog/Editor'
+import { useCreationStore } from '../../store/creationStore'
 
 const AnnouncementForm = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { startCreation, endCreation, isAnyCreationInProgress } = useCreationStore()
   const isEdit = !!id
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm({
     defaultValues: {
       title: '',
       content: '',
-      image: '',
       tags: '',
       scheduledAt: ''
     }
@@ -150,7 +38,6 @@ const AnnouncementForm = () => {
     if (announcement) {
       setValue('title', announcement.title)
       setValue('content', announcement.content)
-      setValue('image', announcement.image || '')
       setValue('tags', announcement.tags?.join(', ') || '')
       setValue('scheduledAt', announcement.scheduledAt ? new Date(announcement.scheduledAt).toISOString().slice(0, 16) : '')
     }
@@ -162,9 +49,11 @@ const AnnouncementForm = () => {
       onSuccess: () => {
         toast.success('Announcement created successfully')
         queryClient.invalidateQueries('announcements')
+        endCreation()
         navigate('/announcements')
       },
       onError: (error) => {
+        endCreation()
         toast.error(error.response?.data?.message || 'Failed to create announcement')
       }
     }
@@ -186,10 +75,23 @@ const AnnouncementForm = () => {
   )
 
   const onSubmit = (data) => {
+    // Prevent if any other creation is in progress (only for create, not edit)
+    if (!isEdit) {
+      if (isAnyCreationInProgress()) {
+        toast.error('Please wait for the current creation to complete')
+        return
+      }
+      
+      // Start creation process
+      if (!startCreation('announcement')) {
+        toast.error('Another creation is already in progress')
+        return
+      }
+    }
+    
     const payload = {
       title: data.title,
       content: data.content,
-      image: data.image || undefined,
       tags: data.tags
         ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
         : [],
@@ -203,8 +105,9 @@ const AnnouncementForm = () => {
     }
   }
 
-  const handleContentChange = (content) => {
-    setValue('content', content)
+  const handleContentChange = (data) => {
+    // Editor onChange returns {html, json}, we only need html
+    setValue('content', data.html || '')
   }
 
   if (isLoading) {
@@ -246,34 +149,14 @@ const AnnouncementForm = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Content <span className="text-red-500">*</span>
             </label>
-            <RichTextEditor
-              value={watch('content')}
+            <Editor
+              content={watch('content')}
               onChange={handleContentChange}
+              placeholder="Start writing your announcement..."
+              editable={true}
             />
             {errors.content && (
               <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL
-            </label>
-            <input
-              type="url"
-              {...register('image')}
-              className="input"
-              placeholder="https://example.com/image.jpg"
-            />
-            {watch('image') && (
-              <img
-                src={watch('image')}
-                alt="Preview"
-                className="mt-2 w-full h-48 object-cover rounded-lg border"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                }}
-              />
             )}
           </div>
 
@@ -316,7 +199,7 @@ const AnnouncementForm = () => {
           <div className="flex items-center gap-4 pt-4 border-t">
             <button
               type="submit"
-              disabled={createMutation.isLoading || updateMutation.isLoading}
+              disabled={createMutation.isLoading || updateMutation.isLoading || (!isEdit && isAnyCreationInProgress())}
               className="btn btn-primary flex items-center gap-2"
             >
               <Save size={18} />

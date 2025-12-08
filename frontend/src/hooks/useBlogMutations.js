@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 import { blogAPI } from '../services/blogApi';
+import { useCreationStore } from '../store/creationStore';
 
 /**
  * Custom hook for blog mutations
@@ -8,6 +9,7 @@ import { blogAPI } from '../services/blogApi';
  */
 export const useBlogMutations = (blogId) => {
   const queryClient = useQueryClient();
+  const { endCommentPosting } = useCreationStore();
 
   const likeMutation = useMutation(
     () => blogAPI.like(blogId),
@@ -22,15 +24,20 @@ export const useBlogMutations = (blogId) => {
   );
 
   const addCommentMutation = useMutation(
-    ({ content, parentCommentId }) => {
+    ({ content, parentCommentId, onComplete }) => {
       return blogAPI.addComment(blogId, content, parentCommentId);
     },
     {
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries(['blog', blogId]);
         toast.success(variables.parentCommentId ? 'Reply added!' : 'Comment added!');
+        endCommentPosting();
+        if (variables.onComplete) {
+          variables.onComplete();
+        }
       },
       onError: () => {
+        endCommentPosting();
         toast.error('Failed to add comment');
       }
     }

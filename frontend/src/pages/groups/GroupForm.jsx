@@ -4,11 +4,13 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { ArrowLeft, Save } from 'lucide-react'
+import { useCreationStore } from '../../store/creationStore'
 
 const GroupForm = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { startCreation, endCreation, isAnyCreationInProgress } = useCreationStore()
   const isEdit = !!id
 
   const [formData, setFormData] = useState({
@@ -43,9 +45,11 @@ const GroupForm = () => {
         toast.success('Group created successfully')
         const groupId = response.data.data.id || response.data.data._id
         queryClient.invalidateQueries(['groups'])
+        endCreation()
         navigate(`/groups/${groupId}`)
       },
       onError: (error) => {
+        endCreation()
         toast.error(error.response?.data?.message || 'Failed to create group')
       }
     }
@@ -69,7 +73,24 @@ const GroupForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     
+    // Prevent if any other creation is in progress (only for create, not edit)
+    if (!isEdit) {
+      if (isAnyCreationInProgress()) {
+        toast.error('Please wait for the current creation to complete')
+        return
+      }
+      
+      // Start creation process
+      if (!startCreation('group')) {
+        toast.error('Another creation is already in progress')
+        return
+      }
+    }
+    
     if (!formData.name.trim()) {
+      if (!isEdit) {
+        endCreation()
+      }
       toast.error('Group name is required')
       return
     }
@@ -200,7 +221,7 @@ const GroupForm = () => {
           </button>
           <button
             type="submit"
-            disabled={createMutation.isLoading || updateMutation.isLoading}
+            disabled={createMutation.isLoading || updateMutation.isLoading || (!isEdit && isAnyCreationInProgress())}
             className="btn btn-primary flex items-center gap-2"
           >
             <Save size={18} />

@@ -4,11 +4,13 @@ import { toast } from 'react-hot-toast'
 import api from '../services/api'
 import MentionInput from './MentionInput'
 import { useAuthStore } from '../store/authStore'
+import { useCreationStore } from '../store/creationStore'
 import { Heart, MessageSquare, Edit2, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 
 const CommentsComponent = ({ postId }) => {
   const { user } = useAuthStore()
+  const { startCommentPosting, endCommentPosting, isAnyCommentPosting } = useCreationStore()
   const [editingId, setEditingId] = useState(null)
   const [editContent, setEditContent] = useState('')
   const queryClient = useQueryClient()
@@ -26,8 +28,10 @@ const CommentsComponent = ({ postId }) => {
         toast.success('Comment added')
         queryClient.invalidateQueries(['postComments', postId])
         queryClient.invalidateQueries(['groupPosts'])
+        endCommentPosting()
       },
       onError: (error) => {
+        endCommentPosting()
         toast.error(error.response?.data?.message || 'Failed to add comment')
       }
     }
@@ -73,10 +77,30 @@ const CommentsComponent = ({ postId }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    e.stopPropagation()
+    
+    // Prevent multiple submissions
+    if (createCommentMutation.isLoading) {
+      return
+    }
+    
+    // Prevent if any other comment is being posted
+    if (isAnyCommentPosting()) {
+      toast.error('Please wait for the current comment to be posted')
+      return
+    }
+    
+    // Start comment posting process
+    if (!startCommentPosting('group')) {
+      toast.error('Another comment is already being posted')
+      return
+    }
+    
     const formData = new FormData(e.target)
     const content = formData.get('content')
     
     if (!content.trim()) {
+      endCommentPosting()
       toast.error('Please enter a comment')
       return
     }
@@ -143,9 +167,14 @@ const CommentsComponent = ({ postId }) => {
           name="content"
           placeholder="Write a comment... Type @ to mention someone"
           className="resize-none"
+          disabled={isAnyCommentPosting() || createCommentMutation.isLoading}
         />
-        <button type="submit" className="btn btn-primary btn-sm">
-          Post Comment
+        <button 
+          type="submit" 
+          disabled={isAnyCommentPosting() || createCommentMutation.isLoading}
+          className="btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isAnyCommentPosting() || createCommentMutation.isLoading ? 'Posting...' : 'Post Comment'}
         </button>
       </form>
 
