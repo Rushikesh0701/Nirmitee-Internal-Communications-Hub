@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
 import RoleBadge from '../components/RoleBadge'
@@ -20,13 +20,15 @@ import {
   X,
   Megaphone,
   Users,
-  UsersRound
+  UsersRound,
+  ChevronRight
 } from 'lucide-react'
 import { useState } from 'react'
 
 const Layout = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = () => {
@@ -58,17 +60,24 @@ const Layout = () => {
       : [])
   ]
 
+  const isActivePath = (path) => {
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname === '/'
+    }
+    return location.pathname.startsWith(path)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile header */}
-      <div className="lg:hidden bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-30">
+      <div className="lg:hidden bg-white/95 backdrop-blur-lg shadow-lg border-b border-blue-100/50 fixed top-0 left-0 right-0 z-30">
         <div className="flex items-center justify-between p-4">
           <Link to="/dashboard">
             <img src={Logo} alt="Nirmitee.io" className="h-8 cursor-pointer hover:opacity-80 transition-opacity" />
           </Link>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -76,61 +85,70 @@ const Layout = () => {
       </div>
 
       <div className="flex min-h-screen">
-        {/* Sidebar - Fixed on all screen sizes */}
+        {/* Glassmorphic Sidebar */}
         <aside
           className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg 
+            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 sidebar-glass
              transition-transform duration-300 ease-in-out`}
         >
-          <div className="h-full flex flex-col">
+          
+          <div className="h-full flex flex-col relative">
             {/* Sidebar Header */}
-            <div className="p-6 border-b hidden lg:block">
-              <Link to="/dashboard">
-                <img src={Logo} alt="Nirmitee.io" className="h-10 mb-2 cursor-pointer hover:opacity-80 transition-opacity" />
+            <div className="p-6 sidebar-header-glass hidden lg:block">
+              <Link to="/dashboard" className="block">
+                <img 
+                  src={Logo} 
+                  alt="Nirmitee.io" 
+                  className="h-10 mb-2 cursor-pointer hover:opacity-80 transition-opacity" 
+                />
               </Link>
-              <p className="text-sm text-gray-500 mt-1">Internal Communications</p>
+              <p className="text-xs text-slate-500 mt-2 tracking-wide font-medium">Internal Communications Hub</p>
             </div>
 
             {/* Navigation - Scrollable */}
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto sidebar-scroll">
               {navItems.map((item) => {
                 const Icon = item.icon
+                const isActive = isActivePath(item.path)
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 
-                               hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                    className={`nav-item-glass ${isActive ? 'nav-item-active' : ''}`}
                   >
-                    <Icon size={20} />
-                    <span>{item.label}</span>
+                    <Icon size={20} className="nav-icon" />
+                    <span className="flex-1">{item.label}</span>
+                    {isActive && (
+                      <ChevronRight size={16} className="text-white opacity-90" />
+                    )}
                   </Link>
                 )
               })}
             </nav>
 
             {/* User Profile Section */}
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-blue-100/50">
               <Link
                 to="/profile"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg 
-                           hover:bg-gray-100 transition-colors cursor-pointer"
+                className="user-card-glass flex items-center gap-3 mb-3 cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  {user?.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user?.name || 'User'}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <User size={20} className="text-primary-600" />
-                  )}
+                <div className="avatar-ring">
+                  <div className="avatar-ring-inner w-10 h-10">
+                    {user?.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user?.name || 'User'}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User size={20} className="text-blue-500" />
+                    )}
+                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-slate-700 truncate">
                     {user?.name || user?.displayName || 'User'}
                   </p>
                   <div className="mt-1">
@@ -138,16 +156,14 @@ const Layout = () => {
                   </div>
                 </div>
               </Link>
-              <div className="space-y-2">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg 
-                             text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </button>
-              </div>
+              
+              <button
+                onClick={handleLogout}
+                className="logout-btn-glass"
+              >
+                <LogOut size={18} />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
         </aside>
@@ -155,7 +171,7 @@ const Layout = () => {
         {/* Overlay for mobile */}
         {sidebarOpen && (
           <div
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="lg:hidden fixed inset-0 sidebar-overlay z-40"
             onClick={() => setSidebarOpen(false)}
           />
         )}

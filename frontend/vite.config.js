@@ -2,9 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: './',  // 🔥 REQUIRED for Netlify or any static hosting!
+  base: '/',  // Use absolute paths for SPA routing
   plugins: [react()],
-  
+  publicDir: 'public',  // Copy files from public folder to dist
+
   // Local dev settings only
   server: {
     port: 5173,
