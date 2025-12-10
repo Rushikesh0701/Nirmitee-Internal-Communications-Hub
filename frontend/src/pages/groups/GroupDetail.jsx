@@ -8,6 +8,7 @@ import PostComposer from '../../components/PostComposer'
 import CommentsComponent from '../../components/CommentsComponent'
 import { ArrowLeft, Users, Lock, Pin, Heart, Trash2, LogOut, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 const GroupDetail = () => {
   const { id } = useParams()
@@ -114,7 +115,7 @@ const GroupDetail = () => {
   }
 
   if (groupLoading) {
-    return <div className="text-center py-12">Loading group...</div>
+    return <Loading fullScreen />
   }
 
   if (!group) {
@@ -202,7 +203,7 @@ const GroupDetail = () => {
       {/* Posts Feed */}
       <div className="space-y-6">
         {postsLoading ? (
-          <div className="text-center py-8">Loading posts...</div>
+          <div className="text-center py-8"><Loading size="sm" /></div>
         ) : (
           posts.map((post) => {
             const postId = post.id || post._id

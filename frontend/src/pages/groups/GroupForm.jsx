@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useCreationStore } from '../../store/creationStore'
+import Loading from '../../components/Loading'
 
 const GroupForm = () => {
   const { id } = useParams()
@@ -114,7 +115,7 @@ const GroupForm = () => {
   }
 
   if (isEdit && groupLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   return (

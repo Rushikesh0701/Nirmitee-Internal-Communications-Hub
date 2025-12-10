@@ -7,6 +7,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { Plus, Users, Lock, Search, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 const GroupsList = () => {
   const { user } = useAuthStore()
@@ -47,7 +48,7 @@ const GroupsList = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading groups...</div>
+    return <Loading fullScreen />
   }
 
   const groups = data?.groups || []

@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
 import toast from 'react-hot-toast'
+import Loading from '../../components/Loading'
 
 export default function ProfilePage() {
   const { id } = useParams()
@@ -74,8 +75,9 @@ export default function ProfilePage() {
     }
   }, [isEditing, profile])
 
-  if (isLoading) {
-    return <div className="text-center py-12">Loading profile...</div>
+  // Show loading immediately if we're loading and don't have profile data yet
+  if (isLoading && !profile) {
+    return <Loading fullScreen />
   }
 
   if (isError) {

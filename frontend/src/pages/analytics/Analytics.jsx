@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts'
+import Loading from '../../components/Loading'
 
 const COLORS = {
   news: '#3b82f6', // blue
@@ -50,7 +51,7 @@ const Analytics = () => {
   )
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading analytics...</div>
+    return <Loading fullScreen />
   }
 
   // Prepare chart data
@@ -152,8 +153,8 @@ const Analytics = () => {
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">Content Creation Over Time</h2>
           {isLoadingContent ? (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              Loading chart data...
+            <div className="h-64 flex items-center justify-center">
+              <Loading size="sm" />
             </div>
           ) : timeSeriesData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>

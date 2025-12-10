@@ -5,6 +5,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ClipboardList, Calendar, Users, Plus } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 const SurveysList = () => {
   const { user } = useAuthStore()
@@ -15,7 +16,7 @@ const SurveysList = () => {
   const canCreateSurvey = isAdminOrModerator(user)
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading surveys...</div>
+    return <Loading fullScreen />
   }
 
   return (

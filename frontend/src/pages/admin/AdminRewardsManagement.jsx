@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { Plus, Edit2, Trash2, Save } from 'lucide-react'
+import Loading from '../../components/Loading'
 
 const AdminRewardsManagement = () => {
   const queryClient = useQueryClient()
@@ -106,7 +107,7 @@ const AdminRewardsManagement = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   const rewards = data || []

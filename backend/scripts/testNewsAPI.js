@@ -9,7 +9,7 @@ require('dotenv').config();
 const axios = require('axios');
 
 const API_KEY = process.env.NEWSDATA_API_KEY;
-const BASE_URL = 'https://newsdata.io/api/1/news';
+const BASE_URL = 'https://newsdata.io/api/1/latest';
 
 console.log('🧪 Testing NewsData.io API Configuration\n');
 console.log('='.repeat(70));
@@ -22,8 +22,8 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-if (API_KEY === 'your_newsdata_api_key_here' || 
-    API_KEY === 'REPLACE_WITH_YOUR_NEWSDATA_API_KEY') {
+if (API_KEY === 'your_newsdata_api_key_here' ||
+  API_KEY === 'REPLACE_WITH_YOUR_NEWSDATA_API_KEY') {
   console.log('❌ ERROR: API key is still a placeholder');
   console.log('   Please replace it with your actual key from newsdata.io');
   process.exit(1);
@@ -48,12 +48,12 @@ axios.get(testUrl, {
     console.log('\n📊 Response Summary:');
     console.log('─'.repeat(70));
     console.log(`   Status: ${response.status} ${response.statusText}`);
-    
+
     const data = response.data;
     console.log(`   Status Code: ${data.status}`);
     console.log(`   Total Results: ${data.totalResults || 'N/A'}`);
     console.log(`   Articles Returned: ${data.results ? data.results.length : 0}`);
-    
+
     if (data.results && data.results.length > 0) {
       console.log('\n📰 Sample Article Titles:');
       console.log('─'.repeat(70));
@@ -61,7 +61,7 @@ axios.get(testUrl, {
         console.log(`   ${idx + 1}. ${article.title}`);
       });
     }
-    
+
     console.log('\n' + '='.repeat(70));
     console.log('✅ SUCCESS! Your NewsData.io API key is working correctly!');
     console.log('\n🚀 Your backend server should now fetch live news data.');
@@ -75,12 +75,12 @@ axios.get(testUrl, {
     console.log('❌ API Call Failed!');
     console.log('\n🔍 Error Details:');
     console.log('─'.repeat(70));
-    
+
     if (error.response) {
       // Server responded with error
       console.log(`   Status: ${error.response.status} ${error.response.statusText}`);
       console.log(`   Error Data:`, JSON.stringify(error.response.data, null, 2));
-      
+
       if (error.response.status === 401 || error.response.status === 403) {
         console.log('\n💡 This looks like an authentication error:');
         console.log('   - Your API key might be invalid or expired');
@@ -104,7 +104,7 @@ axios.get(testUrl, {
       // Error in request setup
       console.log('   Error:', error.message);
     }
-    
+
     console.log('\n' + '='.repeat(70));
     console.log('❌ FAILED: Unable to connect to NewsData.io API');
     console.log('\n📖 For help, check ENV_SETUP_GUIDE.md');

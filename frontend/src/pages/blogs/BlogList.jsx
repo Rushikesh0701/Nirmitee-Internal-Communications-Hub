@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import api from '../../services/api'
 import { Plus, Calendar, User, Tag } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 const BlogList = () => {
   const { data, isLoading } = useQuery('blogs', () =>
@@ -10,7 +11,7 @@ const BlogList = () => {
   )
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading blogs...</div>
+    return <Loading fullScreen />
   }
 
   return (

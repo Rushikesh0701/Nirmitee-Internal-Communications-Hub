@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Star, Gift, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 export default function PointsHistory() {
   const { data: pointsData } = useQuery('userPoints', () => recognitionRewardApi.getUserPoints())
@@ -30,7 +31,7 @@ export default function PointsHistory() {
       <div>
         <h2 className="text-xl font-bold mb-4">Redemption History</h2>
         {isLoading ? (
-          <div className="text-center py-12">Loading...</div>
+          <Loading />
         ) : (
           <div className="space-y-4">
             {redemptions.map((redemption) => (

@@ -14,7 +14,7 @@ const AdminRoute = ({ children }) => {
   }, [_initialized, isLoading, initialize])
   
   if (isLoading || !_initialized) {
-    return <Loading />
+    return null // Fast auth check, no need for spinner
   }
   
   if (!isAuthenticated) {

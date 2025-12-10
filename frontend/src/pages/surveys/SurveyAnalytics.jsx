@@ -5,6 +5,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ArrowLeft, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
+import Loading from '../../components/Loading'
 
 const SurveyAnalytics = () => {
   const { id } = useParams()
@@ -22,7 +23,7 @@ const SurveyAnalytics = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading analytics...</div>
+    return <Loading fullScreen />
   }
 
   if (!analytics) {

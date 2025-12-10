@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { isAdmin } from '../../utils/userHelpers';
 import { useCreationStore } from '../../store/creationStore';
+import Loading from '../../components/Loading';
 
 // Recursive component to render comments with nested replies
 // Defined outside to prevent recreation on every render
@@ -545,8 +546,8 @@ const DiscussionDetail = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <div className="text-2xl text-gray-600">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading size="lg" />
       </div>
     );
   }

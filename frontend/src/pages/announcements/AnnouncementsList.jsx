@@ -6,6 +6,7 @@ import { Plus, Calendar, User, Clock, Tag, Filter } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
+import Loading from '../../components/Loading'
 
 const AnnouncementsList = () => {
   const { user } = useAuthStore()
@@ -43,8 +44,9 @@ const AnnouncementsList = () => {
     setPage(1)
   }
 
-  if (isLoading) {
-    return <div className="text-center py-12">Loading announcements...</div>
+  // Show loading immediately if we're loading and don't have cached data yet
+  if (isLoading && !data) {
+    return <Loading fullScreen />
   }
 
   const announcements = data?.announcements || []

@@ -8,6 +8,7 @@ import { ArrowLeft, Save, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Editor from '../../components/blog/Editor'
 import { useCreationStore } from '../../store/creationStore'
+import Loading from '../../components/Loading'
 
 const AnnouncementForm = () => {
   const { id } = useParams()
@@ -111,7 +112,7 @@ const AnnouncementForm = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   return (

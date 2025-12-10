@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
 import { isAdmin } from '../../utils/userHelpers'
+import Loading from '../../components/Loading'
 
 const AnnouncementDetail = () => {
   const { id } = useParams()
@@ -41,7 +42,7 @@ const AnnouncementDetail = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   if (!announcement) {

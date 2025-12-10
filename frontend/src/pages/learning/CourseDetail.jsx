@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, GraduationCap, Users, Star, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Loading from '../../components/Loading'
 
 const CourseDetail = () => {
   const { id } = useParams()
@@ -23,7 +24,7 @@ const CourseDetail = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   if (!course) {

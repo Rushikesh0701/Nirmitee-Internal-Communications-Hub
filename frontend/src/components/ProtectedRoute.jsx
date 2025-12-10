@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
   }, [_initialized, isLoading, initialize])
   
   if (isLoading || !_initialized) {
-    return <Loading />
+    return null // Fast auth check, no need for spinner
   }
   
   return isAuthenticated ? children : <Navigate to="/login" replace />

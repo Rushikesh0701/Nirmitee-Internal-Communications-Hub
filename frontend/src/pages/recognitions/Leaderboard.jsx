@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Trophy, Medal, Award, Star } from 'lucide-react'
+import Loading from '../../components/Loading'
 
 export default function Leaderboard() {
   const { data, isLoading } = useQuery('leaderboard', () =>
@@ -24,7 +25,7 @@ export default function Leaderboard() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12">Loading leaderboard...</div>
+        <Loading />
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="divide-y">

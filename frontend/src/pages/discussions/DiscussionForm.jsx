@@ -8,6 +8,7 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
+import Loading from '../../components/Loading'
 
 const DiscussionForm = () => {
   const { id } = useParams()
@@ -108,7 +109,7 @@ const DiscussionForm = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   return (

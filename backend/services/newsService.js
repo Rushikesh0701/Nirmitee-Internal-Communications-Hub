@@ -24,11 +24,11 @@ const {
  * Supports search, filtering, and sorting
  */
 const getAllNews = async (options = {}) => {
-  const { 
-    page = 1, 
-    limit = 10, 
-    category, 
-    priority, 
+  const {
+    page = 1,
+    limit = 10,
+    category,
+    priority,
     published,
     q,           // Search query
     from,        // Date range start
@@ -57,7 +57,7 @@ const getAllNews = async (options = {}) => {
       .replace(/^content:/i, '')
       .replace(/"/g, '') // Remove exact phrase quotes
       .trim();
-    
+
     if (cleanSearch) {
       // Create regex for case-insensitive search
       const searchRegex = new RegExp(cleanSearch, 'i');
@@ -139,18 +139,18 @@ const getAllNews = async (options = {}) => {
       .replace(/^content:/i, '')
       .replace(/"/g, '')
       .trim();
-    
+
     // Score by relevance: title matches > content matches
     allNews = normalizedRss.sort((a, b) => {
       const titleA = (a.title || '').toLowerCase();
       const titleB = (b.title || '').toLowerCase();
       const contentA = (a.content || '').toLowerCase();
       const contentB = (b.content || '').toLowerCase();
-      
+
       // Calculate relevance scores
       const scoreA = (titleA.includes(searchTerm) ? 10 : 0) + (contentA.includes(searchTerm) ? 5 : 0);
       const scoreB = (titleB.includes(searchTerm) ? 10 : 0) + (contentB.includes(searchTerm) ? 5 : 0);
-      
+
       if (scoreB !== scoreA) {
         return scoreB - scoreA; // Higher score first
       }
@@ -271,7 +271,7 @@ const extractImageUrl = (item) => {
  */
 const resolveGoogleNewsUrl = async (url) => {
   if (!url || typeof url !== 'string') return url;
-  
+
   // Check if it's a Google News RSS link
   if (!url.includes('news.google.com/rss/articles')) {
     return url; // Not a Google News link, return as-is
@@ -291,7 +291,7 @@ const resolveGoogleNewsUrl = async (url) => {
 
     // Get the final URL after redirects
     const finalUrl = response.request?.res?.responseUrl || response.request?.path || url;
-    
+
     // If still a Google News URL, try to extract from content
     if (finalUrl.includes('news.google.com') || finalUrl.includes('workspace')) {
       // Try alternative: use a URL resolver service or return original
@@ -314,9 +314,9 @@ const resolveGoogleNewsUrl = async (url) => {
  */
 const extractUrlFromContent = (item) => {
   const content = item.content || item.contentSnippet || item.description || '';
-  
+
   if (!content) return null;
-  
+
   // Try multiple patterns to find the actual article URL
   const urlPatterns = [
     // Standard URL pattern
@@ -330,22 +330,22 @@ const extractUrlFromContent = (item) => {
   ];
 
   const foundUrls = new Set();
-  
+
   for (const pattern of urlPatterns) {
     const matches = content.matchAll(pattern);
     for (const match of matches) {
       let url = match[1] || match[0];
-      
+
       // Clean up the URL
       url = url.replace(/^href=["']/i, '').replace(/["']$/, '')
-                .replace(/^url=/i, '').trim();
-      
+        .replace(/^url=/i, '').trim();
+
       // Skip Google News URLs, workspace URLs, and invalid URLs
-      if (url && 
-          !url.includes('news.google.com') && 
-          !url.includes('workspace') &&
-          !url.includes('google.com/accounts') &&
-          url.startsWith('http')) {
+      if (url &&
+        !url.includes('news.google.com') &&
+        !url.includes('workspace') &&
+        !url.includes('google.com/accounts') &&
+        url.startsWith('http')) {
         try {
           const parsedUrl = new URL(url);
           // Make sure it's a real article URL (has a domain)
@@ -384,7 +384,7 @@ const fetchNewsFromRSSFeed = async (feedUrl, category) => {
 
         // Resolve Google News redirect URLs to actual article URLs
         let articleUrl = item.link || '';
-        
+
         // First try to extract URL from content (faster, no network call)
         const extractedUrl = extractUrlFromContent(item);
         if (extractedUrl) {
@@ -465,7 +465,10 @@ const buildNewsDataParams = (options, apiKey) => {
   if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
   if (limit && limit > 0) params.append('size', Math.min(limit, 50));
   // Add sort parameter - NewsData.io supports: relevance, date, popularity
-  if (sort) params.append('prioritybycountry', sort === 'date' ? 'latest' : sort);
+  // if (sort) {
+  //   const sortValue = sort === 'date' ? 'pubDate' : sort;
+  //   params.append('orderby', sortValue);
+  // }
 
   return params;
 };
@@ -535,7 +538,7 @@ const fetchNewsFromNewsData = async (options = {}) => {
     const apiKey = validateNewsDataApiKey();
 
     const params = buildNewsDataParams(options, apiKey);
-    const apiUrl = `https://newsdata.io/api/1/news?${params.toString()}`;
+    const apiUrl = `https://newsdata.io/api/1/latest?${params.toString()}`;
 
     logger.info('Fetching news from NewsData.io');
 

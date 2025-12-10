@@ -6,6 +6,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import Loading from '../../components/Loading'
 
 const CourseForm = () => {
   const { id } = useParams()
@@ -86,7 +87,7 @@ const CourseForm = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   return (

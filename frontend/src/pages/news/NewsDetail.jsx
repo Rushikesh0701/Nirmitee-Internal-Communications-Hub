@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, Calendar, User, Eye } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 const NewsDetail = () => {
   const { id } = useParams()
@@ -14,7 +15,7 @@ const NewsDetail = () => {
   )
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   if (!news) {

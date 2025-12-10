@@ -6,6 +6,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import Loading from '../../components/Loading'
 
 const SurveyForm = () => {
   const { id } = useParams()
@@ -134,7 +135,7 @@ const SurveyForm = () => {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <Loading fullScreen />
   }
 
   return (

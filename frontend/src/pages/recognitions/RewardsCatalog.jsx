@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Gift, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Loading from '../../components/Loading'
 
 export default function RewardsCatalog() {
   const queryClient = useQueryClient()
@@ -46,7 +47,7 @@ export default function RewardsCatalog() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12">Loading rewards...</div>
+        <Loading />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rewards.map((reward) => (

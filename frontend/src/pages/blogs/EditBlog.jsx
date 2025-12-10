@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import Editor from '../../components/blog/Editor';
+import Loading from '../../components/Loading';
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -193,8 +194,8 @@ const EditBlog = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <div className="text-2xl text-gray-600">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading size="lg" />
       </div>
     );
   }

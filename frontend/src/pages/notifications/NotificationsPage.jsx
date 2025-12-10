@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { notificationApi } from '../../services/notificationApi'
 import { Bell, Check } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient()
@@ -75,7 +76,7 @@ export default function NotificationsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12">Loading notifications...</div>
+        <Loading />
       ) : (
         <div className="space-y-4">
           {notifications.map((notification) => (

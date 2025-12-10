@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Plus, Award, Trophy, Star } from 'lucide-react'
 import { format } from 'date-fns'
+import Loading from '../../components/Loading'
 
 export default function RecognitionsFeed() {
   const [page, setPage] = useState(1)
@@ -32,7 +33,7 @@ export default function RecognitionsFeed() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12">Loading...</div>
+        <Loading />
       ) : (
         <div className="space-y-4">
           {recognitions.map((recognition) => (
