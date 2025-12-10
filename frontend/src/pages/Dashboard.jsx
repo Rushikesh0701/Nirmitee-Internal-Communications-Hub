@@ -141,13 +141,13 @@ const Dashboard = () => {
       {/* Announcement Section - Shows 3 announcements */}
       <section className="bg-white rounded-xl border-2 border-gray-300 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-red-600 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-600 flex items-center gap-2">
             <Megaphone size={24} />
             Announcement
           </h2>
           <Link
             to="/announcements"
-            className="text-red-600 hover:text-red-700 font-medium flex items-center gap-1 transition-colors"
+            className="text-gray-600 hover:text-gray-700 font-medium flex items-center gap-1 transition-colors"
           >
             View All <ChevronRight size={16} />
           </Link>
@@ -164,7 +164,7 @@ const Dashboard = () => {
                   key={announcement._id || announcement.id || index}
                   to={`/announcements/${announcement._id || announcement.id}`}
                   className={`block p-4 rounded-lg hover:bg-gray-50 transition-colors border ${
-                    index === 0 ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
+                    index === 0 ? 'border-gray-200 bg-gray-50/30' : 'border-gray-200'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -174,7 +174,7 @@ const Dashboard = () => {
                           {announcement.title}
                         </h3>
                         {announcement.isPriority && (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full flex-shrink-0">
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full flex-shrink-0">
                             Priority
                           </span>
                         )}
@@ -212,10 +212,10 @@ const Dashboard = () => {
       {/* News Section */}
       <section className="bg-white rounded-xl border-2 border-gray-300 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-red-600">NEWS</h2>
+          <h2 className="text-2xl font-bold text-gray-600">NEWS</h2>
           <Link
             to="/news"
-            className="text-red-600 hover:text-red-700 font-medium flex items-center gap-1 transition-colors"
+            className="text-gray-600 hover:text-gray-700 font-medium flex items-center gap-1 transition-colors"
           >
             View All <ChevronRight size={16} />
           </Link>
@@ -262,7 +262,7 @@ const Dashboard = () => {
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-medium text-gray-900 line-clamp-2 
-                                   group-hover:text-red-600 transition-colors">
+                                   group-hover:text-gray-600 transition-colors">
                       {title}
                     </h3>
                     {date && (
