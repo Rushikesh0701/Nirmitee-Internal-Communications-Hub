@@ -1,4 +1,4 @@
-const { News, User, RSSFeed, RssArticle } = require('../models');
+const { User, RSSFeed, RssArticle } = require('../models');
 const { ROLES } = require('../constants/roles');
 const Parser = require('rss-parser');
 const parser = new Parser();
@@ -21,58 +21,104 @@ const {
  */
 /**
  * Get all news from database (Internal News + RSS Articles)
+ * Supports search, filtering, and sorting
  */
 const getAllNews = async (options = {}) => {
-  const { page = 1, limit = 10, category, priority, published } = options;
+  const { 
+    page = 1, 
+    limit = 10, 
+    category, 
+    priority, 
+    published,
+    q,           // Search query
+    from,        // Date range start
+    to,          // Date range end
+    source,      // Source filter
+    sort = 'relevance', // Sort order: 'date', 'relevance', 'popularity'
+    language     // Language filter (not used for RSS, but kept for API compatibility)
+  } = options;
   const skip = (page - 1) * limit;
 
-  // 1. Build queries for both collections
-  const newsQuery = {};
+  // 1. Build query for RSS articles only (News model removed - not storing news)
   const rssQuery = {};
 
+  // Category filter
   if (category) {
-    newsQuery.category = category;
-    rssQuery.category = category;
+    // Support case-insensitive category matching
+    rssQuery.category = { $regex: new RegExp(`^${category}$`, 'i') };
   }
 
-  if (priority) {
-    newsQuery.priority = priority;
-    // RSS articles don't have priority, so we might exclude them if priority is set
-    // or assume they are 'medium'
+  // Search query - search in title and description
+  if (q && q.trim()) {
+    const searchTerm = q.trim();
+    // Remove special search prefixes like "title:", "content:"
+    let cleanSearch = searchTerm
+      .replace(/^title:/i, '')
+      .replace(/^content:/i, '')
+      .replace(/"/g, '') // Remove exact phrase quotes
+      .trim();
+    
+    if (cleanSearch) {
+      // Create regex for case-insensitive search
+      const searchRegex = new RegExp(cleanSearch, 'i');
+      rssQuery.$or = [
+        { title: searchRegex },
+        { description: searchRegex }
+      ];
+    }
   }
 
-  if (published !== undefined) {
-    newsQuery.isPublished = published;
-    // RSS articles are always considered published
+  // Date range filters
+  if (from || to) {
+    rssQuery.publishedAt = {};
+    if (from) {
+      rssQuery.publishedAt.$gte = new Date(from);
+    }
+    if (to) {
+      // Set to end of day for 'to' date
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      rssQuery.publishedAt.$lte = toDate;
+    }
   }
 
-  // 2. Fetch from both sources
-  // We fetch (skip + limit) from both to ensure we have enough candidates for the current page
-  // This is a simplified federated search strategy
+  // 2. Determine sort order
+  let sortOrder = { publishedAt: -1 }; // Default: newest first
+  if (sort === 'date') {
+    sortOrder = { publishedAt: -1 };
+  } else if (sort === 'popularity') {
+    sortOrder = { views: -1, publishedAt: -1 };
+  }
+  // 'relevance' sorting is handled post-query for text searches
+
+  // 3. Fetch from RSS sources
   const fetchLimit = skip + limit;
 
-  const [internalNews, rssArticles] = await Promise.all([
-    News.find(newsQuery)
-      .populate('authorId', 'firstName lastName email avatar')
-      .sort({ createdAt: -1 })
-      .limit(fetchLimit)
-      .lean(),
-    RssArticle.find(rssQuery)
-      .populate('feedId', 'feedUrl category')
-      .sort({ publishedAt: -1 })
-      .limit(fetchLimit)
-      .lean()
-  ]);
+  let rssArticles = await RssArticle.find(rssQuery)
+    .populate('feedId', 'feedUrl category')
+    .sort(sortOrder)
+    .limit(fetchLimit)
+    .lean();
 
-  // 3. Normalize RSS articles to match News schema
+  // 4. Apply source filter (post-query since source info might be in feedId)
+  if (source && source.trim()) {
+    const sourceFilter = source.trim().toLowerCase();
+    rssArticles = rssArticles.filter(article => {
+      const feedUrl = article.feedId?.feedUrl || '';
+      const articleSource = feedUrl.toLowerCase();
+      return articleSource.includes(sourceFilter);
+    });
+  }
+
+  // 5. Normalize RSS articles to match News schema
   const normalizedRss = rssArticles.map(article => ({
     _id: article._id,
     title: article.title,
     content: article.description || '',
     summary: article.description || '',
-    imageUrl: article.imageUrl, // RssArticle schema might need this field check
+    imageUrl: article.imageUrl,
     category: article.category,
-    priority: article.category === 'HealthcareIT' ? 'high' : 'medium', // Prioritize HealthcareIT news
+    priority: article.category === 'HealthcareIT' ? 'high' : 'medium',
     isPublished: true,
     publishedAt: article.publishedAt,
     sourceUrl: article.link,
@@ -85,22 +131,45 @@ const getAllNews = async (options = {}) => {
     createdAt: article.publishedAt
   }));
 
-  // 4. Merge and Sort
-  const allNews = [...internalNews, ...normalizedRss].sort((a, b) => {
-    const dateA = new Date(a.publishedAt || a.createdAt);
-    const dateB = new Date(b.publishedAt || b.createdAt);
-    return dateB - dateA; // Descending order
-  });
+  // 6. Sort for relevance (if searching and sort is relevance)
+  let allNews = normalizedRss;
+  if (q && q.trim() && sort === 'relevance') {
+    const searchTerm = q.trim().toLowerCase()
+      .replace(/^title:/i, '')
+      .replace(/^content:/i, '')
+      .replace(/"/g, '')
+      .trim();
+    
+    // Score by relevance: title matches > content matches
+    allNews = normalizedRss.sort((a, b) => {
+      const titleA = (a.title || '').toLowerCase();
+      const titleB = (b.title || '').toLowerCase();
+      const contentA = (a.content || '').toLowerCase();
+      const contentB = (b.content || '').toLowerCase();
+      
+      // Calculate relevance scores
+      const scoreA = (titleA.includes(searchTerm) ? 10 : 0) + (contentA.includes(searchTerm) ? 5 : 0);
+      const scoreB = (titleB.includes(searchTerm) ? 10 : 0) + (contentB.includes(searchTerm) ? 5 : 0);
+      
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA; // Higher score first
+      }
+      // If same score, sort by date
+      return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
+    });
+  } else if (sort === 'date') {
+    allNews = normalizedRss.sort((a, b) => {
+      const dateA = new Date(a.publishedAt || a.createdAt);
+      const dateB = new Date(b.publishedAt || b.createdAt);
+      return dateB - dateA;
+    });
+  }
 
-  // 5. Paginate the merged result
+  // 7. Paginate the result
   const paginatedNews = allNews.slice(skip, skip + limit);
 
-  // 6. Get total counts (approximate)
-  const [totalNews, totalRss] = await Promise.all([
-    News.countDocuments(newsQuery),
-    RssArticle.countDocuments(rssQuery)
-  ]);
-  const total = totalNews + totalRss;
+  // 8. Get total count with the same filters
+  const total = await RssArticle.countDocuments(rssQuery);
 
   return {
     news: paginatedNews,
@@ -114,20 +183,37 @@ const getAllNews = async (options = {}) => {
 };
 
 /**
- * Get news by ID
+ * Get news by ID (RSS articles only - News model removed)
  */
 const getNewsById = async (id, userId) => {
-  const news = await News.findById(id)
-    .populate('authorId', 'firstName lastName email avatar');
+  const news = await RssArticle.findById(id)
+    .populate('feedId', 'feedUrl category');
 
   if (!news) {
     throw new Error('News not found');
   }
 
-  await News.findByIdAndUpdate(id, { $inc: { views: 1 } });
-  news.views += 1;
-
-  return news;
+  // Convert RSS article to news format
+  return {
+    _id: news._id,
+    title: news.title,
+    content: news.description || '',
+    summary: news.description || '',
+    imageUrl: news.imageUrl,
+    category: news.category,
+    priority: news.category === 'HealthcareIT' ? 'high' : 'medium',
+    isPublished: true,
+    publishedAt: news.publishedAt,
+    sourceUrl: news.link,
+    sourceType: 'rss',
+    authorId: {
+      firstName: 'RSS',
+      lastName: 'Feed',
+      email: 'rss@nirmitee.com'
+    },
+    views: news.views || 0,
+    createdAt: news.publishedAt
+  };
 };
 
 /**
@@ -146,52 +232,24 @@ const validateObjectId = (id, fieldName = 'id') => {
 };
 
 /**
- * Create news
+ * Create news (Not supported - News model removed, not storing news)
  */
 const createNews = async (newsData) => {
-  const authorId = validateObjectId(newsData.authorId, 'authorId');
-
-  const news = await News.create({ ...newsData, authorId });
-  return await News.findById(news._id)
-    .populate('authorId', 'firstName lastName email avatar');
+  throw new Error('News creation is not supported. News storage has been removed.');
 };
 
 /**
- * Update news
+ * Update news (Not supported - News model removed, not storing news)
  */
 const updateNews = async (id, updateData, userId, user) => {
-  const news = await News.findById(id);
-  if (!news) {
-    throw new Error('News not found');
-  }
-
-  const isAuthor = news.authorId.toString() === userId.toString();
-  const isAdminOrModerator = ['Admin', 'Moderator'].includes(user.Role?.name);
-
-  if (!isAuthor && !isAdminOrModerator) {
-    throw new Error('Unauthorized to update this news');
-  }
-
-  Object.assign(news, updateData);
-  await news.save();
-  return await News.findById(news._id)
-    .populate('authorId', 'firstName lastName email avatar');
+  throw new Error('News updates are not supported. News storage has been removed.');
 };
 
 /**
- * Delete news
+ * Delete news (Not supported - News model removed, not storing news)
  */
 const deleteNews = async (id, userId, user) => {
-  const news = await News.findById(id);
-  if (!news) {
-    throw new Error('News not found');
-  }
-
-  if (user.Role?.name !== ROLES.ADMIN) {
-    throw new Error('Unauthorized to delete news');
-  }
-
-  await News.findByIdAndDelete(id);
+  throw new Error('News deletion is not supported. News storage has been removed.');
 };
 
 /**
@@ -363,64 +421,10 @@ const fetchNewsFromRSSFeed = async (feedUrl, category) => {
 };
 
 /**
- * Sync RSS feeds to news
+ * Sync RSS feeds to news (Not supported - News model removed, RSS articles are stored in RssArticle collection)
  */
 const syncRSSFeedsToNews = async (systemUserId) => {
-  try {
-    const validatedUserId = validateObjectId(systemUserId, 'systemUserId');
-    const feeds = await RSSFeed.find({ isActive: true });
-    const results = [];
-    let totalNewsCreated = 0;
-
-    for (const feed of feeds) {
-      try {
-        const newsItems = await fetchNewsFromRSSFeed(feed.feedUrl, feed.category);
-
-        for (const newsItem of newsItems) {
-          try {
-            const existingNews = await News.findOne({
-              $or: [
-                { sourceUrl: newsItem.sourceUrl },
-                { title: newsItem.title, sourceType: 'rss' }
-              ]
-            });
-
-            if (!existingNews) {
-              await News.create({
-                ...newsItem,
-                authorId: validatedUserId
-              });
-              totalNewsCreated++;
-            }
-          } catch (error) {
-            logger.error('Error creating news from RSS', { error: error.message });
-          }
-        }
-
-        await RSSFeed.findByIdAndUpdate(feed._id, { lastFetchedAt: new Date() });
-
-        results.push({
-          success: true,
-          feedId: feed._id,
-          feedUrl: feed.feedUrl,
-          category: feed.category,
-          newsCount: newsItems.length
-        });
-      } catch (error) {
-        results.push({
-          success: false,
-          feedId: feed._id,
-          feedUrl: feed.feedUrl,
-          error: error.message
-        });
-      }
-    }
-
-    return { results, totalNewsCreated };
-  } catch (error) {
-    logger.error('Error syncing RSS feeds to news', { error: error.message });
-    throw error;
-  }
+  throw new Error('RSS feed syncing to News is not supported. News storage has been removed. RSS articles are stored in the RssArticle collection.');
 };
 
 /**
@@ -460,6 +464,8 @@ const buildNewsDataParams = (options, apiKey) => {
   if (to && isValidDateFormat(to)) params.append('to_date', to);
   if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
   if (limit && limit > 0) params.append('size', Math.min(limit, 50));
+  // Add sort parameter - NewsData.io supports: relevance, date, popularity
+  if (sort) params.append('prioritybycountry', sort === 'date' ? 'latest' : sort);
 
   return params;
 };

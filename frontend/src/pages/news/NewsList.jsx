@@ -178,8 +178,8 @@ function NewsList() {
         params.append('source', sourceFilter);
       }
 
-      // Add sort
-      if (sortBy && sortBy !== 'relevance') {
+      // Add sort - always send to ensure proper ordering
+      if (sortBy) {
         params.append('sort', sortBy);
       }
 
@@ -221,15 +221,10 @@ function NewsList() {
     fetchNews(true);
   };
 
-  // Handle filter changes
-  const handleFilterChange = () => {
-    fetchNews(true);
-  };
-
   // Clear all filters
   const clearFilters = () => {
     setQuery('');
-    setCategory('technology');
+    setCategory('');
     setDateRange('all');
     setSortBy('relevance');
     setLanguage('en');
@@ -241,11 +236,23 @@ function NewsList() {
     setError('');
   };
 
+  // Track if this is the initial mount
+  const [isInitialMount, setIsInitialMount] = useState(true);
+
   // Initial load - fetch news on component mount
   useEffect(() => {
     fetchNews(true);
+    setIsInitialMount(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Watch for filter changes and refetch (after initial mount)
+  useEffect(() => {
+    if (!isInitialMount) {
+      fetchNews(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase, minDate, maxDate]);
 
   // Active filters count
   const activeFiltersCount = useMemo(() => {
@@ -343,10 +350,7 @@ function NewsList() {
             </label>
             <select
               value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                handleFilterChange();
-              }}
+              onChange={(e) => setCategory(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {techCategories.map((cat) => (
@@ -364,10 +368,7 @@ function NewsList() {
             </label>
             <select
               value={dateRange}
-              onChange={(e) => {
-                setDateRange(e.target.value);
-                handleFilterChange();
-              }}
+              onChange={(e) => setDateRange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {dateRanges.map((range) => (
@@ -385,10 +386,7 @@ function NewsList() {
             </label>
             <select
               value={sortBy}
-              onChange={(e) => {
-                setSortBy(e.target.value);
-                handleFilterChange();
-              }}
+              onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {sortOptions.map((option) => (
@@ -406,10 +404,7 @@ function NewsList() {
             </label>
             <select
               value={language}
-              onChange={(e) => {
-                setLanguage(e.target.value);
-                handleFilterChange();
-              }}
+              onChange={(e) => setLanguage(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {languages.map((lang) => (
@@ -432,10 +427,7 @@ function NewsList() {
                 </label>
                 <select
                   value={searchType}
-                  onChange={(e) => {
-                    setSearchType(e.target.value);
-                    handleFilterChange();
-                  }}
+                  onChange={(e) => setSearchType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Fields</option>
@@ -452,10 +444,7 @@ function NewsList() {
                 </label>
                 <select
                   value={sourceFilter}
-                  onChange={(e) => {
-                    setSourceFilter(e.target.value);
-                    handleFilterChange();
-                  }}
+                  onChange={(e) => setSourceFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Sources</option>
@@ -472,10 +461,7 @@ function NewsList() {
                   <input
                     type="checkbox"
                     checked={exactPhrase}
-                    onChange={(e) => {
-                      setExactPhrase(e.target.checked);
-                      handleFilterChange();
-                    }}
+                    onChange={(e) => setExactPhrase(e.target.checked)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700">Exact phrase match</span>
@@ -494,10 +480,7 @@ function NewsList() {
                   <input
                     type="date"
                     value={minDate}
-                    onChange={(e) => {
-                      setMinDate(e.target.value);
-                      handleFilterChange();
-                    }}
+                    onChange={(e) => setMinDate(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -509,10 +492,7 @@ function NewsList() {
                   <input
                     type="date"
                     value={maxDate}
-                    onChange={(e) => {
-                      setMaxDate(e.target.value);
-                      handleFilterChange();
-                    }}
+                    onChange={(e) => setMaxDate(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>

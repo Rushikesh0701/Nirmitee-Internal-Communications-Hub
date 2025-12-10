@@ -5,7 +5,6 @@
 import Dashboard from '../pages/Dashboard'
 import NewsList from '../pages/news/NewsList'
 import NewsDetail from '../pages/news/NewsDetail'
-import NewsForm from '../pages/news/NewsForm'
 import Blogs from '../pages/blogs/Blogs'
 import BlogDetail from '../pages/blogs/BlogDetail'
 import CreateBlog from '../pages/blogs/CreateBlog'
@@ -50,8 +49,6 @@ export const protectedRoutes = [
   { path: '/dashboard', component: Dashboard },
   { path: '/news', component: NewsList },
   { path: '/news/:id', component: NewsDetail },
-  { path: '/news/new', component: NewsForm, admin: true },
-  { path: '/news/:id/edit', component: NewsForm, admin: true },
   { path: '/announcements', component: AnnouncementsList },
   { path: '/announcements/new', component: AnnouncementForm, admin: true },
   { path: '/announcements/:id', component: AnnouncementDetail },

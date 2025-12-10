@@ -165,7 +165,13 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
         limit: fetchLimit,
         category,
         priority: undefined,
-        published: undefined
+        published: undefined,
+        q,           // Pass search query
+        from,        // Pass date range start
+        to,          // Pass date range end
+        source,      // Pass source filter
+        sort,        // Pass sort order
+        language     // Pass language filter
       });
 
       const normalizedDbNews = normalizeDatabaseNews(dbNews);
@@ -253,7 +259,19 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
  * Handle database news request
  */
 const handleDatabaseNewsRequest = async (req, res) => {
-  const { page = 1, limit = 10, category, priority, published } = req.query;
+  const { 
+    page = 1, 
+    limit = 10, 
+    category, 
+    priority, 
+    published,
+    q,
+    from,
+    to,
+    source,
+    sort,
+    language
+  } = req.query;
     
     try {
     const news = await newsService.getAllNews({
@@ -261,7 +279,13 @@ const handleDatabaseNewsRequest = async (req, res) => {
         limit: parseInt(limit),
         category,
         priority,
-        published: published === 'true'
+        published: published === 'true',
+        q,
+        from,
+        to,
+        source,
+        sort,
+        language
       });
 
     if (!news || !news.news || (Array.isArray(news.news) && news.news.length === 0)) {

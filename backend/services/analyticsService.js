@@ -1,4 +1,4 @@
-const { Analytics, News, Blog, Discussion, User, SurveyModel, Course } = require('../models');
+const { Analytics, Blog, Discussion, User, SurveyModel, Course } = require('../models');
 
 const getDashboardStats = async (user, userRole) => {
   // Check role - prefer passed userRole, fallback to extracting from user object
@@ -8,25 +8,18 @@ const getDashboardStats = async (user, userRole) => {
   }
 
   const [
-    totalNews,
     totalBlogs,
     totalDiscussions,
     totalUsers,
     totalSurveys,
     totalCourses,
-    recentNews,
     recentBlogs
   ] = await Promise.all([
-    News.countDocuments(),
     Blog.countDocuments(),
     Discussion.countDocuments(),
     User.countDocuments({ isActive: true }),
     SurveyModel.countDocuments({ isActive: true }),
     Course.countDocuments({ isPublished: true }),
-    News.find()
-      .populate('authorId', 'firstName lastName')
-      .sort({ createdAt: -1 })
-      .limit(5),
     Blog.find()
       .populate('authorId', 'firstName lastName')
       .sort({ createdAt: -1 })
@@ -35,7 +28,7 @@ const getDashboardStats = async (user, userRole) => {
 
   return {
     overview: {
-      totalNews,
+      totalNews: 0, // News model removed
       totalBlogs,
       totalDiscussions,
       totalUsers,
@@ -43,7 +36,7 @@ const getDashboardStats = async (user, userRole) => {
       totalCourses
     },
     recentContent: {
-      news: recentNews,
+      news: [], // News model removed
       blogs: recentBlogs
     }
   };
@@ -99,24 +92,12 @@ const getContentAnalytics = async (options, user, userRole) => {
     }));
   };
 
-  // Get overall stats
+  // Get overall stats (News model removed)
   if (!entityType || entityType === 'news') {
-    const [newsStats, newsTimeSeries] = await Promise.all([
-      News.aggregate([
-        { $match: dateQuery },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            totalViews: { $sum: '$views' }
-          }
-        }
-      ]),
-      getTimeSeriesData(News)
-    ]);
     analytics.news = {
-      ...(newsStats[0] || { count: 0, totalViews: 0 }),
-      timeSeries: newsTimeSeries
+      count: 0,
+      totalViews: 0,
+      timeSeries: []
     };
   }
 
@@ -160,10 +141,9 @@ const getContentAnalytics = async (options, user, userRole) => {
     };
   }
 
-  // Get combined time-series for all content types
+  // Get combined time-series for all content types (News model removed)
   if (!entityType) {
-    const [newsSeries, blogSeries, discussionSeries] = await Promise.all([
-      getTimeSeriesData(News),
+    const [blogSeries, discussionSeries] = await Promise.all([
       getTimeSeriesData(Blog),
       getTimeSeriesData(Discussion)
     ]);
@@ -172,16 +152,9 @@ const getContentAnalytics = async (options, user, userRole) => {
     const dateMap = new Map();
     
     // Add all dates from all series
-    [...newsSeries, ...blogSeries, ...discussionSeries].forEach(item => {
+    [...blogSeries, ...discussionSeries].forEach(item => {
       if (!dateMap.has(item.date)) {
         dateMap.set(item.date, { date: item.date, news: 0, blogs: 0, discussions: 0 });
-      }
-    });
-
-    // Fill in the counts for each date
-    newsSeries.forEach(item => {
-      if (dateMap.has(item.date)) {
-        dateMap.get(item.date).news = item.count;
       }
     });
     

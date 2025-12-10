@@ -7,7 +7,7 @@ import { getDateRangeParams, buildSearchQuery } from '../utils/newsConstants';
  */
 export const useNewsFilter = () => {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('technology');
+  const [category, setCategory] = useState('');
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -56,7 +56,7 @@ export const useNewsFilter = () => {
       
       if (language && language !== 'en') params.append('language', language);
       if (sourceFilter) params.append('source', sourceFilter);
-      if (sortBy && sortBy !== 'relevance') params.append('sort', sortBy);
+      if (sortBy) params.append('sort', sortBy);
       if (!isNewSearch && nextPage) params.append('nextPage', nextPage);
       params.append('limit', '10');
 
@@ -83,7 +83,7 @@ export const useNewsFilter = () => {
 
   const clearFilters = () => {
     setQuery('');
-    setCategory('technology');
+    setCategory('');
     setDateRange('all');
     setSortBy('relevance');
     setLanguage('en');
@@ -98,6 +98,7 @@ export const useNewsFilter = () => {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (query.trim()) count++;
+    if (category) count++;
     if (dateRange !== 'all') count++;
     if (sortBy !== 'relevance') count++;
     if (language !== 'en') count++;
@@ -105,13 +106,25 @@ export const useNewsFilter = () => {
     if (searchType !== 'all') count++;
     if (exactPhrase) count++;
     return count;
-  }, [query, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase]);
+  }, [query, category, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase]);
+
+  // Track initial mount
+  const [isInitialMount, setIsInitialMount] = useState(true);
 
   useEffect(() => {
     // Fetch news on initial load
     fetchNews(true);
+    setIsInitialMount(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Watch for filter changes and refetch (after initial mount)
+  useEffect(() => {
+    if (!isInitialMount) {
+      fetchNews(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase, minDate, maxDate]);
 
   return {
     // State

@@ -100,7 +100,6 @@ async function main() {
   console.log('');
   console.log('   MongoDB:');
   console.log('     - Blogs');
-  console.log('     - News');
   console.log('     - Discussions');
   console.log('     - Announcements');
   console.log('     - Groups');
