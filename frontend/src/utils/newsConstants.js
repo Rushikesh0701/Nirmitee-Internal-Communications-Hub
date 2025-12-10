@@ -3,14 +3,12 @@
  */
 
 export const TECH_CATEGORIES = [
-  { value: 'technology', label: 'Technology' },
-  { value: 'ai', label: 'AI & Machine Learning' },
-  { value: 'software', label: 'Software Development' },
-  { value: 'cybersecurity', label: 'Cybersecurity' },
-  { value: 'gadgets', label: 'Gadgets & Hardware' },
-  { value: 'startups', label: 'Startups' },
-  { value: 'business', label: 'Business Tech' },
-  { value: 'science', label: 'Science & Research' },
+  { value: '', label: 'All Categories' },
+  { value: 'AI', label: 'AI & Machine Learning' },
+  { value: 'Cloud', label: 'Cloud Computing' },
+  { value: 'DevOps', label: 'DevOps' },
+  { value: 'Programming', label: 'Programming' },
+  { value: 'Cybersecurity', label: 'Cybersecurity' },
   { value: 'HealthcareIT', label: 'Healthcare IT' },
 ];
 
@@ -53,10 +51,10 @@ export const getDateRangeParams = (dateRange, minDate, maxDate) => {
   if (dateRange === 'custom' && minDate && maxDate) {
     return { from: minDate, to: maxDate };
   }
-  
+
   const now = new Date();
   let from = null;
-  
+
   switch (dateRange) {
     case 'today':
       from = new Date(now.setHours(0, 0, 0, 0)).toISOString().split('T')[0];
@@ -73,23 +71,23 @@ export const getDateRangeParams = (dateRange, minDate, maxDate) => {
     default:
       return null;
   }
-  
+
   return from ? { from } : null;
 };
 
 export const buildSearchQuery = (query, exactPhrase, searchType) => {
   let searchQuery = query.trim();
-  
+
   if (exactPhrase && searchQuery && !searchQuery.startsWith('"') && !searchQuery.endsWith('"')) {
     searchQuery = `"${searchQuery}"`;
   }
-  
+
   if (searchType === 'title' && searchQuery) {
     searchQuery = `title:${searchQuery}`;
   } else if (searchType === 'content' && searchQuery) {
     searchQuery = `content:${searchQuery}`;
   }
-  
+
   return searchQuery;
 };
 

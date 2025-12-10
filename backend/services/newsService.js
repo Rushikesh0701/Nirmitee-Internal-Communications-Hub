@@ -104,9 +104,13 @@ const getAllNews = async (options = {}) => {
   if (source && source.trim()) {
     const sourceFilter = source.trim().toLowerCase();
     rssArticles = rssArticles.filter(article => {
+      // Check multiple source fields for matching
       const feedUrl = article.feedId?.feedUrl || '';
-      const articleSource = feedUrl.toLowerCase();
-      return articleSource.includes(sourceFilter);
+      const feedCategory = article.feedId?.category || '';
+      const articleTitle = article.title || '';
+      // Combine relevant fields for source matching
+      const sourceFields = `${feedUrl} ${feedCategory} ${articleTitle}`.toLowerCase();
+      return sourceFields.includes(sourceFilter);
     });
   }
 
@@ -464,11 +468,9 @@ const buildNewsDataParams = (options, apiKey) => {
   if (to && isValidDateFormat(to)) params.append('to_date', to);
   if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
   if (limit && limit > 0) params.append('size', Math.min(limit, 50));
-  // Add sort parameter - NewsData.io supports: relevance, date, popularity
-  // if (sort) {
-  //   const sortValue = sort === 'date' ? 'pubDate' : sort;
-  //   params.append('orderby', sortValue);
-  // }
+  // Add sort parameter - NewsData.io supports orderby parameter
+  // Note: NewsData.io latest endpoint may have limited sort support
+  // The sorting is primarily handled client-side after fetch
 
   return params;
 };

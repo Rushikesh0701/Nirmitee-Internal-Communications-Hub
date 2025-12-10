@@ -1,23 +1,17 @@
 /**
- * Helper functions for NewsData.io API integration
- */
-
-/**
  * Maps frontend categories to NewsData.io category values
+ * Database categories: AI, Cloud, DevOps, Programming, Cybersecurity, HealthcareIT
  */
 const mapCategoryToNewsData = (category) => {
   const categoryMap = {
-    technology: 'technology',
-    ai: 'technology',
-    software: 'technology',
-    cybersecurity: 'technology',
-    gadgets: 'technology',
-    startups: 'business',
-    business: 'business',
-    science: 'science',
-    HealthcareIT: 'technology' // HealthcareIT maps to technology for NewsData.io
+    AI: 'technology',
+    Cloud: 'technology',
+    DevOps: 'technology',
+    Programming: 'technology',
+    Cybersecurity: 'technology',
+    HealthcareIT: 'health'
   };
-  return categoryMap[category] || category;
+  return categoryMap[category] || 'technology';
 };
 
 /**
@@ -90,8 +84,7 @@ const sortArticlesByDate = (articles) => {
 const isNewsDataRequest = (query) => {
   const { q, category } = query;
   const newsDataCategories = [
-    'technology', 'ai', 'software', 'cybersecurity',
-    'gadgets', 'startups', 'business', 'science', 'HealthcareIT'
+    'AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity', 'HealthcareIT'
   ];
   return !!(q || (category && newsDataCategories.includes(category)));
 };
@@ -101,7 +94,7 @@ const isNewsDataRequest = (query) => {
  */
 const getNewsDataErrorMessage = (error) => {
   const errorMsg = error.message || '';
-  
+
   if (errorMsg.includes('API key') || errorMsg.includes('not configured')) {
     return 'NewsData.io API key not configured. Showing sample data. Please add NEWSDATA_API_KEY to your .env file to enable live news.';
   }

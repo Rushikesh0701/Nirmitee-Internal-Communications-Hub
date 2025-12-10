@@ -10,25 +10,25 @@ const { isNewsDataRequest, getNewsDataErrorMessage } = require('../utils/newsDat
  */
 const transformDummyNewsToNewsDataFormat = (dummyNews, category) => {
   return {
-            results: (dummyNews.news || []).map(item => ({
-              article_id: item._id || item.id || `dummy-${Date.now()}-${Math.random()}`,
-              title: item.title || 'Untitled',
-              description: item.summary || item.content || '',
-              link: item.sourceUrl || '#',
-              image_url: item.imageUrl || null,
-              pubDate: item.publishedAt || item.createdAt || new Date().toISOString(),
-              source_id: 'dummy',
-              source_name: 'Sample News',
-              category: item.category || category || 'technology',
-              creator: item.Author ? [`${item.Author.firstName} ${item.Author.lastName}`] : [],
-              content: item.content || item.summary || ''
-            })),
-            totalResults: dummyNews.pagination?.total || (dummyNews.news || []).length,
-            nextPage: dummyNews.pagination && dummyNews.pagination.page < dummyNews.pagination.pages 
-              ? dummyNews.pagination.page + 1 
-              : null,
-            status: 'success'
-          };
+    results: (dummyNews.news || []).map(item => ({
+      article_id: item._id || item.id || `dummy-${Date.now()}-${Math.random()}`,
+      title: item.title || 'Untitled',
+      description: item.summary || item.content || '',
+      link: item.sourceUrl || '#',
+      image_url: item.imageUrl || null,
+      pubDate: item.publishedAt || item.createdAt || new Date().toISOString(),
+      source_id: 'dummy',
+      source_name: 'Sample News',
+      category: item.category || category || 'technology',
+      creator: item.Author ? [`${item.Author.firstName} ${item.Author.lastName}`] : [],
+      content: item.content || item.summary || ''
+    })),
+    totalResults: dummyNews.pagination?.total || (dummyNews.news || []).length,
+    nextPage: dummyNews.pagination && dummyNews.pagination.page < dummyNews.pagination.pages
+      ? dummyNews.pagination.page + 1
+      : null,
+    status: 'success'
+  };
 };
 
 /**
@@ -50,7 +50,7 @@ const getDummyNewsFallback = (queryParams) => {
  */
 const normalizeDatabaseNews = (dbNews) => {
   if (!dbNews || !dbNews.news) return [];
-  
+
   return dbNews.news.map(item => ({
     article_id: item._id?.toString() || item.id || `db-${Date.now()}-${Math.random()}`,
     title: item.title || 'Untitled',
@@ -91,18 +91,18 @@ const mergeNewsSources = (newsDataArticles, dbNewsArticles) => {
     // Check if article is HealthcareIT category
     const isAHealthcareIT = a.category === 'HealthcareIT' || a.category === 'healthcareit';
     const isBHealthcareIT = b.category === 'HealthcareIT' || b.category === 'healthcareit';
-    
+
     // HealthcareIT articles get highest priority
     if (isAHealthcareIT && !isBHealthcareIT) return -1;
     if (!isAHealthcareIT && isBHealthcareIT) return 1;
-    
+
     // Then sort by priority level
     const priorityA = priorityOrder[a.priority] || 2;
     const priorityB = priorityOrder[b.priority] || 2;
     if (priorityA !== priorityB) {
       return priorityB - priorityA; // Higher priority first
     }
-    
+
     // Finally sort by date (newest first)
     const dateA = new Date(a.pubDate || 0);
     const dateB = new Date(b.pubDate || 0);
@@ -135,7 +135,7 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
   try {
     const newsData = await newsService.fetchNewsFromNewsData({
       q: q || undefined,
-      category: category || 'technology', // Default to technology if no category
+      category: category || undefined, // Don't default - allow "All Categories" to work
       from: from || undefined,
       to: to || undefined,
       language,
@@ -180,7 +180,7 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
         // Merge both sources
         const merged = mergeNewsSources(newsDataResults, normalizedDbNews);
         const paginatedMerged = merged.slice((parseInt(page) - 1) * parseInt(limit), parseInt(page) * parseInt(limit));
-        
+
         // Determine if there are more pages:
         // 1. If NewsData.io has nextPage token, use it (highest priority - it's a token string)
         // 2. Otherwise, check if there might be more results:
@@ -190,7 +190,7 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
         const newsDataMightHaveMore = !newsDataNextPage && newsDataResults.length >= parseInt(limit);
         const hasMoreMerged = merged.length > (parseInt(page) * parseInt(limit));
         const dbHasMore = dbNews.pagination && dbNews.pagination.page < dbNews.pagination.pages;
-        
+
         // Use NewsData.io token if available, otherwise use page number if there might be more
         const finalNextPage = newsDataNextPage || (newsDataMightHaveMore || hasMoreMerged || dbHasMore ? (parseInt(page) + 1).toString() : null);
 
@@ -220,7 +220,7 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
       }
     } catch (dbError) {
       logger.error('Database error', { error: dbError.message });
-      
+
       // Fallback to dummy data
       if (newsDataResults.length > 0) {
         return sendSuccess(res, {
@@ -259,11 +259,11 @@ const handleNewsDataRequest = async (req, res, mergeWithDatabase = false) => {
  * Handle database news request
  */
 const handleDatabaseNewsRequest = async (req, res) => {
-  const { 
-    page = 1, 
-    limit = 10, 
-    category, 
-    priority, 
+  const {
+    page = 1,
+    limit = 10,
+    category,
+    priority,
     published,
     q,
     from,
@@ -272,21 +272,21 @@ const handleDatabaseNewsRequest = async (req, res) => {
     sort,
     language
   } = req.query;
-    
-    try {
+
+  try {
     const news = await newsService.getAllNews({
-        page: parseInt(page),
-        limit: parseInt(limit),
-        category,
-        priority,
-        published: published === 'true',
-        q,
-        from,
-        to,
-        source,
-        sort,
-        language
-      });
+      page: parseInt(page),
+      limit: parseInt(limit),
+      category,
+      priority,
+      published: published === 'true',
+      q,
+      from,
+      to,
+      source,
+      sort,
+      language
+    });
 
     if (!news || !news.news || (Array.isArray(news.news) && news.news.length === 0)) {
       const dummyNews = getDummyNewsFallback(req.query);
@@ -400,7 +400,7 @@ const syncRSSFeeds = async (req, res, next) => {
 const getNewsFromRSS = async (req, res, next) => {
   try {
     const { feedUrl, category, limit = 10 } = req.query;
-    
+
     if (!feedUrl) {
       return sendError(res, 'feedUrl is required', 400);
     }

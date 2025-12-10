@@ -24,14 +24,11 @@ function NewsList() {
 
   const techCategories = [
     { value: '', label: 'All Categories' },
-    { value: 'technology', label: 'Technology' },
-    { value: 'ai', label: 'AI & Machine Learning' },
-    { value: 'software', label: 'Software Development' },
-    { value: 'cybersecurity', label: 'Cybersecurity' },
-    { value: 'gadgets', label: 'Gadgets & Hardware' },
-    { value: 'startups', label: 'Startups' },
-    { value: 'business', label: 'Business Tech' },
-    { value: 'science', label: 'Science & Research' },
+    { value: 'AI', label: 'AI & Machine Learning' },
+    { value: 'Cloud', label: 'Cloud Computing' },
+    { value: 'DevOps', label: 'DevOps' },
+    { value: 'Programming', label: 'Programming' },
+    { value: 'Cybersecurity', label: 'Cybersecurity' },
     { value: 'HealthcareIT', label: 'Healthcare IT' },
   ];
 
@@ -168,8 +165,8 @@ function NewsList() {
         params.append('to', dateParams.to);
       }
 
-      // Add language
-      if (language && language !== 'en') {
+      // Add language - always send for consistent behavior
+      if (language) {
         params.append('language', language);
       }
 

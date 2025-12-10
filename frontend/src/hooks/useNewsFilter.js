@@ -13,7 +13,7 @@ export const useNewsFilter = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
   const [nextPage, setNextPage] = useState(null);
-  
+
   // Advanced filters
   const [dateRange, setDateRange] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
@@ -34,7 +34,7 @@ export const useNewsFilter = () => {
 
   const fetchNews = async (isNewSearch = false) => {
     const currentQuery = buildSearchQuery(query, exactPhrase, searchType);
-    
+
     // Allow fetching news without query or category - backend supports it
     if (isNewSearch) {
       setLoading(true);
@@ -49,12 +49,13 @@ export const useNewsFilter = () => {
       const params = new URLSearchParams();
       if (currentQuery) params.append('q', currentQuery);
       if (category) params.append('category', category);
-      
+
       const dateParams = getDateRangeParams(dateRange, minDate, maxDate);
       if (dateParams?.from) params.append('from', dateParams.from);
       if (dateParams?.to) params.append('to', dateParams.to);
-      
-      if (language && language !== 'en') params.append('language', language);
+
+      // Always send language for consistent behavior
+      if (language) params.append('language', language);
       if (sourceFilter) params.append('source', sourceFilter);
       if (sortBy) params.append('sort', sortBy);
       if (!isNewSearch && nextPage) params.append('nextPage', nextPage);
