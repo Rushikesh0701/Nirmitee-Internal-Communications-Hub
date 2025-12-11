@@ -223,11 +223,8 @@ const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
 const notifyAnnouncement = async (userIds, announcementTitle, announcementId) => {
   if (!userIds || userIds.length === 0) return;
 
-  const content = `New announcement: ${announcementTitle}`;
-
   await createBulkNotifications(userIds, {
     type: 'ANNOUNCEMENT',
-    content,
     metadata: { announcementId, announcementTitle }
   });
 };

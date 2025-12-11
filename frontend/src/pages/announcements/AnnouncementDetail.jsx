@@ -115,10 +115,8 @@ const AnnouncementDetail = () => {
             </div>
             {announcement.scheduledAt ? (
               <div className="flex items-center gap-2">
-                <Clock size={16} />
-                <span>
-                  Scheduled for {format(new Date(announcement.scheduledAt), 'MMMM d, yyyy h:mm a')}
-                </span>
+                <Calendar size={16} />
+                <span>{format(new Date(announcement.scheduledAt), 'MMMM d, yyyy')}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">

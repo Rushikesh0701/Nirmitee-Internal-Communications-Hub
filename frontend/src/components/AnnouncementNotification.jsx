@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { Bell, X } from 'lucide-react'
-import toast from 'react-hot-toast'
 
 /**
- * Notification placeholder component for scheduled announcements
+ * Notification component for scheduled announcements
  * 
  * This component checks for newly published scheduled announcements
- * and displays notifications to users.
+ * and displays card-style notifications to users.
  * 
  * Note: In a production environment, you would implement:
  * - WebSocket/SSE for real-time notifications
@@ -55,28 +54,6 @@ const AnnouncementNotification = () => {
     setDismissedIds(newDismissed)
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed))
   }
-
-  // Show toast notification for new announcements
-  useEffect(() => {
-    if (recentAnnouncements.length > 0) {
-      recentAnnouncements.forEach((announcement) => {
-        toast.success(
-          () => (
-            <div className="flex items-center gap-2">
-              <Bell size={16} />
-              <span>
-                New announcement: <strong>{announcement.title}</strong>
-              </span>
-            </div>
-          ),
-          {
-            duration: 5000,
-            id: `announcement-${announcement._id || announcement.id}`
-          }
-        )
-      })
-    }
-  }, [recentAnnouncements]) // Only trigger when announcements change
 
   if (recentAnnouncements.length === 0) {
     return null

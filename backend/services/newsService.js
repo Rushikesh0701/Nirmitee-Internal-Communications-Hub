@@ -27,7 +27,8 @@ const HEALTHCARE_IT_RSS_FEEDS = [
   { url: 'https://www.healthcareitnews.com/rss.xml', category: 'HealthcareIT' },
   { url: 'https://www.healthitoutcomes.com/rss/rss.ashx', category: 'HealthcareIT' },
   { url: 'https://www.healthtechmagazine.net/rss.xml', category: 'HealthcareIT' },
-  { url: 'https://medtech.pharmaintelligence.informa.com/-/media/rss/mt.xml', category: 'HealthcareIT' }
+  { url: 'https://medtech.pharmaintelligence.informa.com/-/media/rss/mt.xml', category: 'HealthcareIT' },
+  { url: 'https://www.fiercehealthcare.com/rss.xml', category: 'HealthcareIT' }
 ];
 
 // In-memory cache for merged articles (for getNewsById lookup)

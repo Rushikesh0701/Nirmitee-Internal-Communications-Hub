@@ -41,7 +41,6 @@ const Login = () => {
     setLoading(false)
 
     if (result.success) {
-      toast.success('Login successful!')
       navigate('/dashboard')
     } else {
       toast.error(result.error || 'Login failed')

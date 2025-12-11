@@ -63,6 +63,13 @@ const getAllAnnouncements = async (options = {}) => {
 };
 
 const getAnnouncementById = async (id) => {
+  const mongoose = require('mongoose');
+
+  // Validate ObjectId format
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error('Invalid announcement ID format');
+  }
+
   const announcement = await Announcement.findById(id)
     .populate('createdBy', 'firstName lastName email avatar');
 
