@@ -1,24 +1,54 @@
 import { useState, useEffect, useRef } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
-import { Link } from 'react-router-dom'
+import { useQuery, useQueryClient, useMutation } from 'react-query'
+import { Link, useNavigate } from 'react-router-dom'
 import { notificationApi } from '../services/notificationApi'
-import { Bell } from 'lucide-react'
+import { Bell, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
+
+/**
+ * Get navigation link based on notification type and metadata
+ */
+const getNotificationLink = (notification) => {
+  const { type, metadata } = notification
+  
+  switch (type) {
+    case 'ANNOUNCEMENT':
+      return metadata?.announcementId ? `/announcements/${metadata.announcementId}` : '/announcements'
+    case 'SURVEY_PUBLISHED':
+      return metadata?.surveyId ? `/surveys/${metadata.surveyId}` : '/surveys'
+    case 'GROUP_POST':
+      return metadata?.postId ? `/groups` : '/groups'
+    case 'RECOGNITION':
+      return '/recognitions'
+    case 'MENTION':
+      return metadata?.postType === 'blog' ? '/blogs' : '/discussions'
+    default:
+      return '/notifications'
+  }
+}
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data: notificationsData } = useQuery('notifications', () =>
     notificationApi.getNotifications({ limit: 5 })
   )
   const { data: unreadData } = useQuery('unreadCount', () => notificationApi.getUnreadCount(), {
-    refetchInterval: 30000 // Poll every 30 seconds
+    refetchInterval: 30000
   })
 
   const notifications = notificationsData?.data?.data?.notifications || []
   const unreadCount = unreadData?.data?.data?.unreadCount || 0
+
+  const deleteAllMutation = useMutation(notificationApi.deleteAllNotifications, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('notifications')
+      queryClient.invalidateQueries('unreadCount')
+    }
+  })
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,10 +61,22 @@ export default function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleMarkAsRead = async (notificationId) => {
-    await notificationApi.markAsRead(notificationId)
+  const handleNotificationClick = async (notification) => {
+    // Mark as read
+    await notificationApi.markAsRead(notification.id)
     queryClient.invalidateQueries('notifications')
     queryClient.invalidateQueries('unreadCount')
+    
+    // Navigate to the relevant page
+    const link = getNotificationLink(notification)
+    navigate(link)
+    
+    // Close dropdown
+    setIsOpen(false)
+  }
+
+  const handleClearAll = async () => {
+    deleteAllMutation.mutate()
   }
 
   return (
@@ -55,18 +97,31 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
           <div className="p-4 border-b flex items-center justify-between">
             <h3 className="font-semibold">Notifications</h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={async () => {
-                  await notificationApi.markAllAsRead()
-                  queryClient.invalidateQueries('notifications')
-                  queryClient.invalidateQueries('unreadCount')
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700"
-              >
-                Mark all read
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={async () => {
+                    await notificationApi.markAllAsRead()
+                    queryClient.invalidateQueries('notifications')
+                    queryClient.invalidateQueries('unreadCount')
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  Mark all read
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  disabled={deleteAllMutation.isLoading}
+                  className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                  title="Clear all notifications"
+                >
+                  <Trash2 size={14} />
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
@@ -78,7 +133,7 @@ export default function NotificationBell() {
                   className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
                     !notification.isRead ? 'bg-blue-50' : ''
                   }`}
-                  onClick={() => handleMarkAsRead(notification.id)}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <p className="text-sm text-gray-900">{notification.content}</p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -102,4 +157,3 @@ export default function NotificationBell() {
     </div>
   )
 }
-

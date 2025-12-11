@@ -148,11 +148,15 @@ const deleteAnnouncement = async (id) => {
   await Announcement.findByIdAndDelete(id);
 };
 
-// Helper function to notify all users about an announcement
+// Helper function to notify all users about an announcement (excluding the creator)
 const notifyAllUsers = async (announcement) => {
   try {
-    // Get all active users
-    const users = await User.find({ isActive: true }).select('_id');
+    // Get all active users, excluding the creator
+    const creatorId = announcement.createdBy?.toString() || announcement.createdBy;
+    const users = await User.find({
+      isActive: true,
+      _id: { $ne: creatorId } // Exclude the creator
+    }).select('_id');
 
     if (users.length > 0) {
       const userIds = users.map(u => u._id);

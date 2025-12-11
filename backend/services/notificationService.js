@@ -229,6 +229,49 @@ const notifyAnnouncement = async (userIds, announcementTitle, announcementId) =>
   });
 };
 
+/**
+ * Delete a single notification
+ */
+const deleteNotification = async (notificationId, userId) => {
+  try {
+    const notification = await Notification.findOne({
+      _id: notificationId,
+      userId
+    });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    await Notification.deleteOne({ _id: notificationId, userId });
+
+    return { success: true };
+  } catch (error) {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
+      logger.warn('Database unavailable, using dummy delete', { notificationId });
+      return { success: true };
+    }
+    throw error;
+  }
+};
+
+/**
+ * Delete all notifications for a user
+ */
+const deleteAllNotifications = async (userId) => {
+  try {
+    await Notification.deleteMany({ userId });
+
+    return { success: true, message: 'All notifications deleted' };
+  } catch (error) {
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
+      logger.warn('Database unavailable, using dummy delete all', { userId });
+      return { success: true, message: 'All notifications deleted' };
+    }
+    throw error;
+  }
+};
+
 module.exports = {
   createNotification,
   createBulkNotifications,
@@ -236,10 +279,11 @@ module.exports = {
   markAsRead,
   markAllAsRead,
   getUnreadCount,
+  deleteNotification,
+  deleteAllNotifications,
   notifyMention,
   notifyRecognition,
   notifyGroupPost,
   notifySurveyPublished,
   notifyAnnouncement
 };
-

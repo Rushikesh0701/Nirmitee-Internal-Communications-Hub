@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { Bell, X } from 'lucide-react'
@@ -8,32 +8,28 @@ import { Bell, X } from 'lucide-react'
 /**
  * Notification component for scheduled announcements
  * 
- * This component checks for newly published scheduled announcements
- * and displays card-style notifications to users.
- * 
- * Note: In a production environment, you would implement:
- * - WebSocket/SSE for real-time notifications
- * - Push notifications via browser API
- * - Email notifications
- * - In-app notification center
+ * Features:
+ * - Auto-dismisses after 3 seconds
+ * - "Read More" click immediately dismisses the notification
+ * - Slide-in animation
  */
 const AnnouncementNotification = () => {
   const { isAuthenticated } = useAuthStore()
+  const navigate = useNavigate()
   const [dismissedIds, setDismissedIds] = useState(() => {
-    // Load dismissed notifications from localStorage
     const stored = localStorage.getItem('dismissedAnnouncements')
     return stored ? JSON.parse(stored) : []
   })
+  const timersRef = useRef({})
 
-  // Poll for new announcements (in production, use WebSocket/SSE)
-  // Only fetch when user is authenticated
+  // Poll for new announcements
   const { data } = useQuery(
     'newAnnouncements',
     () => api.get('/announcements?limit=5&published=true').then((res) => res.data.data),
     {
-      enabled: isAuthenticated, // Only fetch when authenticated
-      refetchInterval: isAuthenticated ? 60000 : false, // Check every minute when authenticated
-      refetchOnWindowFocus: isAuthenticated // Only refetch on focus when authenticated
+      enabled: isAuthenticated,
+      refetchInterval: isAuthenticated ? 60000 : false,
+      refetchOnWindowFocus: isAuthenticated
     }
   )
 
@@ -50,10 +46,41 @@ const AnnouncementNotification = () => {
   })
 
   const handleDismiss = (id) => {
+    // Clear any existing timer for this notification
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id])
+      delete timersRef.current[id]
+    }
+    
     const newDismissed = [...dismissedIds, id]
     setDismissedIds(newDismissed)
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed))
   }
+
+  const handleReadMore = (announcement) => {
+    const id = announcement._id || announcement.id
+    handleDismiss(id)
+    navigate(`/announcements/${id}`)
+  }
+
+  // Auto-dismiss after 3 seconds
+  useEffect(() => {
+    recentAnnouncements.forEach((announcement) => {
+      const id = announcement._id || announcement.id
+      
+      // Only set timer if not already set
+      if (!timersRef.current[id]) {
+        timersRef.current[id] = setTimeout(() => {
+          handleDismiss(id)
+        }, 3000) // 3 seconds
+      }
+    })
+
+    // Cleanup timers on unmount
+    return () => {
+      Object.values(timersRef.current).forEach(timer => clearTimeout(timer))
+    }
+  }, [recentAnnouncements])
 
   if (recentAnnouncements.length === 0) {
     return null
@@ -76,12 +103,12 @@ const AnnouncementNotification = () => {
             <p className="text-sm text-gray-600 line-clamp-2 mb-2">
               {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
             </p>
-            <Link
-              to={`/announcements/${announcement._id || announcement.id}`}
+            <button
+              onClick={() => handleReadMore(announcement)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
               Read more →
-            </Link>
+            </button>
           </div>
           <button
             onClick={() => handleDismiss(announcement._id || announcement.id)}
@@ -112,4 +139,3 @@ const AnnouncementNotification = () => {
 }
 
 export default AnnouncementNotification
-

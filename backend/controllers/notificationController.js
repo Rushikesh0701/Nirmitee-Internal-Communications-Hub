@@ -21,8 +21,8 @@ const getNotifications = async (req, res, next) => {
     });
   } catch (error) {
     // If database error, return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       const userId = req.userId || 'dummy-user-id-123';
       const result = dummyDataService.getDummyNotifications(userId, {
         page: req.query.page,
@@ -62,8 +62,8 @@ const markAsRead = async (req, res, next) => {
     }
   } catch (error) {
     // If database error, return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       return res.json({
         success: true,
         message: 'All notifications marked as read (dummy mode)'
@@ -93,8 +93,8 @@ const getUnreadCount = async (req, res, next) => {
     });
   } catch (error) {
     // If database error, return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' || 
-        error.name === 'SequelizeConnectionError') {
+    if (error.name === 'SequelizeConnectionRefusedError' ||
+      error.name === 'SequelizeConnectionError') {
       const userId = req.userId || 'dummy-user-id-123';
       const result = dummyDataService.getDummyUnreadCount(userId);
       return res.json({
@@ -106,9 +106,53 @@ const getUnreadCount = async (req, res, next) => {
   }
 };
 
+/**
+ * DELETE /notifications/:id
+ */
+const deleteNotification = async (req, res, next) => {
+  try {
+    const userId = req.userId || 'dummy-user-id-123';
+    const { id } = req.params;
+
+    await notificationService.deleteNotification(id, userId);
+
+    res.json({
+      success: true,
+      message: 'Notification deleted successfully'
+    });
+  } catch (error) {
+    if (error.message === 'Notification not found') {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+    next(error);
+  }
+};
+
+/**
+ * DELETE /notifications
+ */
+const deleteAllNotifications = async (req, res, next) => {
+  try {
+    const userId = req.userId || 'dummy-user-id-123';
+
+    await notificationService.deleteAllNotifications(userId);
+
+    res.json({
+      success: true,
+      message: 'All notifications deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getNotifications,
   markAsRead,
-  getUnreadCount
+  getUnreadCount,
+  deleteNotification,
+  deleteAllNotifications
 };
-
