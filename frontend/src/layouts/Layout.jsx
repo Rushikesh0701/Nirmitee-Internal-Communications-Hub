@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
 import RoleBadge from '../components/RoleBadge'
 import { getUserRole } from '../utils/userHelpers'
+import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
 import Logo from '../assets/Logo.png'
 import {
   LayoutDashboard,
@@ -29,6 +30,10 @@ const Layout = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  
+  // Browser tab title with unread count and notification sound
+  useDocumentTitle('Nirmitee Hub')
+  useNotificationSound()
 
   const handleLogout = () => {
     logout()

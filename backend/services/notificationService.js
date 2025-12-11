@@ -272,6 +272,130 @@ const deleteAllNotifications = async (userId) => {
   }
 };
 
+/**
+ * Trigger notification for new blog published
+ */
+const notifyBlogPublished = async (userIds, blogTitle, blogId, authorId) => {
+  if (!userIds || userIds.length === 0) return;
+
+  // Exclude the author from notifications
+  const filteredUserIds = userIds.filter(id => id.toString() !== authorId?.toString());
+  if (filteredUserIds.length === 0) return;
+
+  const content = `New blog published: ${blogTitle}`;
+
+  await createBulkNotifications(filteredUserIds, {
+    type: 'SYSTEM',
+    content,
+    metadata: { blogId, blogTitle, contentType: 'blog' }
+  });
+};
+
+/**
+ * Trigger notification for new discussion started
+ */
+const notifyDiscussionCreated = async (userIds, discussionTitle, discussionId, authorId) => {
+  if (!userIds || userIds.length === 0) return;
+
+  // Exclude the author from notifications
+  const filteredUserIds = userIds.filter(id => id.toString() !== authorId?.toString());
+  if (filteredUserIds.length === 0) return;
+
+  const content = `New discussion: ${discussionTitle}`;
+
+  await createBulkNotifications(filteredUserIds, {
+    type: 'SYSTEM',
+    content,
+    metadata: { discussionId, discussionTitle, contentType: 'discussion' }
+  });
+};
+
+/**
+ * Trigger notification for new public group created
+ */
+const notifyGroupCreated = async (userIds, groupName, groupId, creatorId) => {
+  if (!userIds || userIds.length === 0) return;
+
+  // Exclude the creator from notifications
+  const filteredUserIds = userIds.filter(id => id.toString() !== creatorId?.toString());
+  if (filteredUserIds.length === 0) return;
+
+  const content = `New group created: ${groupName}`;
+
+  await createBulkNotifications(filteredUserIds, {
+    type: 'GROUP_POST',
+    content,
+    metadata: { groupId, groupName, contentType: 'group' }
+  });
+};
+
+/**
+ * Trigger notification for new group post (to all group members except author)
+ */
+const notifyNewGroupPost = async (memberIds, groupName, postId, authorId) => {
+  if (!memberIds || memberIds.length === 0) return;
+
+  // Exclude the author from notifications
+  const filteredMemberIds = memberIds.filter(id => id.toString() !== authorId?.toString());
+  if (filteredMemberIds.length === 0) return;
+
+  const content = `New post in ${groupName}`;
+
+  await createBulkNotifications(filteredMemberIds, {
+    type: 'GROUP_POST',
+    content,
+    metadata: { groupName, postId }
+  });
+};
+
+/**
+ * Trigger notification for blog comment
+ */
+const notifyBlogComment = async (blogAuthorId, commenterName, blogTitle, blogId, commentId) => {
+  if (!blogAuthorId) return;
+
+  const content = `${commenterName} commented on your blog: ${blogTitle}`;
+
+  await createNotification({
+    userId: blogAuthorId,
+    type: 'COMMENT',
+    content,
+    metadata: { blogId, blogTitle, commentId, contentType: 'blog' }
+  });
+};
+
+/**
+ * Trigger notification for discussion comment
+ */
+const notifyDiscussionComment = async (discussionAuthorId, commenterName, discussionTitle, discussionId, commentId) => {
+  if (!discussionAuthorId) return;
+
+  const content = `${commenterName} commented on your discussion: ${discussionTitle}`;
+
+  await createNotification({
+    userId: discussionAuthorId,
+    type: 'COMMENT',
+    content,
+    metadata: { discussionId, discussionTitle, commentId, contentType: 'discussion' }
+  });
+};
+
+/**
+ * Trigger notification for likes
+ */
+const notifyLike = async (contentAuthorId, likerName, contentTitle, contentId, contentType) => {
+  if (!contentAuthorId) return;
+
+  const content = `${likerName} liked your ${contentType}: ${contentTitle}`;
+
+  await createNotification({
+    userId: contentAuthorId,
+    type: 'LIKE',
+    content,
+    metadata: { contentId, contentTitle, contentType }
+  });
+};
+
 module.exports = {
   createNotification,
   createBulkNotifications,
@@ -285,5 +409,12 @@ module.exports = {
   notifyRecognition,
   notifyGroupPost,
   notifySurveyPublished,
-  notifyAnnouncement
+  notifyAnnouncement,
+  notifyBlogPublished,
+  notifyDiscussionCreated,
+  notifyGroupCreated,
+  notifyNewGroupPost,
+  notifyBlogComment,
+  notifyDiscussionComment,
+  notifyLike
 };

@@ -18,11 +18,42 @@ const getNotificationLink = (notification) => {
     case 'SURVEY_PUBLISHED':
       return metadata?.surveyId ? `/surveys/${metadata.surveyId}` : '/surveys'
     case 'GROUP_POST':
+      // Check if it's a group creation notification or a post notification
+      if (metadata?.contentType === 'group') {
+        return metadata?.groupId ? `/groups/${metadata.groupId}` : '/groups'
+      }
       return metadata?.postId ? `/groups` : '/groups'
     case 'RECOGNITION':
       return '/recognitions'
     case 'MENTION':
       return metadata?.postType === 'blog' ? '/blogs' : '/discussions'
+    case 'COMMENT':
+      // Navigate to the content that was commented on
+      if (metadata?.contentType === 'blog') {
+        return metadata?.blogId ? `/blogs/${metadata.blogId}` : '/blogs'
+      }
+      if (metadata?.contentType === 'discussion') {
+        return metadata?.discussionId ? `/discussions/${metadata.discussionId}` : '/discussions'
+      }
+      return null
+    case 'LIKE':
+      // Navigate to the content that was liked
+      if (metadata?.contentType === 'blog') {
+        return metadata?.contentId ? `/blogs/${metadata.contentId}` : '/blogs'
+      }
+      if (metadata?.contentType === 'discussion') {
+        return metadata?.contentId ? `/discussions/${metadata.contentId}` : '/discussions'
+      }
+      return null
+    case 'SYSTEM':
+      // Handle blog and discussion notifications
+      if (metadata?.contentType === 'blog') {
+        return metadata?.blogId ? `/blogs/${metadata.blogId}` : '/blogs'
+      }
+      if (metadata?.contentType === 'discussion') {
+        return metadata?.discussionId ? `/discussions/${metadata.discussionId}` : '/discussions'
+      }
+      return null
     default:
       return null
   }

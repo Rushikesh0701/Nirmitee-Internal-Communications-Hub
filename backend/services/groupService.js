@@ -198,6 +198,22 @@ const createGroup = async (groupData, userId) => {
   // Update member count
   await Group.findByIdAndUpdate(group._id, { $inc: { memberCount: 1 } });
 
+  // Send notifications if public group is created
+  if (group.isPublic) {
+    try {
+      const users = await User.find({ isActive: true }).select('_id');
+      const userIds = users.map(u => u._id);
+      await notificationService.notifyGroupCreated(
+        userIds,
+        group.name,
+        group._id.toString(),
+        userId.toString()
+      );
+    } catch (error) {
+      console.error('Error sending group creation notifications:', error);
+    }
+  }
+
   return await Group.findById(group._id)
     .populate('createdBy', 'firstName lastName email avatar')
     .populate('moderators', 'firstName lastName email avatar');
@@ -403,9 +419,23 @@ const createGroupPost = async (postData, userId) => {
   // Update post count
   await Group.findByIdAndUpdate(groupId, { $inc: { postCount: 1 } });
 
-  // Create mention notifications
+  // Create mention notifications for @mentions
   if (mentionedUserIds.length > 0) {
     await createMentionNotifications(mentionedUserIds, post._id, userId, 'post');
+  }
+
+  // Notify all group members about the new post
+  try {
+    const groupMembers = await GroupMember.find({ groupId }).select('userId');
+    const memberIds = groupMembers.map(m => m.userId);
+    await notificationService.notifyNewGroupPost(
+      memberIds,
+      group.name,
+      post._id.toString(),
+      userId.toString()
+    );
+  } catch (error) {
+    console.error('Error sending group post notifications:', error);
   }
 
   return await GroupPost.findById(post._id)

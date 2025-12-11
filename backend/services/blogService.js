@@ -1,6 +1,7 @@
 const { Blog, User, BlogComment } = require('../models');
 const { ROLES } = require('../constants/roles');
 const mongoose = require('mongoose');
+const notificationService = require('./notificationService');
 
 const getAllBlogs = async (options = {}) => {
   const { page = 1, limit = 10, tag, published, authorId } = options;
@@ -46,7 +47,7 @@ const getBlogById = async (id, userId) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid blog ID format');
   }
-  
+
   const blog = await Blog.findById(id)
     .populate('authorId', 'firstName lastName email avatar')
     .populate('likedBy', 'firstName lastName');
@@ -57,15 +58,15 @@ const getBlogById = async (id, userId) => {
 
   await Blog.findByIdAndUpdate(id, { $inc: { views: 1 } });
   blog.views += 1;
-  
+
   // Fetch comments for this blog (only top-level comments, replies will be nested)
-  const comments = await BlogComment.find({ 
+  const comments = await BlogComment.find({
     blogId: id,
     parentCommentId: null // Only top-level comments
   })
     .populate('authorId', 'firstName lastName email avatar')
     .sort({ createdAt: -1 });
-  
+
   // Fetch replies for each comment
   const commentsWithReplies = await Promise.all(
     comments.map(async (comment) => {
@@ -77,7 +78,7 @@ const getBlogById = async (id, userId) => {
       return commentObj;
     })
   );
-  
+
   // Convert to plain object and ensure likedBy is an array
   const blogObj = blog.toObject();
   if (!blogObj.likedBy) {
@@ -89,10 +90,10 @@ const getBlogById = async (id, userId) => {
     // Update the count in database to keep it in sync
     await Blog.findByIdAndUpdate(id, { likes: blogObj.likedBy.length });
   }
-  
+
   // Add comments to blog object
   blogObj.comments = commentsWithReplies || [];
-  
+
   return blogObj;
 };
 
@@ -101,36 +102,36 @@ const createBlog = async (blogData) => {
   if (!blogData.title || !blogData.title.trim()) {
     throw new Error('Blog title is required');
   }
-  
+
   if (!blogData.excerpt || !blogData.excerpt.trim()) {
     throw new Error('Blog excerpt is required');
   }
-  
+
   if (!blogData.content || !blogData.content.trim()) {
     throw new Error('Blog content is required');
   }
-  
+
   if (!blogData.category || !blogData.category.trim()) {
     throw new Error('Blog category is required');
   }
-  
+
   // Validate authorId is a valid MongoDB ObjectId
   const mongoose = require('mongoose');
-  
+
   if (!blogData.authorId) {
     throw new Error('authorId is required');
   }
-  
+
   // Ensure authorId is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(blogData.authorId)) {
     throw new Error('Invalid authorId format. Must be a valid MongoDB ObjectId.');
   }
-  
+
   // Convert to ObjectId if it's a string
   if (typeof blogData.authorId === 'string') {
     blogData.authorId = new mongoose.Types.ObjectId(blogData.authorId);
   }
-  
+
   // Handle publishing logic
   const now = new Date();
   if (blogData.isPublished === true) {
@@ -143,20 +144,36 @@ const createBlog = async (blogData) => {
     blogData.isPublished = false;
     blogData.publishedAt = undefined;
   }
-  
+
   // Create blog and verify it was saved
   const blog = await Blog.create(blogData);
-  
+
   if (!blog || !blog._id) {
     throw new Error('Failed to create blog in database');
   }
-  
+
   console.log('✅ Blog created successfully:', {
     id: blog._id,
     title: blog.title,
     authorId: blog.authorId
   });
-  
+
+  // Send notifications if blog is published
+  if (blog.isPublished) {
+    try {
+      const users = await User.find({ isActive: true }).select('_id');
+      const userIds = users.map(u => u._id);
+      await notificationService.notifyBlogPublished(
+        userIds,
+        blog.title,
+        blog._id.toString(),
+        blog.authorId.toString()
+      );
+    } catch (error) {
+      console.error('Error sending blog notifications:', error);
+    }
+  }
+
   return await Blog.findById(blog._id)
     .populate('authorId', 'firstName lastName email avatar');
 };
@@ -171,13 +188,13 @@ const updateBlog = async (id, updateData, userId, user) => {
   const userObjectId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId)
     ? new mongoose.Types.ObjectId(userId)
     : userId;
-  
+
   // Get blog authorId (could be ObjectId or populated object)
   const blogAuthorId = blog.authorId?._id || blog.authorId;
-  
+
   // Check if user is the author
   const isAuthor = blogAuthorId && userObjectId && blogAuthorId.toString() === userObjectId.toString();
-  
+
   // Check if user is admin or moderator (handle both user object structures)
   const userRole = user?.roleId?.name || user?.Role?.name || user?.role;
   const isAdminOrModerator = ['Admin', 'Moderator', 'ADMIN'].includes(userRole);
@@ -190,15 +207,15 @@ const updateBlog = async (id, updateData, userId, user) => {
   if (updateData.title !== undefined && (!updateData.title || !updateData.title.trim())) {
     throw new Error('Blog title is required');
   }
-  
+
   if (updateData.excerpt !== undefined && (!updateData.excerpt || !updateData.excerpt.trim())) {
     throw new Error('Blog excerpt is required');
   }
-  
+
   if (updateData.content !== undefined && (!updateData.content || !updateData.content.trim())) {
     throw new Error('Blog content is required');
   }
-  
+
   if (updateData.category !== undefined && (!updateData.category || !updateData.category.trim())) {
     throw new Error('Blog category is required');
   }
@@ -220,17 +237,17 @@ const updateBlog = async (id, updateData, userId, user) => {
   // Update blog fields
   Object.assign(blog, updateData);
   await blog.save();
-  
+
   // Verify update was saved
   if (!blog._id) {
     throw new Error('Failed to update blog in database');
   }
-  
+
   console.log('✅ Blog updated successfully:', {
     id: blog._id,
     title: blog.title
   });
-  
+
   return await Blog.findById(blog._id)
     .populate('authorId', 'firstName lastName email avatar');
 };
@@ -256,26 +273,26 @@ const likeBlog = async (id, userId) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid blog ID format');
   }
-  
+
   if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID format');
   }
-  
+
   const blog = await Blog.findById(id);
   if (!blog) {
     throw new Error('Blog not found');
   }
-  
+
   // Convert userId to ObjectId if it's a string
-  const userObjectId = typeof userId === 'string' 
-    ? new mongoose.Types.ObjectId(userId) 
+  const userObjectId = typeof userId === 'string'
+    ? new mongoose.Types.ObjectId(userId)
     : userId;
-  
+
   // Check if user has already liked this blog
   const hasLiked = blog.likedBy && blog.likedBy.some(
     likedUserId => likedUserId.toString() === userObjectId.toString()
   );
-  
+
   let updatedBlog;
   if (hasLiked) {
     // Unlike: remove user from likedBy array and decrement likes
@@ -287,7 +304,7 @@ const likeBlog = async (id, userId) => {
       },
       { new: true }
     ).populate('authorId', 'firstName lastName email avatar')
-     .populate('likedBy', 'firstName lastName');
+      .populate('likedBy', 'firstName lastName');
   } else {
     // Like: add user to likedBy array and increment likes
     updatedBlog = await Blog.findByIdAndUpdate(
@@ -298,9 +315,9 @@ const likeBlog = async (id, userId) => {
       },
       { new: true }
     ).populate('authorId', 'firstName lastName email avatar')
-     .populate('likedBy', 'firstName lastName');
+      .populate('likedBy', 'firstName lastName');
   }
-  
+
   // Ensure likedBy is an array
   const blogObj = updatedBlog.toObject();
   if (!blogObj.likedBy) {
@@ -312,7 +329,27 @@ const likeBlog = async (id, userId) => {
     // Update the count in database
     await Blog.findByIdAndUpdate(id, { likes: blogObj.likedBy.length });
   }
-  
+
+  // Send notification to blog author if liked (not unliked) and liker is not the author
+  if (!hasLiked) {
+    const blogAuthorId = blog.authorId?._id || blog.authorId;
+    if (blogAuthorId && blogAuthorId.toString() !== userId.toString()) {
+      try {
+        const liker = await User.findById(userId).select('firstName lastName displayName');
+        const likerName = liker?.displayName || `${liker?.firstName || ''} ${liker?.lastName || ''}`.trim() || 'Someone';
+        await notificationService.notifyLike(
+          blogAuthorId,
+          likerName,
+          blog.title,
+          blog._id.toString(),
+          'blog'
+        );
+      } catch (error) {
+        console.error('Error sending like notification:', error);
+      }
+    }
+  }
+
   return blogObj;
 };
 
@@ -321,21 +358,21 @@ const addComment = async (blogId, userId, content, parentCommentId = null) => {
   if (!blogId || !mongoose.Types.ObjectId.isValid(blogId)) {
     throw new Error('Invalid blog ID format');
   }
-  
+
   if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID format');
   }
-  
+
   if (!content || !content.trim()) {
     throw new Error('Comment content is required');
   }
-  
+
   // Verify blog exists
   const blog = await Blog.findById(blogId);
   if (!blog) {
     throw new Error('Blog not found');
   }
-  
+
   // If parentCommentId is provided, validate it
   if (parentCommentId) {
     if (!mongoose.Types.ObjectId.isValid(parentCommentId)) {
@@ -350,28 +387,46 @@ const addComment = async (blogId, userId, content, parentCommentId = null) => {
       throw new Error('Parent comment does not belong to this blog');
     }
   }
-  
+
   // Convert userId to ObjectId if it's a string
-  const userObjectId = typeof userId === 'string' 
-    ? new mongoose.Types.ObjectId(userId) 
+  const userObjectId = typeof userId === 'string'
+    ? new mongoose.Types.ObjectId(userId)
     : userId;
-  
+
   // Create comment
   const commentData = {
     blogId: new mongoose.Types.ObjectId(blogId),
     authorId: userObjectId,
     content: content.trim()
   };
-  
+
   if (parentCommentId) {
     commentData.parentCommentId = new mongoose.Types.ObjectId(parentCommentId);
   }
-  
+
   const comment = await BlogComment.create(commentData);
-  
+
   // Populate author information
   await comment.populate('authorId', 'firstName lastName email avatar');
-  
+
+  // Send notification to blog author (if commenter is not the author)
+  const blogAuthorId = blog.authorId?._id || blog.authorId;
+  if (blogAuthorId && blogAuthorId.toString() !== userId.toString()) {
+    try {
+      const commenter = await User.findById(userId).select('firstName lastName displayName');
+      const commenterName = commenter?.displayName || `${commenter?.firstName || ''} ${commenter?.lastName || ''}`.trim() || 'Someone';
+      await notificationService.notifyBlogComment(
+        blogAuthorId,
+        commenterName,
+        blog.title,
+        blog._id.toString(),
+        comment._id.toString()
+      );
+    } catch (error) {
+      console.error('Error sending blog comment notification:', error);
+    }
+  }
+
   return comment.toObject();
 };
 
@@ -380,24 +435,24 @@ const deleteComment = async (commentId, userId, user) => {
   if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
     throw new Error('Invalid comment ID format');
   }
-  
+
   if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID format');
   }
-  
+
   const comment = await BlogComment.findById(commentId);
   if (!comment) {
     throw new Error('Comment not found');
   }
-  
+
   // Check if user is the author or an admin/moderator
   const isAuthor = comment.authorId.toString() === userId.toString();
   const isAdminOrModerator = user?.Role?.name === 'Admin' || user?.Role?.name === 'Moderator' || user?.role === 'ADMIN';
-  
+
   if (!isAuthor && !isAdminOrModerator) {
     throw new Error('Unauthorized to delete this comment');
   }
-  
+
   await BlogComment.findByIdAndDelete(commentId);
 };
 
