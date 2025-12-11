@@ -12,7 +12,6 @@ import {
   Award,
   ClipboardList,
   GraduationCap,
-  Rss,
   BarChart3,
   User,
   LogOut,
@@ -51,7 +50,6 @@ const Layout = () => {
     { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
     { path: '/learning', icon: GraduationCap, label: 'Learning' },
     { path: '/directory', icon: UsersRound, label: 'Directory' },
-    { path: '/rss', icon: Rss, label: 'RSS Feeds' },
     ...(isAdminOrModerator
       ? [
         { path: '/analytics', icon: BarChart3, label: 'Analytics' },

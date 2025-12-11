@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
+    required: function () {
       return !this.oauthProvider; // Password required only if not OAuth user
     }
   },
@@ -58,28 +58,13 @@ const userSchema = new mongoose.Schema({
   },
   oauthId: {
     type: String
-  },
-  rssSubscriptions: {
-    type: [String],
-    enum: ['AI', 'Cloud', 'DevOps', 'Programming', 'Cybersecurity', 'HealthcareIT'],
-    default: [],
-    validate: {
-      validator: function(v) {
-        // Only validate if subscriptions are being set (not on initial creation)
-        if (this.isNew && (!v || v.length === 0)) {
-          return true; // Allow empty on creation
-        }
-        return v.length === 0 || v.length >= 3;
-      },
-      message: 'Each employee must subscribe to at least 3 RSS categories'
-    }
   }
 }, {
   timestamps: true
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   if (this.password) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -88,13 +73,13 @@ userSchema.pre('save', async function(next) {
 });
 
 // Instance method to compare password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Remove password from JSON output
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
   return user;

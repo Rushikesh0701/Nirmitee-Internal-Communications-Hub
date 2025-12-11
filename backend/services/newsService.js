@@ -1,443 +1,39 @@
-const { User, RSSFeed, RssArticle } = require('../models');
-const { ROLES } = require('../constants/roles');
-const Parser = require('rss-parser');
-const parser = new Parser();
 const axios = require('axios');
-const mongoose = require('mongoose');
+const Parser = require('rss-parser');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
 const {
   mapCategoryToNewsData,
-  mapSortToNewsData,
   isValidDateFormat,
   transformNewsDataArticles,
   filterArticlesBySource,
-  sortArticlesByDate
+  sortArticles,
+  transformRSSArticle,
+  deduplicateArticles,
+  applyFilters
 } = require('../utils/newsDataHelpers');
 
-/**
- * Get all news from database
- */
-/**
- * Get all news from database (Internal News + RSS Articles)
- * Supports search, filtering, and sorting
- */
-const getAllNews = async (options = {}) => {
-  const {
-    page = 1,
-    limit = 10,
-    category,
-    priority,
-    published,
-    q,           // Search query
-    from,        // Date range start
-    to,          // Date range end
-    source,      // Source filter
-    sort = 'relevance', // Sort order: 'date', 'relevance', 'popularity'
-    language     // Language filter (not used for RSS, but kept for API compatibility)
-  } = options;
-  const skip = (page - 1) * limit;
-
-  // 1. Build query for RSS articles only (News model removed - not storing news)
-  const rssQuery = {};
-
-  // Category filter
-  if (category) {
-    // Support case-insensitive category matching
-    rssQuery.category = { $regex: new RegExp(`^${category}$`, 'i') };
+// RSS Parser instance
+const rssParser = new Parser({
+  timeout: 10000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (compatible; NewsAggregator/1.0)'
   }
+});
 
-  // Search query - search in title and description
-  if (q && q.trim()) {
-    const searchTerm = q.trim();
-    // Remove special search prefixes like "title:", "content:"
-    let cleanSearch = searchTerm
-      .replace(/^title:/i, '')
-      .replace(/^content:/i, '')
-      .replace(/"/g, '') // Remove exact phrase quotes
-      .trim();
+// Healthcare IT RSS Feed URLs
+const HEALTHCARE_IT_RSS_FEEDS = [
+  { url: 'https://www.healthcareitnews.com/rss.xml', category: 'HealthcareIT' },
+  { url: 'https://www.healthitoutcomes.com/rss/rss.ashx', category: 'HealthcareIT' },
+  { url: 'https://www.healthtechmagazine.net/rss.xml', category: 'HealthcareIT' },
+  { url: 'https://medtech.pharmaintelligence.informa.com/-/media/rss/mt.xml', category: 'HealthcareIT' }
+];
 
-    if (cleanSearch) {
-      // Create regex for case-insensitive search
-      const searchRegex = new RegExp(cleanSearch, 'i');
-      rssQuery.$or = [
-        { title: searchRegex },
-        { description: searchRegex }
-      ];
-    }
-  }
-
-  // Date range filters
-  if (from || to) {
-    rssQuery.publishedAt = {};
-    if (from) {
-      rssQuery.publishedAt.$gte = new Date(from);
-    }
-    if (to) {
-      // Set to end of day for 'to' date
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      rssQuery.publishedAt.$lte = toDate;
-    }
-  }
-
-  // 2. Determine sort order
-  let sortOrder = { publishedAt: -1 }; // Default: newest first
-  if (sort === 'date') {
-    sortOrder = { publishedAt: -1 };
-  } else if (sort === 'popularity') {
-    sortOrder = { views: -1, publishedAt: -1 };
-  }
-  // 'relevance' sorting is handled post-query for text searches
-
-  // 3. Fetch from RSS sources
-  const fetchLimit = skip + limit;
-
-  let rssArticles = await RssArticle.find(rssQuery)
-    .populate('feedId', 'feedUrl category')
-    .sort(sortOrder)
-    .limit(fetchLimit)
-    .lean();
-
-  // 4. Apply source filter (post-query since source info might be in feedId)
-  if (source && source.trim()) {
-    const sourceFilter = source.trim().toLowerCase();
-    rssArticles = rssArticles.filter(article => {
-      // Check multiple source fields for matching
-      const feedUrl = article.feedId?.feedUrl || '';
-      const feedCategory = article.feedId?.category || '';
-      const articleTitle = article.title || '';
-      // Combine relevant fields for source matching
-      const sourceFields = `${feedUrl} ${feedCategory} ${articleTitle}`.toLowerCase();
-      return sourceFields.includes(sourceFilter);
-    });
-  }
-
-  // 5. Normalize RSS articles to match News schema
-  const normalizedRss = rssArticles.map(article => ({
-    _id: article._id,
-    title: article.title,
-    content: article.description || '',
-    summary: article.description || '',
-    imageUrl: article.imageUrl,
-    category: article.category,
-    priority: article.category === 'HealthcareIT' ? 'high' : 'medium',
-    isPublished: true,
-    publishedAt: article.publishedAt,
-    sourceUrl: article.link,
-    sourceType: 'rss',
-    authorId: {
-      firstName: 'RSS',
-      lastName: 'Feed',
-      email: 'rss@nirmitee.com'
-    },
-    createdAt: article.publishedAt
-  }));
-
-  // 6. Sort for relevance (if searching and sort is relevance)
-  let allNews = normalizedRss;
-  if (q && q.trim() && sort === 'relevance') {
-    const searchTerm = q.trim().toLowerCase()
-      .replace(/^title:/i, '')
-      .replace(/^content:/i, '')
-      .replace(/"/g, '')
-      .trim();
-
-    // Score by relevance: title matches > content matches
-    allNews = normalizedRss.sort((a, b) => {
-      const titleA = (a.title || '').toLowerCase();
-      const titleB = (b.title || '').toLowerCase();
-      const contentA = (a.content || '').toLowerCase();
-      const contentB = (b.content || '').toLowerCase();
-
-      // Calculate relevance scores
-      const scoreA = (titleA.includes(searchTerm) ? 10 : 0) + (contentA.includes(searchTerm) ? 5 : 0);
-      const scoreB = (titleB.includes(searchTerm) ? 10 : 0) + (contentB.includes(searchTerm) ? 5 : 0);
-
-      if (scoreB !== scoreA) {
-        return scoreB - scoreA; // Higher score first
-      }
-      // If same score, sort by date
-      return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
-    });
-  } else if (sort === 'date') {
-    allNews = normalizedRss.sort((a, b) => {
-      const dateA = new Date(a.publishedAt || a.createdAt);
-      const dateB = new Date(b.publishedAt || b.createdAt);
-      return dateB - dateA;
-    });
-  }
-
-  // 7. Paginate the result
-  const paginatedNews = allNews.slice(skip, skip + limit);
-
-  // 8. Get total count with the same filters
-  const total = await RssArticle.countDocuments(rssQuery);
-
-  return {
-    news: paginatedNews,
-    pagination: {
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit)
-    }
-  };
-};
-
-/**
- * Get news by ID (RSS articles only - News model removed)
- */
-const getNewsById = async (id, userId) => {
-  const news = await RssArticle.findById(id)
-    .populate('feedId', 'feedUrl category');
-
-  if (!news) {
-    throw new Error('News not found');
-  }
-
-  // Convert RSS article to news format
-  return {
-    _id: news._id,
-    title: news.title,
-    content: news.description || '',
-    summary: news.description || '',
-    imageUrl: news.imageUrl,
-    category: news.category,
-    priority: news.category === 'HealthcareIT' ? 'high' : 'medium',
-    isPublished: true,
-    publishedAt: news.publishedAt,
-    sourceUrl: news.link,
-    sourceType: 'rss',
-    authorId: {
-      firstName: 'RSS',
-      lastName: 'Feed',
-      email: 'rss@nirmitee.com'
-    },
-    views: news.views || 0,
-    createdAt: news.publishedAt
-  };
-};
-
-/**
- * Validate and normalize MongoDB ObjectId
- */
-const validateObjectId = (id, fieldName = 'id') => {
-  if (!id) {
-    throw new Error(`${fieldName} is required`);
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error(`Invalid ${fieldName} format. Must be a valid MongoDB ObjectId.`);
-  }
-
-  return typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
-};
-
-/**
- * Create news (Not supported - News model removed, not storing news)
- */
-const createNews = async (newsData) => {
-  throw new Error('News creation is not supported. News storage has been removed.');
-};
-
-/**
- * Update news (Not supported - News model removed, not storing news)
- */
-const updateNews = async (id, updateData, userId, user) => {
-  throw new Error('News updates are not supported. News storage has been removed.');
-};
-
-/**
- * Delete news (Not supported - News model removed, not storing news)
- */
-const deleteNews = async (id, userId, user) => {
-  throw new Error('News deletion is not supported. News storage has been removed.');
-};
-
-/**
- * Extract image URL from RSS item
- */
-const extractImageUrl = (item) => {
-  if (item.enclosure?.url) return item.enclosure.url;
-  if (item['media:content']?.$?.url) return item['media:content'].$.url;
-  if (item.content) {
-    const match = item.content.match(/<img[^>]+src="([^"]+)"/);
-    if (match) return match[1];
-  }
-  return null;
-};
-
-/**
- * Resolve Google News RSS redirect URLs to actual article URLs
- * Google News RSS links are redirect URLs that need to be resolved
- */
-const resolveGoogleNewsUrl = async (url) => {
-  if (!url || typeof url !== 'string') return url;
-
-  // Check if it's a Google News RSS link
-  if (!url.includes('news.google.com/rss/articles')) {
-    return url; // Not a Google News link, return as-is
-  }
-
-  try {
-    // Try to extract URL from the link itself or follow redirect
-    // Google News RSS URLs sometimes have the actual URL in query params or need redirect following
-    const response = await axios.head(url, {
-      maxRedirects: 5,
-      timeout: 5000,
-      validateStatus: (status) => status < 400,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    });
-
-    // Get the final URL after redirects
-    const finalUrl = response.request?.res?.responseUrl || response.request?.path || url;
-
-    // If still a Google News URL, try to extract from content
-    if (finalUrl.includes('news.google.com') || finalUrl.includes('workspace')) {
-      // Try alternative: use a URL resolver service or return original
-      // For now, return the original URL and let frontend handle it
-      logger.warn('Could not resolve Google News URL', { originalUrl: url, finalUrl });
-      return url;
-    }
-
-    return finalUrl;
-  } catch (error) {
-    logger.warn('Error resolving Google News URL', { url, error: error.message });
-    // Return original URL if resolution fails
-    return url;
-  }
-};
-
-/**
- * Extract actual URL from RSS item content (for Google News)
- * Sometimes the actual URL is embedded in the content/description
- */
-const extractUrlFromContent = (item) => {
-  const content = item.content || item.contentSnippet || item.description || '';
-
-  if (!content) return null;
-
-  // Try multiple patterns to find the actual article URL
-  const urlPatterns = [
-    // Standard URL pattern
-    /https?:\/\/(?:[-\w.])+(?:[:\d]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:#(?:\w)*)?)?/g,
-    // URL in href attribute
-    /href=["']([^"']+)["']/gi,
-    // URL parameter
-    /url=([^&\s"']+)/gi,
-    // Link tag
-    /<a[^>]+href=["']([^"']+)["'][^>]*>/gi
-  ];
-
-  const foundUrls = new Set();
-
-  for (const pattern of urlPatterns) {
-    const matches = content.matchAll(pattern);
-    for (const match of matches) {
-      let url = match[1] || match[0];
-
-      // Clean up the URL
-      url = url.replace(/^href=["']/i, '').replace(/["']$/, '')
-        .replace(/^url=/i, '').trim();
-
-      // Skip Google News URLs, workspace URLs, and invalid URLs
-      if (url &&
-        !url.includes('news.google.com') &&
-        !url.includes('workspace') &&
-        !url.includes('google.com/accounts') &&
-        url.startsWith('http')) {
-        try {
-          const parsedUrl = new URL(url);
-          // Make sure it's a real article URL (has a domain)
-          if (parsedUrl.hostname && parsedUrl.hostname !== 'news.google.com') {
-            foundUrls.add(url);
-          }
-        } catch (e) {
-          // Not a valid URL, continue
-        }
-      }
-    }
-  }
-
-  // Return the first valid URL found (usually the article URL)
-  if (foundUrls.size > 0) {
-    return Array.from(foundUrls)[0];
-  }
-
-  return null;
-};
-
-/**
- * Fetch news from RSS feed
- */
-const fetchNewsFromRSSFeed = async (feedUrl, category) => {
-  try {
-    const feedData = await parser.parseURL(feedUrl);
-    const newsItems = [];
-
-    for (const item of feedData.items || []) {
-      try {
-        const content = item.content || item.contentSnippet || item.description || '';
-        const summary = item.contentSnippet || item.description || '';
-        const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
-        const imageUrl = extractImageUrl(item);
-
-        // Resolve Google News redirect URLs to actual article URLs
-        let articleUrl = item.link || '';
-
-        // First try to extract URL from content (faster, no network call)
-        const extractedUrl = extractUrlFromContent(item);
-        if (extractedUrl) {
-          articleUrl = extractedUrl;
-        } else if (articleUrl.includes('news.google.com/rss/articles')) {
-          // If it's a Google News URL and we couldn't extract from content,
-          // try to resolve it (this is async, so we'll do it synchronously for now)
-          // For better performance, we could batch resolve these
-          articleUrl = articleUrl; // Keep original for now, frontend can handle
-        }
-
-        newsItems.push({
-          title: item.title || 'Untitled',
-          content,
-          summary: summary.substring(0, 500),
-          imageUrl,
-          category: category || 'General',
-          priority: category === 'HealthcareIT' ? 'high' : 'medium', // Prioritize HealthcareIT news
-          isPublished: true,
-          publishedAt,
-          sourceUrl: articleUrl,
-          sourceType: 'rss'
-        });
-      } catch (error) {
-        logger.error('Error processing RSS item', { error: error.message });
-      }
-    }
-
-    return newsItems;
-  } catch (error) {
-    logger.error('Failed to fetch RSS feed', { feedUrl, error: error.message });
-    throw new Error(`Failed to fetch RSS feed: ${error.message}`);
-  }
-};
-
-/**
- * Sync RSS feeds to news (Not supported - News model removed, RSS articles are stored in RssArticle collection)
- */
-const syncRSSFeedsToNews = async (systemUserId) => {
-  throw new Error('RSS feed syncing to News is not supported. News storage has been removed. RSS articles are stored in the RssArticle collection.');
-};
-
-/**
- * Get news from RSS feed
- */
-const getNewsFromRSSFeed = async (feedUrl, category, limit = 10) => {
-  const newsItems = await fetchNewsFromRSSFeed(feedUrl, category);
-  return newsItems.slice(0, limit);
-};
+// In-memory cache for merged articles (for getNewsById lookup)
+let cachedArticles = [];
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Validate NewsData.io API key
@@ -455,22 +51,19 @@ const validateNewsDataApiKey = () => {
 
 /**
  * Build NewsData.io API URL parameters
+ * Note: from_date and to_date are only available in paid plans, so we skip them
  */
 const buildNewsDataParams = (options, apiKey) => {
-  const { q, category, from, to, language = 'en', source, sort, limit = 10, nextPage } = options;
+  const { q, category, language = 'en', limit = 10, nextPage } = options;
   const params = new URLSearchParams();
 
   params.append('apikey', apiKey);
   if (language) params.append('language', language);
   if (category) params.append('category', mapCategoryToNewsData(category));
   if (q?.trim()) params.append('q', q.trim());
-  if (from && isValidDateFormat(from)) params.append('from_date', from);
-  if (to && isValidDateFormat(to)) params.append('to_date', to);
+  // Note: from_date and to_date require paid plan - skipping
   if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
   if (limit && limit > 0) params.append('size', Math.min(limit, 50));
-  // Add sort parameter - NewsData.io supports orderby parameter
-  // Note: NewsData.io latest endpoint may have limited sort support
-  // The sorting is primarily handled client-side after fetch
 
   return params;
 };
@@ -572,6 +165,13 @@ const fetchNewsFromNewsData = async (options = {}) => {
 
     let transformedArticles = transformNewsDataArticles(articles, category);
 
+    // Filter out articles with "ONLY AVAILABLE IN PAID PLANS" messages (free tier limitation)
+    transformedArticles = transformedArticles.filter(article => {
+      const title = (article.title || '').toUpperCase();
+      const description = (article.description || '').toUpperCase();
+      return !title.includes('ONLY AVAILABLE IN PAID') && !description.includes('ONLY AVAILABLE IN PAID');
+    });
+
     if (source) {
       transformedArticles = filterArticlesBySource(transformedArticles, source);
     }
@@ -591,14 +191,204 @@ const fetchNewsFromNewsData = async (options = {}) => {
   }
 };
 
+/**
+ * Fetch news from a single RSS feed
+ */
+const fetchNewsFromRSSFeed = async (feedUrl, category = 'HealthcareIT') => {
+  try {
+    logger.info('Fetching RSS feed', { feedUrl });
+
+    const feed = await rssParser.parseURL(feedUrl);
+    const articles = (feed.items || []).map(item => transformRSSArticle(item, feedUrl, category));
+
+    logger.info('RSS feed articles received', { feedUrl, count: articles.length });
+
+    return articles;
+  } catch (error) {
+    logger.warn('Failed to fetch RSS feed', { feedUrl, error: error.message });
+    return [];
+  }
+};
+
+/**
+ * Fetch news from all Healthcare IT RSS feeds in parallel
+ */
+const fetchAllRSSFeeds = async () => {
+  try {
+    logger.info('Fetching all Healthcare IT RSS feeds');
+
+    const feedPromises = HEALTHCARE_IT_RSS_FEEDS.map(feed =>
+      fetchNewsFromRSSFeed(feed.url, feed.category)
+    );
+
+    const results = await Promise.allSettled(feedPromises);
+
+    const allArticles = results
+      .filter(result => result.status === 'fulfilled')
+      .flatMap(result => result.value);
+
+    logger.info('Total RSS articles fetched', { count: allArticles.length });
+
+    return allArticles;
+  } catch (error) {
+    logger.error('Error fetching RSS feeds', { error: error.message });
+    return [];
+  }
+};
+
+/**
+ * Get all news from NewsData.io API and RSS feeds
+ * Merges, deduplicates, filters, and sorts the results
+ */
+const getAllNews = async (options = {}) => {
+  const { q, category, from, to, language = 'en', source, sort, limit = 10, page = 1 } = options;
+
+  let newsDataArticles = [];
+  let rssArticles = [];
+  let newsDataNextPage = null;
+  let newsDataError = null;
+
+  // Fetch from NewsData.io API
+  try {
+    const newsData = await fetchNewsFromNewsData({
+      q: q || undefined,
+      category: category || undefined,
+      from: from || undefined,
+      to: to || undefined,
+      language,
+      source: source || undefined,
+      sort: sort || undefined,
+      limit: parseInt(limit) || 10
+    });
+
+    if (newsData.results && newsData.results.length > 0) {
+      newsDataArticles = newsData.results;
+      newsDataNextPage = newsData.nextPage || null;
+    }
+  } catch (error) {
+    logger.warn('NewsData.io API error', { error: error.message });
+    newsDataError = error;
+  }
+
+  // Fetch from RSS feeds
+  try {
+    rssArticles = await fetchAllRSSFeeds();
+  } catch (error) {
+    logger.warn('RSS feeds error', { error: error.message });
+  }
+
+  // Merge all articles
+  let allArticles = [...newsDataArticles, ...rssArticles];
+
+  // Deduplicate
+  allArticles = deduplicateArticles(allArticles);
+
+  // Apply filters
+  allArticles = applyFilters(allArticles, { q, category, source, from, to });
+
+  // Sort based on sort option (date, relevance, popularity)
+  allArticles = sortArticles(allArticles, sort || 'date', q);
+
+  // Update cache for getNewsById
+  cachedArticles = allArticles;
+  cacheTimestamp = Date.now();
+
+  // Paginate
+  const startIndex = (parseInt(page) - 1) * parseInt(limit);
+  const endIndex = startIndex + parseInt(limit);
+  const paginatedArticles = allArticles.slice(startIndex, endIndex);
+
+  // Determine if there are more pages
+  const hasMore = allArticles.length > endIndex || newsDataNextPage;
+
+  return {
+    results: paginatedArticles,
+    totalResults: allArticles.length,
+    nextPage: hasMore ? (parseInt(page) + 1).toString() : null,
+    status: 'success',
+    error: newsDataError ? newsDataError.message : null
+  };
+};
+
+/**
+ * Get news by ID - finds article from in-memory merged list
+ */
+const getNewsById = async (id) => {
+  // If cache is stale, refresh it
+  if (Date.now() - cacheTimestamp > CACHE_TTL || cachedArticles.length === 0) {
+    await getAllNews({ limit: 100 });
+  }
+
+  // Find article by ID
+  const article = cachedArticles.find(a =>
+    a.article_id === id || a.id === id || a.link === id
+  );
+
+  if (!article) {
+    throw new Error('Article not found');
+  }
+
+  return article;
+};
+
+/**
+ * Get RSS-only news (Healthcare IT feeds)
+ */
+const getRSSNews = async (options = {}) => {
+  const { q, category, limit = 10, page = 1 } = options;
+
+  let rssArticles = await fetchAllRSSFeeds();
+
+  // Apply filters
+  rssArticles = applyFilters(rssArticles, { q, category });
+
+  // Sort by date (newest first)
+  rssArticles = sortArticlesByDate(rssArticles);
+
+  // Paginate
+  const startIndex = (parseInt(page) - 1) * parseInt(limit);
+  const endIndex = startIndex + parseInt(limit);
+  const paginatedArticles = rssArticles.slice(startIndex, endIndex);
+
+  const hasMore = rssArticles.length > endIndex;
+
+  return {
+    results: paginatedArticles,
+    totalResults: rssArticles.length,
+    nextPage: hasMore ? (parseInt(page) + 1).toString() : null,
+    status: 'success'
+  };
+};
+
+/**
+ * Create news - Not supported, news comes from external API
+ */
+const createNews = async (newsData) => {
+  throw new Error('News creation is not supported. News is fetched from external APIs.');
+};
+
+/**
+ * Update news - Not supported, news comes from external API
+ */
+const updateNews = async (id, updateData, userId, user) => {
+  throw new Error('News updates are not supported. News is fetched from external APIs.');
+};
+
+/**
+ * Delete news - Not supported, news comes from external API
+ */
+const deleteNews = async (id, userId, user) => {
+  throw new Error('News deletion is not supported. News is fetched from external APIs.');
+};
+
 module.exports = {
   getAllNews,
   getNewsById,
+  getRSSNews,
   createNews,
   updateNews,
   deleteNews,
+  fetchNewsFromNewsData,
   fetchNewsFromRSSFeed,
-  syncRSSFeedsToNews,
-  getNewsFromRSSFeed,
-  fetchNewsFromNewsData
+  fetchAllRSSFeeds
 };

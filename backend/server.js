@@ -10,7 +10,6 @@ const { connectDB } = require('./config/database');
 const initializeData = require('./config/initializeData');
 const errorHandler = require('./middleware/errorHandler');
 const cron = require('node-cron');
-const { fetchRssFeeds } = require('./jobs/rssFeedFetcher');
 const logger = require('./utils/logger');
 const { RATE_LIMIT } = require('./utils/constants');
 
@@ -18,7 +17,6 @@ const { RATE_LIMIT } = require('./utils/constants');
 const authRoutes = require('./routes/auth');
 const newsRoutes = require('./routes/news');
 const blogRoutes = require('./routes/blogs');
-const rssRoutes = require('./routes/rss');
 const discussionRoutes = require('./routes/discussions');
 const surveyRoutes = require('./routes/surveys');
 const learningRoutes = require('./routes/learning');
@@ -111,7 +109,6 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/blogs', blogRoutes);
-app.use('/api/rss', rssRoutes);
 app.use('/api/discussions', discussionRoutes);
 app.use('/api/surveys', surveyRoutes);
 app.use('/api/learning', learningRoutes);
@@ -144,15 +141,7 @@ const startServer = async () => {
       logger.info('NewsData.io API key configured');
     }
 
-    cron.schedule('0 */6 * * *', async () => {
-      try {
-        await fetchRssFeeds();
-        logger.info('RSS feed sync completed');
-      } catch (error) {
-        logger.error('Error in RSS feed cron job', { error: error.message });
-      }
-    });
-    logger.info('RSS feed cron job scheduled (every 6 hours)');
+
 
     // Scheduled announcements cron job (every minute)
     const { publishScheduledAnnouncements } = require('./jobs/scheduledAnnouncements');

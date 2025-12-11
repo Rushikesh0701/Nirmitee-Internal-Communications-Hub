@@ -4,8 +4,6 @@ module.exports = {
   User: require('./User'),
   Blog: require('./Blog'),
   BlogComment: require('./BlogComment'),
-  RSSFeed: require('./RSSFeed'),
-  RssArticle: require('./RssArticle'),
   Discussion: require('./Discussion'),
   DiscussionComment: require('./DiscussionComment'),
   Recognition: require('./Recognition'),

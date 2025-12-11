@@ -24,7 +24,7 @@ import SurveyForm from '../pages/surveys/SurveyForm'
 import LearningList from '../pages/learning/LearningList'
 import CourseDetail from '../pages/learning/CourseDetail'
 import CourseForm from '../pages/learning/CourseForm'
-import RSSFeeds from '../pages/rss/RSSFeeds'
+
 import Analytics from '../pages/analytics/Analytics'
 import AdminRewardsManagement from '../pages/admin/AdminRewardsManagement'
 import ProfilePage from '../pages/profile/ProfilePage'
@@ -76,7 +76,7 @@ export const protectedRoutes = [
   { path: '/learning/new', component: CourseForm, admin: true },
   { path: '/learning/:id', component: CourseDetail },
   { path: '/learning/:id/edit', component: CourseForm, admin: true },
-  { path: '/rss', component: RSSFeeds },
+
   { path: '/analytics', component: Analytics, admin: true },
   { path: '/admin/rewards', component: AdminRewardsManagement, admin: true },
   { path: '/profile', component: ProfilePage },

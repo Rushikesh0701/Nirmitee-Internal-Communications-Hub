@@ -534,15 +534,13 @@ function NewsList() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {articles.map((article, index) => {
-              // Map fields to handle both RSS and internal news structure
+              // Map fields to handle news structure
               const title = article.title;
               const description = article.summary || article.content || article.description || '';
               const imageUrl = article.imageUrl || article.image_url;
               const date = article.publishedAt || article.pubDate || article.createdAt;
-              // Handle Google News RSS redirect URLs
               let link = article.sourceUrl || article.link;
-              const source = article.sourceType === 'rss' ? 'RSS Feed' : (article.source_name || 'Internal');
-              const isRss = article.sourceType === 'rss' || !!article.sourceUrl;
+              const source = article.source_name || 'News Source';
 
               return (
                 <div
@@ -566,12 +564,6 @@ function NewsList() {
                           e.target.style.display = 'none';
                         }}
                       />
-                      {isRss && (
-                        <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-sm flex items-center gap-1">
-                          <Globe size={10} />
-                          RSS
-                        </div>
-                      )}
                     </div>
                   )}
                   <div className="p-3 flex flex-col flex-1">
