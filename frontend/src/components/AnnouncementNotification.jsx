@@ -12,9 +12,10 @@ import { Bell, X } from 'lucide-react'
  * - Auto-dismisses after 3 seconds
  * - "Read More" click immediately dismisses the notification
  * - Slide-in animation
+ * - Excludes announcements created by the current user
  */
 const AnnouncementNotification = () => {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
   const navigate = useNavigate()
   const [dismissedIds, setDismissedIds] = useState(() => {
     const stored = localStorage.getItem('dismissedAnnouncements')
@@ -35,11 +36,23 @@ const AnnouncementNotification = () => {
 
   const announcements = data?.announcements || []
   
-  // Filter out dismissed announcements and show only recent ones (last 24 hours)
+  // Get current user's MongoDB ID (could be in different places depending on user object structure)
+  const currentUserId = user?.mongoUserId || user?._id || user?.id
+  
+  // Filter out dismissed announcements, announcements by current user, and show only recent ones (last 24 hours)
   const recentAnnouncements = announcements.filter((announcement) => {
+    // Filter out dismissed
     if (dismissedIds.includes(announcement._id || announcement.id)) {
       return false
     }
+    
+    // Filter out announcements created by current user
+    const creatorId = announcement.createdBy?._id || announcement.createdBy
+    if (currentUserId && creatorId && creatorId.toString() === currentUserId.toString()) {
+      return false
+    }
+    
+    // Only show recent (last 24 hours)
     const createdAt = new Date(announcement.publishedAt || announcement.createdAt)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
     return createdAt > oneDayAgo
@@ -91,7 +104,8 @@ const AnnouncementNotification = () => {
       {recentAnnouncements.slice(0, 3).map((announcement) => (
         <div
           key={announcement._id || announcement.id}
-          className="bg-white rounded-lg shadow-lg border-l-4 border-primary-600 p-4 flex items-start gap-3 animate-slide-in"
+          onClick={() => handleReadMore(announcement)}
+          className="bg-white rounded-lg shadow-lg border-l-4 border-primary-600 p-4 flex items-start gap-3 animate-slide-in cursor-pointer hover:shadow-xl transition-shadow"
         >
           <div className="p-2 bg-primary-100 rounded-full">
             <Bell size={20} className="text-primary-600" />
@@ -103,15 +117,15 @@ const AnnouncementNotification = () => {
             <p className="text-sm text-gray-600 line-clamp-2 mb-2">
               {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
             </p>
-            <button
-              onClick={() => handleReadMore(announcement)}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
+            <span className="text-sm text-primary-600 hover:text-primary-700 font-medium">
               Read more →
-            </button>
+            </span>
           </div>
           <button
-            onClick={() => handleDismiss(announcement._id || announcement.id)}
+            onClick={(e) => {
+              e.stopPropagation() // Prevent card click from triggering
+              handleDismiss(announcement._id || announcement.id)
+            }}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Dismiss notification"
           >

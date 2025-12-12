@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useQuery } from 'react-query'
 import { notificationApi } from '../services/notificationApi'
 
@@ -34,11 +34,68 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
 }
 
 /**
+ * Generate a notification "ding" sound using Web Audio API
+ * More reliable than base64 audio files
+ */
+const playNotificationDing = () => {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext
+        if (!AudioContext) return
+
+        const audioContext = new AudioContext()
+
+        // Create oscillator for the main tone
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+
+        // Pleasant notification sound (E6 note - 1318.51 Hz)
+        oscillator.frequency.setValueAtTime(1318.51, audioContext.currentTime)
+        oscillator.type = 'sine'
+
+        // Quick fade in and out for a gentle "ding"
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime)
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.3)
+
+        // Clean up
+        oscillator.onended = () => {
+            oscillator.disconnect()
+            gainNode.disconnect()
+            audioContext.close()
+        }
+    } catch (e) {
+        // Ignore audio errors (browser policy, etc.)
+        console.log('Notification sound not available:', e.message)
+    }
+}
+
+/**
  * Hook to play notification sound when new notifications arrive
  */
 export const useNotificationSound = () => {
     const previousCount = useRef(0)
-    const audioRef = useRef(null)
+    const hasInteracted = useRef(false)
+
+    // Track user interaction for autoplay policy
+    useEffect(() => {
+        const handleInteraction = () => {
+            hasInteracted.current = true
+        }
+
+        document.addEventListener('click', handleInteraction, { once: true })
+        document.addEventListener('keydown', handleInteraction, { once: true })
+
+        return () => {
+            document.removeEventListener('click', handleInteraction)
+            document.removeEventListener('keydown', handleInteraction)
+        }
+    }, [])
 
     const { data: unreadData } = useQuery(
         'unreadCount',
@@ -50,33 +107,21 @@ export const useNotificationSound = () => {
 
     const currentCount = unreadData?.data?.data?.unreadCount || 0
 
+    const playSound = useCallback(() => {
+        if (hasInteracted.current) {
+            playNotificationDing()
+        }
+    }, [])
+
     useEffect(() => {
         // Play sound only when count increases (new notification)
         if (currentCount > previousCount.current && previousCount.current !== 0) {
-            playNotificationSound()
+            playSound()
         }
         previousCount.current = currentCount
-    }, [currentCount])
+    }, [currentCount, playSound])
 
-    const playNotificationSound = () => {
-        try {
-            // Create audio element if it doesn't exist
-            if (!audioRef.current) {
-                audioRef.current = new Audio()
-                // Use a data URL for a simple notification sound (soft ding)
-                audioRef.current.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQAJVqjZ5LiVJwADPpLd6sKoRAAAKHjN7te/YgAADluy3O/OpHUAABdKot3y06qGAAAQPpPZ7du4lgAACjSI1fTgy6YAAAR2xPHk07MAAAB0wO/p2bwAAACByO/r274AAACJ0O7t38EAAACNzfDt4cAAAACZzunw4L0AAACVy+Tu4bwAAACXzObu4LwAAACVzOjw4b0AAACW0Ony4r8AAACR0PDy4sAAAJDP8vLiv/'
-                audioRef.current.volume = 0.3 // Subtle volume
-            }
-            audioRef.current.currentTime = 0
-            audioRef.current.play().catch(() => {
-                // Ignore autoplay errors (browser policy)
-            })
-        } catch (e) {
-            // Ignore audio errors
-        }
-    }
-
-    return { playNotificationSound }
+    return { playSound }
 }
 
 export default useDocumentTitle
