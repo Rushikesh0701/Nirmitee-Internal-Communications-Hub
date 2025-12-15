@@ -5,7 +5,6 @@ import notificationSound from '../assets/Sound.mp3'
 
 // Global audio element
 let audioElement = null
-let audioInitialized = false
 
 /**
  * Initialize and get the audio element
@@ -16,10 +15,8 @@ const initAudio = () => {
         audioElement.volume = 1.0
         audioElement.preload = 'auto'
 
-        // Log when audio is ready
         audioElement.addEventListener('canplaythrough', () => {
             console.log('✅ Notification sound loaded and ready!')
-            audioInitialized = true
         })
 
         audioElement.addEventListener('error', (e) => {
@@ -33,24 +30,74 @@ const initAudio = () => {
 initAudio()
 
 /**
- * Play notification sound - exported for use anywhere
+ * Play notification sound
  */
 export const playNotificationSound = () => {
     const audio = initAudio()
 
-    if (!audio) {
-        console.log('❌ No audio element')
+    if (!audio) return
+
+    audio.currentTime = 0
+    audio.play()
+        .then(() => console.log('🔊 Sound played!'))
+        .catch(err => console.log('🔇 Sound blocked:', err.message))
+}
+
+/**
+ * Request browser notification permission
+ */
+export const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) {
+        console.log('Browser does not support notifications')
+        return false
+    }
+
+    if (Notification.permission === 'granted') {
+        return true
+    }
+
+    if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission()
+        return permission === 'granted'
+    }
+
+    return false
+}
+
+/**
+ * Show browser notification (works even when tab is not focused)
+ */
+export const showBrowserNotification = (title, body, onClick) => {
+    if (Notification.permission !== 'granted') {
+        console.log('🔇 Notification permission not granted')
         return
     }
 
-    // Reset and play
-    audio.currentTime = 0
-    const playPromise = audio.play()
+    try {
+        const notification = new Notification(title, {
+            body,
+            icon: '/Logo.png', // Use your app logo
+            badge: '/Logo.png',
+            tag: 'nirmitee-notification', // Prevents duplicate notifications
+            requireInteraction: false,
+            silent: false // Allow system sound
+        })
 
-    if (playPromise !== undefined) {
-        playPromise
-            .then(() => console.log('🔊 Sound played!'))
-            .catch(err => console.log('🔇 Autoplay blocked:', err.message))
+        // Play custom sound
+        playNotificationSound()
+
+        notification.onclick = () => {
+            window.focus()
+            if (onClick) onClick()
+            notification.close()
+        }
+
+        // Auto close after 5 seconds
+        setTimeout(() => notification.close(), 5000)
+
+        console.log('📢 Browser notification shown:', title)
+    } catch (e) {
+        console.error('Error showing notification:', e)
     }
 }
 
@@ -78,35 +125,21 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
 }
 
 /**
- * Hook to play notification sound for ALL new notifications
+ * Hook to play notification sound and show browser notification for ALL new notifications
  */
 export const useNotificationSound = () => {
     const seenIds = useRef(new Set())
     const isFirstLoad = useRef(true)
-    const userClicked = useRef(false)
 
-    // Unlock audio on first user interaction
+    // Request notification permission on mount
     useEffect(() => {
-        const unlock = () => {
-            userClicked.current = true
-            // Try to play and immediately pause to unlock audio
-            const audio = initAudio()
-            if (audio) {
-                audio.play().then(() => {
-                    audio.pause()
-                    audio.currentTime = 0
-                    console.log('🔓 Audio unlocked!')
-                }).catch(() => { })
+        requestNotificationPermission().then(granted => {
+            if (granted) {
+                console.log('✅ Browser notification permission granted!')
+            } else {
+                console.log('⚠️ Browser notification permission not granted')
             }
-        }
-
-        document.addEventListener('click', unlock, { once: true })
-        document.addEventListener('keydown', unlock, { once: true })
-
-        return () => {
-            document.removeEventListener('click', unlock)
-            document.removeEventListener('keydown', unlock)
-        }
+        })
     }, [])
 
     // Poll for notifications
@@ -130,23 +163,27 @@ export const useNotificationSound = () => {
         }
 
         // Check for new notifications
-        let newCount = 0
         notifications.forEach(n => {
             const id = n.id || n._id
             if (!seenIds.current.has(id)) {
                 seenIds.current.add(id)
-                newCount++
                 console.log('🆕 New notification:', n.content?.substring(0, 50))
+
+                // Only show browser notification when tab is NOT focused (user is on another site)
+                // When user is on this site, they'll see the in-app notification card
+                if (document.hidden) {
+                    showBrowserNotification(
+                        'Nirmitee Hub',
+                        n.content || 'You have a new notification',
+                        () => {
+                            window.location.href = '/notifications'
+                        }
+                    )
+                } else {
+                    console.log('📱 Tab is focused - showing in-app notification only')
+                }
             }
         })
-
-        // Play sound for each new notification
-        if (newCount > 0 && userClicked.current) {
-            console.log(`🔔 Playing ${newCount} notification sound(s)`)
-            for (let i = 0; i < Math.min(newCount, 3); i++) { // Max 3 sounds
-                setTimeout(() => playNotificationSound(), i * 400)
-            }
-        }
     }, [notifications])
 
     return { playSound: playNotificationSound }
