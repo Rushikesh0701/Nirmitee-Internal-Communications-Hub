@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient, useMutation } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { notificationApi } from '../services/notificationApi'
+import { playNotificationSound } from '../hooks/useNotificationEffects'
 import { Bell, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 

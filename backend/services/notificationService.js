@@ -222,9 +222,16 @@ const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
  */
 const notifyAnnouncement = async (userIds, announcementTitle, announcementId) => {
   if (!userIds || userIds.length === 0) return;
+  if (!announcementTitle) {
+    console.warn('notifyAnnouncement called without title');
+    return;
+  }
+
+  const content = `New announcement: ${announcementTitle}`;
 
   await createBulkNotifications(userIds, {
     type: 'ANNOUNCEMENT',
+    content,
     metadata: { announcementId, announcementTitle }
   });
 };

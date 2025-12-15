@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import { playNotificationSound } from '../hooks/useNotificationEffects'
 import { Bell, X } from 'lucide-react'
 
 /**
@@ -13,6 +14,7 @@ import { Bell, X } from 'lucide-react'
  * - "Read More" click immediately dismisses the notification
  * - Slide-in animation
  * - Excludes announcements created by the current user
+ * - Plays sound only after user interaction (browser policy)
  */
 const AnnouncementNotification = () => {
   const { isAuthenticated, user } = useAuthStore()
@@ -22,6 +24,21 @@ const AnnouncementNotification = () => {
     return stored ? JSON.parse(stored) : []
   })
   const timersRef = useRef({})
+  const soundPlayedRef = useRef(new Set())
+  const userInteracted = useRef(false)
+
+  // Track user interaction for audio playback
+  useEffect(() => {
+    const handleInteraction = () => {
+      userInteracted.current = true
+    }
+    document.addEventListener('click', handleInteraction)
+    document.addEventListener('keydown', handleInteraction)
+    return () => {
+      document.removeEventListener('click', handleInteraction)
+      document.removeEventListener('keydown', handleInteraction)
+    }
+  }, [])
 
   // Poll for new announcements
   const { data } = useQuery(
@@ -76,10 +93,17 @@ const AnnouncementNotification = () => {
     navigate(`/announcements/${id}`)
   }
 
-  // Auto-dismiss after 3 seconds
+  // Auto-dismiss after 3 seconds and play sound for new announcements
   useEffect(() => {
     recentAnnouncements.forEach((announcement) => {
       const id = announcement._id || announcement.id
+      
+      // Play sound for new announcements (only once per announcement)
+      if (!soundPlayedRef.current.has(id)) {
+        soundPlayedRef.current.add(id)
+        console.log('🔔 Playing sound for announcement card:', announcement.title)
+        playNotificationSound()
+      }
       
       // Only set timer if not already set
       if (!timersRef.current[id]) {
