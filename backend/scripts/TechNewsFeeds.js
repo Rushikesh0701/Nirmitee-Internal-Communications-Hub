@@ -1,8 +1,8 @@
 /**
  * Script to add Top Tech News RSS Feeds
  * Based on:
- * - https://pesto.tech/resources/top-10-websites-for-keeping-up-with-tech-news-in-2024
- * - https://daily.dev/blog/top-10-best-tech-websites-and-blogs-2024
+ * - https://pesto.tech/resources/top-10-websites-for-keeping-up-with-tech-news-in-2025
+ * - https://daily.dev/blog/top-10-best-tech-websites-and-blogs-2025
  */
 
 const mongoose = require('mongoose');

@@ -1,23 +1,30 @@
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
-import { Plus, Calendar, User, Clock, Tag, Filter } from 'lucide-react'
+import { Plus, Calendar, User, Tag, Filter, Megaphone, X, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import Loading from '../../components/Loading'
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06 } }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+}
 
 const AnnouncementsList = () => {
   const { user } = useAuthStore()
   const userIsAdmin = isAdmin(user)
   
   const [page, setPage] = useState(1)
-  const [filters, setFilters] = useState({
-    tags: '',
-    scheduled: '',
-    published: ''
-  })
+  const [filters, setFilters] = useState({ tags: '', scheduled: '', published: '' })
   const [showFilters, setShowFilters] = useState(false)
 
   const queryParams = new URLSearchParams({
@@ -36,7 +43,7 @@ const AnnouncementsList = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
-    setPage(1) // Reset to first page when filter changes
+    setPage(1)
   }
 
   const clearFilters = () => {
@@ -44,194 +51,172 @@ const AnnouncementsList = () => {
     setPage(1)
   }
 
-  // Show loading immediately if we're loading and don't have cached data yet
-  if (isLoading && !data) {
-    return <Loading fullScreen />
-  }
+  if (isLoading && !data) return <Loading fullScreen />
 
   const announcements = data?.announcements || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Company Announcements</h1>
-          <p className="text-gray-600 mt-1">Stay updated with company news and updates</p>
+    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+            <Megaphone size={22} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Company Announcements</h1>
+            <p className="text-slate-500 text-sm mt-0.5">Stay updated with company news and updates</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          <motion.button
             onClick={() => setShowFilters(!showFilters)}
-            className="btn btn-secondary flex items-center gap-2"
+            className={`btn ${showFilters ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+            whileTap={{ scale: 0.98 }}
           >
-            <Filter size={18} />
+            {showFilters ? <X size={18} /> : <Filter size={18} />}
             Filters
-          </button>
+          </motion.button>
           {userIsAdmin && (
             <Link to="/announcements/new" className="btn btn-primary flex items-center gap-2">
-              <Plus size={18} />
-              Create Announcement
+              <Plus size={18} /> Create
             </Link>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Filters Panel */}
-      {showFilters && (
-        <div className="card p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Filters</h3>
-            <button
-              onClick={clearFilters}
-              className="text-sm text-primary-600 hover:text-primary-700"
-            >
-              Clear all
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tags
-              </label>
-              <input
-                type="text"
-                placeholder="Filter by tags"
-                value={filters.tags}
-                onChange={(e) => handleFilterChange('tags', e.target.value)}
-                className="input"
-              />
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div 
+            className="card space-y-4"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-slate-800">Filters</h3>
+              <button onClick={clearFilters} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                Clear all
+              </button>
             </div>
-            {userIsAdmin && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Scheduled
-                  </label>
-                  <select
-                    value={filters.scheduled}
-                    onChange={(e) => handleFilterChange('scheduled', e.target.value)}
-                    className="input"
-                  >
-                    <option value="">All</option>
-                    <option value="true">Scheduled</option>
-                    <option value="false">Not Scheduled</option>
-                  </select>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="form-label">Tags</label>
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Filter by tags"
+                    value={filters.tags}
+                    onChange={(e) => handleFilterChange('tags', e.target.value)}
+                    className="input pl-11"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Published
-                  </label>
-                  <select
-                    value={filters.published}
-                    onChange={(e) => handleFilterChange('published', e.target.value)}
-                    className="input"
-                  >
-                    <option value="">All</option>
-                    <option value="true">Published</option>
-                    <option value="false">Unpublished</option>
-                  </select>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+              </div>
+              {userIsAdmin && (
+                <>
+                  <div>
+                    <label className="form-label">Scheduled</label>
+                    <select value={filters.scheduled} onChange={(e) => handleFilterChange('scheduled', e.target.value)} className="input-select">
+                      <option value="">All</option>
+                      <option value="true">Scheduled</option>
+                      <option value="false">Not Scheduled</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Published</label>
+                    <select value={filters.published} onChange={(e) => handleFilterChange('published', e.target.value)} className="input-select">
+                      <option value="">All</option>
+                      <option value="true">Published</option>
+                      <option value="false">Unpublished</option>
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Announcements Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {announcements.map((announcement) => (
-          <Link
-            key={announcement._id || announcement.id}
-            to={`/announcements/${announcement._id || announcement.id}`}
-            className="card hover:shadow-lg transition-shadow"
-          >
-            {announcement.image && (
-              <img
-                src={announcement.image}
-                alt={announcement.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-            )}
-            <div className="space-y-2">
-              {announcement.tags && announcement.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {announcement.tags.slice(0, 3).map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded bg-primary-100 text-primary-800"
-                    >
-                      <Tag size={12} />
-                      {tag}
-                    </span>
-                  ))}
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
+        {announcements.map((announcement, index) => (
+          <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+            <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
+              {announcement.image && (
+                <div className="relative -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-2xl">
+                  <img src={announcement.image} alt={announcement.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
               )}
-              <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
-                {announcement.title}
-              </h3>
-              <p className="text-gray-600 line-clamp-3 text-sm">
-                {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...
-              </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500 pt-2 border-t">
-                <div className="flex items-center gap-1">
-                  <User size={16} />
-                  <span>
-                    {announcement.createdBy?.firstName} {announcement.createdBy?.lastName}
-                  </span>
-                </div>
-                {announcement.scheduledAt ? (
-                  <div className="flex items-center gap-1">
-                    <Calendar size={16} />
-                    <span>{format(new Date(announcement.scheduledAt), 'MMM d, yyyy')}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1">
-                    <Calendar size={16} />
-                    <span>{format(new Date(announcement.createdAt), 'MMM d, yyyy')}</span>
+              <div className="space-y-3">
+                {announcement.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {announcement.tags.slice(0, 3).map((tag, idx) => (
+                      <span key={idx} className="badge badge-primary"><Tag size={10} /> {tag}</span>
+                    ))}
                   </div>
                 )}
-              </div>
-              {announcement.scheduledAt && !announcement.isPublished && (
-                <div className="mt-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">
-                  Scheduled
+                <h3 className="text-lg font-semibold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                  {announcement.title}
+                </h3>
+                <p className="text-slate-500 text-sm line-clamp-2">
+                  {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                </p>
+                <div className="flex items-center gap-4 text-xs text-slate-400 pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5">
+                    <User size={14} />
+                    <span>{announcement.createdBy?.firstName} {announcement.createdBy?.lastName}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={14} />
+                    <span>{format(new Date(announcement.scheduledAt || announcement.createdAt), 'MMM d, yyyy')}</span>
+                  </div>
                 </div>
-              )}
-            </div>
-          </Link>
+                {announcement.scheduledAt && !announcement.isPublished && (
+                  <span className="badge badge-warning">Scheduled</span>
+                )}
+              </div>
+            </Link>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
+      {/* Empty State */}
       {announcements.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          No announcements available yet
-        </div>
+        <motion.div variants={itemVariants} className="empty-state">
+          <Megaphone size={56} className="empty-state-icon" />
+          <h3 className="empty-state-title">No announcements yet</h3>
+          <p className="empty-state-text">Check back later for updates</p>
+        </motion.div>
       )}
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
+        <motion.div variants={itemVariants} className="pagination">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="pagination-btn flex items-center gap-1">
+            <ChevronLeft size={18} /> Previous
           </button>
-          <span className="text-gray-600">
-            Page {pagination.page} of {pagination.pages}
-          </span>
-          <button
-            onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-            disabled={page === pagination.pages}
-            className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
+          <div className="flex items-center gap-2">
+            {[...Array(Math.min(5, pagination.pages))].map((_, i) => {
+              const pageNum = i + 1
+              return (
+                <button key={pageNum} onClick={() => setPage(pageNum)} className={`pagination-btn w-10 h-10 ${page === pageNum ? 'pagination-btn-active' : ''}`}>
+                  {pageNum}
+                </button>
+              )
+            })}
+          </div>
+          <button onClick={() => setPage(p => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages} className="pagination-btn flex items-center gap-1">
+            Next <ChevronRight size={18} />
           </button>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   )
 }
 
 export default AnnouncementsList
-

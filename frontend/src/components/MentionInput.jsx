@@ -10,7 +10,6 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
   const textareaRef = useRef(null)
   const suggestionsRef = useRef(null)
 
-  // Fetch users for mention suggestions
   const { data: usersData } = useQuery(
     ['users-for-mentions', mentionQuery],
     () => api.get(`/users/search?q=${encodeURIComponent(mentionQuery)}&limit=10`).then((res) => res.data.data),
@@ -30,14 +29,12 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
     const text = e.target.value
     onChange(e)
 
-    // Check for @ mentions
     const cursorPos = e.target.selectionStart
     const textBeforeCursor = text.substring(0, cursorPos)
     const lastAtIndex = textBeforeCursor.lastIndexOf('@')
 
     if (lastAtIndex !== -1) {
       const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1)
-      // Check if there's a space after @ (meaning mention is complete)
       if (!textAfterAt.includes(' ') && !textAfterAt.includes('\n')) {
         setMentionQuery(textAfterAt)
         setShowSuggestions(true)
@@ -68,7 +65,6 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
       onChange({ target: { value: newText } })
       setShowSuggestions(false)
       
-      // Set cursor position after mention
       setTimeout(() => {
         const newPos = lastAtIndex + mentionText.length + 1
         textarea.setSelectionRange(newPos, newPos)
@@ -103,22 +99,20 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
         onKeyDown={handleKeyDown}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         placeholder={placeholder}
-        className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${className}`}
+        className={`textarea ${className}`}
         rows={4}
       />
       
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+          className="dropdown-menu"
         >
           {suggestions.map((user, index) => (
             <div
               key={user.id || user._id}
               onClick={() => insertMention(user)}
-              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                index === selectedIndex ? 'bg-primary-50' : ''
-              }`}
+              className={`dropdown-item ${index === selectedIndex ? 'bg-purple-500/20' : ''}`}
             >
               <div className="flex items-center gap-2">
                 {user.avatar ? (
@@ -128,18 +122,18 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
                     className="w-8 h-8 rounded-full"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
-                    <span className="text-primary-600 font-semibold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <span className="text-purple-300 font-semibold text-sm">
                       {user.firstName?.[0]}
                     </span>
                   </div>
                 )}
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-white">
                     {user.firstName} {user.lastName}
                   </div>
                   {user.displayName && (
-                    <div className="text-sm text-gray-500">{user.displayName}</div>
+                    <div className="text-xs text-purple-300/50">{user.displayName}</div>
                   )}
                 </div>
               </div>
@@ -152,4 +146,3 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
 }
 
 export default MentionInput
-

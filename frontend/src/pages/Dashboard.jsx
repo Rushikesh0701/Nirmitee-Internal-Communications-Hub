@@ -1,4 +1,5 @@
 import { useQuery } from 'react-query'
+import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import api from '../services/api'
 import {
@@ -12,31 +13,41 @@ import {
   ChevronRight,
   Clock,
   User,
-  Megaphone
+  Megaphone,
+  TrendingUp,
+  ArrowUpRight,
+  Zap
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import Loading from '../components/Loading'
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+}
+
 const Dashboard = () => {
   const { user } = useAuthStore()
   const isAdminOrModerator = ['Admin', 'Moderator'].includes(user?.Role?.name)
 
-  // Fetch dashboard stats for admin
   const { data: stats, isLoading: statsLoading } = useQuery(
     'dashboard-stats',
     () => api.get('/analytics/dashboard').then((res) => res.data.data),
     { enabled: isAdminOrModerator }
   )
 
-  // Fetch latest announcements (at least 3)
   const { data: announcementsData, isLoading: announcementsLoading } = useQuery(
     'dashboard-announcements',
     () => api.get('/announcements?limit=3&sortBy=createdAt&sortOrder=desc').then((res) => res.data.data),
     { staleTime: 60000 }
   )
 
-  // Fetch news articles
   const { data: newsData, isLoading: newsLoading } = useQuery(
     'dashboard-news',
     () => api.get('/news?limit=6&language=en').then((res) => res.data.data || res.data),
@@ -47,177 +58,179 @@ const Dashboard = () => {
   const newsArticles = newsData?.results || newsData?.news || []
 
   const quickLinks = [
-    { path: '/news', icon: Newspaper, label: 'News', color: 'from-blue-500 to-blue-600' },
-    { path: '/blogs', icon: BookOpen, label: 'Blogs', color: 'from-green-500 to-emerald-600' },
-    { path: '/discussions', icon: MessageSquare, label: 'Discussions', color: 'from-purple-500 to-indigo-600' },
-    { path: '/recognitions', icon: Award, label: 'Recognitions', color: 'from-yellow-500 to-orange-500' },
-    { path: '/surveys', icon: ClipboardList, label: 'Surveys', color: 'from-pink-500 to-rose-600' },
-    { path: '/learning', icon: GraduationCap, label: 'Learning & Development', color: 'from-indigo-500 to-purple-600' }
+    { path: '/news', icon: Newspaper, label: 'News', gradient: 'from-blue-500 to-cyan-500' },
+    { path: '/blogs', icon: BookOpen, label: 'Blogs', gradient: 'from-emerald-500 to-teal-500' },
+    { path: '/discussions', icon: MessageSquare, label: 'Discussions', gradient: 'from-violet-500 to-purple-500' },
+    { path: '/recognitions', icon: Award, label: 'Recognitions', gradient: 'from-amber-500 to-orange-500' },
+    { path: '/surveys', icon: ClipboardList, label: 'Surveys', gradient: 'from-rose-500 to-pink-500' },
+    { path: '/learning', icon: GraduationCap, label: 'Learning', gradient: 'from-indigo-500 to-blue-500' }
   ]
 
+  const statCards = [
+    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: Newspaper, gradient: 'from-blue-500 to-cyan-500' },
+    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: BookOpen, gradient: 'from-emerald-500 to-teal-500' },
+    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users, gradient: 'from-violet-500 to-purple-500' },
+    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: MessageSquare, gradient: 'from-indigo-500 to-blue-500' }
+  ]
+
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good morning !!'
+    if (hour < 17) return 'Good afternoon !!'
+    return 'Good evening !!'
+  }
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <motion.div className="space-y-8" variants={containerVariants} initial="hidden" animate="visible">
       {/* Welcome Header */}
-      <div className="px-2 sm:px-0">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-          Welcome back, {user?.firstName || 'User'}!
+      <motion.div variants={itemVariants}>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1.5 rounded-lg bg-indigo-100 border border-indigo-200">
+            <Zap size={14} className="text-indigo-600" />
+          </div>
+          <span className="text-sm font-medium text-indigo-600">{getGreeting()}</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800">
+          Welcome back, <span className="text-gradient">{user?.firstName || 'User'}</span>!
         </h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-2">
-          Here&apos;s what&apos;s happening in your organization
-        </p>
-      </div>
+        <p className="text-slate-500 mt-2">Here&apos;s what&apos;s happening in your organization today</p>
+      </motion.div>
 
       {/* Admin Stats Cards */}
       {isAdminOrModerator && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {statsLoading ? (
             [...Array(4)].map((_, i) => (
               <div key={i} className="card animate-pulse">
-                <div className="h-20 bg-gray-200 rounded"></div>
+                <div className="h-16 bg-slate-100 rounded-xl" />
               </div>
             ))
           ) : stats ? (
-            <>
-              <div className="card card-hover">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Total News</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-                      {stats.overview?.totalNews || 0}
-                    </p>
+            statCards.map((stat, index) => {
+              const Icon = stat.icon
+              return (
+                <motion.div
+                  key={stat.label}
+                  className="card group hover:shadow-lg"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+                      <motion.p 
+                        className="text-3xl font-bold text-slate-800 mt-1"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
+                      >
+                        {stat.value.toLocaleString()}
+                      </motion.p>
+                      <div className="flex items-center gap-1 mt-2">
+                        <TrendingUp size={12} className="text-emerald-500" />
+                        <span className="text-xs text-emerald-500 font-medium">Active</span>
+                      </div>
+                    </div>
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                      <Icon className="text-white" size={24} />
+                    </div>
                   </div>
-                  <div className="bg-blue-100 p-3 rounded-xl">
-                    <Newspaper className="text-blue-600" size={28} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card card-hover">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Total Blogs</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-                      {stats.overview?.totalBlogs || 0}
-                    </p>
-                  </div>
-                  <div className="bg-green-100 p-3 rounded-xl">
-                    <BookOpen className="text-green-600" size={28} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card card-hover">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Active Users</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-                      {stats.overview?.totalUsers || 0}
-                    </p>
-                  </div>
-                  <div className="bg-purple-100 p-3 rounded-xl">
-                    <Users className="text-purple-600" size={28} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card card-hover">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Discussions</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-                      {stats.overview?.totalDiscussions || 0}
-                    </p>
-                  </div>
-                  <div className="bg-indigo-100 p-3 rounded-xl">
-                    <MessageSquare className="text-indigo-600" size={28} />
-                  </div>
-                </div>
-              </div>
-            </>
+                </motion.div>
+              )
+            })
           ) : null}
-        </div>
+        </motion.div>
       )}
 
-      {/* Announcement Section - Shows 3 announcements */}
-      <section className="bg-white rounded-xl border-2 border-gray-300 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-600 flex items-center gap-2">
-            <Megaphone size={24} />
-            Announcement
-          </h2>
-          <Link
-            to="/announcements"
-            className="text-gray-600 hover:text-gray-700 font-medium flex items-center gap-1 transition-colors"
-          >
-            View All <ChevronRight size={16} />
+      {/* Announcement Section */}
+      <motion.section variants={itemVariants} className="card">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+              <Megaphone size={20} className="text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Announcements</h2>
+          </div>
+          <Link to="/announcements" className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium text-sm group">
+            View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </div>
-        <div className="border-2 border-gray-300 rounded-lg p-4 min-h-[200px]">
+        
+        <div className="min-h-[200px]">
           {announcementsLoading ? (
             <div className="flex items-center justify-center h-full min-h-[150px]">
               <Loading size="md" />
             </div>
           ) : announcements.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {announcements.slice(0, 3).map((announcement, index) => (
-                <Link
+                <motion.div
                   key={announcement._id || announcement.id || index}
-                  to={`/announcements/${announcement._id || announcement.id}`}
-                  className={`block p-4 rounded-lg hover:bg-gray-50 transition-colors border ${
-                    index === 0 ? 'border-gray-200 bg-gray-50/30' : 'border-gray-200'
-                  }`}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                          {announcement.title}
-                        </h3>
-                        {announcement.isPriority && (
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full flex-shrink-0">
-                            Priority
-                          </span>
-                        )}
+                  <Link
+                    to={`/announcements/${announcement._id || announcement.id}`}
+                    className={`block p-4 rounded-xl transition-all border group
+                      ${index === 0 
+                        ? 'border-indigo-200 bg-indigo-50 hover:bg-indigo-100' 
+                        : 'border-slate-100 hover:border-indigo-200 hover:bg-slate-50'
+                      }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <h3 className="text-base font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                            {announcement.title}
+                          </h3>
+                          {announcement.isPriority && (
+                            <span className="badge badge-warning">Priority</span>
+                          )}
+                        </div>
+                        <p className="text-slate-500 text-sm line-clamp-2">
+                          {announcement.content?.replace(/<[^>]*>/g, '') || '---'}
+                        </p>
+                        <div className="flex items-center gap-4 mt-2.5 text-xs text-slate-400">
+                          {announcement.createdAt && (
+                            <span className="flex items-center gap-1">
+                              <Clock size={12} />
+                              {format(new Date(announcement.createdAt), 'MMM d, yyyy')}
+                            </span>
+                          )}
+                          {announcement.Author && (
+                            <span className="flex items-center gap-1">
+                              <User size={12} />
+                              {announcement.Author.firstName} {announcement.Author.lastName}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-gray-600 text-sm line-clamp-2">
-                        {announcement.content?.replace(/<[^>]*>/g, '') || '---'}
-                      </p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                        {announcement.createdAt && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {format(new Date(announcement.createdAt), 'MMM d, yyyy')}
-                          </span>
-                        )}
-                        {announcement.Author && (
-                          <span className="flex items-center gap-1">
-                            <User size={12} />
-                            {announcement.Author.firstName} {announcement.Author.lastName}
-                          </span>
-                        )}
-                      </div>
+                      <ChevronRight size={18} className="text-slate-300 flex-shrink-0 mt-1 group-hover:text-indigo-500 transition-colors" />
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full min-h-[150px]">
-              <p className="text-gray-500">No announcements available</p>
+            <div className="flex flex-col items-center justify-center h-full min-h-[150px] text-slate-400">
+              <Megaphone size={32} className="mb-2 opacity-50" />
+              <p>No announcements available</p>
             </div>
           )}
         </div>
-      </section>
+      </motion.section>
 
       {/* News Section */}
-      <section className="bg-white rounded-xl border-2 border-gray-300 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-600">NEWS</h2>
-          <Link
-            to="/news"
-            className="text-gray-600 hover:text-gray-700 font-medium flex items-center gap-1 transition-colors"
-          >
-            View All <ChevronRight size={16} />
+      <motion.section variants={itemVariants} className="card">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
+              <Newspaper size={20} className="text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Latest News</h2>
+          </div>
+          <Link to="/news" className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm group">
+            View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </div>
         
@@ -226,7 +239,7 @@ const Dashboard = () => {
             <Loading size="md" />
           </div>
         ) : newsArticles.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {newsArticles.slice(0, 6).map((article, index) => {
               const title = article.title
               const imageUrl = article.imageUrl || article.image_url
@@ -234,100 +247,85 @@ const Dashboard = () => {
               const link = article.sourceUrl || article.link
 
               return (
-                <div
+                <motion.div
                   key={article._id || article.article_id || `news-${index}`}
-                  className="border-2 border-gray-300 rounded-lg overflow-hidden cursor-pointer 
-                             hover:border-gray-400 hover:shadow-md transition-all group bg-white"
-                  onClick={() => {
-                    if (link) {
-                      window.open(link, '_blank', 'noopener,noreferrer')
-                    }
-                  }}
+                  className="group cursor-pointer"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -4 }}
+                  onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
                 >
-                  <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
-                    {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.target.style.display = 'none'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                        <Newspaper size={32} className="text-gray-400" />
-                      </div>
-                    )}
+                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all">
+                    <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.style.display = 'none' }} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Newspaper size={24} className="text-slate-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors">{title}</h3>
+                      {date && (
+                        <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                          <Clock size={10} />
+                          {format(new Date(date), 'MMM d')}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 
-                                   group-hover:text-gray-600 transition-colors">
-                      {title}
-                    </h3>
-                    {date && (
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                        <Clock size={10} />
-                        {format(new Date(date), 'MMM d')}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white"
-              >
-                <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
-                  <Newspaper size={32} className="text-gray-300" />
-                </div>
+              <div key={i} className="rounded-xl overflow-hidden border border-slate-200 bg-white">
+                <div className="aspect-[4/3] bg-slate-100" />
                 <div className="p-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                  <div className="h-4 bg-slate-100 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-slate-50 rounded w-1/2" />
                 </div>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
 
       {/* Quick Access Links */}
-      <div>
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 px-2 sm:px-0">
-          Quick Access
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {quickLinks.map((link) => {
+      <motion.div variants={itemVariants}>
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Quick Access</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickLinks.map((link, index) => {
             const Icon = link.icon
             return (
-              <Link
+              <motion.div
                 key={link.path}
-                to={link.path}
-                className="card card-hover group"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.05 }}
               >
-                <div className="flex items-center gap-4">
-                  <div className={`bg-gradient-to-br ${link.color} p-3 sm:p-4 rounded-xl 
-                                   shadow-md group-hover:shadow-lg transition-all duration-300`}>
-                    <Icon className="text-white" size={24} />
+                <Link
+                  to={link.path}
+                  className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md transition-all group"
+                >
+                  <div className={`bg-gradient-to-br ${link.gradient} p-3.5 rounded-xl shadow-lg group-hover:scale-110 transition-transform`}>
+                    <Icon className="text-white" size={22} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                      {link.label}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-600">View all</p>
+                    <h3 className="font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">{link.label}</h3>
+                    <p className="text-sm text-slate-400">View all →</p>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             )
           })}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

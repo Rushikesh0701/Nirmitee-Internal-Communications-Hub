@@ -277,9 +277,9 @@ const DUMMY_NEWS = [
   {
     _id: 'news-5',
     id: 'news-5',
-    title: 'JavaScript ES2024 New Features',
-    content: 'Explore the new features coming in JavaScript ES2024, including improved async handling and new array methods.',
-    summary: 'New JavaScript ES2024 features including improved async handling.',
+    title: 'JavaScript ES2025 New Features',
+    content: 'Explore the new features coming in JavaScript ES2025, including improved async handling and new array methods.',
+    summary: 'New JavaScript ES2025 features including improved async handling.',
     imageUrl: null,
     authorId: DUMMY_ADMIN_USER._id,
     Author: {
@@ -295,7 +295,7 @@ const DUMMY_NEWS = [
     published: true,
     publishedAt: new Date(Date.now() - 14400000),
     views: 67,
-    sourceUrl: 'https://example.com/js-es2024',
+    sourceUrl: 'https://example.com/js-es2025',
     sourceType: 'rss',
     createdAt: new Date(Date.now() - 14400000),
     updatedAt: new Date(Date.now() - 14400000)
@@ -303,9 +303,9 @@ const DUMMY_NEWS = [
   {
     _id: 'news-6',
     id: 'news-6',
-    title: 'Cybersecurity Threats: What to Watch in 2024',
+    title: 'Cybersecurity Threats: What to Watch in 2025',
     content: 'Stay informed about the latest cybersecurity threats and how to protect your organization from emerging risks.',
-    summary: 'Latest cybersecurity threats and protection strategies for 2024.',
+    summary: 'Latest cybersecurity threats and protection strategies for 2025.',
     imageUrl: null,
     authorId: DUMMY_ADMIN_USER._id,
     Author: {
@@ -321,7 +321,7 @@ const DUMMY_NEWS = [
     published: true,
     publishedAt: new Date(Date.now() - 18000000),
     views: 89,
-    sourceUrl: 'https://example.com/cybersecurity-2024',
+    sourceUrl: 'https://example.com/cybersecurity-2025',
     sourceType: 'rss',
     createdAt: new Date(Date.now() - 18000000),
     updatedAt: new Date(Date.now() - 18000000)
@@ -1104,8 +1104,8 @@ const getDummySurveys = (options = {}) => {
   if (filterStatus) {
     surveys = surveys.filter(s => {
       // Check both status and isActive for backward compatibility
-      return (s.status === filterStatus) || 
-             (filterStatus === 'ACTIVE' && s.isActive === true);
+      return (s.status === filterStatus) ||
+        (filterStatus === 'ACTIVE' && s.isActive === true);
     });
   }
 

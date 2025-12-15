@@ -348,7 +348,7 @@ const getSentimentAnalysis = async (options = {}) => {
     ],
     trends: [
       {
-        date: '2024-01-01',
+        date: '2025-01-01',
         positiveScore: 0.7,
         neutralScore: 0.2,
         negativeScore: 0.1

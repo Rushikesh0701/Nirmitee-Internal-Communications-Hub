@@ -3,209 +3,192 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { UserPlus, Eye, EyeOff } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { UserPlus, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react'
 
 const Register = () => {
   const navigate = useNavigate()
-  const { register: registerUser, login } = useAuthStore()
-  const [loading, setLoading] = useState(false)
+  const { register: registerUser, isLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    watch
+    formState: { errors }
   } = useForm()
 
-  const password = watch('password')
-
   const onSubmit = async (data) => {
-    setLoading(true)
-    
-    // Combine firstName and lastName into name
-    const name = `${data.firstName} ${data.lastName}`.trim()
-    
     const result = await registerUser({
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
-      password: data.password,
-      name
+      password: data.password
     })
-    
-    setLoading(false)
 
     if (result.success) {
-      toast.success('Registration successful! Please login.')
-      // Auto-login after registration
-      const loginResult = await login(data.email, data.password)
-      if (loginResult.success) {
-        navigate('/dashboard')
-      } else {
-        navigate('/login')
-      }
+      toast.success('Registration successful! Please log in.')
+      navigate('/login')
     } else {
       toast.error(result.error || 'Registration failed')
     }
   }
 
   return (
-    <div>
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+    <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+      <div className="text-center mb-8">
+        <motion.div
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <UserPlus size={14} className="text-indigo-600" />
+          <span className="text-xs font-medium text-indigo-600">Join Us</span>
+        </motion.div>
+        <motion.h2 
+          className="text-3xl font-bold text-slate-800 mb-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           Create Account
-        </h2>
-        <p className="text-gray-600">Join Nirmitee Internal Hub</p>
+        </motion.h2>
+        <motion.p 
+          className="text-slate-500"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          Start your journey with us
+        </motion.p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              First Name
-            </label>
-            <input
-              type="text"
-              {...register('firstName', { required: 'First name is required' })}
-              className="input"
-            />
-            {errors.firstName && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.firstName.message}
-              </p>
-            )}
-          </div>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+            <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
+            <div className="relative group">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} />
+              <input
+                type="text"
+                {...register('firstName', { required: 'Required' })}
+                className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl 
+                           text-slate-800 placeholder-slate-400 text-sm
+                           focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
+                           focus:outline-none transition-all duration-300"
+                placeholder="John"
+              />
+            </div>
+            {errors.firstName && <p className="text-rose-500 text-xs mt-1">{errors.firstName.message}</p>}
+          </motion.div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <input
-              type="text"
-              {...register('lastName', { required: 'Last name is required' })}
-              className="input"
-            />
-            {errors.lastName && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.lastName.message}
-              </p>
-            )}
-          </div>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
+            <div className="relative group">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} />
+              <input
+                type="text"
+                {...register('lastName', { required: 'Required' })}
+                className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl 
+                           text-slate-800 placeholder-slate-400 text-sm
+                           focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
+                           focus:outline-none transition-all duration-300"
+                placeholder="Doe"
+              />
+            </div>
+            {errors.lastName && <p className="text-rose-500 text-xs mt-1">{errors.lastName.message}</p>}
+          </motion.div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@nirmitee\.io$/i,
-                message: 'Only @nirmitee.io email addresses are allowed'
-              }
-            })}
-            className="input"
-            placeholder="xyz@nirmitee.io"
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500">
-            Only Nirmitee employees with @nirmitee.io email can register
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <div className="relative">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
             <input
-              type={showPassword ? "text" : "password"}
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters'
-                }
+              type="email"
+              {...register('email', { 
+                required: 'Email is required',
+                pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
               })}
-              className="input pr-10"
+              className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+                         text-slate-800 placeholder-slate-400
+                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
+                         focus:outline-none transition-all duration-300"
+              placeholder="your.name@nirmitee.io"
+            />
+          </div>
+          {errors.email && <p className="text-rose-500 text-xs mt-1.5">{errors.email.message}</p>}
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
+              className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+                         text-slate-800 placeholder-slate-400
+                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
+                         focus:outline-none transition-all duration-300"
+              placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-              tabIndex={-1}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+          {errors.password && <p className="text-rose-500 text-xs mt-1.5">{errors.password.message}</p>}
+        </motion.div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
-                validate: (value) =>
-                  value === password || 'Passwords do not match'
-              })}
-              className="input pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-              tabIndex={-1}
-            >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Department (Optional)
-          </label>
-          <input type="text" {...register('department')} className="input" />
-        </div>
-
-        <button
+        <motion.button
           type="submit"
-          disabled={loading}
-          className="w-full btn btn-primary flex items-center justify-center gap-2"
+          disabled={isLoading}
+          className="w-full py-4 rounded-xl font-semibold text-white relative overflow-hidden group disabled:opacity-70 mt-6"
+          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          whileHover={{ scale: 1.02, boxShadow: '0 10px 30px -5px rgba(99, 102, 241, 0.4)' }}
+          whileTap={{ scale: 0.98 }}
         >
-          <UserPlus size={18} />
-          {loading ? 'Creating account...' : 'Create Account'}
-        </button>
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            {isLoading ? (
+              <>
+                <motion.div
+                  className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                Creating Account...
+              </>
+            ) : (
+              <>
+                Create Account
+                <ArrowRight size={18} />
+              </>
+            )}
+          </span>
+        </motion.button>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+      <motion.div 
+        className="mt-8 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        <p className="text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:underline">
+          <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
             Sign in
           </Link>
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
 export default Register
-

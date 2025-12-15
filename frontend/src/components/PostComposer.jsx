@@ -34,7 +34,6 @@ const PostComposer = ({ groupId, onSuccess }) => {
     const newImages = [...images, ...files]
     setImages(newImages)
 
-    // Create previews
     const newPreviews = []
     newImages.forEach((file) => {
       const reader = new FileReader()
@@ -63,16 +62,9 @@ const PostComposer = ({ groupId, onSuccess }) => {
       return
     }
 
-    const formData = new FormData()
-    formData.append('content', content)
-    images.forEach((image) => {
-      formData.append('images', image)
-    })
-
-    // For now, we'll send as JSON (in production, you'd use FormData)
     createPostMutation.mutate({
       content,
-      images: imagePreviews // In production, upload images first and send URLs
+      images: imagePreviews
     })
   }
 
@@ -99,7 +91,7 @@ const PostComposer = ({ groupId, onSuccess }) => {
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 p-1 bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X size={16} />
               </button>
@@ -109,7 +101,7 @@ const PostComposer = ({ groupId, onSuccess }) => {
       )}
 
       <div className="flex items-center justify-between">
-        <label className="cursor-pointer inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+        <label className="cursor-pointer inline-flex items-center gap-2 text-purple-300/70 hover:text-purple-200 transition-colors">
           <ImageIcon size={20} />
           <span>Add Images</span>
           <input
@@ -135,4 +127,3 @@ const PostComposer = ({ groupId, onSuccess }) => {
 }
 
 export default PostComposer
-

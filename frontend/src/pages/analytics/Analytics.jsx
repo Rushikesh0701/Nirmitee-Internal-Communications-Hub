@@ -1,37 +1,22 @@
 import { useState } from 'react'
 import { useQuery } from 'react-query'
+import { motion } from 'framer-motion'
 import api from '../../services/api'
 import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
-import {
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts'
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Loading from '../../components/Loading'
 
-const COLORS = {
-  news: '#3b82f6', // blue
-  blogs: '#10b981', // green
-  discussions: '#8b5cf6' // purple
-}
+const COLORS = { news: '#3b82f6', blogs: '#10b981', discussions: '#8b5cf6' }
+
+const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }
+const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
 
 const Analytics = () => {
-  const [dateRange, setDateRange] = useState('30') // days
-  const [selectedEntity, setSelectedEntity] = useState('all') // all, news, blog, discussion
+  const [dateRange, setDateRange] = useState('30')
+  const [selectedEntity, setSelectedEntity] = useState('all')
 
-  const { data: stats, isLoading } = useQuery('analytics-dashboard', () =>
-    api.get('/analytics/dashboard').then((res) => res.data.data)
-  )
+  const { data: stats, isLoading } = useQuery('analytics-dashboard', () => api.get('/analytics/dashboard').then((res) => res.data.data))
 
-  // Calculate date range
   const endDate = new Date()
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - parseInt(dateRange))
@@ -40,9 +25,7 @@ const Analytics = () => {
     ['content-analytics', dateRange, selectedEntity],
     () => {
       const params = new URLSearchParams()
-      if (selectedEntity !== 'all') {
-        params.append('entityType', selectedEntity)
-      }
+      if (selectedEntity !== 'all') params.append('entityType', selectedEntity)
       params.append('startDate', startDate.toISOString())
       params.append('endDate', endDate.toISOString())
       return api.get(`/analytics/content?${params.toString()}`).then((res) => res.data.data)
@@ -50,11 +33,8 @@ const Analytics = () => {
     { enabled: !!stats }
   )
 
-  if (isLoading) {
-    return <Loading fullScreen />
-  }
+  if (isLoading) return <Loading fullScreen size="lg" text="Loading analytics..." />
 
-  // Prepare chart data
   const timeSeriesData = contentAnalytics?.combinedTimeSeries || []
   const pieData = [
     { name: 'News', value: stats?.overview?.totalNews || 0, color: COLORS.news },
@@ -62,27 +42,32 @@ const Analytics = () => {
     { name: 'Discussions', value: stats?.overview?.totalDiscussions || 0, color: COLORS.discussions }
   ].filter(item => item.value > 0)
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+  const statCards = [
+    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: BarChart3, color: 'from-blue-500 to-cyan-500', shadow: 'shadow-blue-500/25' },
+    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: TrendingUp, color: 'from-emerald-500 to-teal-500', shadow: 'shadow-emerald-500/25' },
+    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users, color: 'from-violet-500 to-purple-500', shadow: 'shadow-violet-500/25' },
+    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: Eye, color: 'from-rose-500 to-pink-500', shadow: 'shadow-rose-500/25' },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-600 mt-1">Platform insights and metrics</p>
+    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+            <BarChart3 size={22} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Analytics Dashboard</h1>
+            <p className="text-slate-500 text-sm mt-0.5">Platform insights and metrics</p>
+          </div>
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
-            <Filter size={18} className="text-gray-500" />
-            <select
-              value={selectedEntity}
-              onChange={(e) => setSelectedEntity(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
+            <Filter size={16} className="text-slate-400" />
+            <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} className="input-select text-sm py-2">
               <option value="all">All Content</option>
               <option value="news">News</option>
               <option value="blog">Blogs</option>
@@ -90,12 +75,8 @@ const Analytics = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar size={18} className="text-gray-500" />
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
+            <Calendar size={16} className="text-slate-400" />
+            <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="input-select text-sm py-2">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
@@ -103,142 +84,66 @@ const Analytics = () => {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total News</p>
-              <p className="text-2xl font-bold">{stats?.overview?.totalNews || 0}</p>
+      {/* Stats Cards */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((stat, index) => (
+          <motion.div key={stat.label} className="card group hover:shadow-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">{stat.label}</p>
+                <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
+              </div>
+              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} shadow-lg`}>
+                <stat.icon size={24} className="text-white" />
+              </div>
             </div>
-            <BarChart3 className="text-blue-500" size={32} />
-          </div>
-        </div>
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Blogs</p>
-              <p className="text-2xl font-bold">{stats?.overview?.totalBlogs || 0}</p>
-            </div>
-            <TrendingUp className="text-green-500" size={32} />
-          </div>
-        </div>
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Users</p>
-              <p className="text-2xl font-bold">{stats?.overview?.totalUsers || 0}</p>
-            </div>
-            <Users className="text-purple-500" size={32} />
-          </div>
-        </div>
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Discussions</p>
-              <p className="text-2xl font-bold">
-                {stats?.overview?.totalDiscussions || 0}
-              </p>
-            </div>
-            <Eye className="text-indigo-500" size={32} />
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
-      {/* Content Analytics Charts */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Time Series Line Chart */}
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Content Creation Over Time</h2>
-          {isLoadingContent ? (
-            <div className="h-64 flex items-center justify-center">
-              <Loading size="sm" />
-            </div>
-          ) : timeSeriesData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={timeSeriesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis />
-                <Tooltip
-                  labelFormatter={(label) => `Date: ${formatDate(label)}`}
-                  contentStyle={{ borderRadius: '8px' }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="news"
-                  stroke={COLORS.news}
-                  strokeWidth={2}
-                  name="News"
-                  dot={{ r: 4 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="blogs"
-                  stroke={COLORS.blogs}
-                  strokeWidth={2}
-                  name="Blogs"
-                  dot={{ r: 4 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="discussions"
-                  stroke={COLORS.discussions}
-                  strokeWidth={2}
-                  name="Discussions"
-                  dot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No data available for the selected period
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Time Series Chart */}
+      <motion.div variants={itemVariants} className="card">
+        <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Creation Over Time</h2>
+        {isLoadingContent ? (
+          <div className="h-64 flex items-center justify-center"><Loading size="md" /></div>
+        ) : timeSeriesData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={timeSeriesData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" tickFormatter={formatDate} angle={-45} textAnchor="end" height={80} stroke="#94a3b8" tick={{ fill: '#64748b' }} />
+              <YAxis stroke="#94a3b8" tick={{ fill: '#64748b' }} />
+              <Tooltip labelFormatter={(label) => `Date: ${formatDate(label)}`} contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
+              <Legend />
+              <Line type="monotone" dataKey="news" stroke={COLORS.news} strokeWidth={2} name="News" dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="blogs" stroke={COLORS.blogs} strokeWidth={2} name="Blogs" dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="discussions" stroke={COLORS.discussions} strokeWidth={2} name="Discussions" dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-64 flex items-center justify-center text-slate-400">No data for selected period</div>
+        )}
+      </motion.div>
 
-      {/* Content Distribution Pie Chart */}
-      <div className="card">
-        <h2 className="text-xl font-semibold mb-4">Content Distribution</h2>
+      {/* Pie Chart */}
+      <motion.div variants={itemVariants} className="card">
+        <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Distribution</h2>
         {pieData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
+              <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8" dataKey="value">
+                {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
               </Pie>
-              <Tooltip contentStyle={{ borderRadius: '8px' }} />
+              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-64 flex items-center justify-center text-gray-500">
-            No content data available
-          </div>
+          <div className="h-64 flex items-center justify-center text-slate-400">No content data available</div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
 export default Analytics
-
