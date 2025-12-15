@@ -47,9 +47,9 @@ const AnnouncementForm = () => {
   const createMutation = useMutation(
     (data) => api.post('/announcements', data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Announcement created successfully')
-        queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries('announcements')
         endCreation()
         navigate('/announcements')
       },
@@ -63,10 +63,10 @@ const AnnouncementForm = () => {
   const updateMutation = useMutation(
     (data) => api.put(`/announcements/${id}`, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Announcement updated successfully')
-        queryClient.invalidateQueries('announcements')
-        queryClient.invalidateQueries(['announcement', id])
+        await queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries(['announcement', id])
         navigate('/announcements')
       },
       onError: (error) => {

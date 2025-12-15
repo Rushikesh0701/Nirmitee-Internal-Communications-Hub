@@ -23,7 +23,8 @@ const GroupsList = () => {
       if (filter === 'public') params.append('isPublic', 'true')
       if (filter === 'private') params.append('isPublic', 'false')
       return api.get(`/groups?${params.toString()}`).then((res) => res.data.data)
-    }
+    },
+    { refetchOnMount: 'always' }
   )
 
   const joinMutation = useMutation(

@@ -26,11 +26,11 @@ const CreateBlog = () => {
   const createMutation = useMutation(
     (data) => blogAPI.create(data),
     {
-      onSuccess: (response) => {
+      onSuccess: async (response) => {
         const blogData = response.data?.data || response.data || response;
         const blogId = blogData._id || blogData.id;
         toast.success('Blog created successfully!');
-        queryClient.invalidateQueries('blogs');
+        await queryClient.invalidateQueries('blogs');
         endCreation();
         navigate(`/blogs/${blogId}`);
       },

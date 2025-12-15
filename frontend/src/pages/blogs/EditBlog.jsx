@@ -65,10 +65,10 @@ const EditBlog = () => {
   const updateMutation = useMutation(
     (data) => blogAPI.update(id, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Blog updated successfully!');
-        queryClient.invalidateQueries('blogs');
-        queryClient.invalidateQueries(['blog', id]);
+        await queryClient.invalidateQueries('blogs');
+        await queryClient.invalidateQueries(['blog', id]);
         navigate(`/blogs/${id}`);
       },
       onError: (error) => {

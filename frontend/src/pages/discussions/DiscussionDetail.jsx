@@ -260,9 +260,9 @@ const DiscussionDetail = () => {
   const deleteMutation = useMutation(
     () => discussionAPI.delete(id),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Discussion deleted successfully');
-        queryClient.invalidateQueries('discussions');
+        await queryClient.invalidateQueries('discussions');
         navigate('/discussions');
       },
       onError: (error) => {

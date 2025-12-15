@@ -10,7 +10,8 @@ export default function RecognitionsFeed() {
   const [page, setPage] = useState(1)
   const { data, isLoading } = useQuery(
     ['recognitionFeed', page],
-    () => recognitionRewardApi.getRecognitionFeed({ page, limit: 10 })
+    () => recognitionRewardApi.getRecognitionFeed({ page, limit: 10 }),
+    { refetchOnMount: 'always' }
   )
 
   const recognitions = data?.data?.recognitions || []

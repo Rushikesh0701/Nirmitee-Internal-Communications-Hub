@@ -83,9 +83,9 @@ const SurveyForm = () => {
   const createMutation = useMutation(
     (data) => api.post('/surveys/create', data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Survey created successfully')
-        queryClient.invalidateQueries('surveys')
+        await queryClient.invalidateQueries('surveys')
         navigate('/surveys')
       },
       onError: (error) => {
@@ -97,10 +97,10 @@ const SurveyForm = () => {
   const updateMutation = useMutation(
     (data) => api.put(`/surveys/${id}/edit`, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Survey updated successfully')
-        queryClient.invalidateQueries('surveys')
-        queryClient.invalidateQueries(['survey', id])
+        await queryClient.invalidateQueries('surveys')
+        await queryClient.invalidateQueries(['survey', id])
         navigate('/surveys')
       },
       onError: (error) => {

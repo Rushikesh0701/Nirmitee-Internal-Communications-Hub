@@ -30,9 +30,9 @@ export default function RecognitionForm() {
   const { data: usersData } = useQuery('users', () => api.get('/users/directory').then((res) => res.data.data))
 
   const sendMutation = useMutation(recognitionRewardApi.sendRecognition, {
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Recognition sent successfully!')
-      queryClient.invalidateQueries('recognitionFeed')
+      await queryClient.invalidateQueries('recognitionFeed')
       navigate('/recognitions')
     },
     onError: (error) => {

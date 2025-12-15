@@ -10,7 +10,8 @@ const LearningList = () => {
   const isModerator = ['ADMIN', 'MODERATOR'].includes(user?.role?.toUpperCase())
 
   const { data, isLoading } = useQuery('courses', () =>
-    api.get('/learning?published=true').then((res) => res.data.data)
+    api.get('/learning?published=true').then((res) => res.data.data),
+    { refetchOnMount: 'always' }
   )
 
   if (isLoading) {

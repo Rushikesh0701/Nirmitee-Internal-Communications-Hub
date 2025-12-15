@@ -31,7 +31,7 @@ const AnnouncementsList = () => {
   const { data, isLoading } = useQuery(
     ['announcements', page, filters],
     () => api.get(`/announcements?${queryParams}`).then((res) => res.data.data),
-    { keepPreviousData: true }
+    { keepPreviousData: true, refetchOnMount: 'always' }
   )
 
   const handleFilterChange = (key, value) => {

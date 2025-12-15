@@ -44,9 +44,9 @@ const CourseForm = () => {
   const createMutation = useMutation(
     (data) => api.post('/learning', data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Course created successfully')
-        queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries('courses')
         navigate('/learning')
       },
       onError: (error) => {
@@ -58,10 +58,10 @@ const CourseForm = () => {
   const updateMutation = useMutation(
     (data) => api.put(`/learning/${id}`, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Course updated successfully')
-        queryClient.invalidateQueries('courses')
-        queryClient.invalidateQueries(['course', id])
+        await queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries(['course', id])
         navigate('/learning')
       },
       onError: (error) => {

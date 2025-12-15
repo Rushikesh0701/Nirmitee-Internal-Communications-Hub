@@ -24,9 +24,9 @@ const AnnouncementDetail = () => {
   const deleteMutation = useMutation(
     () => api.delete(`/announcements/${id}`),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Announcement deleted successfully')
-        queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries('announcements')
         navigate('/announcements')
       },
       onError: () => {

@@ -10,7 +10,8 @@ import Loading from '../../components/Loading'
 const SurveysList = () => {
   const { user } = useAuthStore()
   const { data, isLoading } = useQuery('surveys', () =>
-    api.get('/surveys?active=true').then((res) => res.data.data)
+    api.get('/surveys?active=true').then((res) => res.data.data),
+    { refetchOnMount: 'always' }
   )
 
   const canCreateSurvey = isAdminOrModerator(user)

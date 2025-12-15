@@ -42,10 +42,10 @@ const GroupForm = () => {
   const createMutation = useMutation(
     (data) => api.post('/groups', data),
     {
-      onSuccess: (response) => {
+      onSuccess: async (response) => {
         toast.success('Group created successfully')
         const groupId = response.data.data.id || response.data.data._id
-        queryClient.invalidateQueries(['groups'])
+        await queryClient.invalidateQueries(['groups'])
         endCreation()
         navigate(`/groups/${groupId}`)
       },
@@ -59,10 +59,10 @@ const GroupForm = () => {
   const updateMutation = useMutation(
     (data) => api.put(`/groups/${id}`, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Group updated successfully')
-        queryClient.invalidateQueries(['groups'])
-        queryClient.invalidateQueries(['group', id])
+        await queryClient.invalidateQueries(['groups'])
+        await queryClient.invalidateQueries(['group', id])
         navigate(`/groups/${id}`)
       },
       onError: (error) => {

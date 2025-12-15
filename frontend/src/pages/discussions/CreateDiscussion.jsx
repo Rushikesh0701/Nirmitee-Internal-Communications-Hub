@@ -44,11 +44,11 @@ const CreateDiscussion = () => {
   const createMutation = useMutation(
     (data) => discussionAPI.create(data),
     {
-      onSuccess: (response) => {
+      onSuccess: async (response) => {
         const discussionData = response.data?.data || response.data || response;
         const discussionId = discussionData._id || discussionData.id;
         toast.success('Discussion created successfully!');
-        queryClient.invalidateQueries('discussions');
+        await queryClient.invalidateQueries('discussions');
         endCreation();
         navigate(`/discussions/${discussionId}`);
       },

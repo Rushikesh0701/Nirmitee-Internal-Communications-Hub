@@ -7,7 +7,8 @@ import Loading from '../../components/Loading'
 
 const BlogList = () => {
   const { data, isLoading } = useQuery('blogs', () =>
-    api.get('/blogs?published=true').then((res) => res.data.data)
+    api.get('/blogs?published=true').then((res) => res.data.data),
+    { refetchOnMount: 'always' }
   )
 
   if (isLoading) {
