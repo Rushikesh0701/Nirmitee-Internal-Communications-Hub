@@ -25,29 +25,22 @@ const ForgotPassword = () => {
       
       if (response.data.success) {
         setEmailSent(true)
-        toast.success('Password reset email sent successfully!')
-      } else {
-        toast.error('Failed to send email. Please try again.')
+        // Generic success message - don't reveal if email exists
+        toast.success(response.data.message || 'If the email is registered, reset link will be sent')
       }
     } catch (error) {
       console.error('Forgot password error:', error)
       
-      // Handle specific error cases
-      if (error.response?.status === 404) {
-        // User not found
-        toast.error('No account found with this email address')
-      } else if (error.response?.status === 403) {
-        // Account inactive
-        toast.error('This account is deactivated. Please contact support.')
-      } else if (error.response?.status === 429) {
+      // Only show specific errors for rate limiting and server issues
+      if (error.response?.status === 429) {
         // Rate limit exceeded
         toast.error('Too many attempts. Please try again after 15 minutes.')
       } else if (error.response?.status === 500) {
         // Email send failure
         toast.error('Failed to send email. Please try again later.')
       } else {
-        // Generic error
-        toast.error(error.response?.data?.message || 'An error occurred. Please try again.')
+        // For all other cases (including 404, 403), show generic message
+        toast.success('If the email is registered, then the reset link will be sent to that email')
       }
     } finally {
       setLoading(false)

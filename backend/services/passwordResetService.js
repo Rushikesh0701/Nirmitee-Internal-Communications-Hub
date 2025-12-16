@@ -12,13 +12,22 @@ const requestPasswordReset = async (email, frontendUrl) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-        // Return specific error for user not found
-        throw new Error('No account found with this email address');
+        // For security, don't reveal if email exists - silent success
+        logger.warn('Password reset requested for non-existent email', { email });
+        return {
+            success: true,
+            message: 'If the email is registered, then the reset link will be sent to that email'
+        };
     }
 
     // Check if user account is active
     if (!user.isActive) {
-        throw new Error('This account has been deactivated. Please contact support.');
+        // Don't reveal account status - silent success
+        logger.warn('Password reset requested for inactive account', { email });
+        return {
+            success: true,
+            message: 'If the email is registered, then the reset link will be sent to that email'
+        };
     }
 
     // Generate reset token
@@ -52,7 +61,7 @@ const requestPasswordReset = async (email, frontendUrl) => {
 
     return {
         success: true,
-        message: 'Password reset email has been sent successfully'
+        message: 'If the email is registered, then the reset link will be sent to that email'
     };
 };
 

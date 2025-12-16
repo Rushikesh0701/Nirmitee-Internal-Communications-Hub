@@ -229,16 +229,10 @@ const forgotPassword = async (req, res, next) => {
 
     const result = await passwordResetService.requestPasswordReset(email, frontendUrl);
 
-    // Always return success to prevent email enumeration
+    // Always return generic success message (prevents email enumeration)
     return sendSuccess(res, null, result.message);
   } catch (error) {
-    // Handle specific error cases
-    if (error.message.includes('No account found')) {
-      return sendError(res, error.message, 404);
-    }
-    if (error.message.includes('deactivated')) {
-      return sendError(res, error.message, 403);
-    }
+    // Only handle email send failure - everything else is silent success
     if (error.message.includes('Failed to send')) {
       return sendError(res, error.message, 500);
     }
