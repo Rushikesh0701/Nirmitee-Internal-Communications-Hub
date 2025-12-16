@@ -242,7 +242,9 @@ const fetchAllRSSFeeds = async () => {
  * Merges, deduplicates, filters, and sorts the results
  */
 const getAllNews = async (options = {}) => {
-  const { q, category, from, to, language = 'en', source, sort, limit = 10, page = 1 } = options;
+  const { q, category, from, to, language = 'en', source, sort, limit = 10, page = 1, nextPage } = options;
+
+  logger.info('getAllNews called', { page, limit, nextPage, category, q });
 
   let newsDataArticles = [];
   let rssArticles = [];
@@ -251,6 +253,7 @@ const getAllNews = async (options = {}) => {
 
   // Fetch from NewsData.io API
   try {
+    logger.info('Fetching from NewsData.io', { nextPage });
     const newsData = await fetchNewsFromNewsData({
       q: q || undefined,
       category: category || undefined,
@@ -259,53 +262,67 @@ const getAllNews = async (options = {}) => {
       language,
       source: source || undefined,
       sort: sort || undefined,
-      limit: parseInt(limit) || 10
+      limit: parseInt(limit) || 10,
+      nextPage: nextPage || undefined // Pass nextPage for pagination
     });
 
     if (newsData.results && newsData.results.length > 0) {
       newsDataArticles = newsData.results;
       newsDataNextPage = newsData.nextPage || null;
+      logger.info('NewsData.io articles fetched', { count: newsDataArticles.length, nextPage: newsDataNextPage });
+    } else {
+      logger.warn('No articles from NewsData.io');
     }
   } catch (error) {
     logger.warn('NewsData.io API error', { error: error.message });
     newsDataError = error;
   }
 
-  // Fetch from RSS feeds
-  try {
-    rssArticles = await fetchAllRSSFeeds();
-  } catch (error) {
-    logger.warn('RSS feeds error', { error: error.message });
+  // Only fetch RSS feeds on the first page to avoid pagination conflicts
+  // On subsequent pages, we want fresh NewsData.io articles
+  if (!nextPage && (parseInt(page) === 1)) {
+    try {
+      logger.info('Fetching RSS feeds');
+      rssArticles = await fetchAllRSSFeeds();
+      logger.info('RSS articles fetched', { count: rssArticles.length });
+    } catch (error) {
+      logger.warn('RSS feeds error', { error: error.message });
+    }
+  } else {
+    logger.info('Skipping RSS feeds', { nextPage, page });
   }
 
   // Merge all articles
   let allArticles = [...newsDataArticles, ...rssArticles];
+  logger.info('Articles merged', { total: allArticles.length });
 
   // Deduplicate
   allArticles = deduplicateArticles(allArticles);
+  logger.info('After deduplication', { total: allArticles.length });
 
-  // Apply filters
-  allArticles = applyFilters(allArticles, { q, category, source, from, to });
+  // Apply filters (only if no nextPage - NewsData.io already filtered)
+  if (!nextPage) {
+    allArticles = applyFilters(allArticles, { q, category, source, from, to });
+    logger.info('After filtering', { total: allArticles.length });
+  }
 
   // Sort based on sort option (date, relevance, popularity)
   allArticles = sortArticles(allArticles, sort || 'date', q);
 
-  // Update cache for getNewsById
-  cachedArticles = allArticles;
+  // Update cache for getNewsById (replace instead of append to avoid infinite growth)
+  if (!nextPage) {
+    cachedArticles = allArticles;
+  } else {
+    cachedArticles = [...cachedArticles, ...allArticles];
+  }
   cacheTimestamp = Date.now();
 
-  // Paginate
-  const startIndex = (parseInt(page) - 1) * parseInt(limit);
-  const endIndex = startIndex + parseInt(limit);
-  const paginatedArticles = allArticles.slice(startIndex, endIndex);
-
-  // Determine if there are more pages
-  const hasMore = allArticles.length > endIndex || newsDataNextPage;
+  logger.info('Returning results', { count: allArticles.length, nextPage: newsDataNextPage });
 
   return {
-    results: paginatedArticles,
+    results: allArticles,
     totalResults: allArticles.length,
-    nextPage: hasMore ? (parseInt(page) + 1).toString() : null,
+    nextPage: newsDataNextPage, // Return NewsData.io's nextPage token
     status: 'success',
     error: newsDataError ? newsDataError.message : null
   };

@@ -28,6 +28,7 @@ const getProfileById = async (userId) => {
     _id: user._id,
     id: user._id.toString(),
     name: user.displayName || `${user.firstName} ${user.lastName}`,
+    displayName: user.displayName,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -53,7 +54,7 @@ const updateProfile = async (currentUserId, updateData) => {
   // If admin is editing another user's profile, use targetUserId
   const currentUser = await User.findById(currentUserId).populate('roleId', 'name description');
   const isAdmin = currentUser?.roleId?.name === 'Admin' || currentUser?.roleId?.name === 'ADMIN';
-  
+
   const targetUserId = (isAdmin && updateData.targetUserId) ? updateData.targetUserId : currentUserId;
   const user = await User.findById(targetUserId).populate('roleId', 'name description');
 
@@ -67,12 +68,12 @@ const updateProfile = async (currentUserId, updateData) => {
   }
 
   // Extract update fields
-  const { 
+  const {
     targetUserId: _, // Remove from updateData
-    designation, 
-    department, 
-    bio, 
-    interests, 
+    designation,
+    department,
+    bio,
+    interests,
     avatar,
     firstName,
     lastName,
@@ -94,11 +95,11 @@ const updateProfile = async (currentUserId, updateData) => {
   if (firstName !== undefined) user.firstName = firstName;
   if (lastName !== undefined) user.lastName = lastName;
   if (displayName !== undefined) user.displayName = displayName;
-  
+
   // Only admin can update these sensitive fields
   if (isAdmin) {
     if (email !== undefined) user.email = email;
-    
+
     // Handle role update - can be roleId (ObjectId) or role name (string)
     if (roleId !== undefined || role !== undefined) {
       if (roleId && mongoose.Types.ObjectId.isValid(roleId)) {
@@ -118,7 +119,7 @@ const updateProfile = async (currentUserId, updateData) => {
         }
       }
     }
-    
+
     if (isActive !== undefined) user.isActive = isActive;
   }
 
@@ -133,6 +134,7 @@ const updateProfile = async (currentUserId, updateData) => {
     _id: updatedUser._id,
     id: updatedUser._id.toString(),
     name: updatedUser.displayName || `${updatedUser.firstName} ${updatedUser.lastName}`,
+    displayName: updatedUser.displayName,
     firstName: updatedUser.firstName,
     lastName: updatedUser.lastName,
     email: updatedUser.email,
@@ -198,6 +200,7 @@ const searchDirectory = async (options = {}) => {
     _id: user._id,
     id: user._id.toString(),
     name: user.displayName || `${user.firstName} ${user.lastName}`,
+    displayName: user.displayName,
     email: user.email,
     avatar: user.avatar,
     department: user.department,

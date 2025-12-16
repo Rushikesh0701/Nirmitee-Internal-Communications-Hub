@@ -106,24 +106,28 @@ const extractImageFromContent = (content) => {
 };
 
 /**
- * Deduplicate articles by title or URL
+ * Deduplicate articles by URL and exact title match
+ * More conservative approach to avoid removing legitimate different articles
  */
 const deduplicateArticles = (articles) => {
   const seen = new Map();
   const deduplicated = [];
 
   for (const article of articles) {
-    // Create keys for deduplication
-    const titleKey = (article.title || '').toLowerCase().trim();
+    // Use URL as primary deduplication key (most reliable)
     const urlKey = (article.link || article.url || '').toLowerCase().trim();
 
-    // Skip if we've seen this title or URL
-    if (titleKey && seen.has(`title:${titleKey}`)) continue;
-    if (urlKey && seen.has(`url:${urlKey}`)) continue;
+    // Use exact title (case-insensitive, whitespace normalized) as secondary key
+    const titleKey = (article.title || '').toLowerCase().trim().replace(/\s+/g, ' ');
+
+    // Create a combined key for exact duplicates
+    const combinedKey = urlKey || titleKey;
+
+    // Skip if we've seen this exact article before
+    if (combinedKey && seen.has(combinedKey)) continue;
 
     // Mark as seen
-    if (titleKey) seen.set(`title:${titleKey}`, true);
-    if (urlKey) seen.set(`url:${urlKey}`, true);
+    if (combinedKey) seen.set(combinedKey, true);
 
     deduplicated.push(article);
   }

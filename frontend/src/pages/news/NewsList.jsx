@@ -64,10 +64,7 @@ function NewsList() {
     { value: 'kn', label: 'Kannada' },
     { value: 'ml', label: 'Malayalam' },
     { value: 'or', label: 'Oriya' },
-    { value: 'sd', label: 'Sindhi' },
-    { value: 'ta', label: 'Tamil' },
-    { value: 'te', label: 'Telugu' },
-    { value: 'ur', label: 'Urdu' },
+    { value: 'sd', label: 'Sindhi' }
   ];
 
   // Get unique sources from articles
@@ -193,9 +190,15 @@ function NewsList() {
       const backendMessage = response.data.message;
 
       if (newArticles.length > 0) {
-        setArticles(prevArticles =>
-          isNewSearch ? newArticles : [...prevArticles, ...newArticles]
-        );
+        setArticles(prevArticles => {
+          // Merge articles
+          const merged = isNewSearch ? newArticles : [...prevArticles, ...newArticles];
+          
+          // Deduplicate on the frontend to ensure no duplicates
+          const deduped = deduplicateArticles(merged);
+          
+          return deduped;
+        });
         setNextPage(responseData.nextPage || null);
         setError('');
       } else {
@@ -210,6 +213,33 @@ function NewsList() {
       setLoading(false);
       setLoadingMore(false);
     }
+  };
+
+  // Deduplicate articles helper function
+  const deduplicateArticles = (articles) => {
+    const seen = new Map();
+    const deduplicated = [];
+
+    for (const article of articles) {
+      // Use URL as primary deduplication key (most reliable)
+      const urlKey = (article.sourceUrl || article.link || article.url || '').toLowerCase().trim();
+      
+      // Use exact title (case-insensitive, whitespace normalized) as secondary key
+      const titleKey = (article.title || '').toLowerCase().trim().replace(/\s+/g, ' ');
+      
+      // Create a combined key - prefer URL over title
+      const combinedKey = urlKey || titleKey;
+      
+      // Skip if we've seen this exact article before
+      if (combinedKey && seen.has(combinedKey)) continue;
+      
+      // Mark as seen
+      if (combinedKey) seen.set(combinedKey, true);
+
+      deduplicated.push(article);
+    }
+
+    return deduplicated;
   };
 
   // Handle search submit
@@ -542,9 +572,15 @@ function NewsList() {
               let link = article.sourceUrl || article.link;
               const source = article.source_name || 'News Source';
 
+              // Generate a more robust unique key
+              const uniqueKey = article._id 
+                || article.article_id 
+                || article.id 
+                || `${title.slice(0, 30)}-${index}`;
+
               return (
                 <div
-                  key={article._id || article.article_id || `article-${index}`}
+                  key={uniqueKey}
                   className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
                   onClick={() => {
                     if (link) {

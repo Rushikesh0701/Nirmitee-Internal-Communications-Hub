@@ -63,7 +63,8 @@ const getAllNews = async (req, res, next) => {
       to,
       language = 'en',
       source,
-      sort
+      sort,
+      nextPage
     } = req.query;
 
     let result;
@@ -79,7 +80,8 @@ const getAllNews = async (req, res, next) => {
         source: source || undefined,
         sort: sort || undefined,
         limit: parseInt(limit) || 10,
-        page: parseInt(page) || 1
+        page: parseInt(page) || 1,
+        nextPage: nextPage || undefined
       });
 
       if (result.error) {
