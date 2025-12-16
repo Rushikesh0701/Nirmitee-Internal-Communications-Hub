@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const passwordResetService = require('../services/passwordResetService');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { COOKIE_CONFIG } = require('../utils/constants');
 const logger = require('../utils/logger');
@@ -24,7 +25,13 @@ const login = async (req, res, next) => {
       return sendError(res, 'Email and password are required', 400);
     }
 
-    const result = await authService.login(email, password);
+    // Extract request metadata for audit trail
+    const metadata = {
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent')
+    };
+
+    const result = await authService.login(email, password, metadata);
 
     if (!result) {
       return sendError(res, 'Invalid credentials', 401);
@@ -39,6 +46,18 @@ const login = async (req, res, next) => {
 
     return sendSuccess(res, { user: result.user, ...tokens }, 'Login successful');
   } catch (error) {
+    // Handle account locked error
+    if (error.message && error.message.includes('Account is locked')) {
+      return sendError(res, error.message, 403);
+    }
+    // Handle inactive account error
+    if (error.message && error.message.includes('Account is inactive')) {
+      return sendError(res, error.message, 403);
+    }
+    // Handle OAuth user error
+    if (error.message && error.message.includes('Please use OAuth login')) {
+      return sendError(res, error.message, 400);
+    }
     next(error);
   }
 };
@@ -197,11 +216,69 @@ const register = async (req, res, next) => {
   }
 };
 
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return sendError(res, 'Email is required', 400);
+    }
+
+    // Get frontend URL from request origin or environment variable
+    const frontendUrl = req.get('origin') || process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    const result = await passwordResetService.requestPasswordReset(email, frontendUrl);
+
+    // Always return success to prevent email enumeration
+    return sendSuccess(res, null, result.message);
+  } catch (error) {
+    // Handle specific error cases
+    if (error.message.includes('No account found')) {
+      return sendError(res, error.message, 404);
+    }
+    if (error.message.includes('deactivated')) {
+      return sendError(res, error.message, 403);
+    }
+    if (error.message.includes('Failed to send')) {
+      return sendError(res, error.message, 500);
+    }
+    logger.error('Forgot password error', { error: error.message });
+    next(error);
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return sendError(res, 'New password is required', 400);
+    }
+
+    if (password.length < 6) {
+      return sendError(res, 'Password must be at least 6 characters', 400);
+    }
+
+    const result = await passwordResetService.resetPassword(token, password);
+
+    return sendSuccess(res, null, result.message);
+  } catch (error) {
+    if (error.message.includes('invalid or has expired')) {
+      return sendError(res, error.message, 400);
+    }
+    logger.error('Reset password error', { error: error.message });
+    next(error);
+  }
+};
+
 module.exports = {
   login,
   oauthOutlook,
   refresh,
   logout,
   getMe,
-  register
+  register,
+  forgotPassword,
+  resetPassword
 };

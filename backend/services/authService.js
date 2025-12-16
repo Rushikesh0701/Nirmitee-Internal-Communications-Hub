@@ -81,7 +81,7 @@ const register = async (userData) => {
 /**
  * Login user with email and password (using MongoDB)
  */
-const login = async (email, password) => {
+const login = async (email, password, metadata = {}) => {
   const user = await User.findOne({ email: email.toLowerCase() })
     .populate('roleId', 'name description');
 
@@ -89,7 +89,16 @@ const login = async (email, password) => {
     return null;
   }
 
+  // Check if account is locked
+  if (user.isLocked) {
+    // Record the lock attempt
+    await user.incrementLoginAttempts('account_locked', metadata);
+    const lockTimeRemaining = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60); // minutes
+    throw new Error(`Account is locked due to too many failed login attempts. Please try again in ${lockTimeRemaining} minute(s).`);
+  }
+
   if (!user.isActive) {
+    await user.incrementLoginAttempts('account_inactive', metadata);
     throw new Error('Account is inactive');
   }
 
@@ -97,11 +106,19 @@ const login = async (email, password) => {
   if (user.password) {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      // Increment login attempts on failed password
+      await user.incrementLoginAttempts('invalid_password', metadata);
       return null;
     }
   } else {
     // OAuth user trying to login with password
+    await user.incrementLoginAttempts('oauth_required', metadata);
     throw new Error('Please use OAuth login');
+  }
+
+  // Reset login attempts on successful login
+  if (user.loginAttempts > 0 || user.lockUntil) {
+    await user.resetLoginAttempts();
   }
 
   // Update last login

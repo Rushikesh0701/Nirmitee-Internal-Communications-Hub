@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
@@ -11,7 +10,6 @@ const initializeData = require('./config/initializeData');
 const errorHandler = require('./middleware/errorHandler');
 const cron = require('node-cron');
 const logger = require('./utils/logger');
-const { RATE_LIMIT } = require('./utils/constants');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -77,14 +75,6 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: RATE_LIMIT.WINDOW_MS,
-  max: RATE_LIMIT.MAX_REQUESTS,
-  message: 'Too many requests from this IP, please try again later'
-});
-app.use('/api/', limiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

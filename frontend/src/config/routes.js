@@ -39,10 +39,14 @@ import GroupForm from '../pages/groups/GroupForm'
 import SurveyAnalytics from '../pages/surveys/SurveyAnalytics'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
+import ForgotPassword from '../pages/auth/ForgotPassword'
+import ResetPassword from '../pages/auth/ResetPassword'
 
 export const publicRoutes = [
   { path: '/login', component: Login },
-  { path: '/register', component: Register }
+  { path: '/register', component: Register },
+  { path: '/forgot-password', component: ForgotPassword },
+  { path: '/reset-password/:token', component: ResetPassword }
 ]
 
 export const protectedRoutes = [

@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const authController = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
+const { loginLimiter, forgotPasswordLimiter } = require('../middleware/rateLimiter');
 
 // Validation middleware
 const validate = (validations) => {
@@ -31,9 +32,19 @@ const loginValidation = validate([
   body('password').notEmpty().withMessage('Password is required')
 ]);
 
+const forgotPasswordValidation = validate([
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+]);
+
+const resetPasswordValidation = validate([
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+]);
+
 // Routes
 router.post('/register', registerValidation, authController.register);
-router.post('/login', loginValidation, authController.login);
+router.post('/login', loginLimiter, loginValidation, authController.login);
+router.post('/forgot-password', forgotPasswordLimiter, forgotPasswordValidation, authController.forgotPassword);
+router.post('/reset-password/:token', resetPasswordValidation, authController.resetPassword);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authenticateToken, authController.logout);
 router.get('/me', authenticateToken, authController.getMe);

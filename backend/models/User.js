@@ -58,9 +58,55 @@ const userSchema = new mongoose.Schema({
   },
   oauthId: {
     type: String
+  },
+  // Rate limiting fields
+  loginAttempts: {
+    type: Number,
+    default: 0
+  },
+  lockUntil: {
+    type: Date
+  },
+  loginAttemptsHistory: [{
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    reason: {
+      type: String,
+      enum: [
+        'invalid_password',
+        'account_locked',
+        'account_inactive',
+        'forgot_password',
+        'oauth_required',
+        'user_not_found',
+        'other'
+      ],
+      required: true
+    },
+    ipAddress: {
+      type: String
+    },
+    userAgent: {
+      type: String
+    }
+  }],
+  // Password reset fields
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
   }
 }, {
   timestamps: true
+});
+
+// Virtual field to check if account is locked
+userSchema.virtual('isLocked').get(function () {
+  // Check if lockUntil exists and is in the future
+  return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
 // Hash password before saving
@@ -76,6 +122,60 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Increment login attempts and lock account if threshold exceeded
+userSchema.methods.incrementLoginAttempts = async function (reason = 'invalid_password', metadata = {}) {
+  const MAX_LOGIN_ATTEMPTS = 5;
+  const LOCK_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+  // If lock has expired, reset attempts
+  if (this.lockUntil && this.lockUntil < Date.now()) {
+    return this.updateOne({
+      $set: { loginAttempts: 1 },
+      $unset: { lockUntil: 1 },
+      $push: {
+        loginAttemptsHistory: {
+          timestamp: new Date(),
+          reason,
+          ipAddress: metadata.ipAddress,
+          userAgent: metadata.userAgent
+        }
+      }
+    });
+  }
+
+  // Increment attempts
+  const updates = {
+    $inc: { loginAttempts: 1 },
+    $push: {
+      loginAttemptsHistory: {
+        timestamp: new Date(),
+        reason,
+        ipAddress: metadata.ipAddress,
+        userAgent: metadata.userAgent
+      }
+    }
+  };
+
+  // Lock account if max attempts reached
+  const attemptsAfterIncrement = this.loginAttempts + 1;
+  if (attemptsAfterIncrement >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
+    updates.$set = { lockUntil: Date.now() + LOCK_TIME };
+  }
+
+  return this.updateOne(updates);
+};
+
+// Reset login attempts on successful login
+userSchema.methods.resetLoginAttempts = async function () {
+  return this.updateOne({
+    $set: {
+      loginAttempts: 0,
+      loginAttemptsHistory: [] // Clear history on successful login
+    },
+    $unset: { lockUntil: 1 }
+  });
 };
 
 // Remove password from JSON output
