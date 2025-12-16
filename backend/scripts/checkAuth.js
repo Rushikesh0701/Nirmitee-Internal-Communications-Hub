@@ -15,7 +15,7 @@ const checkAuth = async () => {
   try {
     await connectDB();
     console.log('✅ MongoDB: Connected');
-    
+
     const mongoUsers = await MongoUser.find().limit(5);
     console.log(`✅ MongoDB: Found ${mongoUsers.length} users`);
     if (mongoUsers.length > 0) {
@@ -34,7 +34,7 @@ const checkAuth = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ PostgreSQL: Connected');
-    
+
     const sequelizeUsers = await SequelizeUser.findAll({ limit: 5 });
     console.log(`✅ PostgreSQL: Found ${sequelizeUsers.length} users`);
     if (sequelizeUsers.length > 0) {
@@ -51,13 +51,13 @@ const checkAuth = async () => {
   console.log('\n📝 Test Users Available:');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('👤 Admin:');
-  console.log('   Email: admin@nirmitee.com');
+  console.log('   Email: admin@nirmitee.io');
   console.log('   Password: admin123');
   console.log('\n👤 Employee:');
-  console.log('   Email: employee@nirmitee.com');
+  console.log('   Email: employee@nirmitee.io');
   console.log('   Password: employee123');
   console.log('\n👤 Moderator:');
-  console.log('   Email: moderator@nirmitee.com');
+  console.log('   Email: moderator@nirmitee.io');
   console.log('   Password: moderator123');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 

@@ -7,7 +7,7 @@
 const DUMMY_USER = {
   _id: 'dummy-user-id-123',
   id: 'dummy-user-id-123',
-  email: 'dummy@test.com',
+  email: 'dummy@test.io',
   firstName: 'Dummy',
   lastName: 'User',
   name: 'Dummy User',
@@ -27,7 +27,7 @@ const DUMMY_USER = {
 const DUMMY_ADMIN_USER = {
   _id: 'dummy-admin-id-456',
   id: 'dummy-admin-id-456',
-  email: 'admin@nirmitee.com',
+  email: 'admin@nirmitee.io',
   firstName: 'Admin',
   lastName: 'User',
   name: 'Admin User',

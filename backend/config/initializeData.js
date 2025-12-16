@@ -24,7 +24,7 @@ const initializeData = async () => {
     // Note: Password will be hashed automatically by User model's pre('save') hook
     const users = [
       {
-        email: 'admin@nirmitee.com',
+        email: 'admin@nirmitee.io',
         password: 'admin123', // Will be hashed by User model
         firstName: 'Admin',
         lastName: 'User',
@@ -34,7 +34,7 @@ const initializeData = async () => {
         isActive: true
       },
       {
-        email: 'moderator@nirmitee.com',
+        email: 'moderator@nirmitee.io',
         password: 'moderator123', // Will be hashed by User model
         firstName: 'Moderator',
         lastName: 'User',
@@ -44,7 +44,7 @@ const initializeData = async () => {
         isActive: true
       },
       {
-        email: 'employee@nirmitee.com',
+        email: 'employee@nirmitee.io',
         password: 'employee123', // Will be hashed by User model
         firstName: 'John',
         lastName: 'Doe',
@@ -83,13 +83,13 @@ const initializeData = async () => {
     console.log('\n📝 Test User Credentials:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('👤 Admin User:');
-    console.log('   Email: admin@nirmitee.com');
+    console.log('   Email: admin@nirmitee.io');
     console.log('   Password: admin123');
     console.log('\n👤 Moderator User:');
-    console.log('   Email: moderator@nirmitee.com');
+    console.log('   Email: moderator@nirmitee.io');
     console.log('   Password: moderator123');
     console.log('\n👤 Employee User:');
-    console.log('   Email: employee@nirmitee.com');
+    console.log('   Email: employee@nirmitee.io');
     console.log('   Password: employee123');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   } catch (error) {

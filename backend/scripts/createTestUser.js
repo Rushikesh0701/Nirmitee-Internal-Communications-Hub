@@ -27,7 +27,7 @@ const createTestUser = async () => {
 
     // User data
     const userData = {
-      email: 'test@nirmitee.com',
+      email: 'test@nirmitee.io',
       password: 'test123',
       name: 'Test User',
       role: 'EMPLOYEE',
@@ -37,8 +37,8 @@ const createTestUser = async () => {
     // Create or get Sequelize user
     let sequelizeUser;
     try {
-      const existingSequelizeUser = await SequelizeUser.findOne({ 
-        where: { email: userData.email } 
+      const existingSequelizeUser = await SequelizeUser.findOne({
+        where: { email: userData.email }
       });
 
       if (existingSequelizeUser) {
@@ -67,7 +67,7 @@ const createTestUser = async () => {
 
       // Check if MongoDB user exists
       let mongoUser = await MongoUser.findOne({ email: userData.email.toLowerCase() });
-      
+
       if (mongoUser) {
         console.log(`✅ MongoDB user already exists: ${userData.email}`);
       } else {

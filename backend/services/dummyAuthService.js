@@ -6,7 +6,7 @@
 // Dummy user data
 const DUMMY_USER = {
   id: 'dummy-user-id-123',
-  email: 'dummy@test.com',
+  email: 'dummy@nirmitee.io',
   name: 'Dummy User',
   role: 'EMPLOYEE',
   isActive: true,

@@ -17,19 +17,19 @@ const initDatabase = async () => {
     console.log('✅ Models synchronized');
 
     // Check if admin user exists
-    const adminUser = await User.findOne({ where: { email: 'admin@nirmitee.com' } });
-    
+    const adminUser = await User.findOne({ where: { email: 'admin@nirmitee.io' } });
+
     if (!adminUser) {
       console.log('🔄 Creating default admin user...');
       await User.create({
-        email: 'admin@nirmitee.com',
+        email: 'admin@nirmitee.io',
         password: 'admin123', // Change this in production!
         name: 'Admin User',
         role: 'ADMIN',
         isActive: true
       });
       console.log('✅ Default admin user created');
-      console.log('   Email: admin@nirmitee.com');
+      console.log('   Email: admin@nirmitee.io');
       console.log('   Password: admin123');
       console.log('   ⚠️  Please change the password in production!');
     } else {
@@ -37,38 +37,38 @@ const initDatabase = async () => {
     }
 
     // Check if employee user exists
-    const employeeUser = await User.findOne({ where: { email: 'employee@nirmitee.com' } });
-    
+    const employeeUser = await User.findOne({ where: { email: 'employee@nirmitee.io' } });
+
     if (!employeeUser) {
       console.log('🔄 Creating default employee user...');
       await User.create({
-        email: 'employee@nirmitee.com',
+        email: 'employee@nirmitee.io',
         password: 'employee123', // Change this in production!
         name: 'Employee User',
         role: 'EMPLOYEE',
         isActive: true
       });
       console.log('✅ Default employee user created');
-      console.log('   Email: employee@nirmitee.com');
+      console.log('   Email: employee@nirmitee.io');
       console.log('   Password: employee123');
     } else {
       console.log('ℹ️  Employee user already exists');
     }
 
     // Check if dummy/test user exists
-    const dummyUser = await User.findOne({ where: { email: 'dummy@test.com' } });
-    
+    const dummyUser = await User.findOne({ where: { email: 'dummy@test.io' } });
+
     if (!dummyUser) {
       console.log('🔄 Creating dummy test user...');
       await User.create({
-        email: 'dummy@test.com',
+        email: 'dummy@test.io',
         password: 'dummy123', // Simple password for testing
         name: 'Dummy User',
         role: 'EMPLOYEE',
         isActive: true
       });
       console.log('✅ Dummy test user created');
-      console.log('   Email: dummy@test.com');
+      console.log('   Email: dummy@test.io');
       console.log('   Password: dummy123');
       console.log('   ⚠️  This is a test user for development only!');
     } else {
@@ -79,13 +79,13 @@ const initDatabase = async () => {
     console.log('\n📝 Available Test Users:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('👤 Admin User:');
-    console.log('   Email: admin@nirmitee.com');
+    console.log('   Email: admin@nirmitee.io');
     console.log('   Password: admin123');
     console.log('\n👤 Employee User:');
-    console.log('   Email: employee@nirmitee.com');
+    console.log('   Email: employee@nirmitee.io');
     console.log('   Password: employee123');
     console.log('\n👤 Dummy Test User:');
-    console.log('   Email: dummy@test.com');
+    console.log('   Email: dummy@test.io');
     console.log('   Password: dummy123');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     process.exit(0);
