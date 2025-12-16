@@ -63,9 +63,9 @@ const DiscussionForm = () => {
   const createMutation = useMutation(
     (data) => api.post('/discussions', data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Discussion created successfully')
-        queryClient.invalidateQueries('discussions')
+        await queryClient.invalidateQueries('discussions')
         navigate('/discussions')
       },
       onError: (error) => {
@@ -77,10 +77,10 @@ const DiscussionForm = () => {
   const updateMutation = useMutation(
     (data) => api.put(`/discussions/${id}`, data),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Discussion updated successfully')
-        queryClient.invalidateQueries('discussions')
-        queryClient.invalidateQueries(['discussion', id])
+        await queryClient.invalidateQueries('discussions')
+        await queryClient.invalidateQueries(['discussion', id])
         navigate('/discussions')
       },
       onError: (error) => {

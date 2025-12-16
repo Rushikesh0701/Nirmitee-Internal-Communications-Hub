@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQuery } from 'react-query';
 import { discussionAPI } from '../../services/discussionApi';
 import DiscussionCard from '../../components/discussion/DiscussionCard';
 import toast from 'react-hot-toast';
@@ -19,30 +20,29 @@ const itemVariants = {
 };
 
 const Discussions = () => {
-  const [discussions, setDiscussions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const { user, isAuthenticated } = useAuthStore();
 
-  const fetchDiscussions = useCallback(async () => {
-    try {
-      setLoading(true);
+  const { data, isLoading } = useQuery(
+    ['discussions', selectedTag],
+    async () => {
       const params = selectedTag ? { tag: selectedTag } : {};
       const response = await discussionAPI.getAll(params);
       const apiResponse = response.data;
       const discussionsData = apiResponse.data || apiResponse;
       const discussionsList = discussionsData.discussions || discussionsData || [];
-      setDiscussions(Array.isArray(discussionsList) ? discussionsList : []);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch discussions');
-      setDiscussions([]);
-    } finally {
-      setLoading(false);
+      return Array.isArray(discussionsList) ? discussionsList : [];
+    },
+    {
+      refetchOnMount: 'always',
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to fetch discussions');
+      }
     }
-  }, [selectedTag]);
+  );
 
-  useEffect(() => { fetchDiscussions(); }, [fetchDiscussions]);
+  const discussions = data || [];
 
   const filteredDiscussions = discussions.filter(
     (discussion) =>
@@ -52,7 +52,7 @@ const Discussions = () => {
 
   const allTags = [...new Set(discussions.flatMap((d) => d.tags || []))].sort();
 
-  if (loading) return <Loading fullScreen size="lg" text="Loading discussions..." />;
+  if (isLoading) return <Loading fullScreen size="lg" text="Loading discussions..." />;
 
   return (
     <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">

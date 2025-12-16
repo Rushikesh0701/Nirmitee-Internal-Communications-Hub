@@ -15,6 +15,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      refetchOnMount: 'always', // Always fetch fresh data when component mounts
       retry: 1,
       staleTime: 30 * 1000, // 30 seconds - prevents delayed spinner on refresh
       cacheTime: 5 * 60 * 1000, // 5 minutes - how long to keep unused data in cache
