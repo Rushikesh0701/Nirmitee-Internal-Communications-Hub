@@ -1,5 +1,6 @@
 const { Discussion, DiscussionComment, User } = require('../models');
 const notificationService = require('./notificationService');
+const logger = require('../utils/logger');
 
 const getAllDiscussions = async (options = {}) => {
   const { page = 1, limit = 10, category, tag, pinned } = options;
@@ -82,7 +83,7 @@ const createDiscussion = async (discussionData) => {
     throw new Error('Failed to create discussion in database');
   }
 
-  console.log('✅ Discussion created successfully:', {
+  logger.info('Discussion created successfully', {
     id: discussion._id,
     title: discussion.title
   });
@@ -98,7 +99,7 @@ const createDiscussion = async (discussionData) => {
       discussion.authorId.toString()
     );
   } catch (error) {
-    console.error('Error sending discussion notifications:', error);
+    logger.error('Error sending discussion notifications', { error });
   }
 
   return await Discussion.findById(discussion._id)
@@ -214,10 +215,10 @@ const addComment = async (commentData) => {
       }
     }
   } catch (error) {
-    console.error('Error sending discussion comment notification:', error);
+    logger.error('Error sending discussion comment notification', { error });
   }
 
-  console.log('✅ Comment created successfully:', {
+  logger.info('Comment created successfully', {
     id: comment._id,
     discussionId: commentData.discussionId,
     parentCommentId: commentData.parentCommentId || null

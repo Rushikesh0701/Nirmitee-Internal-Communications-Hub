@@ -6,6 +6,13 @@ import { useAuthStore } from '../store/authStore'
 import { playNotificationSound } from '../hooks/useNotificationEffects'
 import { Bell, X } from 'lucide-react'
 
+// Development-only debug logger
+const debugLog = (...args) => {
+    if (import.meta.env.DEV) {
+        console.log(...args)
+    }
+}
+
 /**
  * Notification component for scheduled announcements
  * 
@@ -101,7 +108,7 @@ const AnnouncementNotification = () => {
       // Play sound for new announcements (only once per announcement)
       if (!soundPlayedRef.current.has(id)) {
         soundPlayedRef.current.add(id)
-        console.log('🔔 Playing sound for announcement card:', announcement.title)
+        debugLog('🔔 Playing sound for announcement card:', announcement.title)
         playNotificationSound()
       }
       

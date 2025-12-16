@@ -2,6 +2,7 @@ const { Blog, User, BlogComment } = require('../models');
 const { ROLES } = require('../constants/roles');
 const mongoose = require('mongoose');
 const notificationService = require('./notificationService');
+const logger = require('../utils/logger');
 
 const getAllBlogs = async (options = {}) => {
   const { page = 1, limit = 10, tag, published, authorId } = options;
@@ -152,7 +153,7 @@ const createBlog = async (blogData) => {
     throw new Error('Failed to create blog in database');
   }
 
-  console.log('✅ Blog created successfully:', {
+  logger.info('Blog created successfully', {
     id: blog._id,
     title: blog.title,
     authorId: blog.authorId
@@ -170,7 +171,7 @@ const createBlog = async (blogData) => {
         blog.authorId.toString()
       );
     } catch (error) {
-      console.error('Error sending blog notifications:', error);
+      logger.error('Error sending blog notifications', { error });
     }
   }
 
@@ -243,7 +244,7 @@ const updateBlog = async (id, updateData, userId, user) => {
     throw new Error('Failed to update blog in database');
   }
 
-  console.log('✅ Blog updated successfully:', {
+  logger.info('Blog updated successfully', {
     id: blog._id,
     title: blog.title
   });
@@ -345,7 +346,7 @@ const likeBlog = async (id, userId) => {
           'blog'
         );
       } catch (error) {
-        console.error('Error sending like notification:', error);
+        logger.error('Error sending like notification', { error });
       }
     }
   }
@@ -423,7 +424,7 @@ const addComment = async (blogId, userId, content, parentCommentId = null) => {
         comment._id.toString()
       );
     } catch (error) {
-      console.error('Error sending blog comment notification:', error);
+      logger.error('Error sending blog comment notification', { error });
     }
   }
 

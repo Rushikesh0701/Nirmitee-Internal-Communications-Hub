@@ -1,6 +1,7 @@
 const { User } = require('../models'); // MongoDB User model
 const { Role } = require('../models');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = '24h';
@@ -65,7 +66,7 @@ const register = async (userData) => {
     throw new Error('User was created but cannot be found in database - transaction may have failed');
   }
 
-  console.log('✅ User created and verified in MongoDB:', {
+  logger.info('User created and verified in MongoDB', {
     id: user._id,
     email: user.email,
     name: user.displayName,
@@ -127,8 +128,8 @@ const oauthLogin = async (oauthData) => {
   let user = await User.findOne({
     $or: [
       { email: email.toLowerCase() },
-        { oauthId, oauthProvider: provider }
-      ]
+      { oauthId, oauthProvider: provider }
+    ]
   }).populate('roleId', 'name description');
 
   if (!user) {

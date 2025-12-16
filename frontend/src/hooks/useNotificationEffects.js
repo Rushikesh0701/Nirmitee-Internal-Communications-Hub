@@ -3,6 +3,13 @@ import { useQuery } from 'react-query'
 import { notificationApi } from '../services/notificationApi'
 import notificationSound from '../assets/Sound.mp3'
 
+// Development-only debug logger
+const debugLog = (...args) => {
+    if (import.meta.env.DEV) {
+        console.log(...args)
+    }
+}
+
 // Global audio element
 let audioElement = null
 
@@ -16,7 +23,7 @@ const initAudio = () => {
         audioElement.preload = 'auto'
 
         audioElement.addEventListener('canplaythrough', () => {
-            console.log('✅ Notification sound loaded and ready!')
+            debugLog('✅ Notification sound loaded and ready!')
         })
 
         audioElement.addEventListener('error', (e) => {
@@ -39,8 +46,8 @@ export const playNotificationSound = () => {
 
     audio.currentTime = 0
     audio.play()
-        .then(() => console.log('🔊 Sound played!'))
-        .catch(err => console.log('🔇 Sound blocked:', err.message))
+        .then(() => debugLog('🔊 Sound played!'))
+        .catch(err => debugLog('🔇 Sound blocked:', err.message))
 }
 
 /**
@@ -48,7 +55,7 @@ export const playNotificationSound = () => {
  */
 export const requestNotificationPermission = async () => {
     if (!('Notification' in window)) {
-        console.log('Browser does not support notifications')
+        debugLog('Browser does not support notifications')
         return false
     }
 
@@ -69,7 +76,7 @@ export const requestNotificationPermission = async () => {
  */
 export const showBrowserNotification = (title, body, onClick) => {
     if (Notification.permission !== 'granted') {
-        console.log('🔇 Notification permission not granted')
+        debugLog('🔇 Notification permission not granted')
         return
     }
 
@@ -95,7 +102,7 @@ export const showBrowserNotification = (title, body, onClick) => {
         // Auto close after 5 seconds
         setTimeout(() => notification.close(), 5000)
 
-        console.log('📢 Browser notification shown:', title)
+        debugLog('📢 Browser notification shown:', title)
     } catch (e) {
         console.error('Error showing notification:', e)
     }
@@ -135,9 +142,9 @@ export const useNotificationSound = () => {
     useEffect(() => {
         requestNotificationPermission().then(granted => {
             if (granted) {
-                console.log('✅ Browser notification permission granted!')
+                debugLog('✅ Browser notification permission granted!')
             } else {
-                console.log('⚠️ Browser notification permission not granted')
+                debugLog('⚠️ Browser notification permission not granted')
             }
         })
     }, [])
@@ -157,7 +164,7 @@ export const useNotificationSound = () => {
         // First load - just record IDs
         if (isFirstLoad.current) {
             notifications.forEach(n => seenIds.current.add(n.id || n._id))
-            console.log('📋 Loaded', seenIds.current.size, 'existing notifications')
+            debugLog('📋 Loaded', seenIds.current.size, 'existing notifications')
             isFirstLoad.current = false
             return
         }
@@ -167,7 +174,7 @@ export const useNotificationSound = () => {
             const id = n.id || n._id
             if (!seenIds.current.has(id)) {
                 seenIds.current.add(id)
-                console.log('🆕 New notification:', n.content?.substring(0, 50))
+                debugLog('🆕 New notification:', n.content?.substring(0, 50))
 
                 // Only show browser notification when tab is NOT focused (user is on another site)
                 // When user is on this site, they'll see the in-app notification card
@@ -180,7 +187,7 @@ export const useNotificationSound = () => {
                         }
                     )
                 } else {
-                    console.log('📱 Tab is focused - showing in-app notification only')
+                    debugLog('📱 Tab is focused - showing in-app notification only')
                 }
             }
         })

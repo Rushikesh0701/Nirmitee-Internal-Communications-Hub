@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { User: MongoUser } = require('../models');
+const logger = require('./logger');
 
 /**
  * SIMPLIFIED USER MAPPING - MongoDB Only
@@ -14,7 +14,7 @@ const getMongoUserId = async (userId) => {
     // Handle dummy user IDs in development mode
     if (!userId || userId === 'dummy-user-id-123') {
       if (process.env.NODE_ENV === 'development') {
-        console.warn('Using dummy user ID in development mode');
+        logger.warn('Using dummy user ID in development mode');
         // Return a valid ObjectId for dummy user
         return new mongoose.Types.ObjectId();
       }
@@ -28,7 +28,7 @@ const getMongoUserId = async (userId) => {
 
     throw new Error('Invalid MongoDB user ID format');
   } catch (error) {
-    console.error('Error in getMongoUserId:', error.message);
+    logger.error('Error in getMongoUserId', { error: error.message });
     throw error;
   }
 };

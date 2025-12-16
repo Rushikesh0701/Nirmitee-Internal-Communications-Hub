@@ -75,7 +75,3 @@ module.exports = {
   dummyOAuthLogin,
   DUMMY_USER
 };
-
-
-
-
