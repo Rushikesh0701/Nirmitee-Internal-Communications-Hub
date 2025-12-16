@@ -1,5 +1,4 @@
 const surveyService = require('../services/surveyService');
-const dummyDataService = require('../services/dummyDataService');
 
 /**
  * POST /surveys/create - Admin only

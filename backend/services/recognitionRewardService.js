@@ -1,17 +1,18 @@
 const { Recognition, RewardCatalog, Redemption, UserPoints, User } = require('../models');
 const notificationService = require('./notificationService');
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 /**
  * Helper function to get user name from user object
  */
 const getUserName = (user) => {
   if (!user) return null;
-  return user.displayName || 
-         (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null) ||
-         user.firstName ||
-         user.email?.split('@')[0] ||
-         'Unknown';
+  return user.displayName ||
+    (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null) ||
+    user.firstName ||
+    user.email?.split('@')[0] ||
+    'Unknown';
 };
 
 /**
@@ -19,9 +20,9 @@ const getUserName = (user) => {
  */
 const transformRecognition = (recognition) => {
   if (!recognition) return recognition;
-  
+
   const recognitionObj = recognition.toObject ? recognition.toObject() : recognition;
-  
+
   // Add sender alias with name field
   if (recognitionObj.senderId) {
     recognitionObj.sender = {
@@ -30,7 +31,7 @@ const transformRecognition = (recognition) => {
       name: getUserName(recognitionObj.senderId)
     };
   }
-  
+
   // Add receiver alias with name field
   if (recognitionObj.receiverId) {
     recognitionObj.receiver = {
@@ -39,7 +40,7 @@ const transformRecognition = (recognition) => {
       name: getUserName(recognitionObj.receiverId)
     };
   }
-  
+
   return recognitionObj;
 };
 
@@ -73,7 +74,7 @@ const sendRecognition = async (recognitionData) => {
     const senderName = getUserName(fullRecognition.senderId) || 'Someone';
     await notificationService.notifyRecognition(receiverId, senderName, points);
   } catch (error) {
-    console.error('Error sending recognition notification:', error);
+    logger.error('Error sending recognition notification', { error });
     // Don't fail the recognition if notification fails
   }
 

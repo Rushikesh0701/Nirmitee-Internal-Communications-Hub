@@ -1,4 +1,5 @@
 const announcementService = require('../services/announcementService');
+const logger = require('../utils/logger');
 
 /**
  * Cron job placeholder for publishing scheduled announcements
@@ -16,10 +17,10 @@ const announcementService = require('../services/announcementService');
  *   try {
  *     const count = await publishScheduledAnnouncements();
  *     if (count > 0) {
- *       console.log(`Published ${count} scheduled announcement(s)`);
+ *       logger.info(`Published ${count} scheduled announcement(s)`);
  *     }
  *   } catch (error) {
- *     console.error('Error publishing scheduled announcements:', error);
+ *     logger.error('Error publishing scheduled announcements:', error);
  *   }
  * });
  */
@@ -27,11 +28,11 @@ const publishScheduledAnnouncements = async () => {
   try {
     const count = await announcementService.publishScheduledAnnouncements();
     if (count > 0) {
-      console.log(`✅ Published ${count} scheduled announcement(s)`);
+      logger.info(`Published ${count} scheduled announcement(s)`);
     }
     return count;
   } catch (error) {
-    console.error('❌ Error publishing scheduled announcements:', error);
+    logger.error('Error publishing scheduled announcements', { error });
     throw error;
   }
 };
@@ -39,4 +40,3 @@ const publishScheduledAnnouncements = async () => {
 module.exports = {
   publishScheduledAnnouncements
 };
-

@@ -1,6 +1,6 @@
 const { Announcement, User } = require('../models');
-const dummyDataService = require('./dummyDataService');
 const notificationService = require('./notificationService');
+const logger = require('../utils/logger');
 
 const getAllAnnouncements = async (options = {}) => {
   const { page = 1, limit = 10, tags, scheduled, published } = options;
@@ -167,7 +167,7 @@ const notifyAllUsers = async (announcement) => {
       );
     }
   } catch (error) {
-    console.error('Error notifying users about announcement:', error);
+    logger.error('Error notifying users about announcement', { error });
     // Don't fail announcement creation if notification fails
   }
 };

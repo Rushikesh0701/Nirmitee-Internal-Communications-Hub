@@ -1,6 +1,7 @@
 const { Group, GroupMember, GroupPost, GroupComment, User } = require('../models');
 const notificationService = require('./notificationService');
 const { getSequelizeUserIdSafe } = require('../utils/userMappingHelper');
+const logger = require('../utils/logger');
 
 /**
  * Extract mentions from text (format: @username or @firstName lastName)
@@ -52,7 +53,7 @@ const createMentionNotifications = async (mentionedUserIds, postId, authorId, ty
           sequelizeUserIds.push(seqUserId);
         }
       } catch (error) {
-        console.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize`, error.message);
+        logger.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize`, { error: error.message });
       }
     }
 
@@ -66,7 +67,7 @@ const createMentionNotifications = async (mentionedUserIds, postId, authorId, ty
       );
     }
   } catch (error) {
-    console.error('Error creating mention notifications:', error);
+    logger.error('Error creating mention notifications', { error });
     // Don't fail the post/comment creation if notifications fail
   }
 };
@@ -210,7 +211,7 @@ const createGroup = async (groupData, userId) => {
         userId.toString()
       );
     } catch (error) {
-      console.error('Error sending group creation notifications:', error);
+      logger.error('Error sending group creation notifications', { error });
     }
   }
 
@@ -435,7 +436,7 @@ const createGroupPost = async (postData, userId) => {
       userId.toString()
     );
   } catch (error) {
-    console.error('Error sending group post notifications:', error);
+    logger.error('Error sending group post notifications', { error });
   }
 
   return await GroupPost.findById(post._id)

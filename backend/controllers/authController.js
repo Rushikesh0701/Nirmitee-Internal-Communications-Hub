@@ -1,25 +1,9 @@
 const authService = require('../services/authService');
-const dummyAuthService = require('../services/dummyAuthService');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { COOKIE_CONFIG } = require('../utils/constants');
 const logger = require('../utils/logger');
 
-let dbAvailable = true;
-
-const handleAuthWithFallback = async (authFn, dummyFn, errorContext) => {
-  try {
-    const result = await authFn();
-    dbAvailable = true;
-    return result;
-  } catch (dbError) {
-    logger.warn('Database unavailable, using dummy authentication', {
-      context: errorContext,
-      error: dbError.message
-    });
-    dbAvailable = false;
-    return await dummyFn();
-  }
-};
+// Removed fallback logic - app now requires database
 
 const setAuthCookie = (res, userId) => {
   // Convert MongoDB ObjectId to string if needed
@@ -40,11 +24,7 @@ const login = async (req, res, next) => {
       return sendError(res, 'Email and password are required', 400);
     }
 
-    const result = await handleAuthWithFallback(
-      () => authService.login(email, password),
-      () => dummyAuthService.dummyLogin(email, password),
-      'login'
-    );
+    const result = await authService.login(email, password);
 
     if (!result) {
       return sendError(res, 'Invalid credentials', 401);
@@ -72,17 +52,13 @@ const oauthOutlook = async (req, res, next) => {
       return sendError(res, 'Access restricted to @nirmitee.io email addresses only', 403);
     }
 
-    const result = await handleAuthWithFallback(
-      () => authService.oauthLogin({
-        email,
-        name,
-        avatar,
-        provider: 'outlook',
-        oauthId: oauthId || email
-      }),
-      () => dummyAuthService.dummyOAuthLogin({ email, name, avatar }),
-      'oauth'
-    );
+    const result = await authService.oauthLogin({
+      email,
+      name,
+      avatar,
+      provider: 'outlook',
+      oauthId: oauthId || email
+    });
 
     // Generate JWT tokens
     const userId = result.user._id || result.user.id;
@@ -133,20 +109,22 @@ const logout = async (req, res, next) => {
 
 const getMe = async (req, res, next) => {
   try {
-    if (req.userId) {
-      try {
-        const { User } = require('../models'); // MongoDB User model
-        const user = await User.findById(req.userId).populate('roleId', 'name description');
-        if (user?.isActive) {
-          return sendSuccess(res, { user: user.toJSON() });
-        }
-      } catch (dbError) {
-        logger.error('Error fetching user', { error: dbError.message });
-      }
+    if (!req.userId) {
+      return sendError(res, 'Not authenticated', 401);
     }
 
-    const dummyUser = await dummyAuthService.dummyGetUser(req.userId);
-    return sendSuccess(res, { user: dummyUser });
+    const { User } = require('../models'); // MongoDB User model
+    const user = await User.findById(req.userId).populate('roleId', 'name description');
+
+    if (!user) {
+      return sendError(res, 'User not found', 404);
+    }
+
+    if (!user.isActive) {
+      return sendError(res, 'User account is inactive', 403);
+    }
+
+    return sendSuccess(res, { user: user.toJSON() });
   } catch (error) {
     next(error);
   }
@@ -163,9 +141,8 @@ const register = async (req, res, next) => {
     let user;
 
     try {
-      // Try to create user in database - NO FALLBACK TO DUMMY MODE
+      // Create user in database
       user = await authService.register({ email, password, name });
-      dbAvailable = true;
 
       // Verify user was actually saved
       if (!user || !user._id) {

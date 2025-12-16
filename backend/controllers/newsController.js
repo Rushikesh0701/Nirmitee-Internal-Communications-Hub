@@ -1,53 +1,9 @@
 const newsService = require('../services/newsService');
-const dummyDataService = require('../services/dummyDataService');
 const logger = require('../utils/logger');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { getNewsDataErrorMessage } = require('../utils/newsDataHelpers');
 
-/**
- * Transform dummy news to NewsData.io format
- */
-const transformDummyNewsToNewsDataFormat = (dummyNews, category) => {
-  return {
-    results: (dummyNews.news || []).map(item => ({
-      article_id: item._id || item.id || `dummy-${Date.now()}-${Math.random()}`,
-      id: item._id || item.id || `dummy-${Date.now()}-${Math.random()}`,
-      title: item.title || 'Untitled',
-      description: item.summary || item.content || '',
-      link: item.sourceUrl || '#',
-      url: item.sourceUrl || '#',
-      image_url: item.imageUrl || null,
-      image: item.imageUrl || null,
-      pubDate: item.publishedAt || item.createdAt || new Date().toISOString(),
-      publishedAt: item.publishedAt || item.createdAt || new Date().toISOString(),
-      source_id: 'dummy',
-      source_name: 'Sample News',
-      source: 'Sample News',
-      category: item.category || category || 'technology',
-      creator: item.Author ? [`${item.Author.firstName} ${item.Author.lastName}`] : [],
-      content: item.content || item.summary || ''
-    })),
-    totalResults: dummyNews.pagination?.total || (dummyNews.news || []).length,
-    nextPage: dummyNews.pagination && dummyNews.pagination.page < dummyNews.pagination.pages
-      ? dummyNews.pagination.page + 1
-      : null,
-    status: 'success'
-  };
-};
-
-/**
- * Get dummy news with fallback handling
- */
-const getDummyNewsFallback = (queryParams) => {
-  const { page = 1, limit = 10, category, priority, published } = queryParams;
-  return dummyDataService.getDummyNews({
-    page: parseInt(page),
-    limit: parseInt(limit),
-    category,
-    priority,
-    published: published === 'true' ? true : undefined
-  });
-};
+// Removed dummy data fallback - API now uses real NewsData.io only
 
 /**
  * GET /api/news - Get all news (merged from NewsData.io + RSS feeds)
@@ -98,11 +54,13 @@ const getAllNews = async (req, res, next) => {
       return sendSuccess(res, result, errorMessage);
     }
 
-    // Fallback to dummy data
-    logger.info('Using dummy data fallback');
-    const dummyNews = getDummyNewsFallback(req.query);
-    const transformedDummyNews = transformDummyNewsToNewsDataFormat(dummyNews, category);
-    return sendSuccess(res, transformedDummyNews, errorMessage || 'Using sample data');
+    // Return empty results if API failed
+    return sendSuccess(res, {
+      results: [],
+      totalResults: 0,
+      nextPage: null,
+      status: 'success'
+    }, errorMessage || 'No news articles found');
   } catch (error) {
     logger.error('Fatal error in getAllNews', { error: error.message });
     next(error);

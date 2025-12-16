@@ -24,7 +24,7 @@ export const useBlogMutations = (blogId) => {
   );
 
   const addCommentMutation = useMutation(
-    ({ content, parentCommentId, onComplete }) => {
+    ({ content, parentCommentId }) => {
       return blogAPI.addComment(blogId, content, parentCommentId);
     },
     {
@@ -87,5 +87,3 @@ export const useBlogMutations = (blogId) => {
     publishMutation
   };
 };
-
-

@@ -3,6 +3,7 @@
  */
 
 const { getMongoUserId, getSequelizeUserId } = require('./userMapping');
+const logger = require('./logger');
 
 /**
  * Get MongoDB user ID from Sequelize user ID with consistent error handling
@@ -30,7 +31,7 @@ const getSequelizeUserIdSafe = async (mongoUserId) => {
   try {
     return await getSequelizeUserId(mongoUserId);
   } catch (error) {
-    console.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize:`, error.message);
+    logger.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize:`, error.message);
     return null; // Return null instead of throwing to allow graceful degradation
   }
 };

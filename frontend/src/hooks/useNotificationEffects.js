@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
 import { notificationApi } from '../services/notificationApi'
 import notificationSound from '../assets/Sound.mp3'

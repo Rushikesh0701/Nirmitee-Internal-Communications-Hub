@@ -1,4 +1,5 @@
 const { Role, User } = require('../models');
+const logger = require('../utils/logger');
 
 const initializeData = async () => {
   try {
@@ -18,7 +19,7 @@ const initializeData = async () => {
       createdRoles[roleData.name] = role;
     }
 
-    console.log('✅ Roles initialized');
+    logger.info('Roles initialized');
 
     // Create test users if they don't exist
     // Note: Password will be hashed automatically by User model's pre('save') hook
@@ -68,32 +69,25 @@ const initializeData = async () => {
             // Password doesn't match, update it
             existingUser.password = userData.password; // Will be re-hashed by pre-save hook
             await existingUser.save();
-            console.log(`✅ Updated password for ${userData.email}`);
+            logger.info(`Updated password for ${userData.email}`);
           }
         } catch (err) {
           // If compare fails, update password
           existingUser.password = userData.password;
           await existingUser.save();
-          console.log(`✅ Updated password for ${userData.email}`);
+          logger.info(`Updated password for ${userData.email}`);
         }
       }
     }
 
-    console.log('✅ Test users initialized');
-    console.log('\n📝 Test User Credentials:');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('👤 Admin User:');
-    console.log('   Email: admin@nirmitee.io');
-    console.log('   Password: admin123');
-    console.log('\n👤 Moderator User:');
-    console.log('   Email: moderator@nirmitee.io');
-    console.log('   Password: moderator123');
-    console.log('\n👤 Employee User:');
-    console.log('   Email: employee@nirmitee.io');
-    console.log('   Password: employee123');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    logger.info('Test users initialized');
+
+    // Only log credentials in development mode
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('Test User Credentials - Admin: admin@nirmitee.io / admin123, Moderator: moderator@nirmitee.io / moderator123, Employee: employee@nirmitee.io / employee123');
+    }
   } catch (error) {
-    console.error('❌ Error initializing data:', error);
+    logger.error('Error initializing data', { error });
     throw error;
   }
 };

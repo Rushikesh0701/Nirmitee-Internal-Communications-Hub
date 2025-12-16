@@ -1,5 +1,4 @@
 const groupService = require('../services/groupService');
-const dummyDataService = require('../services/dummyDataService');
 
 // Group CRUD
 const getAllGroups = async (req, res, next) => {

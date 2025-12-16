@@ -1,5 +1,4 @@
 const { Notification } = require('../models');
-const dummyDataService = require('./dummyDataService');
 const logger = require('../utils/logger');
 
 /**
@@ -44,118 +43,82 @@ const createBulkNotifications = async (userIds, notificationData) => {
  * Get user notifications
  */
 const getUserNotifications = async (userId, options = {}) => {
-  try {
-    const { page = 1, limit = 20, isRead } = options;
-    const skip = (page - 1) * limit;
+  const { page = 1, limit = 20, isRead } = options;
+  const skip = (page - 1) * limit;
 
-    const query = { userId };
-    if (isRead !== undefined) {
-      query.isRead = isRead === 'true';
-    }
-
-    const [notifications, totalCount, unreadCount] = await Promise.all([
-      Notification.find(query)
-        .sort({ createdAt: -1 })
-        .skip(parseInt(skip))
-        .limit(parseInt(limit)),
-      Notification.countDocuments(query),
-      Notification.countDocuments({ userId, isRead: false })
-    ]);
-
-    return {
-      notifications,
-      pagination: {
-        total: totalCount,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        pages: Math.ceil(totalCount / limit)
-      },
-      unreadCount
-    };
-  } catch (error) {
-    // Database unavailable - return dummy data
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy notifications', { userId });
-      return dummyDataService.getDummyNotifications(userId, options);
-    }
-    throw error;
+  const query = { userId };
+  if (isRead !== undefined) {
+    query.isRead = isRead === 'true';
   }
+
+  const [notifications, totalCount, unreadCount] = await Promise.all([
+    Notification.find(query)
+      .sort({ createdAt: -1 })
+      .skip(parseInt(skip))
+      .limit(parseInt(limit)),
+    Notification.countDocuments(query),
+    Notification.countDocuments({ userId, isRead: false })
+  ]);
+
+  return {
+    notifications,
+    pagination: {
+      total: totalCount,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      pages: Math.ceil(totalCount / limit)
+    },
+    unreadCount
+  };
 };
 
 /**
  * Mark notification as read
  */
 const markAsRead = async (notificationId, userId) => {
-  try {
-    const notification = await Notification.findOne({
-      _id: notificationId,
-      userId
-    });
+  const notification = await Notification.findOne({
+    _id: notificationId,
+    userId
+  });
 
-    if (!notification) {
-      throw new Error('Notification not found');
-    }
-
-    notification.isRead = true;
-    notification.readAt = new Date();
-    await notification.save();
-
-    return notification;
-  } catch (error) {
-    // Database unavailable - return dummy success
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy mark as read', { notificationId });
-      return { id: notificationId, isRead: true };
-    }
-    throw error;
+  if (!notification) {
+    throw new Error('Notification not found');
   }
+
+  notification.isRead = true;
+  notification.readAt = new Date();
+  await notification.save();
+
+  return notification;
 };
 
 /**
  * Mark all notifications as read
  */
 const markAllAsRead = async (userId) => {
-  try {
-    await Notification.updateMany(
-      { userId, isRead: false },
-      {
-        $set: {
-          isRead: true,
-          readAt: new Date()
-        }
+  await Notification.updateMany(
+    { userId, isRead: false },
+    {
+      $set: {
+        isRead: true,
+        readAt: new Date()
       }
-    );
-
-    return { success: true };
-  } catch (error) {
-    // Database unavailable - return dummy success
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy mark all as read', { userId });
-      return { success: true };
     }
-    throw error;
-  }
+  );
+
+  return { success: true };
 };
 
 /**
  * Get unread count
  */
 const getUnreadCount = async (userId) => {
-  try {
-    const count = await Notification.countDocuments({
-      userId,
-      isRead: false
-    });
+  const count = await Notification.countDocuments({
+    userId,
+    isRead: false
+  });
 
-    return { unreadCount: count };
-  } catch (error) {
-    // Database unavailable - return dummy data
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy unread count', { userId });
-      return dummyDataService.getDummyUnreadCount(userId);
-    }
-    throw error;
-  }
+  return { unreadCount: count };
 };
 
 /**
@@ -223,7 +186,7 @@ const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
 const notifyAnnouncement = async (userIds, announcementTitle, announcementId) => {
   if (!userIds || userIds.length === 0) return;
   if (!announcementTitle) {
-    console.warn('notifyAnnouncement called without title');
+    logger.warn('notifyAnnouncement called without title');
     return;
   }
 
@@ -240,43 +203,27 @@ const notifyAnnouncement = async (userIds, announcementTitle, announcementId) =>
  * Delete a single notification
  */
 const deleteNotification = async (notificationId, userId) => {
-  try {
-    const notification = await Notification.findOne({
-      _id: notificationId,
-      userId
-    });
+  const notification = await Notification.findOne({
+    _id: notificationId,
+    userId
+  });
 
-    if (!notification) {
-      throw new Error('Notification not found');
-    }
-
-    await Notification.deleteOne({ _id: notificationId, userId });
-
-    return { success: true };
-  } catch (error) {
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy delete', { notificationId });
-      return { success: true };
-    }
-    throw error;
+  if (!notification) {
+    throw new Error('Notification not found');
   }
+
+  await Notification.deleteOne({ _id: notificationId, userId });
+
+  return { success: true };
 };
 
 /**
  * Delete all notifications for a user
  */
 const deleteAllNotifications = async (userId) => {
-  try {
-    await Notification.deleteMany({ userId });
+  await Notification.deleteMany({ userId });
 
-    return { success: true, message: 'All notifications deleted' };
-  } catch (error) {
-    if (error.name === 'MongooseError' || error.name === 'MongoError') {
-      logger.warn('Database unavailable, using dummy delete all', { userId });
-      return { success: true, message: 'All notifications deleted' };
-    }
-    throw error;
-  }
+  return { success: true, message: 'All notifications deleted' };
 };
 
 /**
