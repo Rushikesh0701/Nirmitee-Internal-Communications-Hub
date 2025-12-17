@@ -14,13 +14,13 @@ const CommentItem = ({
   const showReplyButton = !isReply && user;
 
   return (
-    <div className={`border border-white/10 rounded-lg ${isReply ? 'p-3 bg-white/5' : 'p-4 bg-white/5'}`}>
+    <div className={`border border-gray-200 rounded-lg ${isReply ? 'p-3 bg-gray-50' : 'p-4 bg-gray-50'}`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className={`font-semibold text-white ${isReply ? 'text-sm' : ''}`}>
+          <span className={`font-semibold text-gray-800 ${isReply ? 'text-sm' : ''}`}>
             {authorName}
           </span>
-          <span className={`${isReply ? 'text-xs' : 'text-sm'} text-purple-300/40`}>
+          <span className={`${isReply ? 'text-xs' : 'text-sm'} text-gray-500`}>
             {formatDate(comment.createdAt)}
           </span>
         </div>
@@ -29,7 +29,7 @@ const CommentItem = ({
           {showReplyButton && (
             <button
               onClick={onReply}
-              className="text-purple-400 hover:text-purple-300 text-sm flex items-center gap-1"
+              className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
             >
               <MessageCircle size={14} /> Reply
             </button>
@@ -37,7 +37,7 @@ const CommentItem = ({
           {canDelete && (
             <button
               onClick={onDelete}
-              className={`text-rose-400 hover:text-rose-300 flex items-center gap-1 ${isReply ? 'text-xs' : 'text-sm'}`}
+              className={`text-rose-500 hover:text-rose-600 flex items-center gap-1 ${isReply ? 'text-xs' : 'text-sm'}`}
             >
               <Trash2 size={12} /> Delete
             </button>
@@ -45,7 +45,7 @@ const CommentItem = ({
         </div>
       </div>
       
-      <p className={`text-purple-200/70 ${isReply ? 'text-sm' : ''}`}>
+      <p className={`text-gray-600 ${isReply ? 'text-sm' : ''}`}>
         {comment.content || comment.text}
       </p>
     </div>

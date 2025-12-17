@@ -14,8 +14,9 @@ export const useBlogMutations = (blogId) => {
   const likeMutation = useMutation(
     () => blogAPI.like(blogId),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['blog', blogId]);
+      onSuccess: async () => {
+        // Wait for the query to be invalidated and refetched
+        await queryClient.invalidateQueries(['blog', blogId]);
       },
       onError: () => {
         toast.error('Failed to update like');
@@ -28,8 +29,9 @@ export const useBlogMutations = (blogId) => {
       return blogAPI.addComment(blogId, content, parentCommentId);
     },
     {
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries(['blog', blogId]);
+      onSuccess: async (_, variables) => {
+        // Wait for the query to be invalidated and refetched
+        await queryClient.invalidateQueries(['blog', blogId]);
         toast.success(variables.parentCommentId ? 'Reply added!' : 'Comment added!');
         endCommentPosting();
         if (variables.onComplete) {
@@ -46,8 +48,9 @@ export const useBlogMutations = (blogId) => {
   const deleteCommentMutation = useMutation(
     (commentId) => blogAPI.deleteComment(blogId, commentId),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['blog', blogId]);
+      onSuccess: async () => {
+        // Wait for the query to be invalidated and refetched
+        await queryClient.invalidateQueries(['blog', blogId]);
         toast.success('Comment deleted!');
       },
       onError: () => {

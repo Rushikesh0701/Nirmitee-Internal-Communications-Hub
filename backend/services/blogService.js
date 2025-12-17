@@ -31,8 +31,28 @@ const getAllBlogs = async (options = {}) => {
     Blog.countDocuments(query)
   ]);
 
+  // Populate comment counts for all blogs
+  const blogIds = blogs.map(blog => blog._id);
+  const commentCounts = await BlogComment.aggregate([
+    { $match: { blogId: { $in: blogIds } } },
+    { $group: { _id: '$blogId', count: { $sum: 1 } } }
+  ]);
+
+  // Create a map of blogId -> commentCount
+  const commentCountMap = commentCounts.reduce((acc, item) => {
+    acc[item._id.toString()] = item.count;
+    return acc;
+  }, {});
+
+  // Add commentCount to each blog
+  const blogsWithComments = blogs.map(blog => {
+    const blogObj = blog.toObject();
+    blogObj.commentCount = commentCountMap[blog._id.toString()] || 0;
+    return blogObj;
+  });
+
   return {
-    blogs,
+    blogs: blogsWithComments,
     pagination: {
       total,
       page,

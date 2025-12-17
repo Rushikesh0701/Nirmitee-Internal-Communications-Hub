@@ -78,7 +78,7 @@ const BlogCard = ({ blog }) => {
                   <span>❤️</span> {blog.likes || 0}
                 </span>
                 <span className="flex items-center gap-1">
-                  <span>💬</span> {Array.isArray(blog.comments) ? blog.comments.length : (blog.comments || 0)}
+                  <span>💬</span> {blog.commentCount ?? (Array.isArray(blog.comments) ? blog.comments.length : 0)}
                 </span>
               </div>
             </div>
