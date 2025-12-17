@@ -6,7 +6,7 @@ const getAllUsers = async (options, currentUser) => {
   const skip = (page - 1) * limit;
 
   // Check permissions
-  if (!['Admin', 'Moderator'].includes(currentUser.Role?.name)) {
+  if (!['Admin', 'Moderator'].includes(currentUser.roleId?.name || currentUser.Role?.name)) {
     throw new Error('Unauthorized');
   }
 
@@ -58,7 +58,7 @@ const getUserById = async (id, currentUser) => {
   }
 
   // Users can view their own profile, Admins/Moderators can view any
-  if (user._id.toString() !== currentUser._id.toString() && !['Admin', 'Moderator'].includes(currentUser.Role?.name)) {
+  if (user._id.toString() !== currentUser._id.toString() && !['Admin', 'Moderator'].includes(currentUser.roleId?.name || currentUser.Role?.name)) {
     throw new Error('Unauthorized');
   }
 
@@ -72,12 +72,12 @@ const updateUser = async (id, updateData, currentUser) => {
   }
 
   // Users can update their own profile (except role), Admins can update anyone
-  if (user._id.toString() !== currentUser._id.toString() && currentUser.Role?.name !== ROLES.ADMIN) {
+  if (user._id.toString() !== currentUser._id.toString() && (currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN) {
     throw new Error('Unauthorized');
   }
 
   // Remove roleId from updateData if user is not admin
-  if (currentUser.Role?.name !== ROLES.ADMIN && updateData.roleId) {
+  if ((currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN && updateData.roleId) {
     delete updateData.roleId;
   }
 
@@ -89,7 +89,7 @@ const updateUser = async (id, updateData, currentUser) => {
 };
 
 const updateUserRole = async (id, roleId, currentUser) => {
-  if (currentUser.Role?.name !== ROLES.ADMIN) {
+  if ((currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN) {
     throw new Error('Unauthorized');
   }
 
@@ -132,7 +132,7 @@ const searchUsersForMentions = async (searchQuery, limit = 10) => {
  * Soft delete a user (marks as deleted, can be restored)
  */
 const softDeleteUser = async (id, currentUser) => {
-  if (currentUser.Role?.name !== ROLES.ADMIN) {
+  if ((currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN) {
     throw new Error('Unauthorized');
   }
 
@@ -159,7 +159,7 @@ const softDeleteUser = async (id, currentUser) => {
  * Restore a soft-deleted user (undo deletion)
  */
 const restoreUser = async (id, currentUser) => {
-  if (currentUser.Role?.name !== ROLES.ADMIN) {
+  if ((currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN) {
     throw new Error('Unauthorized');
   }
 
@@ -185,7 +185,7 @@ const restoreUser = async (id, currentUser) => {
  * Permanently delete a user (cannot be undone)
  */
 const permanentDeleteUser = async (id, currentUser) => {
-  if (currentUser.Role?.name !== ROLES.ADMIN) {
+  if ((currentUser.roleId?.name || currentUser.Role?.name) !== ROLES.ADMIN) {
     throw new Error('Unauthorized');
   }
 
