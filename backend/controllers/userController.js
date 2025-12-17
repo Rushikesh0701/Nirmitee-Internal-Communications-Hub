@@ -58,10 +58,43 @@ const searchUsersForMentions = async (req, res, next) => {
   }
 };
 
+const softDeleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await userService.softDeleteUser(id, req.user);
+    return sendSuccess(res, user, 'User deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+const restoreUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await userService.restoreUser(id, req.user);
+    return sendSuccess(res, user, 'User restored successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+const permanentDeleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await userService.permanentDeleteUser(id, req.user);
+    return sendSuccess(res, result, 'User permanently deleted');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
   updateUserRole,
-  searchUsersForMentions
+  searchUsersForMentions,
+  softDeleteUser,
+  restoreUser,
+  permanentDeleteUser
 };
