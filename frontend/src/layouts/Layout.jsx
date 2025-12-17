@@ -223,7 +223,7 @@ const Layout = () => {
             <div className="hidden lg:flex items-center gap-3">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100">
                 <span className="text-sm text-slate-600">Welcome back,</span>
-                <span className="text-sm font-semibold text-indigo-600">{user?.firstName || 'User'}</span>
+                <span className="text-sm font-semibold text-indigo-600">{user?.displayName || user?.name || user?.firstName || 'User'}</span>
               </div>
             </div>
             <div className="flex items-center gap-3">

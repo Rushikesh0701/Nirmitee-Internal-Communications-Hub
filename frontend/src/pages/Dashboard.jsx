@@ -91,7 +91,7 @@ const Dashboard = () => {
           <span className="text-sm font-medium text-indigo-600">{getGreeting()}</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-800">
-          Welcome back, <span className="text-gradient">{user?.firstName || 'User'}</span>!
+          Welcome back, <span className="text-gradient">{user?.displayName || user?.name || user?.firstName || 'User'}</span>!
         </h1>
         <p className="text-slate-500 mt-2">Here&apos;s what&apos;s happening in your organization today</p>
       </motion.div>

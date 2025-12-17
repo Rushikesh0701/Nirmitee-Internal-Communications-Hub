@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
 import userAPI from '../../services/userApi'
-import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X, Trash2, AlertTriangle, UserX } from 'lucide-react'
+import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X, Trash2, AlertTriangle } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
@@ -19,7 +19,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({})
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [undoTimer, setUndoTimer] = useState(null)
 
   const userId = id || currentUser?._id || currentUser?.id
   const isOwnProfile = !id || id === currentUser?._id || id === currentUser?.id
@@ -40,79 +39,19 @@ export default function ProfilePage() {
     }
   )
 
-  // Soft delete mutation
-  const softDeleteMutation = useMutation(
-    (userId) => userAPI.softDelete(userId),
-    {
-      onSuccess: (_, userId) => {
-        queryClient.invalidateQueries(['profile'])
-        setShowDeleteDialog(false)
-        
-        // Start 5-second undo timer
-        const timerId = setTimeout(() => {
-          permanentDeleteMutation.mutate(userId)
-          setUndoTimer(null)
-        }, 5000)
-
-        setUndoTimer(timerId)
-
-        // Show undo toast
-        toast((t) => (
-          <div className="flex items-center gap-3">
-            <UserX size={20} className="text-rose-500" />
-            <div className="flex-1">
-              <p className="font-semibold text-gray-800">User Deleted</p>
-              <p className="text-sm text-gray-600">Redirecting to directory...</p>
-            </div>
-            <button
-              onClick={() => {
-                handleUndo(userId)
-                toast.dismiss(t.id)
-              }}
-              className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Undo
-            </button>
-          </div>
-        ), {
-          duration: 5000,
-          icon: null,
-        })
-
-        // Redirect to directory after deletion
-        setTimeout(() => navigate('/directory'), 1000)
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to delete user')
-      }
-    }
-  )
-
-  // Restore mutation (undo)
-  const restoreMutation = useMutation(
-    (userId) => userAPI.restore(userId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['profile'])
-        toast.success('User restored successfully!')
-        navigate(`/profile/${userId}`)
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to restore user')
-      }
-    }
-  )
-
-  // Permanent delete mutation
+  // Permanent delete mutation (hard delete)
   const permanentDeleteMutation = useMutation(
     (userId) => userAPI.permanentDelete(userId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['profile'])
+        setShowDeleteDialog(false)
         toast.success('User permanently deleted')
+        // Redirect to directory after deletion
+        setTimeout(() => navigate('/directory'), 500)
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to permanently delete user')
+        toast.error(error.response?.data?.message || 'Failed to delete user')
       }
     }
   )
@@ -122,25 +61,8 @@ export default function ProfilePage() {
   }
 
   const handleConfirmDelete = () => {
-    softDeleteMutation.mutate(userId)
+    permanentDeleteMutation.mutate(userId)
   }
-
-  const handleUndo = (userId) => {
-    // Clear the permanent delete timer
-    if (undoTimer) {
-      clearTimeout(undoTimer)
-      setUndoTimer(null)
-    }
-    // Restore the user
-    restoreMutation.mutate(userId)
-  }
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (undoTimer) clearTimeout(undoTimer)
-    }
-  }, [undoTimer])
   
   useEffect(() => {
     if (isEditing && profile) {
@@ -298,10 +220,10 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
               </div>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete <span className="font-semibold">{profile.name}</span>?
+                Are you sure you want to <span className="font-semibold text-rose-600">permanently delete</span> <span className="font-semibold">{profile.name}</span>?
                 <br />
-                <span className="text-sm text-gray-500 mt-2 block">
-                  You'll have 5 seconds to undo this action.
+                <span className="text-sm text-rose-500 mt-2 block font-medium">
+                  ⚠️ This action cannot be undone!
                 </span>
               </p>
               <div className="flex gap-3 justify-end">
@@ -313,10 +235,10 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={handleConfirmDelete}
-                  disabled={softDeleteMutation.isLoading}
+                  disabled={permanentDeleteMutation.isLoading}
                   className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {softDeleteMutation.isLoading ? 'Deleting...' : 'Delete User'}
+                  {permanentDeleteMutation.isLoading ? 'Deleting...' : 'Delete User'}
                 </button>
               </div>
             </motion.div>

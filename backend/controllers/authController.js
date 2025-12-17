@@ -151,7 +151,7 @@ const getMe = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, firstName, lastName, name } = req.body;
 
     if (!email || !password) {
       return sendError(res, 'Email and password are required', 400);
@@ -160,8 +160,8 @@ const register = async (req, res, next) => {
     let user;
 
     try {
-      // Create user in database
-      user = await authService.register({ email, password, name });
+      // Create user in database - pass firstName and lastName
+      user = await authService.register({ email, password, firstName, lastName, name });
 
       // Verify user was actually saved
       if (!user || !user._id) {

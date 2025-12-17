@@ -17,7 +17,7 @@ const generateTokens = (userId) => {
  * Register a new user (using MongoDB)
  */
 const register = async (userData) => {
-  const { email, password, name } = userData;
+  const { email, password, firstName, lastName, name } = userData;
 
   // ENFORCE @nirmitee.io email domain restriction
   if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
@@ -39,18 +39,24 @@ const register = async (userData) => {
     });
   }
 
-  // Parse name into firstName and lastName
-  const nameParts = (name || email.split('@')[0]).trim().split(' ');
-  const firstName = nameParts[0] || 'User';
-  const lastName = nameParts.slice(1).join(' ') || 'User';
+  // Use provided firstName and lastName, or parse from name field as fallback
+  let userFirstName = firstName;
+  let userLastName = lastName;
+
+  if (!userFirstName || !userLastName) {
+    // Fallback: parse from 'name' field or email
+    const nameParts = (name || email.split('@')[0]).trim().split(' ');
+    userFirstName = userFirstName || nameParts[0] || 'User';
+    userLastName = userLastName || nameParts.slice(1).join(' ') || 'User';
+  }
 
   // Create user in MongoDB
   const user = await User.create({
     email: email.toLowerCase(),
     password,
-    firstName,
-    lastName,
-    displayName: name || `${firstName} ${lastName}`,
+    firstName: userFirstName,
+    lastName: userLastName,
+    displayName: `${userFirstName} ${userLastName}`,  // Always use firstName + lastName
     roleId: role._id,
     isActive: true
   });
