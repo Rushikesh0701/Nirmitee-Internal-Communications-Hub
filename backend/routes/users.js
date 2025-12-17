@@ -17,6 +17,9 @@ router.get('/', authenticateToken, isModerator, userController.getAllUsers);
 router.get('/:id', authenticateToken, userController.getUserById);
 router.put('/:id', authenticateToken, userController.updateUser);
 router.put('/:id/role', authenticateToken, userController.updateUserRole);
+router.delete('/:id/soft', authenticateToken, isModerator, userController.softDeleteUser);
+router.post('/:id/restore', authenticateToken, isModerator, userController.restoreUser);
+router.delete('/:id/permanent', authenticateToken, isModerator, userController.permanentDeleteUser);
 
 module.exports = router;
 

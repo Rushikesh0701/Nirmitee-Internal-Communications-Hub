@@ -3,51 +3,36 @@ import { useQuery } from 'react-query'
 import { notificationApi } from '../services/notificationApi'
 import notificationSound from '../assets/Sound.mp3'
 
-// Development-only debug logger
-const debugLog = (...args) => {
-    if (import.meta.env.DEV) {
-        console.log(...args)
-    }
-}
-
-// Global audio element
+/**
+ * Global audio element for notification sound
+ */
 let audioElement = null
 
 /**
- * Initialize and get the audio element
+ * Initialize audio element (lazy loading)
  */
-const initAudio = () => {
+const getAudioElement = () => {
     if (!audioElement) {
         audioElement = new Audio(notificationSound)
         audioElement.volume = 1.0
         audioElement.preload = 'auto'
-
-        audioElement.addEventListener('canplaythrough', () => {
-            debugLog('✅ Notification sound loaded and ready!')
-        })
-
-        audioElement.addEventListener('error', (e) => {
-            console.error('❌ Error loading notification sound:', e)
-        })
     }
     return audioElement
 }
-
-// Initialize audio immediately
-initAudio()
 
 /**
  * Play notification sound
  */
 export const playNotificationSound = () => {
-    const audio = initAudio()
-
-    if (!audio) return
-
-    audio.currentTime = 0
-    audio.play()
-        .then(() => debugLog('🔊 Sound played!'))
-        .catch(err => debugLog('🔇 Sound blocked:', err.message))
+    try {
+        const audio = getAudioElement()
+        audio.currentTime = 0
+        audio.play().catch(() => {
+            // Silently handle autoplay restrictions
+        })
+    } catch (error) {
+        console.error('Error playing notification sound:', error)
+    }
 }
 
 /**
@@ -55,7 +40,6 @@ export const playNotificationSound = () => {
  */
 export const requestNotificationPermission = async () => {
     if (!('Notification' in window)) {
-        debugLog('Browser does not support notifications')
         return false
     }
 
@@ -76,18 +60,17 @@ export const requestNotificationPermission = async () => {
  */
 export const showBrowserNotification = (title, body, onClick) => {
     if (Notification.permission !== 'granted') {
-        debugLog('🔇 Notification permission not granted')
         return
     }
 
     try {
         const notification = new Notification(title, {
             body,
-            icon: '/Logo.png', // Use your app logo
+            icon: '/Logo.png',
             badge: '/Logo.png',
-            tag: 'nirmitee-notification', // Prevents duplicate notifications
+            tag: 'nirmitee-notification',
             requireInteraction: false,
-            silent: false // Allow system sound
+            silent: false
         })
 
         // Play custom sound
@@ -101,10 +84,8 @@ export const showBrowserNotification = (title, body, onClick) => {
 
         // Auto close after 5 seconds
         setTimeout(() => notification.close(), 5000)
-
-        debugLog('📢 Browser notification shown:', title)
-    } catch (e) {
-        console.error('Error showing notification:', e)
+    } catch (error) {
+        console.error('Error showing notification:', error)
     }
 }
 
@@ -115,7 +96,10 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
     const { data: unreadData } = useQuery(
         'unreadCount',
         () => notificationApi.getUnreadCount(),
-        { refetchInterval: 30000 }
+        {
+            refetchInterval: 30000,
+            staleTime: 20000
+        }
     )
 
     const unreadCount = unreadData?.data?.data?.unreadCount || 0
@@ -125,14 +109,16 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
             ? `(${unreadCount > 99 ? '99+' : unreadCount}) ${baseTitle}`
             : baseTitle
 
-        return () => { document.title = baseTitle }
+        return () => {
+            document.title = baseTitle
+        }
     }, [unreadCount, baseTitle])
 
     return unreadCount
 }
 
 /**
- * Hook to play notification sound and show browser notification for ALL new notifications
+ * Hook to handle notification sound and browser notifications for new notifications
  */
 export const useNotificationSound = () => {
     const seenIds = useRef(new Set())
@@ -140,20 +126,17 @@ export const useNotificationSound = () => {
 
     // Request notification permission on mount
     useEffect(() => {
-        requestNotificationPermission().then(granted => {
-            if (granted) {
-                debugLog('✅ Browser notification permission granted!')
-            } else {
-                debugLog('⚠️ Browser notification permission not granted')
-            }
-        })
+        requestNotificationPermission()
     }, [])
 
     // Poll for notifications
     const { data } = useQuery(
         'notifications',
         () => notificationApi.getNotifications({ limit: 20 }),
-        { refetchInterval: 10000 } // Every 10 seconds
+        {
+            refetchInterval: 10000,
+            staleTime: 5000
+        }
     )
 
     const notifications = data?.data?.data?.notifications || []
@@ -161,10 +144,9 @@ export const useNotificationSound = () => {
     useEffect(() => {
         if (notifications.length === 0) return
 
-        // First load - just record IDs
+        // First load - just record existing IDs
         if (isFirstLoad.current) {
             notifications.forEach(n => seenIds.current.add(n.id || n._id))
-            debugLog('📋 Loaded', seenIds.current.size, 'existing notifications')
             isFirstLoad.current = false
             return
         }
@@ -174,10 +156,9 @@ export const useNotificationSound = () => {
             const id = n.id || n._id
             if (!seenIds.current.has(id)) {
                 seenIds.current.add(id)
-                debugLog('🆕 New notification:', n.content?.substring(0, 50))
 
-                // Only show browser notification when tab is NOT focused (user is on another site)
-                // When user is on this site, they'll see the in-app notification card
+                // Only show browser notification when tab is not focused
+                // When tab is focused, in-app notification card will be shown
                 if (document.hidden) {
                     showBrowserNotification(
                         'Nirmitee Hub',
@@ -186,8 +167,6 @@ export const useNotificationSound = () => {
                             window.location.href = '/notifications'
                         }
                     )
-                } else {
-                    debugLog('📱 Tab is focused - showing in-app notification only')
                 }
             }
         })

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
-import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X } from 'lucide-react'
+import userAPI from '../../services/userApi'
+import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X, Trash2, AlertTriangle, UserX } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
@@ -12,14 +13,18 @@ import Loading from '../../components/Loading'
 
 export default function ProfilePage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user: currentUser } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({})
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [undoTimer, setUndoTimer] = useState(null)
 
   const userId = id || currentUser?._id || currentUser?.id
   const isOwnProfile = !id || id === currentUser?._id || id === currentUser?.id
   const canEdit = isOwnProfile || isAdmin(currentUser)
+  const canDelete = !isOwnProfile && isAdmin(currentUser)
 
   const { data: profileData, isLoading, error, isError } = useQuery(['profile', userId], () => api.get(`/users/profile/${userId}`), { enabled: !!userId, retry: 1 })
   const profile = profileData?.data?.data
@@ -34,6 +39,108 @@ export default function ProfilePage() {
       onError: (error) => toast.error(error?.response?.data?.message || 'Failed to update')
     }
   )
+
+  // Soft delete mutation
+  const softDeleteMutation = useMutation(
+    (userId) => userAPI.softDelete(userId),
+    {
+      onSuccess: (_, userId) => {
+        queryClient.invalidateQueries(['profile'])
+        setShowDeleteDialog(false)
+        
+        // Start 5-second undo timer
+        const timerId = setTimeout(() => {
+          permanentDeleteMutation.mutate(userId)
+          setUndoTimer(null)
+        }, 5000)
+
+        setUndoTimer(timerId)
+
+        // Show undo toast
+        toast((t) => (
+          <div className="flex items-center gap-3">
+            <UserX size={20} className="text-rose-500" />
+            <div className="flex-1">
+              <p className="font-semibold text-gray-800">User Deleted</p>
+              <p className="text-sm text-gray-600">Redirecting to directory...</p>
+            </div>
+            <button
+              onClick={() => {
+                handleUndo(userId)
+                toast.dismiss(t.id)
+              }}
+              className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Undo
+            </button>
+          </div>
+        ), {
+          duration: 5000,
+          icon: null,
+        })
+
+        // Redirect to directory after deletion
+        setTimeout(() => navigate('/directory'), 1000)
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to delete user')
+      }
+    }
+  )
+
+  // Restore mutation (undo)
+  const restoreMutation = useMutation(
+    (userId) => userAPI.restore(userId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['profile'])
+        toast.success('User restored successfully!')
+        navigate(`/profile/${userId}`)
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to restore user')
+      }
+    }
+  )
+
+  // Permanent delete mutation
+  const permanentDeleteMutation = useMutation(
+    (userId) => userAPI.permanentDelete(userId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['profile'])
+        toast.success('User permanently deleted')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to permanently delete user')
+      }
+    }
+  )
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = () => {
+    softDeleteMutation.mutate(userId)
+  }
+
+  const handleUndo = (userId) => {
+    // Clear the permanent delete timer
+    if (undoTimer) {
+      clearTimeout(undoTimer)
+      setUndoTimer(null)
+    }
+    // Restore the user
+    restoreMutation.mutate(userId)
+  }
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (undoTimer) clearTimeout(undoTimer)
+    }
+  }, [undoTimer])
   
   useEffect(() => {
     if (isEditing && profile) {
@@ -134,11 +241,22 @@ export default function ProfilePage() {
               {profile.department && <p className="text-slate-500 flex items-center gap-2 mt-1"><Building size={16} /> {profile.department}</p>}
             </div>
           </div>
-          {canEdit && (
-            <button onClick={() => setIsEditing(true)} className="btn btn-primary flex items-center gap-2">
-              <Edit size={18} /> {isOwnProfile ? 'Edit Profile' : 'Edit User'}
-            </button>
-          )}
+          <div className="flex gap-3">
+            {canEdit && (
+              <button onClick={() => setIsEditing(true)} className="btn btn-primary flex items-center gap-2">
+                <Edit size={18} /> {isOwnProfile ? 'Edit Profile' : 'Edit User'}
+              </button>
+            )}
+            {canDelete && (
+              <button
+                onClick={handleDeleteClick}
+                disabled={softDeleteMutation.isLoading}
+                className="btn bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={18} /> Delete User
+              </button>
+            )}
+          </div>
         </div>
 
         {profile.bio && <div className="mb-6"><h2 className="text-lg font-semibold text-slate-800 mb-2">About</h2><p className="text-slate-600">{profile.bio}</p></div>}
@@ -155,6 +273,56 @@ export default function ProfilePage() {
           <div className="flex flex-wrap gap-2">{profile.badges.map((badge, index) => <span key={index} className="badge badge-warning">{badge}</span>)}</div>
         </motion.div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {showDeleteDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowDeleteDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 rounded-full bg-rose-100">
+                  <AlertTriangle size={24} className="text-rose-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete <span className="font-semibold">{profile.name}</span>?
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  You'll have 5 seconds to undo this action.
+                </span>
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  disabled={softDeleteMutation.isLoading}
+                  className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {softDeleteMutation.isLoading ? 'Deleting...' : 'Delete User'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

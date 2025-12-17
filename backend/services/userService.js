@@ -11,14 +11,14 @@ const getAllUsers = async (options, currentUser) => {
   }
 
   const query = { isActive: true };
-  
+
   if (role) {
     const roleRecord = await Role.findOne({ name: role });
     if (roleRecord) query.roleId = roleRecord._id;
   }
-  
+
   if (department) query.department = department;
-  
+
   if (search) {
     query.$or = [
       { firstName: { $regex: search, $options: 'i' } },
@@ -110,7 +110,7 @@ const updateUserRole = async (id, roleId, currentUser) => {
  */
 const searchUsersForMentions = async (searchQuery, limit = 10) => {
   const query = { isActive: true };
-  
+
   if (searchQuery) {
     query.$or = [
       { firstName: { $regex: searchQuery, $options: 'i' } },
@@ -128,10 +128,90 @@ const searchUsersForMentions = async (searchQuery, limit = 10) => {
   return users;
 };
 
+/**
+ * Soft delete a user (marks as deleted, can be restored)
+ */
+const softDeleteUser = async (id, currentUser) => {
+  if (currentUser.Role?.name !== ROLES.ADMIN) {
+    throw new Error('Unauthorized');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Prevent deleting yourself
+  if (user._id.toString() === currentUser._id.toString()) {
+    throw new Error('You cannot delete your own account');
+  }
+
+  // Soft delete: mark as inactive and set deletedAt
+  user.isActive = false;
+  user.deletedAt = new Date();
+  user.deletedBy = currentUser._id;
+  await user.save();
+
+  return user;
+};
+
+/**
+ * Restore a soft-deleted user (undo deletion)
+ */
+const restoreUser = async (id, currentUser) => {
+  if (currentUser.Role?.name !== ROLES.ADMIN) {
+    throw new Error('Unauthorized');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  if (!user.deletedAt) {
+    throw new Error('User is not deleted');
+  }
+
+  // Restore user
+  user.isActive = true;
+  user.deletedAt = undefined;
+  user.deletedBy = undefined;
+  await user.save();
+
+  return user;
+};
+
+/**
+ * Permanently delete a user (cannot be undone)
+ */
+const permanentDeleteUser = async (id, currentUser) => {
+  if (currentUser.Role?.name !== ROLES.ADMIN) {
+    throw new Error('Unauthorized');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Prevent deleting yourself
+  if (user._id.toString() === currentUser._id.toString()) {
+    throw new Error('You cannot delete your own account');
+  }
+
+  // Permanently delete
+  await User.findByIdAndDelete(id);
+
+  return { message: 'User permanently deleted' };
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
   updateUserRole,
-  searchUsersForMentions
+  searchUsersForMentions,
+  softDeleteUser,
+  restoreUser,
+  permanentDeleteUser
 };
