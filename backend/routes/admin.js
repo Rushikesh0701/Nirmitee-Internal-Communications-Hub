@@ -1,8 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const adminRewardController = require('../controllers/adminRewardController');
+const rssController = require('../controllers/rssController');
 const { authenticateToken } = require('../middleware/auth');
 const { isModerator } = require('../middleware/rbac');
+
+// RSS Sources management
+router.get('/rss', authenticateToken, isModerator, rssController.getAllRssSources);
+router.post('/rss', authenticateToken, isModerator, rssController.createRssSource);
+router.put('/rss/:id', authenticateToken, isModerator, rssController.updateRssSource);
+router.delete('/rss/:id', authenticateToken, isModerator, rssController.deleteRssSource);
+router.patch('/rss/:id/toggle', authenticateToken, isModerator, rssController.toggleRssSource);
 
 // Rewards catalog management
 router.get('/rewards', authenticateToken, isModerator, adminRewardController.getAllRewards);
@@ -16,4 +24,3 @@ router.put('/redemptions/:id/approve', authenticateToken, isModerator, adminRewa
 router.put('/redemptions/:id/reject', authenticateToken, isModerator, adminRewardController.rejectRedemption);
 
 module.exports = router;
-

@@ -27,6 +27,7 @@ import CourseForm from '../pages/learning/CourseForm'
 
 import Analytics from '../pages/analytics/Analytics'
 import AdminRewardsManagement from '../pages/admin/AdminRewardsManagement'
+import RssManagement from '../pages/admin/RssManagement'
 import ProfilePage from '../pages/profile/ProfilePage'
 import EmployeeDirectory from '../pages/directory/EmployeeDirectory'
 import NotificationsPage from '../pages/notifications/NotificationsPage'
@@ -83,6 +84,7 @@ export const protectedRoutes = [
 
   { path: '/analytics', component: Analytics, admin: true },
   { path: '/admin/rewards', component: AdminRewardsManagement, admin: true },
+  { path: '/admin/rss', component: RssManagement, admin: true },
   { path: '/profile', component: ProfilePage },
   { path: '/profile/:id', component: ProfilePage },
   { path: '/directory', component: EmployeeDirectory },

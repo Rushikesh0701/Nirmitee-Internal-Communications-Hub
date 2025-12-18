@@ -58,7 +58,8 @@ const Layout = () => {
     ...(isAdminOrModerator
       ? [
         { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-        { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' }
+        { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
+        { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
       ]
       : [])
   ]

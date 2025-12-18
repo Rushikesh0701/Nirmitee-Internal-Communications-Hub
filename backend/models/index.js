@@ -23,5 +23,6 @@ module.exports = {
   RewardCatalog: require('./RewardCatalog'),
   Redemption: require('./Redemption'),
   Mentorship: require('./Mentorship'),
-  Notification: require('./Notification')
+  Notification: require('./Notification'),
+  RssSource: require('./RssSource')
 };
