@@ -1,6 +1,6 @@
 /**
  * Maps frontend categories to NewsData.io category values
- * Database categories: AI, Cloud, DevOps, Programming, Cybersecurity, HealthcareIT
+ * Frontend categories: AI, Cloud, DevOps, Programming, Cybersecurity, HealthcareIT, Technology
  */
 const mapCategoryToNewsData = (category) => {
   const categoryMap = {
@@ -9,9 +9,19 @@ const mapCategoryToNewsData = (category) => {
     DevOps: 'technology',
     Programming: 'technology',
     Cybersecurity: 'technology',
-    HealthcareIT: 'health'
+    HealthcareIT: 'health',
+    Technology: 'technology',
+    // Aliases for flexibility
+    'Machine Learning': 'technology',
+    'Artificial Intelligence': 'technology',
+    'Software': 'technology',
+    'Security': 'technology',
+    'Health': 'health',
+    'Healthcare': 'health'
   };
-  return categoryMap[category] || 'technology';
+  // Case-insensitive lookup
+  const normalizedCategory = category?.trim();
+  return categoryMap[normalizedCategory] || categoryMap[normalizedCategory?.toLowerCase()] || 'technology';
 };
 
 /**
@@ -142,13 +152,26 @@ const applyFilters = (articles, filters) => {
   const { q, category, source, from, to } = filters;
   let filtered = [...articles];
 
-  // Filter by search query
+  // Filter by search query - improved with word-level matching
   if (q && q.trim()) {
     const searchTerm = q.toLowerCase().trim();
+    const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 2);
+
     filtered = filtered.filter(article => {
       const title = (article.title || '').toLowerCase();
       const description = (article.description || '').toLowerCase();
       const content = (article.content || '').toLowerCase();
+      const combined = `${title} ${description} ${content}`;
+
+      // Exact phrase match
+      if (combined.includes(searchTerm)) return true;
+
+      // Word-level matching: all words must be present (for multi-word searches)
+      if (searchWords.length > 1) {
+        return searchWords.every(word => combined.includes(word));
+      }
+
+      // Single word search (word length <= 2) - check if it's in any field
       return title.includes(searchTerm) || description.includes(searchTerm) || content.includes(searchTerm);
     });
   }

@@ -22,13 +22,74 @@ const rssParser = new Parser({
   }
 });
 
-// Healthcare IT RSS Feed URLs
-const HEALTHCARE_IT_RSS_FEEDS = [
+// Comprehensive RSS Feed URLs for all categories
+const NEWS_RSS_FEEDS = [
+  // ═══════════════════════════════════════════════════════════════════
+  // AI & Machine Learning
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://www.artificialintelligence-news.com/feed/', category: 'AI' },
+  { url: 'https://machinelearningmastery.com/feed/', category: 'AI' },
+  { url: 'https://openai.com/blog/rss/', category: 'AI' },
+  { url: 'https://ai.googleblog.com/feeds/posts/default?alt=rss', category: 'AI' },
+  { url: 'https://blogs.nvidia.com/feed/', category: 'AI' },
+  { url: 'https://www.marktechpost.com/feed/', category: 'AI' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Cloud Computing
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://aws.amazon.com/blogs/aws/feed/', category: 'Cloud' },
+  { url: 'https://cloud.google.com/blog/rss', category: 'Cloud' },
+  { url: 'https://azure.microsoft.com/en-us/blog/feed/', category: 'Cloud' },
+  { url: 'https://www.cloudcomputing-news.net/feed/', category: 'Cloud' },
+  { url: 'https://www.infoworld.com/category/cloud-computing/index.rss', category: 'Cloud' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // DevOps
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://www.devopsdigest.com/feed', category: 'DevOps' },
+  { url: 'https://devops.com/feed/', category: 'DevOps' },
+  { url: 'https://thenewstack.io/feed/', category: 'DevOps' },
+  { url: 'https://www.docker.com/blog/feed/', category: 'DevOps' },
+  { url: 'https://kubernetes.io/feed.xml', category: 'DevOps' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Programming
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://www.infoworld.com/index.rss', category: 'Programming' },
+  { url: 'https://stackoverflow.blog/feed/', category: 'Programming' },
+  { url: 'https://dev.to/feed/', category: 'Programming' },
+  { url: 'https://css-tricks.com/feed/', category: 'Programming' },
+  { url: 'https://blog.codinghorror.com/rss/', category: 'Programming' },
+  { url: 'https://hackernoon.com/feed', category: 'Programming' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Cybersecurity
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://www.darkreading.com/rss.xml', category: 'Cybersecurity' },
+  { url: 'https://threatpost.com/feed/', category: 'Cybersecurity' },
+  { url: 'https://krebsonsecurity.com/feed/', category: 'Cybersecurity' },
+  { url: 'https://www.securityweek.com/feed/', category: 'Cybersecurity' },
+  { url: 'https://thehackernews.com/feeds/posts/default?alt=rss', category: 'Cybersecurity' },
+  { url: 'https://www.bleepingcomputer.com/feed/', category: 'Cybersecurity' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Healthcare IT
+  // ═══════════════════════════════════════════════════════════════════
   { url: 'https://www.healthcareitnews.com/rss.xml', category: 'HealthcareIT' },
   { url: 'https://www.healthitoutcomes.com/rss/rss.ashx', category: 'HealthcareIT' },
   { url: 'https://www.healthtechmagazine.net/rss.xml', category: 'HealthcareIT' },
   { url: 'https://medtech.pharmaintelligence.informa.com/-/media/rss/mt.xml', category: 'HealthcareIT' },
-  { url: 'https://www.fiercehealthcare.com/rss.xml', category: 'HealthcareIT' }
+  { url: 'https://www.fiercehealthcare.com/rss.xml', category: 'HealthcareIT' },
+  { url: 'https://www.mobihealthnews.com/rss.xml', category: 'HealthcareIT' },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // General Tech (covers all categories)
+  // ═══════════════════════════════════════════════════════════════════
+  { url: 'https://techcrunch.com/feed/', category: 'Technology' },
+  { url: 'https://www.wired.com/feed/rss', category: 'Technology' },
+  { url: 'https://feeds.arstechnica.com/arstechnica/technology-lab', category: 'Technology' },
+  { url: 'https://www.theverge.com/rss/index.xml', category: 'Technology' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'Technology' }
 ];
 
 // In-memory cache for merged articles (for getNewsById lookup)
@@ -218,7 +279,7 @@ const fetchAllRSSFeeds = async () => {
   try {
     logger.info('Fetching all Healthcare IT RSS feeds');
 
-    const feedPromises = HEALTHCARE_IT_RSS_FEEDS.map(feed =>
+    const feedPromises = NEWS_RSS_FEEDS.map(feed =>
       fetchNewsFromRSSFeed(feed.url, feed.category)
     );
 
