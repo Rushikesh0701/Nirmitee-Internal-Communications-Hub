@@ -84,23 +84,26 @@ const Layout = () => {
           <Link to="/dashboard">
             <img src={Logo} alt="Nirmitee.io" className="h-8 cursor-pointer hover:opacity-80 transition-opacity" />
           </Link>
-          <motion.button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
-            whileTap={{ scale: 0.95 }}
-          >
-            <AnimatePresence mode="wait">
-              {sidebarOpen ? (
-                <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                  <X size={24} />
-                </motion.div>
-              ) : (
-                <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                  <Menu size={24} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <motion.button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+              whileTap={{ scale: 0.95 }}
+            >
+              <AnimatePresence mode="wait">
+                {sidebarOpen ? (
+                  <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+                    <X size={24} />
+                  </motion.div>
+                ) : (
+                  <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+                    <Menu size={24} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       </motion.div>
 
@@ -216,7 +219,7 @@ const Layout = () => {
         <main className="flex-1 lg:ml-72 min-h-screen flex flex-col pt-16 lg:pt-0 relative">
           {/* Top bar */}
           <motion.div 
-            className="bg-white/80 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-8 py-4 flex items-center justify-between sticky top-0 lg:top-0 z-20 shadow-sm"
+            className="hidden lg:flex bg-white/80 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-8 py-4 items-center justify-between sticky top-0 lg:top-0 z-20 shadow-sm"
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}

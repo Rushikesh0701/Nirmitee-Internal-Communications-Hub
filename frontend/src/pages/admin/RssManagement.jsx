@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical } from 'lucide-react'
 import Loading from '../../components/Loading'
 
 const RssManagement = () => {
@@ -15,6 +15,9 @@ const RssManagement = () => {
     category: '',
     isActive: true
   })
+
+  // State for mobile menu/actions
+  const [activeMenuId, setActiveMenuId] = useState(null);
 
   const techCategories = [
     { value: 'AI', label: 'AI & Machine Learning' },
@@ -114,6 +117,7 @@ const RssManagement = () => {
       category: source.category,
       isActive: source.isActive
     })
+    setActiveMenuId(null);
   }
 
   const handleCancel = () => {
@@ -126,6 +130,7 @@ const RssManagement = () => {
     if (window.confirm('Are you sure you want to delete this RSS source?')) {
       deleteMutation.mutate(id)
     }
+    setActiveMenuId(null);
   }
 
   if (isLoading) {
@@ -135,16 +140,16 @@ const RssManagement = () => {
   const sources = data || []
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-20 md:pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">RSS Sources Management</h1>
-          <p className="text-gray-600 mt-1">Manage external news feeds for aggregation</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">RSS Sources</h1>
+          <p className="text-gray-600 mt-1 text-sm md:text-base">Manage external news feeds</p>
         </div>
         {!isCreating && !editingId && (
           <button
             onClick={() => setIsCreating(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-md active:scale-95"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-md active:scale-95 w-full sm:w-auto"
           >
             <Plus size={18} />
             Add RSS Source
@@ -153,14 +158,14 @@ const RssManagement = () => {
       </div>
 
       {isCreating && (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-slate-800">Add New RSS Source</h2>
-            <button onClick={handleCancel} className="text-slate-400 hover:text-slate-600">
+            <h2 className="text-xl font-bold text-slate-800">New RSS Source</h2>
+            <button onClick={handleCancel} className="text-slate-400 hover:text-slate-600 transition-colors">
               <X size={20} />
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700 ml-1">
                 Source Name <span className="text-rose-500">*</span>
@@ -171,7 +176,7 @@ const RssManagement = () => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
                   placeholder="e.g., TechCrunch Tech"
                 />
               </div>
@@ -183,7 +188,7 @@ const RssManagement = () => {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm appearance-none cursor-pointer"
               >
                 <option value="">Select Category</option>
                 {techCategories.map((cat) => (
@@ -203,29 +208,33 @@ const RssManagement = () => {
                   type="url"
                   value={formData.url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
                   placeholder="https://example.com/feed"
                 />
               </div>
             </div>
           </div>
-          <div className="flex gap-3 mt-8">
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
             <button
               onClick={handleCreate}
               disabled={createMutation.isLoading}
-              className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-md active:scale-95 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-md active:scale-95 disabled:opacity-50 sm:flex-1 md:flex-none"
             >
               <Save size={18} />
               {createMutation.isLoading ? 'Adding...' : 'Add Source'}
             </button>
-            <button onClick={handleCancel} className="px-6 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-all">
+            <button 
+              onClick={handleCancel} 
+              className="px-6 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-all sm:flex-1 md:flex-none text-center"
+            >
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Desktop view: Table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -339,18 +348,173 @@ const RssManagement = () => {
             </tbody>
           </table>
         </div>
-        {sources.length === 0 && !isLoading && (
-          <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LinkIcon size={24} className="text-slate-300" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-800">No RSS sources yet</h3>
-            <p className="text-slate-500 max-w-xs mx-auto mt-1">
-              Start by adding your first RSS feed to aggregate news articles.
-            </p>
-          </div>
-        )}
       </div>
+
+      {/* Mobile/Tablet view: Card Grid */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {sources.map((source) => (
+          <div 
+            key={source._id} 
+            className={`bg-white p-4 rounded-2xl shadow-sm border ${
+              editingId === source._id ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-200'
+            }`}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1 min-w-0 pr-4">
+                {editingId === source._id ? (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Name</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                      >
+                        {techCategories.map((cat) => (
+                          <option key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RSS URL</label>
+                      <input
+                        type="url"
+                        value={formData.url}
+                        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => handleUpdate(source._id)}
+                        disabled={updateMutation.isLoading}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-sm"
+                      >
+                        <Save size={16} /> Save
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold"
+                      >
+                        <X size={16} /> Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-bold text-slate-800 text-lg leading-tight mb-1">{source.name}</h3>
+                    <span className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-full uppercase mb-3">
+                      {source.category}
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                      <Globe size={14} className="shrink-0" />
+                      <span className="truncate">{source.url}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {!editingId && (
+                <div className="relative">
+                  <button 
+                    onClick={() => setActiveMenuId(activeMenuId === source._id ? null : source._id)}
+                    className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                  
+                  {activeMenuId === source._id && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setActiveMenuId(null)}
+                      />
+                      <div className="absolute right-0 top-10 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-20 animate-in fade-in zoom-in duration-200 origin-top-right">
+                        <button
+                          onClick={() => handleEdit(source)}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Edit2 size={16} className="text-indigo-500" /> Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            toggleMutation.mutate(source._id);
+                            setActiveMenuId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          {source.isActive ? (
+                            <>
+                              <ToggleRight size={16} className="text-emerald-500" />
+                              Disable
+                            </>
+                          ) : (
+                            <>
+                              <ToggleLeft size={16} className="text-slate-300" />
+                              Enable
+                            </>
+                          )}
+                        </button>
+                        <hr className="my-1.5 border-slate-100" />
+                        <button
+                          onClick={() => handleDelete(source._id)}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                        >
+                          <Trash2 size={16} /> Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {!editingId && (
+              <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                <div className={`flex items-center gap-2 text-xs font-bold uppercase ${
+                  source.isActive ? 'text-emerald-500' : 'text-slate-400'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full ${source.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                  {source.isActive ? 'Live' : 'Hidden'}
+                </div>
+                <button
+                  onClick={() => toggleMutation.mutate(source._id)}
+                  className={`text-xs font-bold px-3 py-1 rounded-lg border transition-all active:scale-95 ${
+                    source.isActive 
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700' 
+                    : 'border-slate-200 bg-slate-50 text-slate-600'
+                  }`}
+                >
+                  {source.isActive ? 'Pause' : 'Resume'}
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {sources.length === 0 && !isLoading && (
+        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LinkIcon size={24} className="text-slate-300" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800">No RSS sources yet</h3>
+          <p className="text-slate-500 max-w-xs mx-auto mt-1">
+            Start by adding your first RSS feed to aggregate news articles.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
