@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: nirmitee-backend:latest
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: nirmitee-frontend:latest
+    ports:
+      - "3000:80"
+    restart: always
+    depends_on:
+      - backend
