@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../../services/api';
-import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp, RefreshCw, Bell } from 'lucide-react';
 
 function NewsList() {
   const [query, setQuery] = useState('');
@@ -11,6 +11,12 @@ function NewsList() {
   const [error, setError] = useState('');
   const [nextPage, setNextPage] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // New articles notification state
+  const [showNewArticlesBanner, setShowNewArticlesBanner] = useState(false);
+  const [newArticlesCount, setNewArticlesCount] = useState(0);
+  const lastKnownCountRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
 
   // Advanced filter states
   const [dateRange, setDateRange] = useState('all'); // all, today, week, month, year
@@ -294,12 +300,92 @@ function NewsList() {
     return count;
   }, [query, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase]);
 
+  // Poll for news updates every 5 minutes
+  useEffect(() => {
+    const checkForUpdates = async () => {
+      try {
+        const response = await api.get('/news/check-updates');
+        const metadata = response.data.data || response.data;
+        
+        // Initialize count on first check
+        if (lastKnownCountRef.current === null) {
+          lastKnownCountRef.current = metadata.articleCount || 0;
+          return;
+        }
+
+        // Check if new articles are available
+        if (metadata.articleCount > lastKnownCountRef.current) {
+          const diff = metadata.articleCount - lastKnownCountRef.current;
+          setNewArticlesCount(diff);
+          setShowNewArticlesBanner(true);
+        }
+      } catch (error) {
+        console.error('Error checking for updates:', error);
+      }
+    };
+
+    // Check immediately on mount
+    checkForUpdates();
+
+    // Set up polling interval (5 minutes)
+    pollingIntervalRef.current = setInterval(checkForUpdates, 5 * 60 * 1000);
+
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Handle refresh when banner is clicked
+  const handleRefreshNews = () => {
+    setShowNewArticlesBanner(false);
+    fetchNews(true);
+    // Update the last known count after fetching
+    setTimeout(async () => {
+      try {
+        const response = await api.get('/news/check-updates');
+        const metadata = response.data.data || response.data;
+        lastKnownCountRef.current = metadata.articleCount || 0;
+      } catch (error) {
+        console.error('Error updating count:', error);
+      }
+    }, 2000);
+  };
+
   return (
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Tech News Feed</h1>
         <p className="text-gray-600">Search and filter technology news with advanced options</p>
       </div>
+
+      {/* New Articles Available Banner */}
+      {showNewArticlesBanner && (
+        <div className="mb-4 animate-in slide-in-from-top duration-300">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <Bell className="text-blue-600" size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-blue-900 text-lg">
+                  {newArticlesCount} new {newArticlesCount === 1 ? 'article' : 'articles'} available
+                </h3>
+                <p className="text-blue-700 text-sm">Click to refresh and see the latest content</p>
+              </div>
+            </div>
+            <button
+              onClick={handleRefreshNews}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95 w-full sm:w-auto justify-center"
+            >
+              <RefreshCw size={18} />
+              Refresh Now
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Search Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">

@@ -144,6 +144,10 @@ const startServer = async () => {
     });
     logger.info('Scheduled announcements cron job activated (every minute)');
 
+    // News prefetch cron job (every 15 minutes)
+    const { startNewsPrefetchJob } = require('./jobs/newsJob');
+    startNewsPrefetchJob();
+
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`, {
         environment: process.env.NODE_ENV || 'development',

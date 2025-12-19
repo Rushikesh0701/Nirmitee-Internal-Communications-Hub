@@ -28,6 +28,11 @@ const rssParser = new Parser({
 // In-memory cache for merged articles (for getNewsById lookup)
 let cachedArticles = [];
 let cacheTimestamp = 0;
+let cacheMetadata = {
+  lastUpdated: null,
+  articleCount: 0,
+  sources: []
+};
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
@@ -321,6 +326,13 @@ const getAllNews = async (options = {}) => {
   }
   cacheTimestamp = Date.now();
 
+  // Update cache metadata
+  cacheMetadata = {
+    lastUpdated: new Date().toISOString(),
+    articleCount: cachedArticles.length,
+    sources: [...new Set(cachedArticles.map(a => a.source).filter(Boolean))]
+  };
+
   logger.info('Returning results', { count: allArticles.length, nextPage: newsDataNextPage });
 
   return {
@@ -403,6 +415,16 @@ const deleteNews = async (id, userId, user) => {
   throw new Error('News deletion is not supported. News is fetched from external APIs.');
 };
 
+/**
+ * Get cache metadata for frontend polling
+ */
+const getCacheMetadata = () => {
+  return {
+    ...cacheMetadata,
+    cacheAge: cacheTimestamp ? Date.now() - cacheTimestamp : null
+  };
+};
+
 module.exports = {
   getAllNews,
   getNewsById,
@@ -412,5 +434,6 @@ module.exports = {
   deleteNews,
   fetchNewsFromNewsData,
   fetchNewsFromRSSFeed,
-  fetchAllRSSFeeds
+  fetchAllRSSFeeds,
+  getCacheMetadata
 };

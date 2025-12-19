@@ -177,11 +177,25 @@ const deleteNews = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/news/check-updates - Check for new articles (for frontend polling)
+ */
+const checkUpdates = async (req, res, next) => {
+  try {
+    const metadata = newsService.getCacheMetadata();
+    return sendSuccess(res, metadata);
+  } catch (error) {
+    logger.error('Error in checkUpdates', { error: error.message });
+    next(error);
+  }
+};
+
 module.exports = {
   getAllNews,
   getRSSNews,
   getNewsById,
   createNews,
   updateNews,
-  deleteNews
+  deleteNews,
+  checkUpdates
 };
