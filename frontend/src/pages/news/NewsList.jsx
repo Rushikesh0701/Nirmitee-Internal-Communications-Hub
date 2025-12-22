@@ -443,7 +443,6 @@ function NewsList() {
 
   // Set up polling for news updates
   useEffect(() => {
-    console.log('News update polling started');
     
     // Start polling immediately (after a short delay)
     const initialTimeout = setTimeout(() => {
@@ -457,7 +456,6 @@ function NewsList() {
 
     // Cleanup on unmount
     return () => {
-      console.log('News update polling stopped');
       clearTimeout(initialTimeout);
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
