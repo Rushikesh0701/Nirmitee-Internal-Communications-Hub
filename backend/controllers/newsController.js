@@ -177,18 +177,33 @@ const deleteNews = async (req, res, next) => {
   }
 };
 
+
+
 /**
- * GET /api/news/check-updates - Check for new articles (for frontend polling)
+ * GET /api/news/check-updates - Check for new articles since a given timestamp
  */
-const checkUpdates = async (req, res, next) => {
+const checkNewsUpdates = async (req, res, next) => {
   try {
-    const metadata = newsService.getCacheMetadata();
-    return sendSuccess(res, metadata);
+    const { lastCheckTime } = req.query;
+
+    if (!lastCheckTime) {
+      return sendError(res, 'lastCheckTime parameter is required', 400);
+    }
+
+    // Validate timestamp format
+    const timestamp = new Date(lastCheckTime);
+    if (isNaN(timestamp.getTime())) {
+      return sendError(res, 'Invalid timestamp format. Use ISO 8601 format', 400);
+    }
+
+    const result = await newsService.checkNewsUpdates(lastCheckTime);
+    return sendSuccess(res, result);
   } catch (error) {
-    logger.error('Error in checkUpdates', { error: error.message });
+    logger.error('Error in checkNewsUpdates', { error: error.message });
     next(error);
   }
 };
+
 
 module.exports = {
   getAllNews,
@@ -197,5 +212,5 @@ module.exports = {
   createNews,
   updateNews,
   deleteNews,
-  checkUpdates
+  checkNewsUpdates
 };

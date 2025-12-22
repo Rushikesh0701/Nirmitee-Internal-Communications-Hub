@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../../services/api';
-import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp, RefreshCw, Bell } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import NewsUpdateToast from '../../components/NewsUpdateToast';
 
 function NewsList() {
   const [query, setQuery] = useState('');
@@ -17,12 +19,8 @@ function NewsList() {
   const [pageTokens, setPageTokens] = useState({}); // Map of page number to nextPage token
   const [hasMorePages, setHasMorePages] = useState(false);
   const [recordsPerPage, setRecordsPerPage] = useState(10); // Records per page selector
+  const [totalResults, setTotalResults] = useState(0); // Total number of results from backend
   
-  // New articles notification state
-  const [showNewArticlesBanner, setShowNewArticlesBanner] = useState(false);
-  const [newArticlesCount, setNewArticlesCount] = useState(0);
-  const lastKnownCountRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
 
   // Advanced filter states
   const [dateRange, setDateRange] = useState('all'); // all, today, week, month, year
@@ -200,11 +198,13 @@ function NewsList() {
       const newArticles = responseData.results || responseData.news || [];
       const backendMessage = response.data.message;
       const nextPageToken = responseData.nextPage || null;
+      const totalCount = responseData.totalResults || 0;
 
       if (newArticles.length > 0) {
         // Replace articles with new page results
         const deduped = deduplicateArticles(newArticles);
         setArticles(deduped);
+        setTotalResults(totalCount);
         
         // Store the next page token for future navigation
         if (nextPageToken) {
@@ -221,6 +221,7 @@ function NewsList() {
         setError('');
       } else {
         setArticles([]);
+        setTotalResults(0);
         setHasMorePages(false);
         setNextPage(null);
         if (isNewSearch || targetPage !== null) {
@@ -312,10 +313,15 @@ function NewsList() {
     }
   };
 
-  // Handle last page navigation (disabled for now as we don't have total page count)
+  // Handle last page navigation
   const handleLastPage = () => {
-    // TODO: Implement when backend provides total page count
-    // For now, this button will be disabled
+    if (totalResults > 0 && !loading && !loadingMore) {
+      // totalPages = ceil(totalRecords / pageSize)
+      const totalPages = Math.ceil(totalResults / recordsPerPage);
+      if (currentPage !== totalPages) {
+        handlePageChange(totalPages);
+      }
+    }
   };
 
   // Clear all filters
@@ -331,14 +337,72 @@ function NewsList() {
     setMinDate('');
     setMaxDate('');
     setError('');
-    // Reset pagination
+    // Reset pagination and total
     setCurrentPage(1);
     setPageTokens({});
     setHasMorePages(false);
+    setTotalResults(0); // Reset total to get fresh count
   };
 
   // Track if this is the initial mount
   const [isInitialMount, setIsInitialMount] = useState(true);
+
+  // News update polling state
+  const pollingIntervalRef = useRef(null);
+  const POLLING_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const LAST_CHECK_KEY = 'newsLastCheckTime';
+
+  // Check for news updates
+  const checkForNewsUpdates = async () => {
+    try {
+      const lastCheckTime = localStorage.getItem(LAST_CHECK_KEY);
+      
+      // If no last check time, set it to now and skip check
+      if (!lastCheckTime) {
+        localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+        return;
+      }
+
+      const response = await api.get(`/news/check-updates?lastCheckTime=${lastCheckTime}`);
+      const data = response.data.data || response.data;
+
+      if (data.hasUpdates && data.newArticlesCount > 0) {
+        // Display custom toast
+        toast.custom(
+          (t) => (
+            <NewsUpdateToast
+              newArticlesCount={data.newArticlesCount}
+              latestArticles={data.latestArticles}
+              onViewNow={() => {
+                toast.dismiss(t.id);
+                // Update last check time
+                localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+                // Refresh the news list
+                setCurrentPage(1);
+                setPageTokens({});
+                setHasMorePages(false);
+                fetchNews(true, 1);
+              }}
+              onDismiss={() => {
+                toast.dismiss(t.id);
+                // Update last check time even on dismiss
+                localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+              }}
+            />
+          ),
+          {
+            duration: 10000, // 10 seconds
+            position: 'top-right',
+          }
+        );
+      }
+
+      // Update last check time after successful check
+      localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+    } catch (error) {
+      console.error('Error checking for news updates:', error);
+    }
+  };
 
   // Initial load - fetch news on component mount
   useEffect(() => {
@@ -347,6 +411,11 @@ function NewsList() {
     setHasMorePages(false);
     fetchNews(true, 1);
     setIsInitialMount(false);
+    
+    // Initialize last check time if not set
+    if (!localStorage.getItem(LAST_CHECK_KEY)) {
+      localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -372,6 +441,31 @@ function NewsList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordsPerPage]);
 
+  // Set up polling for news updates
+  useEffect(() => {
+    console.log('News update polling started');
+    
+    // Start polling immediately (after a short delay)
+    const initialTimeout = setTimeout(() => {
+      checkForNewsUpdates();
+    }, 10000); // Check after 10 seconds of being on the page
+
+    // Set up interval for subsequent checks
+    pollingIntervalRef.current = setInterval(() => {
+      checkForNewsUpdates();
+    }, POLLING_INTERVAL);
+
+    // Cleanup on unmount
+    return () => {
+      console.log('News update polling stopped');
+      clearTimeout(initialTimeout);
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
   // Active filters count
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -385,59 +479,7 @@ function NewsList() {
     return count;
   }, [query, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase]);
 
-  // Poll for news updates every 5 minutes
-  useEffect(() => {
-    const checkForUpdates = async () => {
-      try {
-        const response = await api.get('/news/check-updates');
-        const metadata = response.data.data || response.data;
-        
-        // Initialize count on first check
-        if (lastKnownCountRef.current === null) {
-          lastKnownCountRef.current = metadata.articleCount || 0;
-          return;
-        }
 
-        // Check if new articles are available
-        if (metadata.articleCount > lastKnownCountRef.current) {
-          const diff = metadata.articleCount - lastKnownCountRef.current;
-          setNewArticlesCount(diff);
-          setShowNewArticlesBanner(true);
-        }
-      } catch (error) {
-        console.error('Error checking for updates:', error);
-      }
-    };
-
-    // Check immediately on mount
-    checkForUpdates();
-
-    // Set up polling interval (5 minutes)
-    pollingIntervalRef.current = setInterval(checkForUpdates, 5 * 60 * 1000);
-
-    // Cleanup on unmount
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Handle refresh when banner is clicked
-  const handleRefreshNews = () => {
-    setShowNewArticlesBanner(false);
-    fetchNews(true);
-    // Update the last known count after fetching
-    setTimeout(async () => {
-      try {
-        const response = await api.get('/news/check-updates');
-        const metadata = response.data.data || response.data;
-        lastKnownCountRef.current = metadata.articleCount || 0;
-      } catch (error) {
-        console.error('Error updating count:', error);
-      }
-    }, 2000);
-  };
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -446,31 +488,7 @@ function NewsList() {
         <p className="text-gray-600">Search and filter technology news with advanced options</p>
       </div>
 
-      {/* New Articles Available Banner */}
-      {showNewArticlesBanner && (
-        <div className="mb-4 animate-in slide-in-from-top duration-300">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <Bell className="text-blue-600" size={20} />
-              </div>
-              <div>
-                <h3 className="font-bold text-blue-900 text-lg">
-                  {newArticlesCount} new {newArticlesCount === 1 ? 'article' : 'articles'} available
-                </h3>
-                <p className="text-blue-700 text-sm">Click to refresh and see the latest content</p>
-              </div>
-            </div>
-            <button
-              onClick={handleRefreshNews}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95 w-full sm:w-auto justify-center"
-            >
-              <RefreshCw size={18} />
-              Refresh Now
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Main Search Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
@@ -828,11 +846,23 @@ function NewsList() {
 
             {/* Center: Page range info */}
             <div className="text-sm text-gray-600">
-              <span className="font-semibold">
-                {((currentPage - 1) * recordsPerPage) + 1}-{((currentPage - 1) * recordsPerPage) + articles.length}
-              </span>
-              <span className="mx-1">of</span>
-              <span className="font-semibold">{((currentPage - 1) * recordsPerPage) + articles.length}{hasMorePages ? '+' : ''}</span>
+              {(() => {
+                // Pagination formula:
+                // startIndex = (currentPage - 1) * pageSize
+                // endIndex = startIndex + pageSize
+                const startIndex = (currentPage - 1) * recordsPerPage + 1;
+                const endIndex = Math.min(startIndex + articles.length - 1, totalResults);
+                
+                return (
+                  <>
+                    <span className="font-semibold">
+                      {startIndex}-{endIndex}
+                    </span>
+                    <span className="mx-1">of</span>
+                    <span className="font-semibold">{totalResults > 0 ? totalResults : articles.length}</span>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Right: Navigation Controls */}
@@ -870,7 +900,7 @@ function NewsList() {
                 onClick={handleNextPage}
                 disabled={!hasMorePages || loadingMore}
                 className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
-                title="Next page"
+                title={hasMorePages ? "Next page" : "No more pages"}
               >
                 {loadingMore ? (
                   <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -879,12 +909,12 @@ function NewsList() {
                 )}
               </button>
 
-              {/* Last Page Button (disabled) */}
+              {/* Last Page Button */}
               <button
                 onClick={handleLastPage}
-                disabled={true}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors opacity-50"
-                title="Last page (not available)"
+                disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
+                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="13 17 18 12 13 7"></polyline>

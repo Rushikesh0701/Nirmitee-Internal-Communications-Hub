@@ -6,7 +6,7 @@ const { isModerator } = require('../middleware/rbac');
 
 // Public routes (require authentication)
 router.get('/', authenticateToken, newsController.getAllNews);
-router.get('/check-updates', authenticateToken, newsController.checkUpdates);
+router.get('/check-updates', authenticateToken, newsController.checkNewsUpdates);
 router.get('/rss', authenticateToken, newsController.getRSSNews);
 router.get('/:id', authenticateToken, newsController.getNewsById);
 

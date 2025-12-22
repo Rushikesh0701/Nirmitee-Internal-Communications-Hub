@@ -31,7 +31,8 @@ let cacheTimestamp = 0;
 let cacheMetadata = {
   lastUpdated: null,
   articleCount: 0,
-  sources: []
+  sources: [],
+  totalResults: 0 // Cache the total results for consistent pagination
 };
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
@@ -329,20 +330,33 @@ const getAllNews = async (options = {}) => {
   } else {
     cachedArticles = [...cachedArticles, ...allArticles];
   }
+
+  // Check if cache is stale BEFORE updating timestamp
+  const isCacheStale = Date.now() - cacheTimestamp > CACHE_TTL;
   cacheTimestamp = Date.now();
+
+  // Only update totalResults if cache is empty or stale
+  const shouldUpdateTotal = !cacheMetadata.totalResults || isCacheStale;
 
   // Update cache metadata
   cacheMetadata = {
     lastUpdated: new Date().toISOString(),
     articleCount: cachedArticles.length,
-    sources: [...new Set(cachedArticles.map(a => a.source).filter(Boolean))]
+    sources: [...new Set(cachedArticles.map(a => a.source).filter(Boolean))],
+    totalResults: shouldUpdateTotal ? allArticles.length : cacheMetadata.totalResults
   };
 
-  logger.info('Returning results', { count: paginatedArticles.length, totalAvailable: allArticles.length, nextPage: newsDataNextPage });
+  logger.info('Returning results', {
+    count: paginatedArticles.length,
+    totalAvailable: allArticles.length,
+    cachedTotal: cacheMetadata.totalResults,
+    shouldUpdateTotal,
+    nextPage: newsDataNextPage
+  });
 
   return {
     results: paginatedArticles, // Return only the paginated subset
-    totalResults: allArticles.length, // Total available (for reference)
+    totalResults: cacheMetadata.totalResults, // Use cached total for consistency
     nextPage: newsDataNextPage, // Return NewsData.io's nextPage token
     status: 'success',
     error: newsDataError ? newsDataError.message : null
@@ -420,25 +434,59 @@ const deleteNews = async (id, userId, user) => {
   throw new Error('News deletion is not supported. News is fetched from external APIs.');
 };
 
+
+
 /**
- * Get cache metadata for frontend polling
+ * Check for news updates since a given timestamp
+ * Returns count and basic info without fetching full articles
  */
-const getCacheMetadata = () => {
-  // If cache is empty or stale, return default metadata
-  if (!cacheMetadata.lastUpdated || cachedArticles.length === 0) {
+const checkNewsUpdates = async (lastCheckTime) => {
+  try {
+    // Use cached articles if available and fresh
+    if (Date.now() - cacheTimestamp > CACHE_TTL || cachedArticles.length === 0) {
+      await getAllNews({ limit: 50 }); // Refresh cache with reasonable limit
+    }
+
+    const checkTimestamp = new Date(lastCheckTime);
+
+    // Filter articles published after the last check time
+    const newArticles = cachedArticles.filter(article => {
+      const articleDate = new Date(article.publishedAt || article.pubDate || article.createdAt);
+      return articleDate > checkTimestamp;
+    });
+
+    // Sort by date (newest first)
+    newArticles.sort((a, b) => {
+      const dateA = new Date(a.publishedAt || a.pubDate || a.createdAt);
+      const dateB = new Date(b.publishedAt || b.pubDate || b.createdAt);
+      return dateB - dateA;
+    });
+
+    // Return count and first 3 article titles
+    const latestArticles = newArticles.slice(0, 3).map(article => ({
+      title: article.title,
+      publishedAt: article.publishedAt || article.pubDate || article.createdAt,
+      source: article.source_name || article.source
+    }));
+
     return {
-      lastUpdated: new Date().toISOString(),
-      articleCount: 0,
-      sources: [],
-      cacheAge: null
+      newArticlesCount: newArticles.length,
+      latestArticles,
+      hasUpdates: newArticles.length > 0,
+      status: 'success'
+    };
+  } catch (error) {
+    logger.error('Error checking news updates', { error: error.message });
+    return {
+      newArticlesCount: 0,
+      latestArticles: [],
+      hasUpdates: false,
+      status: 'error',
+      message: error.message
     };
   }
-
-  return {
-    ...cacheMetadata,
-    cacheAge: cacheTimestamp ? Date.now() - cacheTimestamp : null
-  };
 };
+
 
 module.exports = {
   getAllNews,
@@ -450,5 +498,5 @@ module.exports = {
   fetchNewsFromNewsData,
   fetchNewsFromRSSFeed,
   fetchAllRSSFeeds,
-  getCacheMetadata
+  checkNewsUpdates
 };
