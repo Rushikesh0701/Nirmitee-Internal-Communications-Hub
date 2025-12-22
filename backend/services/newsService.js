@@ -318,9 +318,14 @@ const getAllNews = async (options = {}) => {
   // Sort based on sort option (date, relevance, popularity)
   allArticles = sortArticles(allArticles, sort || 'date', q);
 
-  // Update cache for getNewsById (replace instead of append to avoid infinite growth)
+  // Apply pagination limit to the final results
+  // This ensures we return only the requested number of articles per page
+  const startIndex = 0; // Always start at 0 since we're using nextPage tokens, not offset-based pagination
+  const paginatedArticles = allArticles.slice(startIndex, parseInt(limit));
+
+  // Update cache for getNewsById (store all articles for lookup, but only return paginated results)
   if (!nextPage) {
-    cachedArticles = allArticles;
+    cachedArticles = allArticles; // Cache all for future lookups
   } else {
     cachedArticles = [...cachedArticles, ...allArticles];
   }
@@ -333,11 +338,11 @@ const getAllNews = async (options = {}) => {
     sources: [...new Set(cachedArticles.map(a => a.source).filter(Boolean))]
   };
 
-  logger.info('Returning results', { count: allArticles.length, nextPage: newsDataNextPage });
+  logger.info('Returning results', { count: paginatedArticles.length, totalAvailable: allArticles.length, nextPage: newsDataNextPage });
 
   return {
-    results: allArticles,
-    totalResults: allArticles.length,
+    results: paginatedArticles, // Return only the paginated subset
+    totalResults: allArticles.length, // Total available (for reference)
     nextPage: newsDataNextPage, // Return NewsData.io's nextPage token
     status: 'success',
     error: newsDataError ? newsDataError.message : null
@@ -419,6 +424,16 @@ const deleteNews = async (id, userId, user) => {
  * Get cache metadata for frontend polling
  */
 const getCacheMetadata = () => {
+  // If cache is empty or stale, return default metadata
+  if (!cacheMetadata.lastUpdated || cachedArticles.length === 0) {
+    return {
+      lastUpdated: new Date().toISOString(),
+      articleCount: 0,
+      sources: [],
+      cacheAge: null
+    };
+  }
+
   return {
     ...cacheMetadata,
     cacheAge: cacheTimestamp ? Date.now() - cacheTimestamp : null

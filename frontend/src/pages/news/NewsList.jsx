@@ -12,6 +12,12 @@ function NewsList() {
   const [nextPage, setNextPage] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageTokens, setPageTokens] = useState({}); // Map of page number to nextPage token
+  const [hasMorePages, setHasMorePages] = useState(false);
+  const [recordsPerPage, setRecordsPerPage] = useState(10); // Records per page selector
+  
   // New articles notification state
   const [showNewArticlesBanner, setShowNewArticlesBanner] = useState(false);
   const [newArticlesCount, setNewArticlesCount] = useState(0);
@@ -133,18 +139,17 @@ function NewsList() {
   };
 
   // Fetch news with enhanced filters
-  const fetchNews = async (isNewSearch = false) => {
+  const fetchNews = async (isNewSearch = false, targetPage = null) => {
     const currentQuery = buildSearchQuery();
+    const pageToLoad = targetPage !== null ? targetPage : currentPage;
 
     // Allow fetching news without query or category - backend supports it
-    if (isNewSearch) {
+    if (isNewSearch || targetPage !== null) {
       setLoading(true);
-      setArticles([]);
-      setNextPage(null);
+      setError('');
     } else {
       setLoadingMore(true);
     }
-    setError('');
 
     try {
       const params = new URLSearchParams();
@@ -183,38 +188,50 @@ function NewsList() {
         params.append('sort', sortBy);
       }
 
-      // Add pagination
-      if (!isNewSearch && nextPage) {
-        params.append('nextPage', nextPage);
+      // Add pagination - use stored token for the target page
+      if (pageToLoad > 1 && pageTokens[pageToLoad]) {
+        params.append('nextPage', pageTokens[pageToLoad]);
       }
 
-      params.append('limit', '10');
+      params.append('limit', recordsPerPage.toString());
 
       const response = await api.get(`/news?${params.toString()}`);
       const responseData = response.data.data || response.data;
       const newArticles = responseData.results || responseData.news || [];
       const backendMessage = response.data.message;
+      const nextPageToken = responseData.nextPage || null;
 
       if (newArticles.length > 0) {
-        setArticles(prevArticles => {
-          // Merge articles
-          const merged = isNewSearch ? newArticles : [...prevArticles, ...newArticles];
-          
-          // Deduplicate on the frontend to ensure no duplicates
-          const deduped = deduplicateArticles(merged);
-          
-          return deduped;
-        });
-        setNextPage(responseData.nextPage || null);
+        // Replace articles with new page results
+        const deduped = deduplicateArticles(newArticles);
+        setArticles(deduped);
+        
+        // Store the next page token for future navigation
+        if (nextPageToken) {
+          setPageTokens(prev => ({
+            ...prev,
+            [pageToLoad + 1]: nextPageToken
+          }));
+          setHasMorePages(true);
+        } else {
+          setHasMorePages(false);
+        }
+        
+        setNextPage(nextPageToken);
         setError('');
       } else {
-        if (isNewSearch) {
+        setArticles([]);
+        setHasMorePages(false);
+        setNextPage(null);
+        if (isNewSearch || targetPage !== null) {
           setError(backendMessage || 'No articles found. Try adjusting your search criteria.');
         }
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch news. Please try again.';
       setError(errorMessage);
+      setArticles([]);
+      setHasMorePages(false);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -251,7 +268,54 @@ function NewsList() {
   // Handle search submit
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchNews(true);
+    setCurrentPage(1);
+    setPageTokens({});
+    setHasMorePages(false);
+    fetchNews(true, 1);
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    if (page === currentPage || page < 1) return;
+    setCurrentPage(page);
+    fetchNews(false, page);
+    // Scroll to top of articles
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNextPage = () => {
+    if (hasMorePages && !loading && !loadingMore) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1 && !loading && !loadingMore) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  // Handle records per page change
+  const handleRecordsPerPageChange = (e) => {
+    const newLimit = parseInt(e.target.value);
+    setRecordsPerPage(newLimit);
+    setCurrentPage(1);
+    setPageTokens({});
+    setHasMorePages(false);
+    // Fetch will be triggered by useEffect watching recordsPerPage
+  };
+
+  // Handle first page navigation
+  const handleFirstPage = () => {
+    if (currentPage !== 1 && !loading && !loadingMore) {
+      handlePageChange(1);
+    }
+  };
+
+  // Handle last page navigation (disabled for now as we don't have total page count)
+  const handleLastPage = () => {
+    // TODO: Implement when backend provides total page count
+    // For now, this button will be disabled
   };
 
   // Clear all filters
@@ -267,6 +331,10 @@ function NewsList() {
     setMinDate('');
     setMaxDate('');
     setError('');
+    // Reset pagination
+    setCurrentPage(1);
+    setPageTokens({});
+    setHasMorePages(false);
   };
 
   // Track if this is the initial mount
@@ -274,7 +342,10 @@ function NewsList() {
 
   // Initial load - fetch news on component mount
   useEffect(() => {
-    fetchNews(true);
+    setCurrentPage(1);
+    setPageTokens({});
+    setHasMorePages(false);
+    fetchNews(true, 1);
     setIsInitialMount(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -282,10 +353,24 @@ function NewsList() {
   // Watch for filter changes and refetch (after initial mount)
   useEffect(() => {
     if (!isInitialMount) {
-      fetchNews(true);
+      setCurrentPage(1);
+      setPageTokens({});
+      setHasMorePages(false);
+      fetchNews(true, 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, dateRange, sortBy, language, sourceFilter, searchType, exactPhrase, minDate, maxDate]);
+
+  // Watch for recordsPerPage changes and refetch
+  useEffect(() => {
+    if (!isInitialMount) {
+      setCurrentPage(1);
+      setPageTokens({});
+      setHasMorePages(false);
+      fetchNews(true, 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recordsPerPage]);
 
   // Active filters count
   const activeFiltersCount = useMemo(() => {
@@ -722,24 +807,92 @@ function NewsList() {
         </div>
       )}
 
-      {/* Load More Button */}
-      {nextPage && !loadingMore && articles.length > 0 && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => fetchNews(false)}
-            disabled={loadingMore}
-            className="px-6 py-2.5 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-          >
-            Load More Articles
-          </button>
-        </div>
-      )}
+      {/* Pagination Controls */}
+      {!loading && articles.length > 0 && (
+        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Left: Records per page selector */}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Records per page:</span>
+              <select
+                value={recordsPerPage}
+                onChange={handleRecordsPerPageChange}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-medium bg-white cursor-pointer"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
 
-      {/* Loading More State */}
-      {loadingMore && (
-        <div className="text-center mt-4 py-4">
-          <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-600"></div>
-          <p className="mt-2 text-gray-600 text-sm">Loading more articles...</p>
+            {/* Center: Page range info */}
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">
+                {((currentPage - 1) * recordsPerPage) + 1}-{((currentPage - 1) * recordsPerPage) + articles.length}
+              </span>
+              <span className="mx-1">of</span>
+              <span className="font-semibold">{((currentPage - 1) * recordsPerPage) + articles.length}{hasMorePages ? '+' : ''}</span>
+            </div>
+
+            {/* Right: Navigation Controls */}
+            <div className="flex items-center gap-1">
+              {/* First Page Button */}
+              <button
+                onClick={handleFirstPage}
+                disabled={currentPage === 1 || loadingMore}
+                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                title="First page"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="11 17 6 12 11 7"></polyline>
+                  <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+              </button>
+
+              {/* Previous Button */}
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1 || loadingMore}
+                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                title="Previous page"
+              >
+                <ChevronDown className="rotate-90" size={18} />
+              </button>
+
+              {/* Page Number Display */}
+              <div className="hidden sm:flex items-center px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 font-semibold rounded-lg min-w-[60px] justify-center">
+                {currentPage}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                disabled={!hasMorePages || loadingMore}
+                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+                title="Next page"
+              >
+                {loadingMore ? (
+                  <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <ChevronDown className="rotate-[-90deg]" size={18} />
+                )}
+              </button>
+
+              {/* Last Page Button (disabled) */}
+              <button
+                onClick={handleLastPage}
+                disabled={true}
+                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors opacity-50"
+                title="Last page (not available)"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="13 17 18 12 13 7"></polyline>
+                  <polyline points="6 17 11 12 6 7"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

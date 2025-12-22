@@ -10,7 +10,7 @@ const startNewsPrefetchJob = () => {
     cron.schedule('*/15 * * * *', async () => {
         try {
             logger.info('Starting news prefetch job...');
-            await newsService.getAllNews({ limit: 50, page: 1 });
+            await newsService.getAllNews({ limit: 10, page: 1 });
             const metadata = newsService.getCacheMetadata();
             logger.info('News prefetch completed successfully', {
                 articlesCount: metadata.articleCount,
