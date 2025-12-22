@@ -57,6 +57,7 @@ export const requestNotificationPermission = async () => {
 
 /**
  * Show browser notification (works even when tab is not focused)
+ * Note: Sound is played separately by the notification hook
  */
 export const showBrowserNotification = (title, body, onClick) => {
     if (Notification.permission !== 'granted') {
@@ -70,11 +71,8 @@ export const showBrowserNotification = (title, body, onClick) => {
             badge: '/Logo.png',
             tag: 'nirmitee-notification',
             requireInteraction: false,
-            silent: false
+            silent: true // Set to silent since we play sound separately
         })
-
-        // Play custom sound
-        playNotificationSound()
 
         notification.onclick = () => {
             window.focus()
@@ -119,9 +117,16 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
 
 /**
  * Hook to handle notification sound and browser notifications for new notifications
+ * 
+ * Features:
+ * - Plays sound for ALL new notifications (regardless of visibility)
+ * - Shows browser notification when tab is hidden
+ * - Shows in-app toast when tab is visible
+ * - Prevents duplicate sounds and notifications
  */
 export const useNotificationSound = () => {
     const seenIds = useRef(new Set())
+    const soundPlayedIds = useRef(new Set())
     const isFirstLoad = useRef(true)
 
     // Request notification permission on mount
@@ -146,29 +151,68 @@ export const useNotificationSound = () => {
 
         // First load - just record existing IDs
         if (isFirstLoad.current) {
-            notifications.forEach(n => seenIds.current.add(n.id || n._id))
+            notifications.forEach(n => {
+                const id = n.id || n._id
+                seenIds.current.add(id)
+                soundPlayedIds.current.add(id)
+            })
             isFirstLoad.current = false
             return
         }
 
-        // Check for new notifications
-        notifications.forEach(n => {
-            const id = n.id || n._id
-            if (!seenIds.current.has(id)) {
-                seenIds.current.add(id)
+        // Dynamic import for react-hot-toast to avoid bundling if not needed
+        const processNotifications = async () => {
+            // Import toast dynamically
+            const { default: toast } = await import('react-hot-toast')
 
-                // Only show browser notification when tab is not focused
-                // When tab is focused, in-app notification card will be shown
-                if (document.hidden) {
-                    showBrowserNotification(
-                        'Nirmitee Hub',
-                        n.content || 'You have a new notification',
-                        () => {
-                            window.location.href = '/notifications'
-                        }
-                    )
+            // Check for new notifications
+            notifications.forEach(n => {
+                const id = n.id || n._id
+                const content = n.content || 'You have a new notification'
+
+                // Process truly new notifications (not seen before)
+                if (!seenIds.current.has(id)) {
+                    seenIds.current.add(id)
+
+                    // 1. ALWAYS play sound for new notifications (once per notification)
+                    if (!soundPlayedIds.current.has(id)) {
+                        soundPlayedIds.current.add(id)
+                        playNotificationSound()
+                    }
+
+                    // 2. Check tab visibility for notification display
+                    if (document.hidden) {
+                        // Tab is hidden - show browser notification (OS-level toast)
+                        showBrowserNotification(
+                            'Nirmitee Hub',
+                            content,
+                            () => {
+                                window.location.href = '/notifications'
+                            }
+                        )
+                    } else {
+                        // Tab is visible - show in-app toast notification
+                        toast(content, {
+                            icon: '🔔',
+                            duration: 4000,
+                            position: 'top-right',
+                            style: {
+                                background: '#4F46E5',
+                                color: '#fff',
+                                padding: '16px',
+                                borderRadius: '8px',
+                            },
+                            onClick: () => {
+                                window.location.href = '/notifications'
+                            }
+                        })
+                    }
                 }
-            }
+            })
+        }
+
+        processNotifications().catch(err => {
+            console.error('Error processing notifications:', err)
         })
     }, [notifications])
 

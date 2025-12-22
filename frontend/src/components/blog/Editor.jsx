@@ -7,7 +7,6 @@ import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import Color from '@tiptap/extension-color';
-import { TextStyle } from '@tiptap/extension-text-style';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
@@ -19,6 +18,7 @@ import EditorMenuBar from '../editor/EditorMenuBar';
 import ImageModal from '../editor/ImageModal';
 import VideoModal from '../editor/VideoModal';
 import LinkModal from '../editor/LinkModal';
+import EditorContextMenu from '../editor/EditorContextMenu';
 
 const Editor = ({ 
   content = '', 
@@ -32,6 +32,8 @@ const Editor = ({
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [editingImage, setEditingImage] = useState(null); // Store image node being edited
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   const editor = useEditor({
     extensions: [
@@ -47,8 +49,7 @@ const Editor = ({
         heading: false, // Disable headings
       }),
       Underline,
-      Color.configure({ types: [TextStyle.name] }),
-      TextStyle,
+      Color.configure({ types: ['textStyle'] }),
       FontStyleExtension,
       Image.configure({
         inline: false,
@@ -146,28 +147,31 @@ const Editor = ({
     if (!editor) return;
 
     const handleKeyDown = (event) => {
+      // Use metaKey for Mac (Command) and ctrlKey for Windows/Linux
+      const modKey = event.metaKey || event.ctrlKey;
+      
       // Bold: Ctrl/Cmd + B
-      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+      if (modKey && (event.key === 'b' || event.key === 'B')) {
         event.preventDefault();
         editor.chain().focus().toggleBold().run();
       }
       // Italic: Ctrl/Cmd + I
-      if ((event.ctrlKey || event.metaKey) && event.key === 'i') {
+      if (modKey && (event.key === 'i' || event.key === 'I')) {
         event.preventDefault();
         editor.chain().focus().toggleItalic().run();
       }
       // Underline: Ctrl/Cmd + U
-      if ((event.ctrlKey || event.metaKey) && event.key === 'u') {
+      if (modKey && (event.key === 'u' || event.key === 'U')) {
         event.preventDefault();
         editor.chain().focus().toggleUnderline().run();
       }
       // Undo: Ctrl/Cmd + Z
-      if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+      if (modKey && (event.key === 'z' || event.key === 'Z') && !event.shiftKey) {
         event.preventDefault();
         editor.chain().focus().undo().run();
       }
       // Redo: Ctrl/Cmd + Shift + Z
-      if ((event.ctrlKey || event.metaKey) && event.key === 'z' && event.shiftKey) {
+      if (modKey && (event.key === 'z' || event.key === 'Z') && event.shiftKey) {
         event.preventDefault();
         editor.chain().focus().redo().run();
       }
@@ -276,6 +280,68 @@ const Editor = ({
     }
   }, [editor]);
 
+  // Handle right-click context menu
+  useEffect(() => {
+    if (!editor || !editor.view || !editor.view.dom) return;
+
+    const handleContextMenu = (event) => {
+      // Check if there's selected text
+      const { state } = editor;
+      const { selection } = state;
+      const { from, to } = selection;
+      
+      // Only show context menu if text is selected
+      if (from === to) {
+        // No text selected, allow default context menu
+        return;
+      }
+
+      // Prevent default browser context menu
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Position menu near cursor
+      setContextMenuPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      setShowContextMenu(true);
+    };
+
+    const handleSelectionChange = () => {
+      // Hide context menu when selection is cleared
+      const { state } = editor;
+      const { selection } = state;
+      const { from, to } = selection;
+      
+      if (from === to && showContextMenu) {
+        setShowContextMenu(false);
+      }
+    };
+
+    const handleScroll = () => {
+      // Hide context menu on scroll
+      if (showContextMenu) {
+        setShowContextMenu(false);
+      }
+    };
+
+    const editorElement = editor.view.dom;
+    if (editorElement) {
+      editorElement.addEventListener('contextmenu', handleContextMenu);
+      document.addEventListener('selectionchange', handleSelectionChange);
+      window.addEventListener('scroll', handleScroll, true);
+      
+      return () => {
+        if (editorElement) {
+          editorElement.removeEventListener('contextmenu', handleContextMenu);
+        }
+        document.removeEventListener('selectionchange', handleSelectionChange);
+        window.removeEventListener('scroll', handleScroll, true);
+      };
+    }
+  }, [editor, showContextMenu]);
+
   const handleSave = useCallback(() => {
     if (!editor) return;
     const data = {
@@ -312,6 +378,10 @@ const Editor = ({
 
   const handleLinkModalClose = useCallback(() => {
     setShowLinkModal(false);
+  }, []);
+
+  const handleContextMenuClose = useCallback(() => {
+    setShowContextMenu(false);
   }, []);
 
   if (!editor) {
@@ -368,6 +438,15 @@ const Editor = ({
         isOpen={showLinkModal}
         onClose={handleLinkModalClose}
         editor={editor}
+      />
+      
+      {/* Context Menu */}
+      <EditorContextMenu
+        editor={editor}
+        position={contextMenuPosition}
+        isVisible={showContextMenu}
+        onClose={handleContextMenuClose}
+        onLinkClick={handleLinkClick}
       />
     </div>
   );

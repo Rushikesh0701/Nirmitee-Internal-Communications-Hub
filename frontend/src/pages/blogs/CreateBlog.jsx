@@ -186,18 +186,38 @@ const CreateBlog = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
-            Cover Image
-          </label>
+          <div className="flex items-center gap-4 mb-3">
+            <label className="text-gray-700 font-medium whitespace-nowrap">
+              Cover Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCoverImageChange}
+              id="cover-image-upload"
+              className="hidden"
+            />
+            <label
+              htmlFor="cover-image-upload"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+            >
+              <svg 
+                className="w-5 h-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                />
+              </svg>
+              <span className="font-medium">Upload Image</span>
+            </label>
+          </div>
           <div className="space-y-3">
-            <div className="flex gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleCoverImageChange}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 text-sm"
-              />
-            </div>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
