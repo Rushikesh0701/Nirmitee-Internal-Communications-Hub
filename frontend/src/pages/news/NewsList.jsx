@@ -193,12 +193,16 @@ function NewsList() {
 
       params.append('limit', recordsPerPage.toString());
 
+      console.log('Fetching news with params:', params.toString());
       const response = await api.get(`/news?${params.toString()}`);
+      console.log('News API response:', response.data);
       const responseData = response.data.data || response.data;
       const newArticles = responseData.results || responseData.news || [];
+      console.log('Parsed articles:', newArticles.length, 'articles');
       const backendMessage = response.data.message;
       const nextPageToken = responseData.nextPage || null;
       const totalCount = responseData.totalResults || 0;
+      console.log('Total results:', totalCount, 'Next page token:', nextPageToken);
 
       if (newArticles.length > 0) {
         // Replace articles with new page results
@@ -354,16 +358,21 @@ function NewsList() {
 
   // Check for news updates
   const checkForNewsUpdates = async () => {
+    console.log('Checking for news updates...');
     try {
       const lastCheckTime = localStorage.getItem(LAST_CHECK_KEY);
+      console.log('Last check time:', lastCheckTime);
       
       // If no last check time, set it to now and skip check
       if (!lastCheckTime) {
         localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+        console.log('No last check time, initializing...');
         return;
       }
 
+      console.log('Calling /news/check-updates API...');
       const response = await api.get(`/news/check-updates?lastCheckTime=${lastCheckTime}`);
+      console.log('Check updates response:', response.data);
       const data = response.data.data || response.data;
 
       if (data.hasUpdates && data.newArticlesCount > 0) {
