@@ -165,11 +165,7 @@ const Blogs = () => {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className={`px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-            theme === 'dark'
-              ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-              : 'border-gray-300 bg-white text-gray-900'
-          }`}
+          className="filter-select"
           title={filter === 'drafts' ? 'View your unpublished blog drafts' : filter === 'my-blogs' ? 'View all your blogs (published and drafts)' : filter === 'bookmarked' ? 'View your bookmarked blogs' : 'View all published blogs'}
         >
           <option value="all">All Blogs (Published)</option>
@@ -180,11 +176,7 @@ const Blogs = () => {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className={`px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-            theme === 'dark'
-              ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-              : 'border-gray-300 bg-white text-gray-900'
-          }`}
+          className="filter-select"
         >
           {categories.map(cat => (
             <option key={cat} value={cat}>

@@ -80,7 +80,7 @@ const GroupsList = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
           <input type="text" placeholder="Search groups..." value={search} onChange={(e) => setSearch(e.target.value)} className="input pl-11" />
         </div>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="input-select min-w-[160px]">
+        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select min-w-[160px]">
           <option value="all">All Groups</option>
           <option value="public">Public Groups</option>
           <option value="private">Private Groups</option>
@@ -97,11 +97,15 @@ const GroupsList = () => {
               return (
                 <motion.div key={groupId} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
                   <Link to={`/groups/${groupId}`} className="card-hover block group overflow-hidden">
-                    {group.coverImage && (
-                      <div className="relative -mx-4 -mt-4 mb-1.5 overflow-hidden rounded-t-lg">
+                    <div className="relative -mx-4 -mt-4 mb-1.5 overflow-hidden rounded-t-lg">
+                      {group.coverImage ? (
                         <img src={group.coverImage} alt={group.name} className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-500" />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-full h-20 bg-gradient-to-br from-pink-500/20 via-rose-500/20 to-indigo-500/20 flex items-center justify-center">
+                          <Users size={32} className="text-pink-400/50" />
+                        </div>
+                      )}
+                    </div>
                     <div className="space-y-1.5">
                       <div className="flex items-start justify-between">
                         <h3 className="text-base font-semibold text-slate-800 flex-1 group-hover:text-pink-600 transition-colors">{group.name}</h3>

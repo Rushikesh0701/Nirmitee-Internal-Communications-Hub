@@ -487,7 +487,7 @@ const Dashboard = () => {
                 <Loading size="md" />
               </div>
             ) : newsArticles.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
                 {newsArticles.slice(0, 6).map((article, index) => {
                   const title = article.title
                   const imageUrl = article.imageUrl || article.image_url
@@ -497,14 +497,14 @@ const Dashboard = () => {
                   return (
                     <motion.div
                       key={article._id || article.article_id || `news-${index}`}
-                      className="group cursor-pointer"
+                      className="group cursor-pointer h-full"
                       initial={{ opacity: 0, y: 20, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                       whileHover={{ y: -4, scale: 1.02 }}
                     >
                       <div 
-                        className={`relative rounded-lg overflow-hidden border backdrop-blur-sm transition-all duration-500 ${
+                        className={`relative rounded-lg overflow-hidden border backdrop-blur-sm transition-all duration-500 h-full flex flex-col ${
                           theme === 'dark'
                             ? 'bg-slate-800/60 border-slate-700/50 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/20'
                             : 'bg-white/80 border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10'
@@ -518,7 +518,7 @@ const Dashboard = () => {
                             : 'bg-gradient-to-t from-blue-100/30 via-transparent to-transparent'
                         }`} />
                         
-                        <div className={`aspect-[4/3] relative overflow-hidden ${
+                        <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
                           theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100'
                         }`}>
                           {imageUrl ? (
@@ -526,32 +526,37 @@ const Dashboard = () => {
                               src={imageUrl} 
                               alt={title} 
                               className="w-full h-full object-cover" 
-                              onError={(e) => { e.target.style.display = 'none' }}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                                if (placeholder) placeholder.classList.remove('hidden');
+                              }}
                               whileHover={{ scale: 1.1 }}
                               transition={{ duration: 0.5 }}
                             />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Newspaper size={20} className={theme === 'dark' ? 'text-slate-600' : 'text-slate-300'} />
-                            </div>
-                          )}
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 news-placeholder ${imageUrl ? 'hidden' : ''}`}>
+                            <Newspaper size={20} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
+                          </div>
                         </div>
-                        <div className="relative z-10 p-2">
-                          <h3 className={`text-xs font-bold line-clamp-2 mb-1 transition-colors ${
+                        <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px]">
+                          <h3 className={`text-xs font-bold line-clamp-2 mb-1 transition-colors flex-shrink-0 ${
                             theme === 'dark'
                               ? 'text-slate-100 group-hover:text-blue-400'
                               : 'text-slate-900 group-hover:text-blue-600'
                           }`}>
                             {title}
                           </h3>
-                          {date && (
-                            <p className={`text-[10px] flex items-center gap-1 transition-colors ${
-                              theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
-                            }`}>
-                              <Clock size={9} />
-                              {format(new Date(date), 'MMM d')}
-                            </p>
-                          )}
+                          <div className="mt-auto">
+                            {date && (
+                              <p className={`text-[10px] flex items-center gap-1 transition-colors ${
+                                theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+                              }`}>
+                                <Clock size={9} />
+                                {format(new Date(date), 'MMM d')}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -559,7 +564,7 @@ const Dashboard = () => {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
                 {[...Array(6)].map((_, i) => (
                   <div 
                     key={i} 

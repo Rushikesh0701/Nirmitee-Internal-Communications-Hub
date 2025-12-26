@@ -61,7 +61,13 @@ const GroupDetail = () => {
 
       {/* Group Header */}
       <motion.div className="card overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        {group.coverImage && <img src={group.coverImage} alt={group.name} className="w-full h-48 object-cover" />}
+        {group.coverImage ? (
+          <img src={group.coverImage} alt={group.name} className="w-full h-48 object-cover" />
+        ) : (
+          <div className="w-full h-48 bg-gradient-to-br from-pink-500/20 via-rose-500/20 to-indigo-500/20 flex items-center justify-center">
+            <Users size={64} className="text-pink-400/50" />
+          </div>
+        )}
         <div className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">

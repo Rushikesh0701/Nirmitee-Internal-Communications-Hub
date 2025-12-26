@@ -78,10 +78,10 @@ const AnnouncementsList = () => {
         <div className="flex items-center gap-3">
           <motion.button
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn ${showFilters ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+            className={`btn-filter ${showFilters ? 'btn-filter-active' : ''}`}
             whileTap={{ scale: 0.98 }}
           >
-            {showFilters ? <X size={18} /> : <Filter size={18} />}
+            {showFilters ? <X size={16} /> : <Filter size={16} />}
             Filters
           </motion.button>
           {userIsAdmin && (
@@ -106,11 +106,7 @@ const AnnouncementsList = () => {
               <h3 className={`font-semibold transition-colors ${
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
               }`}>Filters</h3>
-              <button onClick={clearFilters} className={`text-sm font-medium transition-colors ${
-                theme === 'dark'
-                  ? 'text-indigo-400 hover:text-indigo-300'
-                  : 'text-indigo-600 hover:text-indigo-700'
-              }`}>
+              <button onClick={clearFilters} className="btn-filter">
                 Clear all
               </button>
             </div>
@@ -132,7 +128,7 @@ const AnnouncementsList = () => {
                 <>
                   <div>
                     <label className="form-label">Scheduled</label>
-                    <select value={filters.scheduled} onChange={(e) => handleFilterChange('scheduled', e.target.value)} className="input-select">
+                    <select value={filters.scheduled} onChange={(e) => handleFilterChange('scheduled', e.target.value)} className="filter-select">
                       <option value="">All</option>
                       <option value="true">Scheduled</option>
                       <option value="false">Not Scheduled</option>
@@ -140,7 +136,7 @@ const AnnouncementsList = () => {
                   </div>
                   <div>
                     <label className="form-label">Published</label>
-                    <select value={filters.published} onChange={(e) => handleFilterChange('published', e.target.value)} className="input-select">
+                    <select value={filters.published} onChange={(e) => handleFilterChange('published', e.target.value)} className="filter-select">
                       <option value="">All</option>
                       <option value="true">Published</option>
                       <option value="false">Unpublished</option>

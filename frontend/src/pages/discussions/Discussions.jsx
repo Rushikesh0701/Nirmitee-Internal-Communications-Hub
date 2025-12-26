@@ -105,7 +105,7 @@ const Discussions = () => {
             className="input pl-11"
           />
         </div>
-        <select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)} className="input-select min-w-[150px]">
+        <select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)} className="filter-select min-w-[150px]">
           <option value="">All Tags</option>
           {allTags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
         </select>

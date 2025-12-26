@@ -154,28 +154,22 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 border-b">
+      <div className="flex gap-2 border-b pb-2">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'all' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'all' ? 'btn-filter-active' : ''}`}
         >
           All
         </button>
         <button
           onClick={() => setFilter('unread')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'unread' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'unread' ? 'btn-filter-active' : ''}`}
         >
           Unread
         </button>
         <button
           onClick={() => setFilter('read')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'read' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'read' ? 'btn-filter-active' : ''}`}
         >
           Read
         </button>

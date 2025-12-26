@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp, Newspaper } from 'lucide-react';
 import NewsUpdateToast from '../../components/NewsUpdateToast';
 import Loading from '../../components/Loading';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -577,11 +577,7 @@ function NewsList() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className={`text-sm flex items-center gap-1 ${
-                  theme === 'dark'
-                    ? 'text-slate-400 hover:text-slate-300'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className="btn-filter"
               >
                 <X size={14} />
                 Clear All
@@ -589,13 +585,9 @@ function NewsList() {
             )}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={`text-sm flex items-center gap-1 ${
-                theme === 'dark'
-                  ? 'text-indigo-400 hover:text-indigo-300'
-                  : 'text-blue-600 hover:text-blue-700'
-              }`}
+              className="btn-filter"
             >
-              {showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showAdvancedFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               {showAdvancedFilters ? 'Hide' : 'Show'} Advanced
             </button>
           </div>
@@ -613,11 +605,7 @@ function NewsList() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                theme === 'dark'
-                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-                  : 'border-gray-300 bg-white text-gray-900'
-              }`}
+              className="filter-select w-full"
             >
               {techCategories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -637,11 +625,7 @@ function NewsList() {
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                theme === 'dark'
-                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-                  : 'border-gray-300 bg-white text-gray-900'
-              }`}
+              className="filter-select w-full"
             >
               {dateRanges.map((range) => (
                 <option key={range.value} value={range.value}>
@@ -661,11 +645,7 @@ function NewsList() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                theme === 'dark'
-                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-                  : 'border-gray-300 bg-white text-gray-900'
-              }`}
+              className="filter-select w-full"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -685,11 +665,7 @@ function NewsList() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                theme === 'dark'
-                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
-                  : 'border-gray-300 bg-white text-gray-900'
-              }`}
+              className="filter-select w-full"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -712,7 +688,7 @@ function NewsList() {
                 <select
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="filter-select w-full"
                 >
                   <option value="all">All Fields</option>
                   <option value="title">Title Only</option>
@@ -729,7 +705,7 @@ function NewsList() {
                 <select
                   value={sourceFilter}
                   onChange={(e) => setSourceFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="filter-select w-full"
                 >
                   <option value="">All Sources</option>
                   {availableSources.map((source) => (
@@ -864,20 +840,25 @@ function NewsList() {
                     }
                   }}
                 >
-                  {imageUrl && (
-                    <div className={`relative w-full h-20 overflow-hidden ${
-                      theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
-                    }`}>
+                  <div className={`relative w-full h-20 overflow-hidden ${
+                    theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
+                  }`}>
+                    {imageUrl ? (
                       <img
                         src={imageUrl}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         onError={(e) => {
                           e.target.style.display = 'none';
+                          const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                          if (placeholder) placeholder.classList.remove('hidden');
                         }}
                       />
+                    ) : null}
+                    <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 ${imageUrl ? 'hidden' : ''} news-placeholder`}>
+                      <Newspaper size={24} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
                     </div>
-                  )}
+                  </div>
                   <div className="p-2 flex flex-col flex-1">
                     <div className="mb-1">
                       <h3 className={`text-xs font-semibold line-clamp-2 mb-0.5 transition-colors ${

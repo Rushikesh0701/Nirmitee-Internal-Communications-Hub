@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
-import { ArrowLeft, Calendar, User, Eye } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Eye, Newspaper } from 'lucide-react'
 import { format } from 'date-fns'
 import Loading from '../../components/Loading'
 
@@ -33,13 +33,23 @@ const NewsDetail = () => {
       </Link>
 
       <article className="card">
-        {news.imageUrl && (
-          <img
-            src={news.imageUrl}
-            alt={news.title}
-            className="w-full h-64 object-cover rounded-lg mb-6"
-          />
-        )}
+        <div className="relative w-full h-64 rounded-lg mb-6 overflow-hidden">
+          {news.imageUrl ? (
+            <img
+              src={news.imageUrl}
+              alt={news.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                if (placeholder) placeholder.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 news-placeholder ${news.imageUrl ? 'hidden' : ''}`}>
+            <Newspaper size={64} className="text-slate-400" />
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div className="flex items-center gap-4">
