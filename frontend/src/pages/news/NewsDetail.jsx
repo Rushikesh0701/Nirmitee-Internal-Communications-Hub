@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, Calendar, User, Eye, Newspaper } from 'lucide-react'
 import { format } from 'date-fns'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const NewsDetail = () => {
   const { id } = useParams()
@@ -19,7 +20,13 @@ const NewsDetail = () => {
   }
 
   if (!news) {
-    return <div className="text-center py-12">News not found</div>
+    return (
+      <EmptyState
+        icon={Newspaper}
+        title="News not found"
+        message="The news article you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
@@ -89,5 +96,5 @@ const NewsDetail = () => {
   )
 }
 
-export default NewsDetail
+export default memo(NewsDetail)
 

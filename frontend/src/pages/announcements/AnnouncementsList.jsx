@@ -8,7 +8,8 @@ import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import { useTheme } from '../../contexts/ThemeContext'
 import { isAdmin } from '../../utils/userHelpers'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { CardSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,15 +44,15 @@ const AnnouncementsList = () => {
     { keepPreviousData: true }
   )
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = useCallback((key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
     setPage(1)
-  }
+  }, [])
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({ tags: '', scheduled: '', published: '' })
     setPage(1)
-  }
+  }, [])
 
   const announcements = data?.announcements || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -157,7 +158,7 @@ const AnnouncementsList = () => {
             <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
               {announcement.image && (
                 <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
-                  <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#ff4701]/30 to-transparent" />
                 </div>
               )}
@@ -207,11 +208,11 @@ const AnnouncementsList = () => {
 
       {/* Empty State */}
       {!isLoading && announcements.length === 0 && (
-        <motion.div variants={itemVariants} className="empty-state">
-          <Megaphone size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">No announcements yet</h3>
-          <p className="empty-state-text">Check back later for updates</p>
-        </motion.div>
+        <EmptyState
+          icon={Megaphone}
+          title="No announcements yet"
+          message="Check back later for updates"
+        />
       )}
 
       {/* Pagination */}
@@ -239,4 +240,4 @@ const AnnouncementsList = () => {
   )
 }
 
-export default AnnouncementsList
+export default memo(AnnouncementsList)

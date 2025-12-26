@@ -5,6 +5,7 @@ import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import { extractId } from '../../utils/blogHelpers';
 import { MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import EmptyState from '../EmptyState';
 
 const CommentsSection = ({ 
   comments = [], 
@@ -120,7 +121,12 @@ const CommentsSection = ({
             );
           })
         ) : (
-          <p className="text-gray-500 text-center py-6">No comments yet. Be the first to comment!</p>
+          <EmptyState
+            icon={MessageCircle}
+            title="No comments yet"
+            message="Be the first to comment!"
+            compact
+          />
         )}
       </div>
     </motion.div>

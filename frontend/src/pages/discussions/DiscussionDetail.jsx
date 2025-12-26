@@ -7,8 +7,9 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { isAdmin } from '../../utils/userHelpers';
 import { useCreationStore } from '../../store/creationStore';
-import { DetailSkeleton } from '../../components/SkeletonLoader';
+import { DetailSkeleton } from '../../components/skeletons';
 import { ArrowLeft, Edit, Trash2, MessageCircle, User, Calendar, Tag, ChevronDown, ChevronUp } from 'lucide-react';
+import EmptyState from '../../components/EmptyState';
 
 const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
   const commentId = comment._id || comment.id;
@@ -257,10 +258,12 @@ const DiscussionDetail = () => {
           ))}
           
           {(!discussion.Comments || discussion.Comments.length === 0) && (
-            <div className="empty-state py-8">
-              <MessageCircle size={40} className="empty-state-icon" />
-              <p className="empty-state-text">No comments yet. Be the first!</p>
-            </div>
+            <EmptyState
+              icon={MessageCircle}
+              title="No comments yet"
+              message="Be the first!"
+              compact
+            />
           )}
         </div>
       </motion.div>
@@ -268,4 +271,4 @@ const DiscussionDetail = () => {
   );
 };
 
-export default DiscussionDetail;
+export default memo(DiscussionDetail);

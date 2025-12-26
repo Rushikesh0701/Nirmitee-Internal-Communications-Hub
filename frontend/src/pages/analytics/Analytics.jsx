@@ -6,6 +6,7 @@ import { useTheme } from '../../contexts/ThemeContext'
 import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { GridSkeleton, DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const COLORS = { news: '#64748b', blogs: '#10b981', discussions: '#8b5cf6' }
 
@@ -150,9 +151,12 @@ const Analytics = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className={`h-64 flex items-center justify-center transition-colors ${
-            theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
-          }`}>No data for selected period</div>
+          <EmptyState
+            icon={BarChart3}
+            title="No data for selected period"
+            message="Try selecting a different time range"
+            compact
+          />
         )}
         </motion.div>
       )}
@@ -180,9 +184,12 @@ const Analytics = () => {
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className={`h-64 flex items-center justify-center transition-colors ${
-            theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
-          }`}>No content data available</div>
+          <EmptyState
+            icon={BarChart3}
+            title="No content data available"
+            message="No content has been created yet"
+            compact
+          />
         )}
         </motion.div>
       )}

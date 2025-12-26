@@ -1,9 +1,11 @@
 import { useQuery } from 'react-query'
+import { memo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, GraduationCap, Users, Star, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const CourseDetail = () => {
   const { id } = useParams()
@@ -28,7 +30,13 @@ const CourseDetail = () => {
   }
 
   if (!course) {
-    return <div className="text-center py-12">Course not found</div>
+    return (
+      <EmptyState
+        icon={GraduationCap}
+        title="Course not found"
+        message="The course you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
@@ -110,5 +118,5 @@ const CourseDetail = () => {
   )
 }
 
-export default CourseDetail
+export default memo(CourseDetail)
 

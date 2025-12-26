@@ -10,6 +10,7 @@ import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
 import toast from 'react-hot-toast'
 import { useTheme } from '../../contexts/ThemeContext'
+import EmptyState from '../../components/EmptyState'
 
 export default function ProfilePage() {
   const { id } = useParams()
@@ -104,7 +105,15 @@ export default function ProfilePage() {
     )
   }
 
-  if (!profile) return <div className="empty-state"><User size={56} className="empty-state-icon" /><h3 className="empty-state-title">Profile not found</h3></div>
+  if (!profile) {
+    return (
+      <EmptyState
+        icon={User}
+        title="Profile not found"
+        message="The profile you're looking for doesn't exist"
+      />
+    )
+  }
 
   if (isEditing) {
     const roles = ['Admin', 'Moderator', 'Employee']

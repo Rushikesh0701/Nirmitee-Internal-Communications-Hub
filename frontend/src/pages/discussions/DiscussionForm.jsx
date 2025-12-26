@@ -8,7 +8,7 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const DiscussionForm = () => {
   const { id } = useParams()

@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save } from 'lucide-react'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { Plus, Edit2, Trash2, Save, Gift } from 'lucide-react'
+import { CardSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const AdminRewardsManagement = () => {
   const queryClient = useQueryClient()
@@ -339,9 +340,11 @@ const AdminRewardsManagement = () => {
       </div>
 
       {rewards.length === 0 && !isCreating && (
-        <div className="text-center py-12 text-gray-500">
-          No rewards found. Create your first reward to get started.
-        </div>
+        <EmptyState
+          icon={Gift}
+          title="No rewards found"
+          message="Create your first reward to get started"
+        />
       )}
     </div>
   )

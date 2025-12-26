@@ -9,7 +9,8 @@ import PostComposer from '../../components/PostComposer'
 import CommentsComponent from '../../components/CommentsComponent'
 import { ArrowLeft, Users, Lock, Pin, Heart, Trash2, LogOut, LogIn, Calendar, User } from 'lucide-react'
 import { format } from 'date-fns'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const GroupDetail = () => {
   const { id } = useParams()
@@ -47,7 +48,15 @@ const GroupDetail = () => {
   }
 
   if (groupLoading) return <DetailSkeleton />
-  if (!group) return <div className="empty-state"><Users size={56} className="empty-state-icon" /><h3 className="empty-state-title">Group not found</h3></div>
+  if (!group) {
+    return (
+      <EmptyState
+        icon={Users}
+        title="Group not found"
+        message="The group you're looking for doesn't exist or has been removed"
+      />
+    )
+  }
 
   const posts = postsData?.posts || []
   const isMember = group.isMember
@@ -65,7 +74,7 @@ const GroupDetail = () => {
       {/* Group Header */}
       <motion.div className="card overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         {group.coverImage ? (
-          <img src={group.coverImage} alt={group.name} className="w-full h-48 object-cover" />
+          <img src={group.coverImage} alt={group.name} className="w-full h-48 object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-48 bg-slate-100 flex items-center justify-center">
             <Users size={64} className="text-pink-400/50" />
@@ -138,10 +147,17 @@ const GroupDetail = () => {
           )
         })}
 
-        {!postsLoading && posts.length === 0 && <div className="empty-state py-12"><Users size={48} className="empty-state-icon" /><p className="empty-state-text">No posts yet. Be the first to post!</p></div>}
+        {!postsLoading && posts.length === 0 && (
+          <EmptyState
+            icon={Users}
+            title="No posts yet"
+            message="Be the first to post!"
+            compact
+          />
+        )}
       </div>
     </div>
   )
 }
 
-export default GroupDetail
+export default memo(GroupDetail)

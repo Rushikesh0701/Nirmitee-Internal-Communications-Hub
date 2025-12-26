@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from 'react-query';
@@ -7,8 +7,9 @@ import DiscussionCard from '../../components/discussion/DiscussionCard';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { MessageSquare, Search, Plus } from 'lucide-react';
-import { ListSkeleton } from '../../components/SkeletonLoader';
+import { ListSkeleton } from '../../components/skeletons';
 import Pagination from '../../components/Pagination';
+import EmptyState from '../../components/EmptyState';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -57,16 +58,16 @@ const Discussions = () => {
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };
 
   // Client-side search filtering
-  const filteredDiscussions = discussions.filter(
+  const filteredDiscussions = useMemo(() => discussions.filter(
     (discussion) =>
       !searchTerm ||
       discussion.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       discussion.content?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ), [discussions, searchTerm]);
 
   // Get all tags from all discussions (for tag filter dropdown)
   // Note: This might need to be fetched separately or from first page only
-  const allTags = [...new Set(discussions.flatMap((d) => d.tags || []))].sort();
+  const allTags = useMemo(() => [...new Set(discussions.flatMap((d) => d.tags || []))].sort(), [discussions]);
 
   return (
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
@@ -140,22 +141,20 @@ const Discussions = () => {
         </>
       ) : (
         !isLoading && (
-          <motion.div variants={itemVariants} className="empty-state">
-          <MessageSquare size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">No discussions found</h3>
-          <p className="empty-state-text mb-4">
-            {!isAuthenticated || !user ? 'Login to start a discussion!' : 'Try adjusting your search or create a new discussion'}
-          </p>
-          {isAuthenticated && user && (
-            <Link to="/discussions/create" className="btn-add">
-              <Plus size={16} /> Start First Discussion
-            </Link>
-          )}
-          </motion.div>
+          <EmptyState
+            icon={MessageSquare}
+            title="No discussions found"
+            message={!isAuthenticated || !user ? 'Login to start a discussion!' : 'Try adjusting your search or create a new discussion'}
+            action={isAuthenticated && user && (
+              <Link to="/discussions/create" className="btn-add">
+                <Plus size={16} /> Start First Discussion
+              </Link>
+            )}
+          />
         )
       )}
     </motion.div>
   );
 };
 
-export default Discussions;
+export default memo(Discussions);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
@@ -8,8 +8,9 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { Plus, Users, Lock, Search, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06 } } }
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }
@@ -47,7 +48,7 @@ const GroupsList = () => {
   })
 
   const canCreateGroup = isAdminOrModerator(user)
-  const handleJoin = (e, groupId) => { e.preventDefault(); e.stopPropagation(); joinMutation.mutate(groupId); }
+  const handleJoin = useCallback((e, groupId) => { e.preventDefault(); e.stopPropagation(); joinMutation.mutate(groupId); }, [joinMutation])
 
   const groups = data?.groups || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -99,7 +100,7 @@ const GroupsList = () => {
                   <Link to={`/groups/${groupId}`} className="card-hover block group overflow-hidden">
                     <div className="relative -mx-4 -mt-4 mb-1.5 overflow-hidden rounded-t-lg">
                       {group.coverImage ? (
-                        <img src={group.coverImage} alt={group.name} className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={group.coverImage} alt={group.name} className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                       ) : (
                         <div className="w-full h-20 bg-slate-100 flex items-center justify-center">
                           <Users size={32} className="text-pink-400/50" />
@@ -151,14 +152,14 @@ const GroupsList = () => {
 
       {/* Empty State */}
       {!isLoading && groups.length === 0 && (
-        <motion.div variants={itemVariants} className="empty-state">
-          <Users size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">No groups found</h3>
-          <p className="empty-state-text">{search || filter !== 'all' ? 'Try adjusting your search' : 'No groups yet. Create one to get started!'}</p>
-        </motion.div>
+        <EmptyState
+          icon={Users}
+          title="No groups found"
+          message={search || filter !== 'all' ? 'Try adjusting your search' : 'No groups yet. Create one to get started!'}
+        />
       )}
     </motion.div>
   )
 }
 
-export default GroupsList
+export default memo(GroupsList)

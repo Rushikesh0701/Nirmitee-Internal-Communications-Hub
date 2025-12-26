@@ -48,7 +48,7 @@ export default function RewardsCatalog() {
 
       {isLoading ? (
         <Loading />
-      ) : (
+      ) : rewards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rewards.map((reward) => (
             <div key={reward.id} className="bg-white rounded-lg p-6 transition-shadow">

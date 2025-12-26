@@ -6,7 +6,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const CourseForm = () => {
   const { id } = useParams()

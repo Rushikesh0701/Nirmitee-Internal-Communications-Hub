@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -132,4 +132,4 @@ const BlogCard = ({ blog }) => {
   );
 };
 
-export default BlogCard;
+export default memo(BlogCard);

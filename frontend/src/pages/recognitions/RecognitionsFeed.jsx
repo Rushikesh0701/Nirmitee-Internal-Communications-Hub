@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Plus, Award, Trophy, Star } from 'lucide-react'
 import { format } from 'date-fns'
-import { ListSkeleton } from '../../components/SkeletonLoader'
+import Loading from '../../components/Loading'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 export default function RecognitionsFeed() {
   const [page, setPage] = useState(1)
@@ -13,7 +14,7 @@ export default function RecognitionsFeed() {
   const { data, isLoading } = useQuery(
     ['recognitionFeed', page, limit],
     () => recognitionRewardApi.getRecognitionFeed({ page, limit }),
-    { keepPreviousData: true }
+    { keepPreviousData: true, refetchOnMount: 'always' }
   )
 
   const recognitions = data?.data?.recognitions || []
@@ -35,8 +36,8 @@ export default function RecognitionsFeed() {
         </Link>
       </div>
 
-      {isLoading && !data ? (
-        <ListSkeleton count={5} />
+      {isLoading ? (
+        <Loading />
       ) : (
         <>
           {recognitions.length > 0 ? (
@@ -93,7 +94,11 @@ export default function RecognitionsFeed() {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">No recognitions yet</div>
+            <EmptyState
+              icon={Award}
+              title="No recognitions yet"
+              message="Be the first to recognize a colleague!"
+            />
           )}
         </>
       )}

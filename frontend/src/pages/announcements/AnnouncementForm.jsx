@@ -8,7 +8,7 @@ import { ArrowLeft, Save, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Editor from '../../components/blog/Editor'
 import { useCreationStore } from '../../store/creationStore'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const AnnouncementForm = () => {
   const { id } = useParams()

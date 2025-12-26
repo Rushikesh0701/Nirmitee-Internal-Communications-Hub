@@ -8,6 +8,7 @@ import { ClipboardList, Calendar, Users, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 const SurveysList = () => {
   const { user } = useAuthStore()
@@ -105,9 +106,11 @@ const SurveysList = () => {
         </>
       ) : (
         !isLoading && (
-          <div className="text-center py-12 text-gray-500">
-            No active surveys
-          </div>
+          <EmptyState
+            icon={ClipboardList}
+            title="No active surveys"
+            message="Check back later for new surveys"
+          />
         )
       )}
     </div>

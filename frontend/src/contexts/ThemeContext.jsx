@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 
 // Helper functions for theme persistence
 const getTheme = () => {
@@ -18,7 +18,7 @@ const saveTheme = (theme) => {
   }
 }
 
-const ThemeContext = createContext()
+const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} })
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getTheme)
@@ -35,12 +35,14 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [theme])
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
+  }, [])
+
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   )
@@ -48,9 +50,8 @@ export const ThemeProvider = ({ children }) => {
 
 export const useTheme = () => {
   const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
+  // With default value in createContext, context will always be available
+  // This prevents crashes during HMR and development
   return context
 }
 

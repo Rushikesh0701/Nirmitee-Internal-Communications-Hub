@@ -3,6 +3,7 @@ import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Star, Gift, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 import Loading from '../../components/Loading'
+import EmptyState from '../../components/EmptyState'
 
 export default function PointsHistory() {
   const { data: pointsData } = useQuery('userPoints', () => recognitionRewardApi.getUserPoints())
@@ -72,7 +73,11 @@ export default function PointsHistory() {
         )}
 
         {!isLoading && redemptions.length === 0 && (
-          <div className="text-center py-12 text-gray-500">No redemption history</div>
+          <EmptyState
+            icon={Gift}
+            title="No redemption history"
+            message="You haven't redeemed any rewards yet"
+          />
         )}
       </div>
     </div>

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical } from 'lucide-react'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical, Rss } from 'lucide-react'
+import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
 import { useTheme } from '../../contexts/ThemeContext'
+import EmptyState from '../../components/EmptyState'
 
 const RssManagement = () => {
   const queryClient = useQueryClient()
@@ -813,25 +814,11 @@ const RssManagement = () => {
       </div>
 
       {sources.length === 0 && !isLoading && (
-        <div className={`p-12 text-center rounded-2xl border transition-colors ${
-          theme === 'dark'
-            ? 'bg-[#052829] border-[#0a3a3c]'
-            : 'bg-white border-slate-200'
-        }`}>
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors ${
-            theme === 'dark' ? 'bg-[#052829]' : 'bg-slate-50'
-          }`}>
-            <LinkIcon className={theme === 'dark' ? 'text-slate-500' : 'text-slate-300'} size={24} />
-          </div>
-          <h3 className={`text-lg font-bold transition-colors ${
-            theme === 'dark' ? 'text-slate-200' : 'text-slate-800'
-          }`}>No RSS sources yet</h3>
-          <p className={`max-w-xs mx-auto mt-1 transition-colors ${
-            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            Start by adding your first RSS feed to aggregate news articles.
-          </p>
-        </div>
+        <EmptyState
+          icon={Rss}
+          title="No RSS sources yet"
+          message="Start by adding your first RSS feed to aggregate news articles"
+        />
       )}
       
       {/* Mobile Pagination */}

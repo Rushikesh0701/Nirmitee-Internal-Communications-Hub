@@ -4,9 +4,10 @@ import { useForm } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, ClipboardList } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const SurveyForm = () => {
   const { id } = useParams()
@@ -208,11 +209,12 @@ const SurveyForm = () => {
             </div>
 
             {questions.length === 0 && (
-              <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 empty-questions-state">
-                <p className="text-gray-500 text-base">
-                  No questions added yet. Click &quot;Add Question&quot; to get started.
-                </p>
-              </div>
+              <EmptyState
+                icon={ClipboardList}
+                title="No questions added yet"
+                message="Click 'Add Question' to get started"
+                compact
+              />
             )}
 
             {questions.map((question, qIndex) => (

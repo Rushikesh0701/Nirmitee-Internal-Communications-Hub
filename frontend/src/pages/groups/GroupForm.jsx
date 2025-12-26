@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useCreationStore } from '../../store/creationStore'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const GroupForm = () => {
   const { id } = useParams()

@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
+import EmptyState from '../../components/EmptyState'
+import { Users } from 'lucide-react'
 
 const BADGES = [
   'Team Player',
@@ -57,19 +59,28 @@ export default function RecognitionForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Recipient <span className="text-red-500">*</span></label>
-            <select
-              value={formData.receiverId}
-              onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
-              className="input text-sm py-2"
-              required
-            >
-              <option value="">Select a colleague</option>
-              {usersData?.users?.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} - {user.department || 'No department'}
-                </option>
-              ))}
-            </select>
+            {usersData?.users && usersData.users.length > 0 ? (
+              <select
+                value={formData.receiverId}
+                onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
+                className="input text-sm py-2"
+                required
+              >
+                <option value="">Select a colleague</option>
+                {usersData.users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name} - {user.department || 'No department'}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <EmptyState
+                icon={Users}
+                title="No users available"
+                message="Unable to load user directory"
+                compact
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

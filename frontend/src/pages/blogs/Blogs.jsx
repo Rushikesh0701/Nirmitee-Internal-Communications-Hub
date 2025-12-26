@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
@@ -11,7 +11,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useBookmarks } from '../../hooks/useBookmarks';
 import { useTheme } from '../../contexts/ThemeContext';
 import Pagination from '../../components/Pagination';
-import { Plus } from 'lucide-react';
+import { Plus, BookOpen } from 'lucide-react';
+import EmptyState from '../../components/EmptyState';
 
 const Blogs = () => {
   const { theme } = useTheme();
@@ -223,14 +224,11 @@ const Blogs = () => {
               )}
             </>
           ) : (
-            <div className={`text-center py-12 ${
-              theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
-            }`}>
-              <p className={`text-xl mb-2 ${
-                theme === 'dark' ? 'text-slate-300' : 'text-gray-600'
-              }`}>No blogs found</p>
-              <p className="text-sm">
-                {!isAuthenticated 
+            <EmptyState
+              icon={BookOpen}
+              title="No blogs found"
+              message={
+                !isAuthenticated 
                   ? "Login to create your first blog!" 
                   : filter === 'drafts' 
                     ? "You don't have any draft blogs. Create a blog without publishing it to see it here."
@@ -239,8 +237,7 @@ const Blogs = () => {
                       : filter === 'bookmarked'
                         ? "You haven't bookmarked any blogs yet. Click the bookmark icon on any blog to save it here!"
                         : "Try adjusting your filters"}
-              </p>
-            </div>
+            />
           )}
         </>
       )}
@@ -248,4 +245,4 @@ const Blogs = () => {
   );
 };
 
-export default Blogs;
+export default memo(Blogs);

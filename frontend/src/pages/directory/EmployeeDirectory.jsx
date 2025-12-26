@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import api from '../../services/api'
 import RoleBadge from '../../components/RoleBadge'
 import { Search, Mail, Building, Briefcase, X, Users } from 'lucide-react'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
@@ -119,12 +120,14 @@ export default function EmployeeDirectory() {
         </>
       ) : (
         !isLoading && (
-          <motion.div variants={itemVariants} className="empty-state">
-          <Users size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">No employees found</h3>
-          <p className="empty-state-text mb-4">{search || department ? 'Try adjusting your search' : 'No employees yet'}</p>
-          {(search || department) && <button onClick={() => { setSearch(''); setDepartment(''); }} className="btn btn-primary">Clear Filters</button>}
-          </motion.div>
+          <EmptyState
+            icon={Users}
+            title="No employees found"
+            message={search || department ? 'Try adjusting your search' : 'No employees yet'}
+            action={(search || department) && (
+              <button onClick={() => { setSearch(''); setDepartment(''); }} className="btn btn-primary">Clear Filters</button>
+            )}
+          />
         )
       )}
     </motion.div>

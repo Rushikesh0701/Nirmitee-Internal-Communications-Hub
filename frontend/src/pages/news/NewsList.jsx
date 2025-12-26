@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp, Newspaper } from 'lucide-react';
 import NewsUpdateToast from '../../components/NewsUpdateToast';
 import Loading from '../../components/Loading';
 import { useTheme } from '../../contexts/ThemeContext';
+import EmptyState from '../../components/EmptyState';
 
 function NewsList() {
   const { theme } = useTheme();
@@ -792,20 +793,11 @@ function NewsList() {
 
       {/* No Results State */}
       {!loading && !error && articles.length === 0 && (
-        <div className={`text-center py-4 rounded-lg ${
-          theme === 'dark'
-            ? 'bg-[#052829]/50'
-            : 'bg-gray-50'
-        }`}>
-          <p className={`text-base font-medium ${
-            theme === 'dark' ? 'text-slate-300' : 'text-gray-600'
-          }`}>No articles found</p>
-          <p className={`text-xs mt-1.5 ${
-            theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
-          }`}>
-            Try adjusting your search criteria or filters
-          </p>
-        </div>
+        <EmptyState
+          icon={Newspaper}
+          title="No articles found"
+          message="Try adjusting your search criteria or filters"
+        />
       )}
 
       {/* Articles List */}
@@ -858,6 +850,7 @@ function NewsList() {
                         src={imageUrl}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        loading="lazy"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
@@ -1055,4 +1048,4 @@ function NewsList() {
   );
 }
 
-export default NewsList;
+export default memo(NewsList);

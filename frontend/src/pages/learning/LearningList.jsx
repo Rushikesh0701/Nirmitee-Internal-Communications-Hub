@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import api from '../../services/api'
-import { Users, Star, Clock } from 'lucide-react'
+import { Users, Star, Clock, GraduationCap } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 const LearningList = () => {
   const { user } = useAuthStore()
@@ -107,9 +108,11 @@ const LearningList = () => {
         </>
       ) : (
         !isLoading && (
-          <div className="text-center py-12 text-gray-500">
-            No courses available yet
-          </div>
+          <EmptyState
+            icon={GraduationCap}
+            title="No courses available yet"
+            message="Check back later for new learning opportunities"
+          />
         )
       )}
     </div>

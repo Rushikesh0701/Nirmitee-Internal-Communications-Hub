@@ -1,4 +1,5 @@
 import { useQuery } from 'react-query'
+import { useMemo, useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import { useTheme } from '../contexts/ThemeContext'
@@ -24,6 +25,7 @@ import {
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import Loading from '../components/Loading'
+import EmptyState from '../components/EmptyState'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -66,30 +68,30 @@ const Dashboard = () => {
   const announcements = announcementsData?.announcements || announcementsData || []
   const newsArticles = newsData?.results || newsData?.news || []
 
-  const quickLinks = [
+  const quickLinks = useMemo(() => [
     { path: '/news', icon: Newspaper, label: 'News' },
     { path: '/blogs', icon: BookOpen, label: 'Blogs' },
     { path: '/discussions', icon: MessageSquare, label: 'Discussions' },
     { path: '/recognitions', icon: Award, label: 'Recognitions' },
     { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
     { path: '/learning', icon: GraduationCap, label: 'Learning' }
-  ]
+  ], [])
 
-  const statCards = [
+  const statCards = useMemo(() => [
     { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: Newspaper },
     { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: BookOpen },
     { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users },
     { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: MessageSquare }
-  ]
+  ], [stats])
 
-  const getGreeting = () => {
+  const getGreeting = useCallback(() => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Good morning !!'
     if (hour < 17) return 'Good afternoon !!'
     return 'Good evening !!'
-  }
+  }, [])
 
-  const getUserDisplayName = () => {
+  const getUserDisplayName = useCallback(() => {
     if (!user) return 'User'
     
     // Combine firstName and lastName if both exist
@@ -99,7 +101,7 @@ const Dashboard = () => {
     
     // Fallback to other name fields
     return user.displayName || user.name || user.firstName || 'User'
-  }
+  }, [user])
 
   return (
     <div className="relative min-h-screen">
@@ -336,12 +338,12 @@ const Dashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className={`flex flex-col items-center justify-center h-full min-h-[120px] transition-colors ${
-                  theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
-                }`}>
-                  <Megaphone size={32} className="mb-2 opacity-30" />
-                  <p className="text-xs font-medium">No announcements available</p>
-                </div>
+                <EmptyState
+                  icon={Megaphone}
+                  title="No announcements available"
+                  message="Check back later for updates"
+                  compact
+                />
               )}
             </div>
           </div>
@@ -423,6 +425,7 @@ const Dashboard = () => {
                               src={imageUrl} 
                               alt={title} 
                               className="w-full h-full object-cover" 
+                              loading="lazy"
                               onError={(e) => {
                                 e.target.style.display = 'none';
                                 const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
@@ -461,30 +464,12 @@ const Dashboard = () => {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
-                {[...Array(6)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`rounded-lg overflow-hidden border backdrop-blur-sm animate-pulse ${
-                      theme === 'dark'
-                        ? 'border-[#0a3a3c]/50 bg-[#052829]/50'
-                        : 'border-slate-200 bg-white/60'
-                    }`}
-                  >
-                    <div className={`aspect-[4/3] ${
-                      theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
-                    }`} />
-                    <div className="p-2">
-                      <div className={`h-3 rounded w-3/4 mb-1 ${
-                        theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
-                      }`} />
-                      <div className={`h-2 rounded w-1/2 ${
-                        theme === 'dark' ? 'bg-[#052829]/30' : 'bg-slate-50'
-                      }`} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <EmptyState
+                icon={Newspaper}
+                title="No news available"
+                message="Check back later for latest updates"
+                compact
+              />
             )}
           </div>
         </motion.section>
@@ -562,4 +547,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default memo(Dashboard)

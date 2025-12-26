@@ -235,12 +235,12 @@ const Layout = () => {
     setSidebarCollapsed(collapsed)
   }
 
-  const isActivePath = (path) => {
+  const isActivePath = useCallback((path) => {
     if (path === '/dashboard') {
       return location.pathname === '/dashboard' || location.pathname === '/'
     }
     return location.pathname.startsWith(path)
-  }
+  }, [location.pathname])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -339,7 +339,7 @@ const Layout = () => {
                         title={item.label}
                       >
                         <Icon
-                          size={20}
+                          size={18}
                           className={`transition-all duration-200 ${isActive
                               ? 'text-white'
                               : sidebarTheme === 'dark'

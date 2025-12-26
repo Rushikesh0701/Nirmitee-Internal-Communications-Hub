@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Trophy, Medal, Award, Star } from 'lucide-react'
 import Loading from '../../components/Loading'
+import EmptyState from '../../components/EmptyState'
 
 export default function Leaderboard() {
   const { data, isLoading } = useQuery('leaderboard', () =>
@@ -70,7 +71,11 @@ export default function Leaderboard() {
       )}
 
       {!isLoading && leaderboard.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No leaderboard data yet</div>
+        <EmptyState
+          icon={Trophy}
+          title="No leaderboard data yet"
+          message="Start recognizing colleagues to see the leaderboard"
+        />
       )}
     </div>
   )

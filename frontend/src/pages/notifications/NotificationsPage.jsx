@@ -6,6 +6,7 @@ import { Bell, Check, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import Loading from '../../components/Loading'
 import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 /**
  * Get navigation link based on notification type and metadata
@@ -230,7 +231,11 @@ export default function NotificationsPage() {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">No notifications found</div>
+            <EmptyState
+              icon={Bell}
+              title="No notifications found"
+              message="You're all caught up!"
+            />
           )}
         </>
       )}

@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { memo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../../services/api'
-import { ArrowLeft, Calendar, User, Clock, Tag, Edit, Trash2 } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Clock, Tag, Edit, Trash2, Megaphone } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
 import { isAdmin } from '../../utils/userHelpers'
-import { DetailSkeleton } from '../../components/SkeletonLoader'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const AnnouncementDetail = () => {
   const { id } = useParams()
@@ -46,7 +48,13 @@ const AnnouncementDetail = () => {
   }
 
   if (!announcement) {
-    return <div className="text-center py-12">Announcement not found</div>
+    return (
+      <EmptyState
+        icon={Megaphone}
+        title="Announcement not found"
+        message="The announcement you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
@@ -143,5 +151,5 @@ const AnnouncementDetail = () => {
   )
 }
 
-export default AnnouncementDetail
+export default memo(AnnouncementDetail)
 

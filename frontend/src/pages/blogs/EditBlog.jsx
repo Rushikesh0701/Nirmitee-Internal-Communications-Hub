@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import Editor from '../../components/blog/Editor';
 import Loading from '../../components/Loading';
+import EmptyState from '../../components/EmptyState';
+import { BookOpen } from 'lucide-react';
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -82,16 +84,19 @@ const EditBlog = () => {
   if (!id || id === 'undefined' || id === 'null') {
     return (
       <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
-          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
-          <button
-            onClick={() => navigate('/blogs')}
-            className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-700"
-          >
-            ← Back to Blogs
-          </button>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Invalid Blog ID"
+          message="The blog ID is missing or invalid"
+          action={
+            <button
+              onClick={() => navigate('/blogs')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-sm font-medium"
+            >
+              ← Back to Blogs
+            </button>
+          }
+        />
       </div>
     );
   }
