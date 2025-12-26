@@ -201,11 +201,11 @@ const EditBlog = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="w-full space-y-3">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-xl font-bold text-slate-800 mb-3"
       >
         Edit Blog
       </motion.h1>
@@ -214,10 +214,10 @@ const EditBlog = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg p-8"
+        className="card p-4 space-y-4"
       >
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -226,12 +226,12 @@ const EditBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+            className="input text-sm py-2"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image
           </label>
           <div className="space-y-3">
@@ -256,7 +256,7 @@ const EditBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+              className="input text-sm py-2"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -281,8 +281,8 @@ const EditBlog = () => {
           </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Excerpt <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -292,12 +292,12 @@ const EditBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+            className="input text-sm py-2 resize-y"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <Editor
@@ -307,8 +307,8 @@ const EditBlog = () => {
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -318,14 +318,14 @@ const EditBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+            className="input text-sm py-2"
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Enter a custom category for your blog post
           </p>
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -335,7 +335,7 @@ const EditBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+              className="input flex-1 text-sm py-2"
             />
             <button
               type="button"
@@ -364,7 +364,7 @@ const EditBlog = () => {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -373,18 +373,18 @@ const EditBlog = () => {
               onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
               className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
             />
-            <span className="text-gray-700">
+            <span className="text-sm font-medium text-slate-700">
               Publish this blog
             </span>
           </label>
-          <p className="text-sm text-gray-500 mt-1 ml-6">
+          <p className="text-xs text-slate-500 mt-1 ml-6">
             {formData.isPublished 
               ? 'This blog is published and visible to everyone.' 
               : 'This blog is saved as a draft and only visible to you.'}
           </p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
           <button
             type="submit"
             disabled={updateMutation.isLoading}

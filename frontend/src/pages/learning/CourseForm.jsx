@@ -100,20 +100,20 @@ const CourseForm = () => {
         <span className="font-medium">Back to Learning</span>
       </Link>
 
-      <div className="card p-6 lg:p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <div className="card p-4">
+        <h1 className="text-xl font-bold text-slate-800 mb-4">
           {isEdit ? 'Edit Course' : 'Create New Course'}
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input text-base py-2.5"
+              className="input text-sm py-2"
               placeholder="Enter course title"
             />
             {errors.title && (
@@ -122,23 +122,23 @@ const CourseForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
               Description
             </label>
             <textarea
               {...register('description')}
               rows={5}
-              className="input text-base py-2.5 resize-y"
+              className="input text-sm py-2 resize-y"
               placeholder="Describe the course content and objectives"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                 Difficulty
               </label>
-              <select {...register('difficulty')} className="input text-base py-2.5">
+              <select {...register('difficulty')} className="input text-sm py-2">
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
@@ -146,13 +146,13 @@ const CourseForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                 Duration (hours)
               </label>
               <input
                 type="number"
                 {...register('duration')}
-                className="input text-base py-2.5"
+                className="input text-sm py-2"
                 placeholder="e.g., 10"
                 min="0"
               />
@@ -160,13 +160,13 @@ const CourseForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
               Thumbnail URL
             </label>
             <input
               type="url"
               {...register('thumbnail')}
-              className="input text-base py-2.5"
+              className="input text-sm py-2"
               placeholder="https://example.com/image.jpg"
             />
             {watch('thumbnail') && (
@@ -181,7 +181,7 @@ const CourseForm = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}

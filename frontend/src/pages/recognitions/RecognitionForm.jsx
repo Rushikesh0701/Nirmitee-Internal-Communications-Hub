@@ -50,17 +50,17 @@ export default function RecognitionForm() {
   }
 
   return (
-    <div className="w-full space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Send Recognition</h1>
+    <div className="w-full space-y-3">
+      <h1 className="text-xl font-bold text-slate-800 mb-3">Send Recognition</h1>
       
-      <div className="card p-6 lg:p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="card p-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Recipient <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Recipient <span className="text-red-500">*</span></label>
             <select
               value={formData.receiverId}
               onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
-              className="input text-base py-2.5"
+              className="input text-sm py-2"
               required
             >
               <option value="">Select a colleague</option>
@@ -72,13 +72,13 @@ export default function RecognitionForm() {
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Badge</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Badge</label>
               <select
                 value={formData.badge}
                 onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                className="input text-base py-2.5"
+                className="input text-sm py-2"
               >
                 <option value="">No badge</option>
                 {BADGES.map((badge) => (
@@ -90,31 +90,31 @@ export default function RecognitionForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Points</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Points</label>
               <input
                 type="number"
                 min="0"
                 max="100"
                 value={formData.points}
                 onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-                className="input text-base py-2.5"
+                className="input text-sm py-2"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Message <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Message <span className="text-red-500">*</span></label>
             <textarea
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               rows={5}
-              className="input text-base py-2.5 resize-y"
+              className="input text-sm py-2 resize-y"
               placeholder="Write a message recognizing your colleague's contribution..."
               required
             />
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
             <button
               type="submit"
               disabled={sendMutation.isLoading}

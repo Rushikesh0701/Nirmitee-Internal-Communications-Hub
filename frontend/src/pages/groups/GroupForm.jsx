@@ -127,15 +127,15 @@ const GroupForm = () => {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-xl font-bold text-slate-800">
           {isEdit ? 'Edit Group' : 'Create New Group'}
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="card p-6 lg:p-8 space-y-6">
+      <form onSubmit={handleSubmit} className="card p-4 space-y-4">
         {/* Cover Image */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image (Optional)
           </label>
           {formData.coverImage && (
@@ -149,13 +149,13 @@ const GroupForm = () => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="input text-base py-2.5"
+            className="input text-sm py-2"
           />
         </div>
 
         {/* Group Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Group Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -163,7 +163,7 @@ const GroupForm = () => {
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="input text-base py-2.5"
+            className="input text-sm py-2"
             placeholder="Enter group name"
             required
           />
@@ -171,14 +171,14 @@ const GroupForm = () => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Description
           </label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="input text-base py-2.5 resize-y"
+            className="input text-sm py-2 resize-y"
             rows={4}
             placeholder="Describe what this group is about..."
           />
@@ -186,7 +186,7 @@ const GroupForm = () => {
 
         {/* Privacy */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-2">
             Privacy
           </label>
           <div className="space-y-3">
@@ -212,7 +212,7 @@ const GroupForm = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-4 pt-6 border-t border-slate-200">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
           <button
             type="button"
             onClick={() => navigate(-1)}

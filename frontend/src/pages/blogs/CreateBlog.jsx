@@ -156,11 +156,11 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-3">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-900 mb-6"
+        className="text-xl font-bold text-slate-800 mb-3"
       >
         Create New Blog
       </motion.h1>
@@ -169,10 +169,10 @@ const CreateBlog = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="card p-6 lg:p-8 space-y-6"
+        className="card p-4 space-y-4"
       >
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -181,12 +181,12 @@ const CreateBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="input text-base py-2.5"
+            className="input text-sm py-2"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image
           </label>
           <div className="space-y-3">
@@ -231,7 +231,7 @@ const CreateBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="input text-base py-2.5"
+              className="input text-sm py-2"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -257,7 +257,7 @@ const CreateBlog = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Excerpt <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -267,12 +267,12 @@ const CreateBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="input text-base py-2.5 resize-y"
+            className="input text-sm py-2 resize-y"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <Editor
@@ -283,7 +283,7 @@ const CreateBlog = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -293,7 +293,7 @@ const CreateBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="input text-base py-2.5"
+            className="input text-sm py-2"
           />
           <p className="text-xs text-slate-500 mt-1">
             Enter a custom category for your blog post
@@ -301,7 +301,7 @@ const CreateBlog = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -311,7 +311,7 @@ const CreateBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="input flex-1 text-base py-2.5"
+              className="input flex-1 text-sm py-2"
             />
             <button
               type="button"
@@ -360,7 +360,7 @@ const CreateBlog = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
+        <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}

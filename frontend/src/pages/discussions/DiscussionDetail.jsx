@@ -208,9 +208,10 @@ const DiscussionDetail = () => {
   };
 
   return (
-    <motion.div className="max-w-4xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <button onClick={() => navigate('/discussions')} className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2">
-        <ArrowLeft size={18} /> Back to Discussions
+    <div className="w-full space-y-6">
+      <button onClick={() => navigate('/discussions')} className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4">
+        <ArrowLeft size={18} />
+        <span className="font-medium">Back to Discussions</span>
       </button>
 
       <motion.article className="card p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -263,7 +264,7 @@ const DiscussionDetail = () => {
           )}
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
