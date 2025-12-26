@@ -7,7 +7,6 @@ import { useDocumentTitle, useNotificationSound } from '../hooks/useNotification
 import { useTheme } from '../contexts/ThemeContext'
 import { getThoughtOfTheDay } from '../utils/thoughtsOfTheDay'
 import Logo from '../assets/Logo.png'
-import CollapsedLogo from '../assets/Untitled_design-removebg-preview.png'
 import {
   LayoutDashboard,
   Newspaper,
@@ -300,7 +299,7 @@ const Layout = () => {
                   onClick={() => handleSidebarCollapseToggle(false)}
                     className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
                 >
-                  <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
+                  <img src={Logo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
                 </button>
               ) : (
                 <>
