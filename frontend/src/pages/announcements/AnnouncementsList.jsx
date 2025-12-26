@@ -63,7 +63,7 @@ const AnnouncementsList = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-blue-600">
+          <div className="p-2 rounded-lg bg-slate-700">
             <Megaphone size={20} className="text-white" />
           </div>
           <div>
@@ -170,8 +170,8 @@ const AnnouncementsList = () => {
                 )}
                 <h3 className={`text-lg font-semibold line-clamp-2 transition-colors ${
                   theme === 'dark'
-                    ? 'text-slate-200 group-hover:text-blue-400'
-                    : 'text-slate-800 group-hover:text-blue-600'
+                    ? 'text-slate-200 group-hover:text-slate-500'
+                    : 'text-slate-800 group-hover:text-slate-700'
                 }`}>
                   {announcement.title}
                 </h3>

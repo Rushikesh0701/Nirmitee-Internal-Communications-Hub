@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 /* ================================
-   PROFESSIONAL GRAY/BLUE THEME
+   PROFESSIONAL GRAY/SLATE THEME
    ================================ */
 
 :root {
   /* Solid Color Palette */
-  --primary-blue: #2563eb;
-  --primary-blue-hover: #1d4ed8;
-  --primary-blue-light: #3b82f6;
+  --primary-slate: #475569;
+  --primary-slate-hover: #334155;
+  --primary-slate-light: #64748b;
 
   /* Light Theme Colors */
   --light-bg: #f8fafc;
@@ -74,7 +74,7 @@
   }
 
   .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm;
+    @apply bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-600 shadow-sm;
   }
 
   .btn-primary:hover {
@@ -109,7 +109,7 @@
   /* Compact Add Button - Standardized for all Add/Create buttons */
   .btn-add {
     @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-1;
-    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm;
+    @apply bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-600 shadow-sm;
   }
 
   .btn-add:hover {
@@ -117,7 +117,7 @@
   }
 
   body.dark-theme .btn-add {
-    @apply bg-blue-600 hover:bg-blue-700;
+    @apply bg-slate-700 hover:bg-slate-800;
   }
 
   /* Compact Filter Button - Standardized for all filter buttons */
@@ -128,7 +128,7 @@
   }
 
   .btn-filter-active {
-    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700;
+    @apply bg-slate-700 text-white border-slate-700 hover:bg-slate-800 hover:border-slate-800;
   }
 
   .btn-filter:hover {
@@ -140,12 +140,12 @@
   }
 
   body.dark-theme .btn-filter-active {
-    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+    @apply bg-slate-700 text-white border-slate-700 hover:bg-slate-800;
   }
 
   /* Compact Filter Select - Standardized for all filter dropdowns */
   .filter-select {
-    @apply px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+    @apply px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 transition-all;
     @apply bg-white border-slate-300 text-slate-700;
   }
 
@@ -166,7 +166,7 @@
   }
 
   .input:focus {
-    @apply outline-none border-blue-500 bg-white;
+    @apply outline-none border-slate-600 bg-white;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
@@ -183,7 +183,7 @@
   }
 
   body.dark-theme .input:focus {
-    @apply border-blue-500 bg-slate-800;
+    @apply border-slate-600 bg-slate-800;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
   }
 
@@ -263,7 +263,7 @@
   }
 
   .badge-primary {
-    @apply bg-blue-100 text-blue-700 border border-blue-200;
+    @apply bg-slate-100 text-slate-700 border border-slate-300;
   }
 
   .badge-success {
@@ -348,7 +348,7 @@
   }
 
   .pagination-btn-active {
-    @apply bg-blue-600 border-transparent text-white;
+    @apply bg-slate-700 border-transparent text-white;
   }
 
   body.dark-theme .pagination-btn {
@@ -386,7 +386,7 @@
   }
 
   .tab-btn-active {
-    @apply bg-white text-blue-600 shadow-sm;
+    @apply bg-white text-slate-700 shadow-sm;
   }
 
   /* ================================
@@ -602,7 +602,7 @@
 
   /* Text Gradients - Removed, use solid colors */
   .text-gradient {
-    color: var(--primary-blue);
+    color: var(--primary-slate);
   }
 
   /* Hover Effects */
@@ -762,7 +762,7 @@
   height: 48px;
   border-radius: 50%;
   border: 3px solid #e2e8f0;
-  border-top-color: #2563eb;
+  border-top-color: #475569;
   animation: spin-slow 1s linear infinite;
 }
 
@@ -775,7 +775,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #2563eb;
+  background: #475569;
   animation: bounce-soft 1.4s ease-in-out infinite;
 }
 

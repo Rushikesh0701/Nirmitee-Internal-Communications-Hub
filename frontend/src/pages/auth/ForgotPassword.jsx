@@ -83,7 +83,7 @@ const ForgotPassword = () => {
         </motion.p>
 
         <motion.p 
-          className="text-blue-600 font-semibold mb-4"
+          className="text-slate-700 font-semibold mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -111,7 +111,7 @@ const ForgotPassword = () => {
         >
           <Link 
             to="/login"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+            className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-700 font-medium"
           >
             <ArrowLeft size={18} />
             Back to Sign In
@@ -167,7 +167,7 @@ const ForgotPassword = () => {
             Email Address
           </label>
           <div className="relative group">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
               type="email"
               {...register('email', { 
@@ -179,7 +179,7 @@ const ForgotPassword = () => {
               })}
               className="w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:bg-white focus:border-slate-600 focus:ring-2 focus:ring-slate-300 
                          focus:outline-none transition-all duration-200"
               placeholder="your.name@nirmitee.io"
             />
@@ -190,7 +190,7 @@ const ForgotPassword = () => {
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 relative overflow-hidden group disabled:opacity-70"
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-slate-700 hover:bg-slate-800 relative overflow-hidden group disabled:opacity-70"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}

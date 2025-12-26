@@ -95,7 +95,7 @@ const Editor = ({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-blue-600 underline',
+          class: 'text-slate-700 underline',
         },
       }),
       Placeholder.configure({

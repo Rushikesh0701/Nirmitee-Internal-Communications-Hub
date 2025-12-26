@@ -520,7 +520,7 @@ function NewsList() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search news by keywords, phrases, or topics..."
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent ${
                 theme === 'dark'
                   ? 'border-slate-600 bg-slate-700/50 text-slate-200 placeholder-slate-500'
                   : 'border-gray-300 bg-white text-gray-900'
@@ -530,7 +530,7 @@ function NewsList() {
           <button
             type="submit"
             disabled={loading || loadingMore}
-            className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="px-6 py-2.5 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             <Search size={18} />
             {loading && !loadingMore ? 'Searching...' : 'Search'}
@@ -567,7 +567,7 @@ function NewsList() {
               <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
                 theme === 'dark'
                   ? 'bg-indigo-500/20 text-indigo-400'
-                  : 'bg-blue-100 text-blue-700'
+                  : 'bg-slate-100 text-slate-700'
               }`}>
                 {activeFiltersCount} active
               </span>
@@ -722,7 +722,7 @@ function NewsList() {
                     type="checkbox"
                     checked={exactPhrase}
                     onChange={(e) => setExactPhrase(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
                   />
                   <span className="text-sm text-gray-700">Exact phrase match</span>
                 </label>
@@ -741,7 +741,7 @@ function NewsList() {
                     type="date"
                     value={minDate}
                     onChange={(e) => setMinDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
                   />
                 </div>
                 <div>
@@ -753,7 +753,7 @@ function NewsList() {
                     type="date"
                     value={maxDate}
                     onChange={(e) => setMaxDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
                   />
                 </div>
               </div>
@@ -864,7 +864,7 @@ function NewsList() {
                       <h3 className={`text-xs font-semibold line-clamp-2 mb-0.5 transition-colors ${
                         theme === 'dark'
                           ? 'text-slate-200 group-hover:text-indigo-400'
-                          : 'text-gray-900 group-hover:text-blue-600'
+                          : 'text-gray-900 group-hover:text-slate-700'
                       }`}>
                         {title}
                       </h3>
@@ -925,7 +925,7 @@ function NewsList() {
               <select
                 value={recordsPerPage}
                 onChange={handleRecordsPerPageChange}
-                className={`px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer ${
+                className={`px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 font-medium cursor-pointer ${
                   theme === 'dark'
                     ? 'border-slate-600 bg-slate-700/50 text-slate-200'
                     : 'border-gray-300 text-gray-700 bg-white'
@@ -998,7 +998,7 @@ function NewsList() {
               <div className={`hidden sm:flex items-center px-4 py-2 border font-semibold rounded-lg min-w-[60px] justify-center ${
                 theme === 'dark'
                   ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400'
-                  : 'bg-blue-50 border-blue-200 text-blue-700'
+                  : 'bg-slate-50 border-slate-300 text-slate-700'
               }`}>
                 {currentPage}
               </div>
@@ -1010,7 +1010,7 @@ function NewsList() {
                 className={`p-2 rounded-lg transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-700/50 disabled:text-slate-500'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500'
+                    : 'bg-slate-700 text-white hover:bg-slate-800 disabled:bg-gray-300 disabled:text-gray-500'
                 }`}
                 title={hasMorePages ? "Next page" : "No more pages"}
               >

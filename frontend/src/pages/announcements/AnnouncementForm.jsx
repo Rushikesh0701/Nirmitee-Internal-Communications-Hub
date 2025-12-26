@@ -187,7 +187,7 @@ const AnnouncementForm = () => {
               className="input"
             />
             {scheduledAt && (
-              <p className="mt-1 text-sm text-blue-600">
+              <p className="mt-1 text-sm text-slate-700">
                 This announcement will be published on{' '}
                 {new Date(scheduledAt).toLocaleString()}
               </p>

@@ -43,7 +43,7 @@ const DiscussionCard = ({ discussion }) => {
               {discussion.Disagrees || discussion.disagrees || 0}
             </span>
             <span className="flex items-center gap-0.5">
-              <MessageCircle size={12} className="text-blue-500" />
+              <MessageCircle size={12} className="text-slate-600" />
               <span className="hidden xs:inline">{discussion.answers?.length || discussion.Comments?.length || 0} answers</span>
               <span className="xs:hidden">{discussion.answers?.length || discussion.Comments?.length || 0}</span>
             </span>

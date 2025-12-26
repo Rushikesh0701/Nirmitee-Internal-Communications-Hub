@@ -80,7 +80,7 @@ const Pagination = ({
             <select
               value={limit}
               onChange={(e) => onLimitChange?.(parseInt(e.target.value))}
-              className={`px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 ${
                 theme === 'dark'
                   ? 'border-slate-600 bg-slate-700/50 text-slate-200'
                   : 'border-gray-300 bg-white text-gray-900'
@@ -139,8 +139,8 @@ const Pagination = ({
                 className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
                   currentPage === pageNum
                     ? theme === 'dark'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-600 text-white'
+                      ? 'bg-slate-700 text-white'
+                      : 'bg-slate-700 text-white'
                     : theme === 'dark'
                     ? 'bg-slate-700 hover:bg-slate-600 text-slate-200'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'

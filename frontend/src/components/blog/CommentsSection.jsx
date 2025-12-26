@@ -48,9 +48,9 @@ const CommentsSection = ({
           />
         </div>
       ) : (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-4 bg-slate-50 border border-slate-300 rounded-lg">
           <p className="text-gray-600">
-            Please <Link to="/login" className="text-blue-600 hover:text-blue-700 underline">login</Link> to comment
+            Please <Link to="/login" className="text-slate-700 hover:text-slate-700 underline">login</Link> to comment
           </p>
         </div>
       )}
@@ -89,7 +89,7 @@ const CommentsSection = ({
 
                 {/* Replies */}
                 {replies.length > 0 && (
-                  <div className="ml-6 space-y-3 border-l-2 border-blue-300 pl-4">
+                  <div className="ml-6 space-y-3 border-l-2 border-slate-400 pl-4">
                     {(() => {
                       const isExpanded = expandedReplies[commentId];
                       const repliesToShow = isExpanded ? replies : replies.slice(0, INITIAL_REPLIES_LIMIT);
@@ -108,7 +108,7 @@ const CommentsSection = ({
                     {replies.length > INITIAL_REPLIES_LIMIT && (
                       <button
                         onClick={() => toggleExpandReplies(commentId)}
-                        className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1 mt-2"
+                        className="text-slate-700 hover:text-slate-700 text-sm flex items-center gap-1 mt-2"
                       >
                         {expandedReplies[commentId] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         {expandedReplies[commentId] ? 'View less' : `View ${replies.length - INITIAL_REPLIES_LIMIT} more`}

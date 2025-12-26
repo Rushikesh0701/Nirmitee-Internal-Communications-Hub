@@ -7,7 +7,7 @@ import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-reac
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Loading from '../../components/Loading'
 
-const COLORS = { news: '#3b82f6', blogs: '#10b981', discussions: '#8b5cf6' }
+const COLORS = { news: '#64748b', blogs: '#10b981', discussions: '#8b5cf6' }
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
@@ -58,7 +58,7 @@ const Analytics = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-blue-600">
+          <div className="p-2 rounded-lg bg-slate-700">
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
@@ -97,7 +97,7 @@ const Analytics = () => {
                 <p className="text-xs text-slate-500">{stat.label}</p>
                 <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className="p-2 rounded-lg bg-blue-600">
+              <div className="p-2 rounded-lg bg-slate-700">
                 <stat.icon size={20} className="text-white" />
               </div>
             </div>

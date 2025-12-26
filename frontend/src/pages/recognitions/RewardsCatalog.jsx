@@ -55,8 +55,8 @@ export default function RewardsCatalog() {
               {reward.image && (
                 <img src={reward.image} alt={reward.title} className="w-full h-48 object-cover rounded-lg mb-4" />
               )}
-              <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-4 mx-auto">
-                <Gift className="text-blue-600" size={32} />
+              <div className="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-lg mb-4 mx-auto">
+                <Gift className="text-slate-700" size={32} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{reward.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{reward.description}</p>
@@ -70,7 +70,7 @@ export default function RewardsCatalog() {
                   disabled={userPoints < reward.points}
                   className={`px-4 py-2 rounded-lg font-medium ${
                     userPoints >= reward.points
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-slate-700 text-white hover:bg-slate-800'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   }`}
                 >
@@ -94,7 +94,7 @@ export default function RewardsCatalog() {
               <button
                 onClick={() => handleRedeem(selectedReward.id)}
                 disabled={redeemMutation.isLoading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
               >
                 {redeemMutation.isLoading ? 'Redeeming...' : 'Confirm'}
               </button>

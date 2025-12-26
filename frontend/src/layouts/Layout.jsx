@@ -321,10 +321,10 @@ const Layout = () => {
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group relative
                           ${isActive
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-slate-700 text-white'
                             : sidebarTheme === 'dark'
-                              ? 'text-slate-300 hover:text-blue-400 hover:bg-slate-800'
-                              : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
+                              ? 'text-slate-300 hover:text-slate-500 hover:bg-slate-800'
+                              : 'text-slate-600 hover:text-slate-700 hover:bg-slate-100'
                           }`}
                         title={item.label}
                       >
@@ -393,10 +393,10 @@ const Layout = () => {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-all duration-200 group relative
                                       ${isActive
-                                        ? 'bg-blue-600 text-white'
+                                        ? 'bg-slate-700 text-white'
                                         : sidebarTheme === 'dark'
                                           ? 'text-slate-300 hover:text-white hover:bg-slate-800'
-                                          : 'text-slate-700 hover:text-blue-700 hover:bg-slate-100'
+                                          : 'text-slate-700 hover:text-slate-700 hover:bg-slate-100'
                                       }`}
                                   >
                                     <Icon
@@ -405,7 +405,7 @@ const Layout = () => {
                                           ? 'text-white'
                                           : sidebarTheme === 'dark'
                                             ? 'text-slate-400 group-hover:text-indigo-400 group-hover:scale-110'
-                                            : 'text-slate-500 group-hover:text-blue-600'
+                                            : 'text-slate-500 group-hover:text-slate-700'
                                         }`}
                                     />
                                     <span className={`flex-1 text-xs transition-all duration-200 ${isActive ? 'font-semibold' : 'group-hover:font-medium'
@@ -435,7 +435,7 @@ const Layout = () => {
                     }`}
                 >
                   <div className="relative">
-                    <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center">
                       {user?.avatar ? (
                         <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                       ) : (
@@ -460,28 +460,28 @@ const Layout = () => {
                               size={12} 
                               className={sidebarTheme === 'dark' 
                                 ? isAdmin 
-                                  ? 'text-blue-400' 
+                                  ? 'text-slate-500' 
                                   : isModerator
-                                  ? 'text-blue-400'
+                                  ? 'text-slate-500'
                                   : 'text-slate-400'
                                 : isAdmin
-                                  ? 'text-blue-600'
+                                  ? 'text-slate-700'
                                   : isModerator
-                                  ? 'text-blue-600'
+                                  ? 'text-slate-700'
                                   : 'text-slate-600'
                               }
                             />
                             <span 
                               className={`text-[10px] font-semibold ${sidebarTheme === 'dark' 
                                 ? isAdmin 
-                                  ? 'text-blue-400' 
+                                  ? 'text-slate-500' 
                                   : isModerator
-                                  ? 'text-blue-400'
+                                  ? 'text-slate-500'
                                   : 'text-slate-400'
                                 : isAdmin
-                                  ? 'text-blue-600'
+                                  ? 'text-slate-700'
                                   : isModerator
-                                  ? 'text-blue-600'
+                                  ? 'text-slate-700'
                                   : 'text-slate-600'
                               }`}
                             >
@@ -550,7 +550,7 @@ const Layout = () => {
                   sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-600'
                 }`}>Welcome back,</span>
                 <span className={`text-sm font-semibold transition-colors ${
-                  sidebarTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'
+                  sidebarTheme === 'dark' ? 'text-slate-500' : 'text-slate-700'
                 }`}>
                   {user?.firstName && user?.lastName 
                     ? `${user.firstName} ${user.lastName}`.trim()
@@ -588,7 +588,7 @@ const Layout = () => {
                   }`}
                   title="User menu"
                 >
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                     ) : (

@@ -12,7 +12,7 @@ export default function RoleBadge({ role, size = 'sm', showIcon = true }) {
       case 'Admin':
         return 'bg-purple-100 text-purple-800 border-purple-200'
       case 'Moderator':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
+        return 'bg-slate-100 text-slate-800 border-slate-300'
       case 'Employee':
         return 'bg-gray-100 text-gray-800 border-gray-200'
       default:

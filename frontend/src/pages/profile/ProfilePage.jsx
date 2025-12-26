@@ -95,7 +95,7 @@ export default function ProfilePage() {
     return (
       <motion.div className="max-w-2xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-600">
+          <div className="p-2 rounded-lg bg-slate-700">
             <Edit size={22} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800">
@@ -107,8 +107,8 @@ export default function ProfilePage() {
 
         <div className="card space-y-4">
           {isAdmin(currentUser) && !isOwnProfile && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700"><strong>Admin Mode:</strong> Editing another user's profile</p>
+            <div className="p-3 bg-slate-50 border border-slate-300 rounded-lg">
+              <p className="text-sm text-slate-700"><strong>Admin Mode:</strong> Editing another user's profile</p>
             </div>
           )}
           
@@ -133,7 +133,7 @@ export default function ProfilePage() {
           {isAdmin(currentUser) && (
             <>
               <div><label className="form-label">Role</label><select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select"><option value="">Select Role</option>{roles.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <div className="flex items-center gap-2"><input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600" /><label htmlFor="isActive" className="text-sm text-slate-600">Active User</label></div>
+              <div className="flex items-center gap-2"><input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-slate-700" /><label htmlFor="isActive" className="text-sm text-slate-600">Active User</label></div>
             </>
           )}
           
@@ -154,7 +154,7 @@ export default function ProfilePage() {
             {profile.avatar ? (
               <img src={profile.avatar} alt={profile.name} className="w-16 h-16 rounded-full ring-2 ring-slate-200" />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center ring-2 ring-slate-200">
+              <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-200">
                 <span className="text-white font-semibold text-lg">
                   {profile.firstName && profile.lastName
                     ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
@@ -197,13 +197,13 @@ export default function ProfilePage() {
 
         <div className="flex flex-wrap gap-4">
           {profile.email && <div className="flex items-center gap-1.5 text-xs text-slate-500"><Mail size={14} /> {profile.email}</div>}
-          {profile.points > 0 && <div className="flex items-center gap-1.5 text-xs text-blue-600"><Star size={14} /> {profile.points} points</div>}
+          {profile.points > 0 && <div className="flex items-center gap-1.5 text-xs text-slate-700"><Star size={14} /> {profile.points} points</div>}
         </div>
       </motion.div>
 
       {profile.badges?.length > 0 && (
         <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <h2 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Award className="text-blue-600" size={18} /> Recognition Badges</h2>
+          <h2 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Award className="text-slate-700" size={18} /> Recognition Badges</h2>
           <div className="flex flex-wrap gap-2">{profile.badges.map((badge, index) => <span key={index} className="badge badge-primary text-xs">{badge}</span>)}</div>
         </motion.div>
       )}

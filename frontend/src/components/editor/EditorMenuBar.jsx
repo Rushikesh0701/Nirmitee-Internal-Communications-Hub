@@ -229,7 +229,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('bold') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Bold (Ctrl+B)"
           >
@@ -239,7 +239,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('italic') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Italic (Ctrl+I)"
           >
@@ -249,7 +249,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('underline') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('underline') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Underline (Ctrl+U)"
           >
@@ -259,7 +259,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('strike') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('strike') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Strikethrough"
           >
@@ -306,7 +306,7 @@ const EditorMenuBar = ({
                       setShowFontSizePicker(false);
                     }}
                     className={`px-2 py-1 text-xs rounded hover:bg-gray-100 ${
-                      getCurrentFontSize() === size ? 'bg-blue-100 text-blue-600' : ''
+                      getCurrentFontSize() === size ? 'bg-slate-100 text-slate-700' : ''
                     }`}
                   >
                     {size}
@@ -345,7 +345,7 @@ const EditorMenuBar = ({
                     setShowFontFamilyPicker(false);
                   }}
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${
-                    getCurrentFontFamily() === font.value ? 'bg-blue-100 text-blue-600' : ''
+                    getCurrentFontFamily() === font.value ? 'bg-slate-100 text-slate-700' : ''
                   }`}
                   style={font.value ? { fontFamily: font.value } : {}}
                 >
@@ -384,7 +384,7 @@ const EditorMenuBar = ({
                             }}
                             className={`w-8 h-8 rounded-lg border-2 transition-all ${
                               isSelected 
-                                ? 'border-blue-600 ring-2 ring-blue-300' 
+                                ? 'border-slate-700 ring-2 ring-slate-400' 
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                             style={{ backgroundColor: color }}
@@ -443,7 +443,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('bulletList') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Bullet List"
           >
@@ -453,7 +453,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('orderedList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('orderedList') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Numbered List"
           >
@@ -463,7 +463,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('blockquote') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Blockquote"
           >
@@ -477,7 +477,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'left' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'left' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Left"
           >
@@ -487,7 +487,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'center' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'center' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Center"
           >
@@ -497,7 +497,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('right').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'right' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'right' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Right"
           >
@@ -507,7 +507,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('justify').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'justify' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Justify"
           >
@@ -521,7 +521,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('code') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('code') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Inline Code"
           >
@@ -531,7 +531,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('codeBlock') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('codeBlock') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Code Block"
           >
@@ -561,7 +561,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={onLinkClick}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('link') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Insert Link"
           >
@@ -578,7 +578,7 @@ const EditorMenuBar = ({
               toast.success('Table inserted');
             }}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('table') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('table') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Insert Table"
           >

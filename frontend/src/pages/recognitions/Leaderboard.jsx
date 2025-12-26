@@ -47,8 +47,8 @@ export default function Leaderboard() {
                       className="w-12 h-12 rounded-full"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                      <span className="text-slate-700 font-semibold">
                         {entry.user?.name?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>

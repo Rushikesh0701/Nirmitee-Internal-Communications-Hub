@@ -118,10 +118,10 @@ const Dashboard = () => {
                     ? 'bg-slate-700 border-slate-600' 
                     : 'bg-slate-100 border-slate-200'
                 }`}>
-                  <Sparkles size={14} className={theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} />
+                  <Sparkles size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-700'} />
                 </div>
                 <span className={`text-xs font-medium transition-colors ${
-                  theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
+                  theme === 'dark' ? 'text-slate-500' : 'text-slate-700'
                 }`}>
                   {getGreeting()}
                 </span>
@@ -131,7 +131,7 @@ const Dashboard = () => {
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
               }`}>
                 Welcome back,{' '}
-                <span className="text-blue-600">
+                <span className="text-slate-700">
                   {getUserDisplayName()}
                 </span>
                 !
@@ -198,7 +198,7 @@ const Dashboard = () => {
                             {stat.value.toLocaleString()}
                           </p>
                         </div>
-                        <div className={`p-2 rounded-lg bg-blue-600`}>
+                        <div className={`p-2 rounded-lg bg-slate-700`}>
                           <Icon className="text-white" size={16} />
                         </div>
                       </div>
@@ -229,7 +229,7 @@ const Dashboard = () => {
           }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-blue-600">
+                <div className="p-2 rounded-lg bg-slate-700">
                   <Megaphone size={18} className="text-white" />
                 </div>
                 <div>
@@ -249,8 +249,8 @@ const Dashboard = () => {
                 to="/announcements" 
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-xs group transition-all duration-200 ${
                   theme === 'dark' 
-                    ? 'text-blue-400 hover:text-white hover:bg-blue-600 border border-blue-500' 
-                    : 'text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-200'
+                    ? 'text-slate-500 hover:text-white hover:bg-slate-700 border border-slate-600' 
+                    : 'text-slate-700 hover:text-white hover:bg-slate-700 border border-slate-300'
                 }`}
               >
                 View All 
@@ -286,13 +286,13 @@ const Dashboard = () => {
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className={`text-sm font-bold truncate transition-colors ${
                                 theme === 'dark'
-                                  ? 'text-slate-100 group-hover:text-blue-400'
-                                  : 'text-slate-900 group-hover:text-blue-600'
+                                  ? 'text-slate-100 group-hover:text-slate-500'
+                                  : 'text-slate-900 group-hover:text-slate-700'
                               }`}>
                                 {announcement.title}
                               </h3>
                               {announcement.isPriority && (
-                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white">
+                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-white">
                                   Priority
                                 </span>
                               )}
@@ -326,8 +326,8 @@ const Dashboard = () => {
                           >
                             <ChevronRight size={16} className={`transition-colors ${
                               theme === 'dark'
-                                ? 'text-slate-600 group-hover:text-blue-600'
-                                : 'text-slate-300 group-hover:text-blue-400'
+                                ? 'text-slate-600 group-hover:text-slate-700'
+                                : 'text-slate-300 group-hover:text-slate-500'
                             }`} />
                           </motion.div>
                         </div>
@@ -356,7 +356,7 @@ const Dashboard = () => {
           }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-blue-600">
+                <div className="p-2 rounded-lg bg-slate-700">
                   <Newspaper size={18} className="text-white" />
                 </div>
                 <div>
@@ -376,8 +376,8 @@ const Dashboard = () => {
                 to="/news" 
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs group transition-all duration-300 ${
                   theme === 'dark' 
-                    ? 'text-blue-400 hover:text-white hover:bg-blue-500/20 border border-blue-500/30' 
-                    : 'text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-200'
+                    ? 'text-slate-500 hover:text-white hover:bg-slate-600/20 border border-slate-600/30' 
+                    : 'text-slate-700 hover:text-white hover:bg-slate-700 border border-slate-300'
                 }`}
               >
                 View All 
@@ -439,8 +439,8 @@ const Dashboard = () => {
                         <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px]">
                           <h3 className={`text-xs font-bold line-clamp-2 mb-1 transition-colors flex-shrink-0 ${
                             theme === 'dark'
-                              ? 'text-slate-100 group-hover:text-blue-400'
-                              : 'text-slate-900 group-hover:text-blue-600'
+                              ? 'text-slate-100 group-hover:text-slate-500'
+                              : 'text-slate-900 group-hover:text-slate-700'
                           }`}>
                             {title}
                           </h3>
@@ -521,7 +521,7 @@ const Dashboard = () => {
                         : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
                     }`}
                   >
-                    <div className="bg-blue-600 p-2 rounded-lg">
+                    <div className="bg-slate-700 p-2 rounded-lg">
                       <Icon className="text-white" size={18} />
                     </div>
                     

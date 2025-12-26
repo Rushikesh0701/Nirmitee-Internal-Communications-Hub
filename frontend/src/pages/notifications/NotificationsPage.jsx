@@ -135,7 +135,7 @@ export default function NotificationsPage() {
           {notifications.some((n) => !n.isRead) && (
             <button
               onClick={() => markAllAsReadMutation.mutate()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 flex items-center gap-2"
             >
               <Check size={18} />
               Mark all as read
@@ -187,12 +187,12 @@ export default function NotificationsPage() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow ${
-                      !notification.isRead ? 'border-l-4 border-blue-600' : ''
+                      !notification.isRead ? 'border-l-4 border-slate-700' : ''
                     }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Bell className="text-blue-600" size={20} />
+                      <div className="p-2 bg-slate-100 rounded-lg">
+                        <Bell className="text-slate-700" size={20} />
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-900">{notification.content}</p>
@@ -206,7 +206,7 @@ export default function NotificationsPage() {
                             e.stopPropagation()
                             markAsReadMutation.mutate(notification.id)
                           }}
-                          className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+                          className="px-3 py-1 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200"
                         >
                           Mark read
                         </button>

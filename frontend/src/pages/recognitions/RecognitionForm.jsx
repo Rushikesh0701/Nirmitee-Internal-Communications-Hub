@@ -115,7 +115,7 @@ export default function RecognitionForm() {
           <button
             type="submit"
             disabled={sendMutation.isLoading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
           >
             {sendMutation.isLoading ? 'Sending...' : 'Send Recognition'}
           </button>

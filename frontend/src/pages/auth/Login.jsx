@@ -80,7 +80,7 @@ const Login = () => {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
           <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
           <div className="relative group">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
               type="email"
               {...register('email', { 
@@ -89,7 +89,7 @@ const Login = () => {
               })}
               className="w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:bg-white focus:border-slate-600 focus:ring-2 focus:ring-slate-300 
                          focus:outline-none transition-all duration-200"
               placeholder="your.name@nirmitee.io"
             />
@@ -100,13 +100,13 @@ const Login = () => {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
           <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
           <div className="relative group">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
               type={showPassword ? 'text' : 'password'}
               {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
               className="w-full pl-10 pr-10 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:bg-white focus:border-slate-600 focus:ring-2 focus:ring-slate-300 
                          focus:outline-none transition-all duration-200"
               placeholder="••••••••"
             />
@@ -127,7 +127,7 @@ const Login = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+          <Link to="/forgot-password" className="text-sm text-slate-700 hover:text-slate-700 font-medium">
             Forgot password?
           </Link>
         </motion.div>
@@ -135,7 +135,7 @@ const Login = () => {
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 relative overflow-hidden group disabled:opacity-70"
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-slate-700 hover:bg-slate-800 relative overflow-hidden group disabled:opacity-70"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -170,7 +170,7 @@ const Login = () => {
       >
         <p className="text-slate-500">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
+          <Link to="/register" className="text-slate-700 hover:text-slate-700 font-semibold">
             Sign up
           </Link>
         </p>

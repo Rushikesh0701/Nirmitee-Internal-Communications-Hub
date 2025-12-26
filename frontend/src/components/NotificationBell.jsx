@@ -137,7 +137,7 @@ export default function NotificationBell() {
                     queryClient.invalidateQueries('notifications')
                     queryClient.invalidateQueries('unreadCount')
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-slate-700 hover:text-slate-700"
                 >
                   Mark all read
                 </button>
@@ -163,7 +163,7 @@ export default function NotificationBell() {
                 <div
                   key={notification.id}
                   className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50' : ''
+                    !notification.isRead ? 'bg-slate-50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -178,7 +178,7 @@ export default function NotificationBell() {
           <div className="p-4 border-t text-center">
             <Link
               to="/notifications"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-slate-700 hover:text-slate-700"
               onClick={() => setIsOpen(false)}
             >
               View all notifications

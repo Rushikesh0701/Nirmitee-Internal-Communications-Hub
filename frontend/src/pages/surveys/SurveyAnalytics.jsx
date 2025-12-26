@@ -94,9 +94,9 @@ const SurveyAnalytics = () => {
                 {question.type === 'RATING' && question.averageRating && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="p-4 bg-slate-50 rounded-lg">
                         <p className="text-sm text-gray-600">Average Rating</p>
-                        <p className="text-2xl font-bold text-blue-600">
+                        <p className="text-2xl font-bold text-slate-700">
                           {question.averageRating} / 5
                         </p>
                       </div>

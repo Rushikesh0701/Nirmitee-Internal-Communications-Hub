@@ -40,7 +40,7 @@ export default function EmployeeDirectory() {
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-blue-600">
+        <div className="p-2 rounded-lg bg-slate-700">
           <Users size={22} className="text-white" />
         </div>
         <div>
@@ -52,7 +52,7 @@ export default function EmployeeDirectory() {
       {/* Search & Filter */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
           <input type="text" placeholder="Search by name, email, or skills..." value={search} onChange={(e) => setSearch(e.target.value)} className="input pl-11" />
           {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"><X size={16} /></button>}
         </div>
@@ -68,7 +68,7 @@ export default function EmployeeDirectory() {
           <span className="text-sm text-slate-500">Active filters:</span>
           {search && <span className="badge badge-primary flex items-center gap-1">Search: "{search}" <button onClick={() => setSearch('')}><X size={12} /></button></span>}
           {department && <span className="badge badge-info flex items-center gap-1">{department} <button onClick={() => setDepartment('')}><X size={12} /></button></span>}
-          <button onClick={() => { setSearch(''); setDepartment(''); }} className="text-sm text-blue-600 hover:text-blue-700">Clear all</button>
+          <button onClick={() => { setSearch(''); setDepartment(''); }} className="text-sm text-slate-700 hover:text-slate-700">Clear all</button>
         </motion.div>
       )}
 
@@ -86,12 +86,12 @@ export default function EmployeeDirectory() {
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200" />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center ring-2 ring-slate-200">
+                      <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-200">
                         <span className="text-white font-semibold text-2xl">{user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                       </div>
                     )}
                   </div>
-                  <h3 className="font-semibold text-slate-800 text-sm mb-1 group-hover:text-blue-600 transition-colors">{user.name}</h3>
+                  <h3 className="font-semibold text-slate-800 text-sm mb-1 group-hover:text-slate-700 transition-colors">{user.name}</h3>
                   {user.role && <div className="mb-3"><RoleBadge role={user.role} size="sm" /></div>}
                   <div className="space-y-1.5 text-sm text-slate-500 flex-1">
                     {user.designation && <div className="flex items-center gap-2 justify-center"><Briefcase size={14} /> {user.designation}</div>}

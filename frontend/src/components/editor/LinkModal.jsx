@@ -38,14 +38,14 @@ const LinkModal = ({
           value={linkUrl}
           onChange={(e) => setLinkUrl(e.target.value)}
           placeholder="Enter URL"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 mb-2"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900 mb-2"
         />
         <input
           type="text"
           value={linkText}
           onChange={(e) => setLinkText(e.target.value)}
           placeholder="Enter link text (optional)"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 mb-4"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900 mb-4"
           onKeyPress={(e) => e.key === 'Enter' && handleLinkInsert()}
         />
         <div className="flex gap-2">
@@ -53,7 +53,7 @@ const LinkModal = ({
             type="button"
             onClick={handleLinkInsert}
             disabled={!linkUrl.trim()}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Insert
           </button>

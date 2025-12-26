@@ -87,7 +87,7 @@ const EditBlog = () => {
           <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
           <button
             onClick={() => navigate('/blogs')}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
+            className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-700"
           >
             ← Back to Blogs
           </button>
@@ -226,7 +226,7 @@ const EditBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
           />
         </div>
 
@@ -240,7 +240,7 @@ const EditBlog = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleCoverImageChange}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 text-sm"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900 text-sm"
               />
             </div>
             <div className="relative">
@@ -256,7 +256,7 @@ const EditBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -292,7 +292,7 @@ const EditBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
           />
         </div>
 
@@ -318,7 +318,7 @@ const EditBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
           />
           <p className="text-sm text-gray-500 mt-1">
             Enter a custom category for your blog post
@@ -335,7 +335,7 @@ const EditBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
             />
             <button
               type="button"
@@ -349,7 +349,7 @@ const EditBlog = () => {
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-blue-100 text-blue-800 rounded flex items-center gap-2"
+                className="px-3 py-1 bg-slate-100 text-slate-800 rounded flex items-center gap-2"
               >
                 {tag}
                 <button
@@ -371,7 +371,7 @@ const EditBlog = () => {
               name="isPublished"
               checked={formData.isPublished}
               onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
             />
             <span className="text-gray-700">
               Publish this blog
@@ -388,7 +388,7 @@ const EditBlog = () => {
           <button
             type="submit"
             disabled={updateMutation.isLoading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updateMutation.isLoading ? 'Updating...' : 'Update Blog'}
           </button>
