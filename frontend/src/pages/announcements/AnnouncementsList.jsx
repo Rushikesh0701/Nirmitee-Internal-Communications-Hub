@@ -59,18 +59,18 @@ const AnnouncementsList = () => {
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-            <Megaphone size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+            <Megaphone size={20} className="text-white" />
           </div>
           <div>
-            <h1 className={`text-2xl sm:text-3xl font-bold transition-colors ${
+            <h1 className={`text-xl sm:text-2xl font-bold transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
             }`}>Company Announcements</h1>
-            <p className={`text-sm mt-0.5 transition-colors ${
+            <p className={`text-xs mt-0.5 transition-colors ${
               theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
             }`}>Stay updated with company news and updates</p>
           </div>
@@ -154,17 +154,17 @@ const AnnouncementsList = () => {
       </AnimatePresence>
 
       {/* Announcements Grid */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
         {announcements.map((announcement, index) => (
           <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
             <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
               {announcement.image && (
-                <div className="relative -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-2xl">
-                  <img src={announcement.image} alt={announcement.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
+                  <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="space-y-1.5">
                 {announcement.tags?.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {announcement.tags.slice(0, 3).map((tag, idx) => (

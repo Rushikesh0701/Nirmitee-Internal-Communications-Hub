@@ -199,7 +199,7 @@
      CARD SYSTEM
      ================================ */
   .card {
-    @apply rounded-2xl p-6 bg-white border border-slate-200 transition-all duration-300;
+    @apply rounded-lg p-2.5 bg-white border border-slate-200 transition-all duration-300;
     box-shadow: var(--shadow-sm);
   }
 
@@ -878,4 +878,40 @@ body.dark-theme .text-slate-500 {
 
 body.dark-theme .text-slate-400 {
   color: #64748b !important; /* text-slate-500 */
+}
+
+/* ================================
+   COMPACT PAGE STYLING
+   ================================ */
+
+/* Compact container - reduces default padding */
+.page-container {
+  @apply container mx-auto px-3 py-4 max-w-7xl;
+}
+
+/* Compact headings */
+.page-title {
+  @apply text-xl sm:text-2xl font-bold;
+}
+
+.page-subtitle {
+  @apply text-sm;
+}
+
+/* Compact cards */
+.compact-card {
+  @apply rounded-lg shadow-sm border p-4;
+}
+
+/* Compact spacing utilities */
+.compact-section {
+  @apply mb-4;
+}
+
+.compact-gap {
+  @apply gap-3;
+}
+
+.compact-space-y {
+  @apply space-y-3;
 }

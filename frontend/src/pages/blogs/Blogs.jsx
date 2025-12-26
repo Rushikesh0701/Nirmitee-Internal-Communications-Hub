@@ -80,9 +80,9 @@ const Blogs = () => {
       theme === 'dark'
         ? 'bg-slate-800/50 border-slate-700/50'
         : 'bg-white border-gray-200'
-    }`} style={{ width: '100%', height: '500px' }}>
-      <Skeleton height={192} className="flex-shrink-0" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
-      <div className="p-6 flex flex-col flex-grow">
+    }`} style={{ width: '100%', height: '280px' }}>
+      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+      <div className="p-2 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
           <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
           <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
@@ -100,14 +100,14 @@ const Blogs = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 py-2">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3"
       >
-        <h1 className={`text-2xl sm:text-3xl font-bold ${
+        <h1 className={`text-xl sm:text-2xl font-bold ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-800'
         }`}>
           Blogs & Articles
@@ -132,7 +132,7 @@ const Blogs = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex flex-col md:flex-row gap-4 mb-8"
+        className="flex flex-col md:flex-row gap-2 mb-3"
       >
         <input
           type="text"
@@ -178,7 +178,7 @@ const Blogs = () => {
       </motion.div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {[...Array(6)].map((_, i) => (
             <BlogCardSkeleton key={i} />
           ))}
@@ -186,7 +186,7 @@ const Blogs = () => {
       ) : (
         <>
           {filteredBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredBlogs.map((blog, index) => (
                 <motion.div
                   key={blog._id || blog.id}

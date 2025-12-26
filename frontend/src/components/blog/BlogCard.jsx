@@ -35,7 +35,7 @@ const BlogCard = ({ blog }) => {
                     }`}
       >
         {/* Image Container - Responsive Height */}
-        <div className={`w-full h-48 sm:h-56 md:h-64 flex-shrink-0 overflow-hidden ${
+        <div className={`w-full h-24 sm:h-28 flex-shrink-0 overflow-hidden ${
           theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
         }`}>
           <img
@@ -48,9 +48,9 @@ const BlogCard = ({ blog }) => {
         </div>
 
         {/* Content Container */}
-        <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
+        <div className="p-2 flex flex-col flex-grow">
           {/* Category and Status */}
-          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <div className="flex items-center justify-between mb-0.5 flex-wrap gap-1">
             <span className={`text-xs sm:text-sm font-medium ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
             }`}>
@@ -68,7 +68,7 @@ const BlogCard = ({ blog }) => {
           </div>
 
           {/* Title - Responsive Text Size */}
-          <h3 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-3 
+          <h3 className={`text-base sm:text-lg font-bold mb-1 
                          transition-colors line-clamp-2 ${
             theme === 'dark' 
               ? 'text-slate-200 hover:text-indigo-400' 
@@ -79,7 +79,7 @@ const BlogCard = ({ blog }) => {
 
           {/* Excerpt */}
           {blog.excerpt && (
-            <p className={`text-sm sm:text-base mb-3 sm:mb-4 line-clamp-3 flex-grow ${
+            <p className={`text-xs sm:text-sm mb-1.5 line-clamp-2 flex-grow ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
             }`}>
               {blog.excerpt}

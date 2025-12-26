@@ -55,16 +55,16 @@ const Discussions = () => {
   if (isLoading) return <Loading fullScreen size="lg" text="Loading discussions..." />;
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg shadow-violet-500/25">
-            <MessageSquare size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg shadow-violet-500/25">
+            <MessageSquare size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Technical Discussions</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Share ideas and solve problems together</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Technical Discussions</h1>
+            <p className="text-slate-500 text-xs mt-0.5">Share ideas and solve problems together</p>
           </div>
         </div>
         {isAuthenticated && user && (

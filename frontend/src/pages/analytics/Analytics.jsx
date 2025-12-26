@@ -54,16 +54,16 @@ const Analytics = () => {
   ]
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-            <BarChart3 size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+            <BarChart3 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Analytics Dashboard</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Platform insights and metrics</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Analytics Dashboard</h1>
+            <p className="text-slate-500 text-xs mt-0.5">Platform insights and metrics</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -89,16 +89,16 @@ const Analytics = () => {
       </motion.div>
 
       {/* Stats Cards */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {statCards.map((stat, index) => (
           <motion.div key={stat.label} className="card group hover:shadow-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">{stat.label}</p>
-                <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
+                <p className="text-xs text-slate-500">{stat.label}</p>
+                <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} shadow-lg`}>
-                <stat.icon size={24} className="text-white" />
+              <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} ${stat.shadow} shadow-lg`}>
+                <stat.icon size={20} className="text-white" />
               </div>
             </div>
           </motion.div>

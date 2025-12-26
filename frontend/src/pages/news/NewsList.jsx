@@ -492,12 +492,12 @@ function NewsList() {
 
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <div className="mb-6">
-        <h1 className={`text-3xl font-bold mb-2 ${
+    <div className="container mx-auto p-2 max-w-7xl">
+      <div className="mb-3">
+        <h1 className={`text-xl sm:text-2xl font-bold mb-0.5 ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
         }`}>Tech News Feed</h1>
-        <p className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}>
+        <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
           Search and filter technology news with advanced options
         </p>
       </div>
@@ -505,7 +505,7 @@ function NewsList() {
 
 
       {/* Main Search Bar */}
-      <div className={`rounded-lg shadow-sm border p-4 mb-4 ${
+      <div className={`rounded-lg shadow-sm border p-2.5 mb-2.5 ${
         theme === 'dark'
           ? 'bg-slate-800/50 border-slate-700/50'
           : 'bg-white border-gray-200'
@@ -552,15 +552,15 @@ function NewsList() {
       </div>
 
       {/* Filters Section */}
-      <div className={`rounded-lg shadow-sm border p-4 mb-4 ${
+      <div className={`rounded-lg shadow-sm border p-2.5 mb-2.5 ${
         theme === 'dark'
           ? 'bg-slate-800/50 border-slate-700/50'
           : 'bg-white border-gray-200'
       }`}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Filter size={18} className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'} />
-            <h2 className={`text-lg font-semibold ${
+            <Filter size={16} className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'} />
+            <h2 className={`text-base font-semibold ${
               theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
             }`}>Filters</h2>
             {activeFiltersCount > 0 && (
@@ -602,7 +602,7 @@ function NewsList() {
         </div>
 
         {/* Basic Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
           <div>
             <label className={`block text-sm font-medium mb-1 ${
               theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
@@ -793,12 +793,12 @@ function NewsList() {
 
       {/* Error State */}
       {error && !loading && (
-        <div className={`border rounded-lg p-4 mb-4 ${
+        <div className={`border rounded-lg p-3 mb-3 ${
           theme === 'dark'
             ? 'bg-red-900/20 border-red-800/50'
             : 'bg-red-50 border-red-200'
         }`}>
-          <p className={`text-center ${
+          <p className={`text-center text-sm ${
             theme === 'dark' ? 'text-red-400' : 'text-red-700'
           }`}>{error}</p>
         </div>
@@ -806,15 +806,15 @@ function NewsList() {
 
       {/* No Results State */}
       {!loading && !error && articles.length === 0 && (
-        <div className={`text-center py-12 rounded-lg ${
+        <div className={`text-center py-8 rounded-lg ${
           theme === 'dark'
             ? 'bg-slate-800/50'
             : 'bg-gray-50'
         }`}>
-          <p className={`text-lg font-medium ${
+          <p className={`text-base font-medium ${
             theme === 'dark' ? 'text-slate-300' : 'text-gray-600'
           }`}>No articles found</p>
-          <p className={`text-sm mt-2 ${
+          <p className={`text-xs mt-1.5 ${
             theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
           }`}>
             Try adjusting your search criteria or filters
@@ -825,14 +825,14 @@ function NewsList() {
       {/* Articles List */}
       {!loading && articles.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className={`text-sm ${
+          <div className="flex items-center justify-between mb-2">
+            <p className={`text-xs ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
             }`}>
               Found <span className="font-semibold">{articles.length}</span> articles
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
             {articles.map((article, index) => {
               // Map fields to handle news structure
               const title = article.title;
@@ -865,7 +865,7 @@ function NewsList() {
                   }}
                 >
                   {imageUrl && (
-                    <div className={`relative w-full h-32 overflow-hidden ${
+                    <div className={`relative w-full h-20 overflow-hidden ${
                       theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
                     }`}>
                       <img
@@ -878,9 +878,9 @@ function NewsList() {
                       />
                     </div>
                   )}
-                  <div className="p-3 flex flex-col flex-1">
-                    <div className="mb-2">
-                      <h3 className={`text-sm font-semibold line-clamp-2 mb-1 transition-colors ${
+                  <div className="p-2 flex flex-col flex-1">
+                    <div className="mb-1">
+                      <h3 className={`text-xs font-semibold line-clamp-2 mb-0.5 transition-colors ${
                         theme === 'dark'
                           ? 'text-slate-200 group-hover:text-indigo-400'
                           : 'text-gray-900 group-hover:text-blue-600'
@@ -888,30 +888,30 @@ function NewsList() {
                         {title}
                       </h3>
                       {date && (
-                        <span className={`text-xs flex items-center gap-1 ${
+                        <span className={`text-[10px] flex items-center gap-0.5 ${
                           theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
                         }`}>
-                          <Clock size={10} />
+                          <Clock size={8} />
                           {new Date(date).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p className={`text-xs mb-3 line-clamp-2 flex-1 ${
+                    <p className={`text-[10px] mb-2 line-clamp-2 flex-1 ${
                       theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
                     }`}>
                       {description.replace(/<[^>]*>/g, '')}
                     </p>
-                    <div className={`flex items-center justify-between mt-auto pt-2 border-t ${
+                    <div className={`flex items-center justify-between mt-auto pt-1.5 border-t ${
                       theme === 'dark' ? 'border-slate-700/50' : 'border-gray-100'
                     }`}>
-                      <span className={`text-xs truncate flex-1 mr-2 flex items-center gap-1 ${
+                      <span className={`text-[10px] truncate flex-1 mr-1 flex items-center gap-0.5 ${
                         theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
                       }`}>
-                        <User size={12} />
+                        <User size={10} />
                         {source}
                       </span>
                       {article.category && (
-                        <span className={`px-1.5 py-0.5 rounded text-xs whitespace-nowrap ${
+                        <span className={`px-1 py-0.5 rounded text-[10px] whitespace-nowrap ${
                           theme === 'dark'
                             ? 'bg-slate-700/50 text-slate-300'
                             : 'bg-gray-100 text-gray-700'
@@ -930,7 +930,7 @@ function NewsList() {
 
       {/* Pagination Controls */}
       {!loading && articles.length > 0 && (
-        <div className={`mt-8 rounded-lg shadow-sm border p-4 ${
+        <div className={`mt-3 rounded-lg shadow-sm border p-2.5 ${
           theme === 'dark'
             ? 'bg-slate-800/50 border-slate-700/50'
             : 'bg-white border-gray-200'

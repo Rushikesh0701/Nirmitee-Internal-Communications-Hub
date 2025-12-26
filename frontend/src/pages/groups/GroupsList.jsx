@@ -44,16 +44,16 @@ const GroupsList = () => {
   const groups = data?.groups || []
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 shadow-lg shadow-pink-500/25">
-            <Users size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 shadow-lg shadow-pink-500/25">
+            <Users size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Groups</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Join communities and start discussions</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Groups</h1>
+            <p className="text-slate-500 text-xs mt-0.5">Join communities and start discussions</p>
           </div>
         </div>
         {canCreateGroup && (
@@ -78,29 +78,29 @@ const GroupsList = () => {
       </motion.div>
 
       {/* Groups Grid */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
         {groups.map((group, index) => {
           const groupId = group.id || group._id
           return (
             <motion.div key={groupId} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
               <Link to={`/groups/${groupId}`} className="card-hover block group overflow-hidden">
                 {group.coverImage && (
-                  <div className="relative -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-2xl">
-                    <img src={group.coverImage} alt={group.name} className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="relative -mx-4 -mt-4 mb-1.5 overflow-hidden rounded-t-lg">
+                    <img src={group.coverImage} alt={group.name} className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                 )}
-                <div className="space-y-3">
+                <div className="space-y-1.5">
                   <div className="flex items-start justify-between">
-                    <h3 className="text-xl font-semibold text-slate-800 flex-1 group-hover:text-pink-600 transition-colors">{group.name}</h3>
-                    {!group.isPublic && <Lock size={18} className="text-slate-400 flex-shrink-0 ml-2" />}
+                    <h3 className="text-base font-semibold text-slate-800 flex-1 group-hover:text-pink-600 transition-colors">{group.name}</h3>
+                    {!group.isPublic && <Lock size={14} className="text-slate-400 flex-shrink-0 ml-2" />}
                   </div>
-                  <p className="text-slate-500 text-sm line-clamp-2">{group.description || 'No description'}</p>
-                  <div className="flex items-center gap-4 text-sm text-slate-400">
-                    <div className="flex items-center gap-1"><Users size={16} /> {group.memberCount || 0} members</div>
+                  <p className="text-slate-500 text-xs line-clamp-2">{group.description || 'No description'}</p>
+                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <div className="flex items-center gap-1"><Users size={12} /> {group.memberCount || 0} members</div>
                     <span>•</span>
                     <span>{group.postCount || 0} posts</span>
                   </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                     <span className="text-xs text-slate-400">Created {format(new Date(group.createdAt), 'MMM d, yyyy')}</span>
                     {group.isMember ? (
                       <span className="badge badge-success">Member</span>

@@ -83,7 +83,7 @@ const Dashboard = () => {
   }
 
   return (
-    <motion.div className="space-y-8" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
       {/* Welcome Header */}
       <motion.div variants={itemVariants}>
         <div className="flex items-center gap-2 mb-2">
@@ -98,19 +98,19 @@ const Dashboard = () => {
             theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'
           }`}>{getGreeting()}</span>
         </div>
-        <h1 className={`text-3xl sm:text-4xl font-bold transition-colors ${
+        <h1 className={`text-2xl sm:text-3xl font-bold transition-colors ${
           theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
         }`}>
           Welcome back, <span className="text-gradient">{user?.displayName || user?.name || user?.firstName || 'User'}</span>!
         </h1>
-        <p className={`mt-2 transition-colors ${
+        <p className={`mt-1 text-sm transition-colors ${
           theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
         }`}>Here&apos;s what&apos;s happening in your organization today</p>
       </motion.div>
 
       {/* Admin Stats Cards */}
       {isAdminOrModerator && (
-        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {statsLoading ? (
             [...Array(4)].map((_, i) => (
               <div key={i} className="card animate-pulse">
@@ -130,11 +130,11 @@ const Dashboard = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className={`text-sm font-medium transition-colors ${
+                      <p className={`text-xs font-medium transition-colors ${
                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
                       }`}>{stat.label}</p>
                       <motion.p 
-                        className={`text-3xl font-bold mt-1 transition-colors ${
+                        className={`text-xl font-bold mt-0.5 transition-colors ${
                           theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
                         }`}
                         initial={{ opacity: 0, scale: 0.5 }}
@@ -143,13 +143,13 @@ const Dashboard = () => {
                       >
                         {stat.value.toLocaleString()}
                       </motion.p>
-                      <div className="flex items-center gap-1 mt-2">
-                        <TrendingUp size={12} className="text-emerald-500" />
-                        <span className="text-xs text-emerald-500 font-medium">Active</span>
+                      <div className="flex items-center gap-1 mt-1">
+                        <TrendingUp size={10} className="text-emerald-500" />
+                        <span className="text-[10px] text-emerald-500 font-medium">Active</span>
                       </div>
                     </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                      <Icon className="text-white" size={24} />
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                      <Icon className="text-white" size={18} />
                     </div>
                   </div>
                 </motion.div>
@@ -161,12 +161,12 @@ const Dashboard = () => {
 
       {/* Announcement Section */}
       <motion.section variants={itemVariants} className="card">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-              <Megaphone size={20} className="text-white" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+              <Megaphone size={18} className="text-white" />
             </div>
-            <h2 className={`text-xl font-bold transition-colors ${
+            <h2 className={`text-lg font-bold transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
             }`}>Announcements</h2>
           </div>
@@ -179,13 +179,13 @@ const Dashboard = () => {
           </Link>
         </div>
         
-        <div className="min-h-[200px]">
+        <div className="min-h-[150px]">
           {announcementsLoading ? (
-            <div className="flex items-center justify-center h-full min-h-[150px]">
+            <div className="flex items-center justify-center h-full min-h-[100px]">
               <Loading size="md" />
             </div>
           ) : announcements.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {announcements.slice(0, 3).map((announcement, index) => (
                 <motion.div
                   key={announcement._id || announcement.id || index}
@@ -264,9 +264,9 @@ const Dashboard = () => {
 
       {/* News Section */}
       <motion.section variants={itemVariants} className="card">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
               <Newspaper size={20} className="text-white" />
             </div>
             <h2 className={`text-xl font-bold transition-colors ${
@@ -367,10 +367,10 @@ const Dashboard = () => {
 
       {/* Quick Access Links */}
       <motion.div variants={itemVariants}>
-        <h2 className={`text-xl font-bold mb-4 transition-colors ${
+        <h2 className={`text-lg font-bold mb-2 transition-colors ${
           theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
         }`}>Quick Access</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {quickLinks.map((link, index) => {
             const Icon = link.icon
             return (
@@ -382,14 +382,14 @@ const Dashboard = () => {
               >
                 <Link
                   to={link.path}
-                  className={`flex items-center gap-4 p-5 rounded-2xl border transition-all group ${
+                  className={`flex items-center gap-2.5 p-3 rounded-lg border transition-all group ${
                     theme === 'dark'
                       ? 'bg-slate-800/50 border-slate-700/50 hover:border-indigo-700/50 hover:shadow-md'
                       : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md'
                   }`}
                 >
-                  <div className={`bg-gradient-to-br ${link.gradient} p-3.5 rounded-xl shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Icon className="text-white" size={22} />
+                  <div className={`bg-gradient-to-br ${link.gradient} p-2 rounded-lg shadow-lg group-hover:scale-110 transition-transform`}>
+                    <Icon className="text-white" size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className={`font-semibold transition-colors ${

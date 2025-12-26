@@ -97,11 +97,11 @@ const CreateDiscussion = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-3 py-4 max-w-4xl">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-xl sm:text-2xl font-bold text-gray-800 mb-4"
       >
         Start New Discussion
       </motion.h1>
@@ -110,9 +110,9 @@ const CreateDiscussion = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-lg p-8"
+        className="bg-white rounded-lg shadow-lg p-4"
       >
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-gray-700 mb-2">
             Title
           </label>

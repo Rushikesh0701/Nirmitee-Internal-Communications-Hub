@@ -19,11 +19,11 @@ const LearningList = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Learning & Development</h1>
-          <p className="text-gray-600 mt-1">Expand your skills</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Learning & Development</h1>
+          <p className="text-gray-600 text-sm mt-0.5">Expand your skills</p>
         </div>
         {isModerator && (
           <Link to="/learning/new" className="btn btn-primary flex items-center gap-2">
@@ -32,7 +32,7 @@ const LearningList = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {data?.courses?.map((course) => (
           <Link
             key={course.id}
@@ -43,19 +43,19 @@ const LearningList = () => {
               <img
                 src={course.thumbnail}
                 alt={course.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-24 object-cover rounded-lg mb-2"
               />
             )}
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
                 {course.title}
               </h3>
               {course.description && (
-                <p className="text-gray-600 line-clamp-3 text-sm">
+                <p className="text-gray-600 line-clamp-2 text-xs">
                   {course.description}
                 </p>
               )}
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-3 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
                   <Users size={16} />
                   <span>{course.enrollmentCount} enrolled</span>

@@ -658,7 +658,7 @@ const Layout = () => {
 
           {/* Page content */}
           <motion.div
-            className="flex-1 p-4 lg:p-8"
+            className="flex-1 p-2 lg:p-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
