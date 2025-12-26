@@ -511,17 +511,19 @@
 }
 
 .scrollbar-hide:hover::-webkit-scrollbar-track {
-  background: #e2e8f0;
-  border-radius: 4px;
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 8px;
 }
 
 .scrollbar-hide:hover::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #a5b4fc, #c7d2fe);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #6366f1, #818cf8);
+  border-radius: 8px;
+  border: 2px solid rgba(241, 245, 249, 0.5);
 }
 
 .scrollbar-hide:hover::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #818cf8, #a5b4fc);
+  background: linear-gradient(180deg, #4f46e5, #6366f1);
+  border: 2px solid rgba(241, 245, 249, 0.8);
 }
 
 /* ================================

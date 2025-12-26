@@ -98,7 +98,11 @@ export default function ProfilePage() {
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
             <Edit size={22} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">{isOwnProfile ? 'Edit Profile' : `Edit - ${profile.name}`}</h1>
+          <h1 className="text-2xl font-bold text-slate-800">
+            {isOwnProfile ? 'Edit Profile' : `Edit - ${profile.firstName && profile.lastName 
+              ? `${profile.firstName} ${profile.lastName}`.trim()
+              : profile.name || profile.displayName || 'User'}`}
+          </h1>
         </div>
 
         <div className="card space-y-4">
@@ -151,12 +155,20 @@ export default function ProfilePage() {
               <img src={profile.avatar} alt={profile.name} className="w-24 h-24 rounded-full ring-4 ring-indigo-200" />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center ring-4 ring-indigo-200">
-                <span className="text-white font-semibold text-3xl">{profile.name?.charAt(0)?.toUpperCase()}</span>
+                <span className="text-white font-semibold text-3xl">
+                  {profile.firstName && profile.lastName
+                    ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+                    : ((profile.firstName && profile.firstName.charAt(0)) || profile.name?.charAt(0) || 'U').toUpperCase()}
+                </span>
               </div>
             )}
             <div>
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-3xl font-bold text-slate-800">{profile.name}</h1>
+                <h1 className="text-3xl font-bold text-slate-800">
+                  {profile.firstName && profile.lastName 
+                    ? `${profile.firstName} ${profile.lastName}`.trim()
+                    : profile.name || profile.displayName || 'User'}
+                </h1>
                 {profile.role && <RoleBadge role={profile.role} size="md" />}
               </div>
               {profile.designation && <p className="text-lg text-slate-600 flex items-center gap-2"><Briefcase size={16} /> {profile.designation}</p>}
@@ -220,7 +232,11 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
               </div>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to <span className="font-semibold text-rose-600">permanently delete</span> <span className="font-semibold">{profile.name}</span>?
+                Are you sure you want to <span className="font-semibold text-rose-600">permanently delete</span> <span className="font-semibold">
+                  {profile.firstName && profile.lastName 
+                    ? `${profile.firstName} ${profile.lastName}`.trim()
+                    : profile.name || profile.displayName || 'User'}
+                </span>?
                 <br />
                 <span className="text-sm text-rose-500 mt-2 block font-medium">
                   ⚠️ This action cannot be undone!
