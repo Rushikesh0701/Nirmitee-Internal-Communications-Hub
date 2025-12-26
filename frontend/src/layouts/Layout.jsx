@@ -6,6 +6,7 @@ import RoleBadge from '../components/RoleBadge'
 import { getUserRole } from '../utils/userHelpers'
 import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
 import Logo from '../assets/Logo.png'
+import CollapsedLogo from '../assets/Untitled_design-removebg-preview.png'
 import {
   LayoutDashboard,
   Newspaper,
@@ -29,12 +30,47 @@ import {
 } from 'lucide-react'
 import { useState, useEffect, useMemo, useRef } from 'react'
 
+// Helper functions for sidebar state persistence
+const getSidebarCollapsedState = () => {
+  try {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    return saved ? JSON.parse(saved) : false
+  } catch {
+    return false
+  }
+}
+
+const setSidebarCollapsedState = (collapsed) => {
+  try {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(collapsed))
+  } catch (error) {
+    console.error('Failed to save sidebar collapsed state:', error)
+  }
+}
+
+const getExpandedSectionsState = () => {
+  try {
+    const saved = localStorage.getItem('sidebarExpandedSections')
+    return saved ? JSON.parse(saved) : null
+  } catch {
+    return null
+  }
+}
+
+const setExpandedSectionsState = (sections) => {
+  try {
+    localStorage.setItem('sidebarExpandedSections', JSON.stringify(sections))
+  } catch (error) {
+    console.error('Failed to save expanded sections state:', error)
+  }
+}
+
 const Layout = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
   
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
@@ -92,10 +128,14 @@ const Layout = () => {
       : [])
   ], [isAdminOrModerator])
 
-  // State to track expanded sections - initialize all as expanded
+  // State to track expanded sections - load from localStorage or initialize all as expanded
   const [expandedSections, setExpandedSections] = useState(() => {
-    const sections = {}
+    const savedSections = getExpandedSectionsState()
+    if (savedSections) {
+      return savedSections
+    }
     // Initialize with default sections (admin will be added when user loads)
+    const sections = {}
     const defaultSections = ['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']
     defaultSections.forEach(title => {
       sections[title] = true
@@ -108,6 +148,7 @@ const Layout = () => {
   const renderedSectionsRef = useRef(new Set(['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']))
 
   // Update expanded sections immediately when navSections changes (e.g., admin section appears)
+  // Merge saved state with new sections, defaulting new sections to expanded
   useEffect(() => {
     setExpandedSections(prev => {
       const updated = { ...prev }
@@ -129,11 +170,28 @@ const Layout = () => {
     })
   }, [navSections])
 
+  // Save sidebar collapsed state to localStorage whenever it changes
+  useEffect(() => {
+    setSidebarCollapsedState(sidebarCollapsed)
+  }, [sidebarCollapsed])
+
+  // Save expanded sections to localStorage whenever they change
+  useEffect(() => {
+    setExpandedSectionsState(expandedSections)
+  }, [expandedSections])
+
   const toggleSection = (sectionTitle) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionTitle]: !prev[sectionTitle]
-    }))
+    setExpandedSections(prev => {
+      const updated = {
+        ...prev,
+        [sectionTitle]: !prev[sectionTitle]
+      }
+      return updated
+    })
+  }
+
+  const handleSidebarCollapseToggle = (collapsed) => {
+    setSidebarCollapsed(collapsed)
   }
 
   const isActivePath = (path) => {
@@ -180,34 +238,37 @@ const Layout = () => {
       </motion.div>
 
       <div className="flex min-h-screen">
-        {/* Light Sidebar */}
+        {/* Modern Sidebar */}
         <aside
           className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
-             transition-all duration-300 ease-in-out bg-white border-r border-slate-200 shadow-lg`}
+             transition-all duration-300 ease-in-out 
+             bg-gradient-to-b from-slate-50 via-white to-slate-50/50
+             border-r border-slate-200/60 backdrop-blur-xl
+             shadow-[4px_0_24px_rgba(0,0,0,0.06)]`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4 lg:px-6'} h-[60px] border-b border-slate-100 flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4 lg:px-6'} h-[60px] border-b border-slate-200/50 bg-gradient-to-r from-indigo-50/30 via-transparent to-transparent flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
               {sidebarCollapsed ? (
                 <button
-                  onClick={() => setSidebarCollapsed(false)}
-                  className="flex items-center justify-center"
+                  onClick={() => handleSidebarCollapseToggle(false)}
+                  className="flex items-center justify-center p-2 rounded-xl hover:bg-indigo-50/50 transition-all duration-200 group"
                 >
-                  <img src={Logo} alt="Nirmitee.io" className="h-5" />
+                  <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
                 </button>
               ) : (
                 <>
-                  <Link to="/dashboard" className="flex flex-col items-start justify-center gap-0.5">
-                    <img src={Logo} alt="Nirmitee.io" className="h-5" />
-                    <p className="text-[9px] text-slate-500 tracking-wide font-medium leading-tight">Internal Communications Hub</p>
+                  <Link to="/dashboard" className="flex flex-col items-start justify-center gap-0.5 group">
+                    <img src={Logo} alt="Nirmitee.io" className="h-5 group-hover:opacity-80 transition-opacity" />
+                    <p className="text-[9px] text-slate-500 tracking-wide font-medium leading-tight group-hover:text-slate-700 transition-colors">Internal Communications Hub</p>
                   </Link>
                   <button
-                    onClick={() => setSidebarCollapsed(true)}
-                    className="p-1 rounded-md hover:bg-slate-100 transition-colors"
+                    onClick={() => handleSidebarCollapseToggle(true)}
+                    className="p-1.5 rounded-lg hover:bg-indigo-50/50 transition-all duration-200 hover:scale-105 active:scale-95"
                     title="Collapse sidebar"
                   >
-                    <ChevronsLeft size={16} className="text-slate-500" />
+                    <ChevronsLeft size={16} className="text-slate-500 hover:text-indigo-600 transition-colors" />
                   </button>
                 </>
               )}
@@ -226,20 +287,24 @@ const Layout = () => {
                         key={item.path}
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group
+                        className={`flex items-center justify-center p-2.5 rounded-xl transition-all duration-200 group relative
                           ${isActive 
-                            ? 'bg-indigo-100 text-indigo-700' 
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
+                            : 'text-slate-600 hover:text-indigo-600 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-50/50'
                           }`}
                         title={item.label}
                       >
                         <Icon 
                           size={20} 
-                          className={isActive 
-                            ? 'text-indigo-600' 
-                            : 'text-slate-400 group-hover:text-indigo-500'
-                          } 
+                          className={`transition-all duration-200 ${
+                            isActive 
+                              ? 'text-white' 
+                              : 'text-slate-400 group-hover:text-indigo-600 group-hover:scale-110'
+                          }`}
                         />
+                        {isActive && (
+                          <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-r-full" />
+                        )}
                       </Link>
                     )
                   })}
@@ -253,14 +318,14 @@ const Layout = () => {
                       {/* Section Header - Clickable */}
                       <button
                         onClick={() => toggleSection(section.title)}
-                        className="w-full flex items-center justify-between px-3 py-1.5 mb-1 hover:bg-slate-50 rounded-md transition-colors group"
+                        className="w-full flex items-center justify-between px-3 py-2 mb-2 hover:bg-indigo-50/30 rounded-lg transition-all duration-200 group"
                       >
-                        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">
                           {section.title}
                         </p>
                         <ChevronDown 
                           size={12} 
-                          className={`text-slate-400 group-hover:text-slate-600 transition-transform duration-150 ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`text-slate-400 group-hover:text-indigo-600 transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </button>
                       
@@ -294,20 +359,26 @@ const Layout = () => {
                                   <Link
                                     to={item.path}
                                     onClick={() => setSidebarOpen(false)}
-                                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all duration-200 group
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group relative
                                       ${isActive 
-                                        ? 'bg-indigo-100 text-indigo-700' 
-                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                        ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
+                                        : 'text-slate-700 hover:text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-transparent'
                                       }`}
                                   >
                                     <Icon 
                                       size={18} 
-                                      className={isActive 
-                                        ? 'text-indigo-600' 
-                                        : 'text-slate-400 group-hover:text-indigo-500'
-                                      } 
+                                      className={`transition-all duration-200 ${
+                                        isActive 
+                                          ? 'text-white' 
+                                          : 'text-slate-500 group-hover:text-indigo-600 group-hover:scale-110'
+                                      }`}
                                     />
-                                    <span className="flex-1 text-xs">{item.label}</span>
+                                    <span className={`flex-1 text-xs transition-all duration-200 ${
+                                      isActive ? 'font-semibold' : 'group-hover:font-medium'
+                                    }`}>{item.label}</span>
+                                    {isActive && (
+                                      <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-sm" />
+                                    )}
                                   </Link>
                                 </motion.div>
                               )
@@ -323,28 +394,28 @@ const Layout = () => {
 
             {/* User Profile Section - Above Logout */}
             {!sidebarCollapsed && (
-              <div className="p-1.5 border-t border-slate-100">
+              <div className="p-2 border-t border-slate-200/50 bg-gradient-to-r from-indigo-50/20 to-transparent">
                 <Link
                   to="/profile"
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center gap-1.5 p-1.5 rounded-md bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-indigo-50/50 to-purple-50/30 hover:from-indigo-100/50 hover:to-purple-100/40 transition-all duration-200 cursor-pointer group shadow-sm hover:shadow-md"
                 >
                   <div className="relative">
-                    <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-200">
                       {user?.avatar ? (
-                        <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-full object-cover" />
+                        <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-xl object-cover" />
                       ) : (
-                        <User size={14} className="text-white" />
+                        <User size={16} className="text-white" />
                       )}
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-800 truncate leading-tight">
+                    <p className="text-xs font-semibold text-slate-800 truncate leading-tight group-hover:text-indigo-700 transition-colors">
                       {user?.name || user?.displayName || 'User'}
                     </p>
-                    <div className="mt-0 flex items-center gap-1">
+                    <div className="mt-0.5 flex items-center gap-1.5">
                       <RoleBadge role={userRole || 'Employee'} size="sm" />
-                      <ChevronDown size={9} className="text-slate-400" />
+                      <ChevronDown size={10} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
                     </div>
                   </div>
                 </Link>
@@ -352,16 +423,16 @@ const Layout = () => {
             )}
 
             {/* Logout Button at Bottom */}
-            <div className={`${sidebarCollapsed ? 'p-2' : 'p-2'} border-t border-slate-100`}>
+            <div className={`${sidebarCollapsed ? 'p-2' : 'p-2'} border-t border-slate-200/50 bg-gradient-to-r from-rose-50/20 to-transparent`}>
               <motion.button
                 onClick={handleLogout}
-                className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-2'} px-2.5 py-1.5 rounded-md text-rose-600 hover:bg-rose-50 transition-all font-medium`}
-                whileHover={{ x: sidebarCollapsed ? 0 : 2 }}
+                className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-2.5'} px-3 py-2.5 rounded-xl text-rose-600 hover:text-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-rose-600 transition-all duration-200 font-medium shadow-sm hover:shadow-lg hover:shadow-rose-500/30`}
+                whileHover={{ x: sidebarCollapsed ? 0 : 2, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 title={sidebarCollapsed ? "Logout" : ""}
               >
-                <LogOut size={14} />
-                {!sidebarCollapsed && <span className="text-xs">Logout</span>}
+                <LogOut size={16} className="transition-transform duration-200 group-hover:scale-110" />
+                {!sidebarCollapsed && <span className="text-xs font-semibold">Logout</span>}
               </motion.button>
             </div>
           </div>
