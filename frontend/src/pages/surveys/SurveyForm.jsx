@@ -200,9 +200,9 @@ const SurveyForm = () => {
               <button
                 type="button"
                 onClick={addQuestion}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn-add"
               >
-                <Plus size={18} />
+                <Plus size={16} />
                 Add Question
               </button>
             </div>

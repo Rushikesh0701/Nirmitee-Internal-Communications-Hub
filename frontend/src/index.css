@@ -135,6 +135,27 @@
     box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.4);
   }
 
+  /* Compact Add Button - Standardized for all Add/Create buttons */
+  .btn-add {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background: var(--gradient-primary);
+    @apply text-white shadow-md hover:shadow-lg focus:ring-indigo-400;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-add:hover {
+    box-shadow: 0 4px 12px -3px rgba(99, 102, 241, 0.4);
+    transform: translateY(-1px);
+  }
+
+  body.dark-theme .btn-add {
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.4);
+  }
+
+  body.dark-theme .btn-add:hover {
+    box-shadow: 0 4px 12px -3px rgba(99, 102, 241, 0.5);
+  }
+
   /* ================================
      INPUT SYSTEM  
      ================================ */

@@ -122,9 +122,9 @@ const AdminRewardsManagement = () => {
         {!isCreating && !editingId && (
           <button
             onClick={() => setIsCreating(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn-add"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             Add Reward
           </button>
         )}

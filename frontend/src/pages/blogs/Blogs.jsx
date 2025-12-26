@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
@@ -10,19 +10,31 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useBookmarks } from '../../hooks/useBookmarks';
 import { useTheme } from '../../contexts/ThemeContext';
+import Pagination from '../../components/Pagination';
+import { Plus } from 'lucide-react';
 
 const Blogs = () => {
   const { theme } = useTheme();
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
   const { user, isAuthenticated } = useAuthStore();
   const { bookmarks } = useBookmarks();
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filter, categoryFilter, searchTerm]);
+
   const { data, isLoading } = useQuery(
-    ['blogs', filter, categoryFilter],
+    ['blogs', filter, categoryFilter, page, limit, searchTerm],
     async () => {
-      const params = {};
+      const params = {
+        page,
+        limit
+      };
       
       // Handle published/unpublished filter logic
       if (filter === 'all') {
@@ -41,6 +53,12 @@ const Blogs = () => {
       if (categoryFilter !== 'all') {
         params.category = categoryFilter;
       }
+
+      // Add search term if provided (client-side search for bookmarked filter)
+      if (searchTerm && filter !== 'bookmarked') {
+        // Note: Backend search would need to be implemented
+        // For now, we'll do client-side filtering for search
+      }
       
       const response = await blogAPI.getAll(params);
       // API returns { success: true, data: { blogs: [...], pagination: {...} } }
@@ -51,6 +69,7 @@ const Blogs = () => {
       return blogsData;
     },
     {
+      keepPreviousData: true,
       onError: () => {
         toast.error('Failed to fetch blogs');
       }
@@ -59,20 +78,22 @@ const Blogs = () => {
 
   const categories = ['all', 'Frontend', 'Backend', 'Full Stack', 'DevOps', 'Other'];
 
-  const filteredBlogs = (data?.blogs || []).filter((blog) => {
-    const matchesSearch = 
+  // Client-side filtering for search and bookmarks (since backend doesn't support these)
+  const blogs = data?.blogs || [];
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch = !searchTerm || 
       blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = categoryFilter === 'all' || blog.category === categoryFilter;
     
     // Filter by bookmarks if the bookmarked filter is selected
     const blogId = (blog._id || blog.id)?.toString();
     const matchesBookmark = filter !== 'bookmarked' || bookmarks.includes(blogId);
     
-    return matchesSearch && matchesCategory && matchesBookmark;
+    return matchesSearch && matchesBookmark;
   });
+
+  const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };
 
   // Skeleton loader component
   const BlogCardSkeleton = () => (
@@ -113,18 +134,14 @@ const Blogs = () => {
           Blogs & Articles
         </h1>
         {isAuthenticated && user && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Link
+            to="/blogs/new"
+            className="btn-add"
           >
-            <Link
-              to="/blogs/new"
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-sm sm:text-base"
-            >
-              <span className="md:hidden">+ Create</span>
-              <span className="hidden md:inline">+ Create Blog</span>
-            </Link>
-          </motion.div>
+            <Plus size={16} />
+            <span className="md:hidden">Create</span>
+            <span className="hidden md:inline">Create Blog</span>
+          </Link>
         )}
       </motion.div>
 
@@ -186,18 +203,33 @@ const Blogs = () => {
       ) : (
         <>
           {filteredBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredBlogs.map((blog, index) => (
-                <motion.div
-                  key={blog._id || blog.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <BlogCard blog={blog} />
-                </motion.div>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredBlogs.map((blog, index) => (
+                  <motion.div
+                    key={blog._id || blog.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <BlogCard blog={blog} />
+                  </motion.div>
+                ))}
+              </div>
+              {pagination.pages > 1 && (
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                  limit={limit}
+                  onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                  }}
+                  showLimitSelector={true}
+                />
+              )}
+            </>
           ) : (
             <div className={`text-center py-12 ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-500'

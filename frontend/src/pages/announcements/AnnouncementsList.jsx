@@ -85,8 +85,8 @@ const AnnouncementsList = () => {
             Filters
           </motion.button>
           {userIsAdmin && (
-            <Link to="/announcements/new" className="btn btn-primary flex items-center gap-2">
-              <Plus size={18} /> Create
+            <Link to="/announcements/new" className="btn-add">
+              <Plus size={16} /> Create
             </Link>
           )}
         </div>

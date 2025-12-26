@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import { notificationApi } from '../../services/notificationApi'
 import { Bell, Check, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import Loading from '../../components/Loading'
+import Pagination from '../../components/Pagination'
 
 /**
  * Get navigation link based on notification type and metadata
@@ -63,10 +64,21 @@ export default function NotificationsPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all') // all, unread, read
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(20)
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setPage(1)
+  }, [filter])
 
   const { data, isLoading } = useQuery(
-    ['notifications', filter],
-    () => notificationApi.getNotifications({ isRead: filter === 'all' ? undefined : filter === 'read' })
+    ['notifications', filter, page, limit],
+    () => notificationApi.getNotifications({ 
+      isRead: filter === 'all' ? undefined : filter === 'read',
+      page,
+      limit
+    })
   )
 
   const markAsReadMutation = useMutation(notificationApi.markAsRead, {
@@ -91,6 +103,7 @@ export default function NotificationsPage() {
   })
 
   const notifications = data?.data?.data?.notifications || []
+  const pagination = data?.data?.data?.pagination || { total: 0, page: 1, limit: 20, pages: 1 }
 
   const handleNotificationClick = async (notification) => {
     // Mark as read first
@@ -171,44 +184,61 @@ export default function NotificationsPage() {
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              onClick={() => handleNotificationClick(notification)}
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow ${
-                !notification.isRead ? 'border-l-4 border-blue-600' : ''
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Bell className="text-blue-600" size={20} />
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-900">{notification.content}</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
-                  </p>
-                </div>
-                {!notification.isRead && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      markAsReadMutation.mutate(notification.id)
-                    }}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+        <>
+          {notifications.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow ${
+                      !notification.isRead ? 'border-l-4 border-blue-600' : ''
+                    }`}
                   >
-                    Mark read
-                  </button>
-                )}
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Bell className="text-blue-600" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-900">{notification.content}</p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
+                        </p>
+                      </div>
+                      {!notification.isRead && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            markAsReadMutation.mutate(notification.id)
+                          }}
+                          className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && notifications.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No notifications found</div>
+              {pagination.pages > 1 && (
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                  limit={limit}
+                  onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                  }}
+                  showLimitSelector={true}
+                />
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 text-gray-500">No notifications found</div>
+          )}
+        </>
       )}
     </div>
   )

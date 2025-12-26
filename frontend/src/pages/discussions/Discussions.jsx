@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from 'react-query';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { MessageSquare, Search, Plus } from 'lucide-react';
 import Loading from '../../components/Loading';
+import Pagination from '../../components/Pagination';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,19 +23,30 @@ const itemVariants = {
 const Discussions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
   const { user, isAuthenticated } = useAuthStore();
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [selectedTag, searchTerm]);
+
   const { data, isLoading } = useQuery(
-    ['discussions', selectedTag],
+    ['discussions', selectedTag, page, limit],
     async () => {
-      const params = selectedTag ? { tag: selectedTag } : {};
+      const params = {
+        page,
+        limit
+      };
+      if (selectedTag) params.tag = selectedTag;
       const response = await discussionAPI.getAll(params);
       const apiResponse = response.data;
       const discussionsData = apiResponse.data || apiResponse;
-      const discussionsList = discussionsData.discussions || discussionsData || [];
-      return Array.isArray(discussionsList) ? discussionsList : [];
+      return discussionsData;
     },
     {
+      keepPreviousData: true,
       refetchOnMount: 'always',
       onError: (error) => {
         toast.error(error.response?.data?.message || 'Failed to fetch discussions');
@@ -42,14 +54,19 @@ const Discussions = () => {
     }
   );
 
-  const discussions = data || [];
+  const discussions = data?.discussions || [];
+  const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };
 
+  // Client-side search filtering
   const filteredDiscussions = discussions.filter(
     (discussion) =>
+      !searchTerm ||
       discussion.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       discussion.content?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Get all tags from all discussions (for tag filter dropdown)
+  // Note: This might need to be fetched separately or from first page only
   const allTags = [...new Set(discussions.flatMap((d) => d.tags || []))].sort();
 
   if (isLoading) return <Loading fullScreen size="lg" text="Loading discussions..." />;
@@ -68,13 +85,11 @@ const Discussions = () => {
           </div>
         </div>
         {isAuthenticated && user && (
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Link to="/discussions/create" className="btn btn-primary flex items-center gap-2">
-              <Plus size={18} />
-              <span className="hidden md:inline">Start Discussion</span>
-              <span className="md:hidden">Create</span>
-            </Link>
-          </motion.div>
+          <Link to="/discussions/create" className="btn-add">
+            <Plus size={16} />
+            <span className="hidden md:inline">Start Discussion</span>
+            <span className="md:hidden">Create</span>
+          </Link>
         )}
       </motion.div>
 
@@ -98,17 +113,32 @@ const Discussions = () => {
 
       {/* Discussion List */}
       {filteredDiscussions.length > 0 ? (
-        <motion.div className="space-y-4" variants={containerVariants}>
-          {filteredDiscussions.map((discussion, index) => {
-            const discussionId = discussion._id || discussion.id;
-            if (!discussionId) return null;
-            return (
-              <motion.div key={discussionId} variants={itemVariants} custom={index}>
-                <DiscussionCard discussion={discussion} />
-              </motion.div>
-            );
-          })}
-        </motion.div>
+        <>
+          <motion.div className="space-y-4" variants={containerVariants}>
+            {filteredDiscussions.map((discussion, index) => {
+              const discussionId = discussion._id || discussion.id;
+              if (!discussionId) return null;
+              return (
+                <motion.div key={discussionId} variants={itemVariants} custom={index}>
+                  <DiscussionCard discussion={discussion} />
+                </motion.div>
+              );
+            })}
+          </motion.div>
+          {pagination.pages > 1 && (
+            <Pagination
+              currentPage={page}
+              totalPages={pagination.pages}
+              onPageChange={setPage}
+              limit={limit}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+              showLimitSelector={true}
+            />
+          )}
+        </>
       ) : (
         <motion.div variants={itemVariants} className="empty-state">
           <MessageSquare size={56} className="empty-state-icon" />
@@ -117,8 +147,8 @@ const Discussions = () => {
             {!isAuthenticated || !user ? 'Login to start a discussion!' : 'Try adjusting your search or create a new discussion'}
           </p>
           {isAuthenticated && user && (
-            <Link to="/discussions/create" className="btn btn-primary inline-flex items-center gap-2">
-              <Plus size={18} /> Start First Discussion
+            <Link to="/discussions/create" className="btn-add">
+              <Plus size={16} /> Start First Discussion
             </Link>
           )}
         </motion.div>
