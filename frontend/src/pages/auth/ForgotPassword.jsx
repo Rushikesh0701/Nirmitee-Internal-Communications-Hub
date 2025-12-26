@@ -190,11 +190,11 @@ const ForgotPassword = () => {
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 rounded-lg font-medium text-white bg-slate-700 hover:bg-slate-800 relative overflow-hidden group disabled:opacity-70"
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-[#ff4701] hover:bg-[#ff5500] relative overflow-hidden group disabled:opacity-70"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          whileHover={{ scale: 1.02, boxShadow: '0 10px 30px -5px rgba(99, 102, 241, 0.4)' }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <span className="relative z-10 flex items-center justify-center gap-2">

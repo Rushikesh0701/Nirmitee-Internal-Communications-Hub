@@ -8,8 +8,8 @@ import { useTheme } from '../contexts/ThemeContext';
 const NewsUpdateToast = ({ newArticlesCount, latestArticles, onViewNow, onDismiss }) => {
   const { theme } = useTheme();
   return (
-    <div className={`border-l-4 border-slate-600 rounded-lg shadow-lg p-4 max-w-md ${
-      theme === 'dark' ? 'bg-slate-800/90' : 'bg-white'
+    <div className={`border-l-4 border-slate-600 rounded-lg p-4 max-w-md ${
+      theme === 'dark' ? 'bg-[#052829]/90' : 'bg-white'
     }`}>
       <div className="flex items-start gap-3">
         {/* Icon */}
@@ -70,7 +70,7 @@ const NewsUpdateToast = ({ newArticlesCount, latestArticles, onViewNow, onDismis
           {/* Actions */}
           <button
             onClick={onViewNow}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 text-white text-xs font-medium rounded hover:bg-slate-800 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ff4701] text-white text-xs font-medium rounded hover:bg-[#ff5500] transition-colors"
           >
             View Now
             <ChevronRight size={14} />

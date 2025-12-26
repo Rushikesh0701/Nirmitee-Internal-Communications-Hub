@@ -505,9 +505,9 @@ function NewsList() {
 
 
       {/* Main Search Bar */}
-      <div className={`rounded-lg shadow-sm border p-2.5 mb-2.5 ${
+      <div className={`rounded-lg border p-2.5 mb-2.5 ${
         theme === 'dark'
-          ? 'bg-slate-800/50 border-slate-700/50'
+          ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
       }`}>
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
@@ -522,7 +522,7 @@ function NewsList() {
               placeholder="Search news by keywords, phrases, or topics..."
               className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent ${
                 theme === 'dark'
-                  ? 'border-slate-600 bg-slate-700/50 text-slate-200 placeholder-slate-500'
+                  ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200 placeholder-slate-500'
                   : 'border-gray-300 bg-white text-gray-900'
               }`}
             />
@@ -530,7 +530,7 @@ function NewsList() {
           <button
             type="submit"
             disabled={loading || loadingMore}
-            className="px-6 py-2.5 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="px-6 py-2.5 bg-[#ff4701] text-white font-semibold rounded-lg hover:bg-[#ff5500] disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             <Search size={18} />
             {loading && !loadingMore ? 'Searching...' : 'Search'}
@@ -552,9 +552,9 @@ function NewsList() {
       </div>
 
       {/* Filters Section */}
-      <div className={`rounded-lg shadow-sm border p-2.5 mb-2.5 ${
+      <div className={`rounded-lg border p-2.5 mb-2.5 ${
         theme === 'dark'
-          ? 'bg-slate-800/50 border-slate-700/50'
+          ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
       }`}>
         <div className="flex items-center justify-between mb-2">
@@ -784,7 +784,7 @@ function NewsList() {
       {!loading && !error && articles.length === 0 && (
         <div className={`text-center py-4 rounded-lg ${
           theme === 'dark'
-            ? 'bg-slate-800/50'
+            ? 'bg-[#052829]/50'
             : 'bg-gray-50'
         }`}>
           <p className={`text-base font-medium ${
@@ -827,9 +827,9 @@ function NewsList() {
               return (
                 <div
                   key={uniqueKey}
-                  className={`flex flex-col rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer group ${
+                  className={`flex flex-col rounded-lg transition-shadow overflow-hidden cursor-pointer group ${
                     theme === 'dark'
-                      ? 'border border-slate-700/50 bg-slate-800/50'
+                      ? 'border border-[#0a3a3c]/50 bg-[#052829]/50'
                       : 'border border-gray-200 bg-white'
                   }`}
                   onClick={() => {
@@ -841,7 +841,7 @@ function NewsList() {
                   }}
                 >
                   <div className={`relative w-full h-20 overflow-hidden ${
-                    theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
+                    theme === 'dark' ? 'bg-[#052829]/50' : 'bg-gray-100'
                   }`}>
                     {imageUrl ? (
                       <img
@@ -883,7 +883,7 @@ function NewsList() {
                       {description.replace(/<[^>]*>/g, '')}
                     </p>
                     <div className={`flex items-center justify-between mt-auto pt-1.5 border-t ${
-                      theme === 'dark' ? 'border-slate-700/50' : 'border-gray-100'
+                      theme === 'dark' ? 'border-[#0a3a3c]/50' : 'border-gray-100'
                     }`}>
                       <span className={`text-[10px] truncate flex-1 mr-1 flex items-center gap-0.5 ${
                         theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
@@ -894,7 +894,7 @@ function NewsList() {
                       {article.category && (
                         <span className={`px-1 py-0.5 rounded text-[10px] whitespace-nowrap ${
                           theme === 'dark'
-                            ? 'bg-slate-700/50 text-slate-300'
+                            ? 'bg-[#052829]/50 text-slate-300'
                             : 'bg-gray-100 text-gray-700'
                         }`}>
                           {article.category}
@@ -911,9 +911,9 @@ function NewsList() {
 
       {/* Pagination Controls */}
       {!loading && articles.length > 0 && (
-        <div className={`mt-3 rounded-lg shadow-sm border p-2.5 ${
+        <div className={`mt-3 rounded-lg border p-2.5 ${
           theme === 'dark'
-            ? 'bg-slate-800/50 border-slate-700/50'
+            ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
             : 'bg-white border-gray-200'
         }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -927,7 +927,7 @@ function NewsList() {
                 onChange={handleRecordsPerPageChange}
                 className={`px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 font-medium cursor-pointer ${
                   theme === 'dark'
-                    ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                    ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200'
                     : 'border-gray-300 text-gray-700 bg-white'
                 }`}
               >
@@ -969,7 +969,7 @@ function NewsList() {
                 disabled={currentPage === 1 || loadingMore}
                 className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="First page"
@@ -986,7 +986,7 @@ function NewsList() {
                 disabled={currentPage === 1 || loadingMore}
                 className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="Previous page"
@@ -1009,8 +1009,8 @@ function NewsList() {
                 disabled={!hasMorePages || loadingMore}
                 className={`p-2 rounded-lg transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-700/50 disabled:text-slate-500'
-                    : 'bg-slate-700 text-white hover:bg-slate-800 disabled:bg-gray-300 disabled:text-gray-500'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-[#052829]/50 disabled:text-slate-500'
+                    : 'bg-[#ff4701] text-white hover:bg-[#ff5500] disabled:bg-gray-300 disabled:text-gray-500'
                 }`}
                 title={hasMorePages ? "Next page" : "No more pages"}
               >
@@ -1027,7 +1027,7 @@ function NewsList() {
                 disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
                 className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}

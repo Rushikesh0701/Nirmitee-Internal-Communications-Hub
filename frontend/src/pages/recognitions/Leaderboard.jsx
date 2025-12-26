@@ -27,7 +27,7 @@ export default function Leaderboard() {
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg overflow-hidden">
           <div className="divide-y">
             {leaderboard.map((entry) => (
               <div

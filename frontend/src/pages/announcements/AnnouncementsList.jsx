@@ -63,7 +63,7 @@ const AnnouncementsList = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-slate-700">
+          <div className="p-2 rounded-lg bg-[#0a3a3c]">
             <Megaphone size={20} className="text-white" />
           </div>
           <div>
@@ -157,7 +157,7 @@ const AnnouncementsList = () => {
               {announcement.image && (
                 <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
                   <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#ff4701]/30 to-transparent" />
                 </div>
               )}
               <div className="space-y-1.5">
@@ -182,7 +182,7 @@ const AnnouncementsList = () => {
                 </p>
                 <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors ${
                   theme === 'dark'
-                    ? 'text-slate-500 border-slate-700/50'
+                    ? 'text-slate-500 border-[#0a3a3c]/50'
                     : 'text-slate-400 border-slate-100'
                 }`}>
                   <div className="flex items-center gap-1.5">

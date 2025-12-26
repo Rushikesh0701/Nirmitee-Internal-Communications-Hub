@@ -97,24 +97,24 @@ const Blogs = () => {
 
   // Skeleton loader component
   const BlogCardSkeleton = () => (
-    <div className={`rounded-lg shadow-md overflow-hidden border flex flex-col ${
+    <div className={`rounded-lg overflow-hidden border flex flex-col ${
       theme === 'dark'
-        ? 'bg-slate-800/50 border-slate-700/50'
+        ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
         : 'bg-white border-gray-200'
     }`} style={{ width: '100%', height: '280px' }}>
-      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
       <div className="p-2 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
-          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
-          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
         </div>
-        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
-        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
+        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
-            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
           </div>
-          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#052829' : undefined} />
         </div>
       </div>
     </div>
@@ -158,7 +158,7 @@ const Blogs = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 transition-all ${
             theme === 'dark'
-              ? 'border-slate-600 bg-slate-700/50 text-slate-200 placeholder-slate-500'
+              ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200 placeholder-slate-500'
               : 'border-gray-300 bg-white text-gray-900'
           }`}
         />

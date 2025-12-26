@@ -138,9 +138,9 @@ const AnnouncementNotification = () => {
         <div
           key={announcement._id || announcement.id}
           onClick={() => handleReadMore(announcement)}
-          className={`rounded-lg shadow-lg border-l-4 p-4 flex items-start gap-3 animate-slide-in cursor-pointer hover:shadow-xl transition-shadow ${
+          className={`rounded-lg border-l-4 p-4 flex items-start gap-3 animate-slide-in cursor-pointer transition-shadow ${
             theme === 'dark'
-              ? 'bg-slate-800/90 border-indigo-500'
+              ? 'bg-[#052829]/90 border-indigo-500'
               : 'bg-white border-primary-600'
           }`}
         >

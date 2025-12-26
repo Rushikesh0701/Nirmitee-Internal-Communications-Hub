@@ -407,7 +407,7 @@ const Editor = ({
       {!showPreview && (
         <div className={`border border-t-0 rounded-b-lg min-h-[400px] ${
           theme === 'dark'
-            ? 'border-slate-700/50 bg-slate-800/50'
+            ? 'border-[#0a3a3c]/50 bg-[#052829]/50'
             : 'border-gray-200 bg-white'
         }`}>
           <div className="tiptap-editor">
@@ -420,7 +420,7 @@ const Editor = ({
       {showPreview && (
         <div className={`border border-t-0 rounded-b-lg p-4 min-h-[400px] ${
           theme === 'dark'
-            ? 'border-slate-700/50 bg-slate-800/50 text-slate-200'
+            ? 'border-[#0a3a3c]/50 bg-[#052829]/50 text-slate-200'
             : 'border-gray-200 bg-white text-gray-800'
         }`}>
           <div 

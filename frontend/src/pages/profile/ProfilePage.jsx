@@ -95,7 +95,7 @@ export default function ProfilePage() {
     return (
       <motion.div className="max-w-2xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-slate-700">
+          <div className="p-2 rounded-lg bg-[#0a3a3c]">
             <Edit size={22} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800">
@@ -154,7 +154,7 @@ export default function ProfilePage() {
             {profile.avatar ? (
               <img src={profile.avatar} alt={profile.name} className="w-16 h-16 rounded-full ring-2 ring-slate-200" />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-200">
+              <div className="w-16 h-16 rounded-full bg-[#052829] flex items-center justify-center ring-2 ring-slate-200">
                 <span className="text-white font-semibold text-lg">
                   {profile.firstName && profile.lastName
                     ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setShowDeleteDialog(false)}
           >
             <motion.div
@@ -223,7 +223,7 @@ export default function ProfilePage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-lg shadow-lg max-w-md w-full p-4"
+              className="bg-white rounded-lg max-w-md w-full p-4"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-3 rounded-full bg-rose-100">

@@ -9,7 +9,7 @@
 :root {
   /* Solid Color Palette */
   --primary-slate: #475569;
-  --primary-slate-hover: #334155;
+  --primary-slate-hover: #052829;
   --primary-slate-light: #64748b;
 
   /* Light Theme Colors */
@@ -22,11 +22,11 @@
   --light-text-secondary: #475569;
   --light-text-muted: #64748b;
 
-  /* Shadows - Simplified */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 8px 12px rgba(0, 0, 0, 0.12);
+  /* Shadows - Removed */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
 }
 
 @layer base {
@@ -40,7 +40,7 @@
   }
 
   body.dark-theme {
-    background-color: #0f172a;
+    background-color: #052829;
     color: #e2e8f0;
   }
 
@@ -74,27 +74,27 @@
   }
 
   .btn-primary {
-    @apply bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-600 shadow-sm;
+    @apply bg-[#ff4701] text-white hover:bg-[#ff5500] focus:ring-[#ff4701];
   }
 
   .btn-primary:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
   }
 
   .btn-secondary {
-    @apply bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-700 focus:ring-slate-400 shadow-sm;
+    @apply bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-700 focus:ring-slate-400;
   }
 
   .btn-secondary:hover {
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm;
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
 
   .btn-danger:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
   }
 
   .btn-ghost {
@@ -103,44 +103,44 @@
   }
 
   .btn-success {
-    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-sm;
+    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
   }
 
   /* Compact Add Button - Standardized for all Add/Create buttons */
   .btn-add {
     @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-1;
-    @apply bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-600 shadow-sm;
+    @apply bg-[#ff4701] text-white hover:bg-[#ff5500] focus:ring-[#ff4701];
   }
 
   .btn-add:hover {
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   body.dark-theme .btn-add {
-    @apply bg-slate-700 hover:bg-slate-800;
+    @apply bg-[#ff4701] hover:bg-[#ff5500];
   }
 
   /* Compact Filter Button - Standardized for all filter buttons */
   .btn-filter {
     @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2;
-    @apply border border-slate-200 shadow-sm hover:shadow-md focus:ring-indigo-400;
+    @apply border border-slate-200 focus:ring-indigo-400;
     @apply bg-white text-slate-700 hover:bg-slate-50 hover:border-indigo-300 hover:text-indigo-600;
   }
 
   .btn-filter-active {
-    @apply bg-slate-700 text-white border-slate-700 hover:bg-slate-800 hover:border-slate-800;
+    @apply bg-[#ff4701] text-white border-[#ff4701] hover:bg-[#ff5500] hover:border-[#ff5500];
   }
 
   .btn-filter:hover {
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   body.dark-theme .btn-filter {
-    @apply bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:border-slate-600;
+    @apply bg-black border-black text-slate-200 hover:bg-[#1a1a1a] hover:border-[#1a1a1a];
   }
 
   body.dark-theme .btn-filter-active {
-    @apply bg-slate-700 text-white border-slate-700 hover:bg-slate-800;
+    @apply bg-[#ff4701] text-white border-[#ff4701] hover:bg-[#ff5500];
   }
 
   /* Compact Filter Select - Standardized for all filter dropdowns */
@@ -150,7 +150,7 @@
   }
 
   body.dark-theme .filter-select {
-    @apply bg-slate-800 border-slate-700 text-slate-200;
+    @apply bg-[#052829] border-[#0a3a3c] text-slate-200;
   }
 
   /* ================================
@@ -175,7 +175,7 @@
   }
 
   body.dark-theme .input {
-    @apply bg-slate-800 border-slate-700 text-slate-200;
+    @apply bg-[#052829] border-[#0a3a3c] text-slate-200;
   }
 
   body.dark-theme .input::placeholder {
@@ -183,12 +183,12 @@
   }
 
   body.dark-theme .input:focus {
-    @apply border-slate-600 bg-slate-800;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    @apply border-[#ff4701] bg-[#052829];
+    box-shadow: 0 0 0 3px rgba(255, 71, 1, 0.2);
   }
 
   body.dark-theme .input:hover:not(:focus) {
-    @apply border-slate-600 bg-slate-800;
+    @apply border-[#ff4701] bg-[#052829];
   }
 
   body.dark-theme .input-select {
@@ -218,22 +218,22 @@
      ================================ */
   .card {
     @apply rounded-lg p-3 bg-white border border-slate-200 transition-all duration-200;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   body.dark-theme .card {
-    @apply bg-slate-800 border-slate-700;
-    box-shadow: var(--shadow-sm);
+    @apply bg-[#052829] border-[#0a3a3c];
+    box-shadow: none;
   }
 
   .card:hover {
     @apply border-slate-300;
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
   }
 
   body.dark-theme .card:hover {
-    @apply border-slate-600;
-    box-shadow: var(--shadow-md);
+    @apply border-[#ff4701];
+    box-shadow: none;
   }
 
   .card-hover {
@@ -241,13 +241,13 @@
   }
 
   .card-hover:hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
     @apply border-slate-400;
   }
 
   body.dark-theme .card-hover:hover {
-    @apply border-slate-600;
-    box-shadow: var(--shadow-lg);
+    @apply border-[#ff4701];
+    box-shadow: none;
   }
 
   /* Stats Card */
@@ -287,7 +287,7 @@
      ================================ */
   .table-light {
     @apply w-full text-left bg-white rounded-xl overflow-hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   .table-light th {
@@ -297,7 +297,7 @@
 
   .table-light td {
     @apply px-3 py-2.5 text-sm border-b border-slate-100;
-    color: #334155;
+    color: #052829;
   }
 
   .table-light tr:hover td {
@@ -309,7 +309,7 @@
      ================================ */
   .filter-panel {
     @apply rounded-lg p-4 mb-4 bg-white border border-slate-200;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   .filter-label {
@@ -348,15 +348,15 @@
   }
 
   .pagination-btn-active {
-    @apply bg-slate-700 border-transparent text-white;
+    @apply bg-[#ff4701] border-transparent text-white;
   }
 
   body.dark-theme .pagination-btn {
-    @apply bg-slate-800/50 border-slate-700/50 text-slate-300;
+    @apply bg-[#052829]/50 border-[#0a3a3c] text-slate-300;
   }
 
   body.dark-theme .pagination-btn:hover:not(:disabled) {
-    @apply bg-slate-700 border-slate-600 text-slate-200;
+    @apply bg-[#ff4701] border-[#ff4701] text-white;
   }
 
   /* ================================
@@ -370,7 +370,7 @@
 
   .modal-content {
     @apply rounded-lg p-4 w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white;
-    box-shadow: var(--shadow-xl);
+    box-shadow: none;
   }
 
   /* ================================
@@ -386,7 +386,7 @@
   }
 
   .tab-btn-active {
-    @apply bg-white text-slate-700 shadow-sm;
+    @apply bg-white text-slate-700;
   }
 
   /* ================================
@@ -394,7 +394,7 @@
      ================================ */
   .dropdown-menu {
     @apply absolute z-50 mt-2 min-w-[180px] rounded-lg py-1 bg-white border border-slate-200;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
   }
 
   .dropdown-item {
@@ -406,8 +406,8 @@
      TOOLTIP
      ================================ */
   .tooltip {
-    @apply absolute z-50 px-3 py-2 text-sm text-white rounded-lg bg-slate-800;
-    box-shadow: var(--shadow-lg);
+    @apply absolute z-50 px-3 py-2 text-sm text-white rounded-lg bg-[#052829];
+    box-shadow: none;
   }
 
   /* ================================
@@ -607,12 +607,12 @@
 
   /* Hover Effects */
   .hover-lift {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
   }
 
   .hover-lift:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
   }
 }
 
@@ -792,7 +792,7 @@
    ================================ */
 .form-label {
   @apply block text-sm font-medium mb-2;
-  color: #334155; /* text-slate-700 */
+  color: #052829; /* text-slate-700 */
 }
 
 body.dark-theme .form-label {
@@ -821,7 +821,7 @@ body.dark-theme .form-label {
 
 .empty-state-title {
   @apply text-lg font-semibold mb-2;
-  color: #334155; /* text-slate-700 */
+  color: #052829; /* text-slate-700 */
 }
 
 .empty-state-text {
@@ -881,7 +881,7 @@ body.dark-theme .text-slate-400 {
 
 /* Compact cards */
 .compact-card {
-  @apply rounded-lg shadow-sm border p-4;
+  @apply rounded-lg border p-4;
 }
 
 /* Compact spacing utilities */

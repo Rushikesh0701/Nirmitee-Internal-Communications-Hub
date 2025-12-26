@@ -279,7 +279,7 @@ const EditorMenuBar = ({
             <span className="text-xs">{getCurrentFontSize() || 'Size'}</span>
           </button>
           {showFontSizePicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-2 max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 p-2 max-h-48 overflow-y-auto">
               <input
                 type="number"
                 placeholder="Enter size"
@@ -331,7 +331,7 @@ const EditorMenuBar = ({
             </span>
           </button>
           {showFontFamilyPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 min-w-[180px] max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 min-w-[180px] max-h-64 overflow-y-auto">
               {fontFamilies.map((font) => (
                 <button
                   key={font.value}
@@ -367,7 +367,7 @@ const EditorMenuBar = ({
             <Palette className="w-4 h-4" />
           </button>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-3 min-w-[200px]">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 p-3 min-w-[200px]">
               {/* Color Groups */}
               {colorGroups.map((group, groupIndex) => (
                 <div key={group.name} className={groupIndex > 0 ? 'mt-3' : ''}>
@@ -384,7 +384,7 @@ const EditorMenuBar = ({
                             }}
                             className={`w-8 h-8 rounded-lg border-2 transition-all ${
                               isSelected 
-                                ? 'border-slate-700 ring-2 ring-slate-400' 
+                                ? 'border-[#ff4701] ring-2 ring-[#ff4701]/50' 
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                             style={{ backgroundColor: color }}

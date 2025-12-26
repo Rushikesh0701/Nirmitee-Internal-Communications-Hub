@@ -24,7 +24,7 @@ const AuthLayout = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
+        <div className="bg-white rounded-lg p-6 border border-slate-200">
           <Outlet />
         </div>
 

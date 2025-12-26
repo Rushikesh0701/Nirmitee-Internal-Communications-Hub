@@ -40,7 +40,7 @@ export default function EmployeeDirectory() {
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-slate-700">
+        <div className="p-2 rounded-lg bg-[#0a3a3c]">
           <Users size={22} className="text-white" />
         </div>
         <div>
@@ -86,7 +86,7 @@ export default function EmployeeDirectory() {
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200" />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-200">
+                      <div className="w-20 h-20 rounded-full bg-[#052829] flex items-center justify-center ring-2 ring-slate-200">
                         <span className="text-white font-semibold text-2xl">{user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                       </div>
                     )}

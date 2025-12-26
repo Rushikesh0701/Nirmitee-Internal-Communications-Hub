@@ -108,14 +108,14 @@ const Dashboard = () => {
         <motion.div variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-slate-800 border-slate-700 shadow-sm'
-              : 'bg-white border-slate-200 shadow-sm'
+              ? 'bg-[#052829] border-[#0a3a3c]'
+              : 'bg-white border-slate-200'
           }`}>
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <div className={`p-1.5 rounded-lg border transition-all duration-200 ${
                   theme === 'dark' 
-                    ? 'bg-slate-700 border-slate-600' 
+                    ? 'bg-[#0a3a3c] border-[#0a3a3c]' 
                     : 'bg-slate-100 border-slate-200'
                 }`}>
                   <Sparkles size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-700'} />
@@ -161,7 +161,7 @@ const Dashboard = () => {
                   variants={cardVariants}
                   className={`relative h-24 rounded-xl backdrop-blur-xl border animate-pulse transition-colors ${
                     theme === 'dark' 
-                      ? 'bg-slate-800/50 border-slate-700/50' 
+                      ? 'bg-[#052829]/50 border-[#0a3a3c]/50' 
                       : 'bg-white/60 border-slate-200/50'
                   }`}
                 />
@@ -176,8 +176,8 @@ const Dashboard = () => {
                     custom={index}
                     className={`group relative h-20 rounded-lg border overflow-hidden transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-slate-800 border-slate-700 shadow-sm'
-                        : 'bg-white border-slate-200 shadow-sm'
+                        ? 'bg-[#052829] border-[#0a3a3c]'
+                        : 'bg-white border-slate-200'
                     }`}
                     whileHover={{ 
                       y: -2,
@@ -198,7 +198,7 @@ const Dashboard = () => {
                             {stat.value.toLocaleString()}
                           </p>
                         </div>
-                        <div className={`p-2 rounded-lg bg-slate-700`}>
+                        <div className={`p-2 rounded-lg bg-[#1a1a1a]`}>
                           <Icon className="text-white" size={16} />
                         </div>
                       </div>
@@ -224,12 +224,12 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-slate-800 border-slate-700 shadow-sm'
-              : 'bg-white border-slate-200 shadow-sm'
+              ? 'bg-[#052829] border-[#0a3a3c]'
+              : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-slate-700">
+                <div className="p-2 rounded-lg bg-[#0a3a3c]">
                   <Megaphone size={18} className="text-white" />
                 </div>
                 <div>
@@ -249,8 +249,8 @@ const Dashboard = () => {
                 to="/announcements" 
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-xs group transition-all duration-200 ${
                   theme === 'dark' 
-                    ? 'text-slate-500 hover:text-white hover:bg-slate-700 border border-slate-600' 
-                    : 'text-slate-700 hover:text-white hover:bg-slate-700 border border-slate-300'
+                    ? 'text-slate-500 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]' 
+                    : 'text-slate-700 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]'
                 }`}
               >
                 View All 
@@ -276,8 +276,8 @@ const Dashboard = () => {
                         to={`/announcements/${announcement._id || announcement.id}`}
                         className={`group relative block p-3 rounded-lg border transition-all duration-200 ${
                           theme === 'dark'
-                            ? 'bg-slate-800 border-slate-700 hover:border-slate-600 hover:shadow-md'
-                            : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                            : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                       >
                         
@@ -292,7 +292,7 @@ const Dashboard = () => {
                                 {announcement.title}
                               </h3>
                               {announcement.isPriority && (
-                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-white">
+                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ff4701] text-white">
                                   Priority
                                 </span>
                               )}
@@ -351,12 +351,12 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-slate-800 border-slate-700 shadow-sm'
-              : 'bg-white border-slate-200 shadow-sm'
+              ? 'bg-[#052829] border-[#0a3a3c]'
+              : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-slate-700">
+                <div className="p-2 rounded-lg bg-[#0a3a3c]">
                   <Newspaper size={18} className="text-white" />
                 </div>
                 <div>
@@ -377,7 +377,7 @@ const Dashboard = () => {
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs group transition-all duration-300 ${
                   theme === 'dark' 
                     ? 'text-slate-500 hover:text-white hover:bg-slate-600/20 border border-slate-600/30' 
-                    : 'text-slate-700 hover:text-white hover:bg-slate-700 border border-slate-300'
+                    : 'text-slate-700 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]'
                 }`}
               >
                 View All 
@@ -409,14 +409,14 @@ const Dashboard = () => {
                       <div 
                         className={`relative rounded-lg overflow-hidden border transition-all duration-200 h-full flex flex-col ${
                           theme === 'dark'
-                            ? 'bg-slate-800 border-slate-700 hover:border-slate-600 hover:shadow-md'
-                            : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                            : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                         onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
                       >
                         
                         <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
-                          theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100'
+                          theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
                         }`}>
                           {imageUrl ? (
                             <motion.img 
@@ -467,19 +467,19 @@ const Dashboard = () => {
                     key={i} 
                     className={`rounded-lg overflow-hidden border backdrop-blur-sm animate-pulse ${
                       theme === 'dark'
-                        ? 'border-slate-700/50 bg-slate-800/50'
+                        ? 'border-[#0a3a3c]/50 bg-[#052829]/50'
                         : 'border-slate-200 bg-white/60'
                     }`}
                   >
                     <div className={`aspect-[4/3] ${
-                      theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100'
+                      theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
                     }`} />
                     <div className="p-2">
                       <div className={`h-3 rounded w-3/4 mb-1 ${
-                        theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100'
+                        theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
                       }`} />
                       <div className={`h-2 rounded w-1/2 ${
-                        theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-50'
+                        theme === 'dark' ? 'bg-[#052829]/30' : 'bg-slate-50'
                       }`} />
                     </div>
                   </div>
@@ -517,11 +517,11 @@ const Dashboard = () => {
                     to={link.path}
                     className={`group flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-slate-800 border-slate-700 hover:border-slate-600 hover:shadow-md'
-                        : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
+                        ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="bg-slate-700 p-2 rounded-lg">
+                    <div className="bg-[#0a3a3c] p-2 rounded-lg">
                       <Icon className="text-white" size={18} />
                     </div>
                     

@@ -43,7 +43,7 @@ export default function RecognitionsFeed() {
             <>
               <div className="space-y-4">
                 {recognitions.map((recognition) => (
-                  <div key={recognition.id} className="bg-white rounded-lg shadow p-6">
+                  <div key={recognition.id} className="bg-white rounded-lg p-6">
                     <div className="flex items-start gap-4">
                       <div className="p-3 bg-yellow-100 rounded-lg">
                         <Award className="text-yellow-600" size={24} />

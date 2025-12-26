@@ -77,14 +77,24 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
 
   const handleLogout = () => {
     setAvatarDropdownOpen(false)
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = () => {
+    setShowLogoutModal(false)
     logout()
     navigate('/login')
+  }
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false)
   }
 
   // Close avatar dropdown when clicking outside
@@ -236,7 +246,7 @@ const Layout = () => {
     <div className="min-h-screen bg-slate-50">
       {/* Mobile header */}
       <motion.div
-        className="lg:hidden bg-white/80 backdrop-blur-xl border-b border-slate-200 fixed top-0 left-0 right-0 z-30 shadow-sm"
+        className="lg:hidden bg-white/80 backdrop-blur-xl border-b border-slate-200 fixed top-0 left-0 right-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -275,17 +285,17 @@ const Layout = () => {
             } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
              transition-all duration-300 ease-in-out 
              ${sidebarTheme === 'dark'
-              ? 'bg-slate-900 border-r border-slate-800 shadow-sm'
-              : 'bg-white border-r border-slate-200 shadow-sm'
+              ? 'bg-[#052829] border-r border-[#0a3a3c]'
+              : 'bg-white border-r border-slate-200'
             }`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#052829]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
               {sidebarCollapsed ? (
                 <button
                   onClick={() => handleSidebarCollapseToggle(false)}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
+                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
                 >
                   <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
                 </button>
@@ -297,7 +307,7 @@ const Layout = () => {
                   </Link>
                   <button
                     onClick={() => handleSidebarCollapseToggle(true)}
-                    className={`p-1.5 rounded-lg transition-all duration-200 ${sidebarTheme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
+                    className={`p-1.5 rounded-lg transition-all duration-200 ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
                     title="Collapse sidebar"
                   >
                     <ChevronsLeft size={16} className={sidebarTheme === 'dark' ? 'text-slate-400 hover:text-slate-300 transition-colors' : 'text-slate-500 hover:text-slate-700 transition-colors'} />
@@ -321,9 +331,9 @@ const Layout = () => {
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group relative
                           ${isActive
-                            ? 'bg-slate-700 text-white'
+                            ? 'bg-[#ff4701] text-white'
                             : sidebarTheme === 'dark'
-                              ? 'text-slate-300 hover:text-slate-500 hover:bg-slate-800'
+                              ? 'text-slate-300 hover:text-slate-500 hover:bg-[#0a3a3c]'
                               : 'text-slate-600 hover:text-slate-700 hover:bg-slate-100'
                           }`}
                         title={item.label}
@@ -350,7 +360,7 @@ const Layout = () => {
                       {/* Section Header - Clickable */}
                       <button
                         onClick={() => toggleSection(section.title)}
-                          className={`w-full flex items-center justify-between px-3 py-2 mb-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
+                          className={`w-full flex items-center justify-between px-3 py-2 mb-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
                       >
                         <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${sidebarTheme === 'dark' ? 'text-slate-400 group-hover:text-slate-300' : 'text-slate-600 group-hover:text-slate-800'}`}>
                           {section.title}
@@ -393,9 +403,9 @@ const Layout = () => {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-all duration-200 group relative
                                       ${isActive
-                                        ? 'bg-slate-700 text-white'
+                                        ? 'bg-[#ff4701] text-white'
                                         : sidebarTheme === 'dark'
-                                          ? 'text-slate-300 hover:text-white hover:bg-slate-800'
+                                          ? 'text-slate-300 hover:text-white hover:bg-[#0a3a3c]'
                                           : 'text-slate-700 hover:text-slate-700 hover:bg-slate-100'
                                       }`}
                                   >
@@ -425,17 +435,17 @@ const Layout = () => {
 
             {/* User Profile Section - Above Logout */}
             {!sidebarCollapsed && (
-              <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+              <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#052829]' : 'border-slate-200 bg-white'}`}>
                 <Link
                   to="/profile"
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-start gap-2 p-2 rounded-lg transition-all duration-200 cursor-pointer group ${sidebarTheme === 'dark'
-                      ? 'bg-slate-800 hover:bg-slate-700'
+                    className={`flex items-start gap-2 p-2 rounded-lg transition-all duration-200 cursor-pointer group ${sidebarTheme === 'dark'
+                      ? 'bg-[#0a3a3c] hover:bg-[#0d4a4d]'
                       : 'bg-slate-50 hover:bg-slate-100'
                     }`}
                 >
                   <div className="relative">
-                    <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center">
+                    <div className="w-7 h-7 bg-[#052829] rounded-lg flex items-center justify-center">
                       {user?.avatar ? (
                         <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                       ) : (
@@ -497,7 +507,7 @@ const Layout = () => {
             )}
 
             {/* Logout Button at Bottom */}
-            <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+            <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-black bg-black' : 'border-slate-200 bg-white'}`}>
               <motion.button
                 onClick={handleLogout}
                 className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-2'} px-3 py-2 rounded-lg transition-all duration-200 font-medium ${sidebarTheme === 'dark'
@@ -519,7 +529,7 @@ const Layout = () => {
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
-              className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+              className="lg:hidden fixed inset-0 bg-[#ff4701]/30 backdrop-blur-sm z-40"
               onClick={() => setSidebarOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -530,20 +540,20 @@ const Layout = () => {
 
         {/* Main content */}
         <main className={`flex-1 min-h-screen flex flex-col pt-14 lg:pt-0 relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'} ${
-          sidebarTheme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'
+          sidebarTheme === 'dark' ? 'bg-[#052829]' : 'bg-slate-50'
         }`}>
           {/* Top bar */}
           <div
-            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 shadow-sm transition-colors duration-200 ${
+            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-colors duration-200 ${
               sidebarTheme === 'dark'
-                ? 'bg-slate-900 border-slate-800'
+                ? 'bg-[#052829] border-[#0a3a3c]'
                 : 'bg-white border-slate-200'
             }`}
           >
             <div className="hidden lg:flex items-center gap-3">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors ${
                 sidebarTheme === 'dark'
-                  ? 'bg-slate-800 border-slate-700'
+                  ? 'bg-[#0a3a3c] border-black'
                   : 'bg-slate-100 border-slate-200'
               }`}>
                 <span className={`text-sm transition-colors ${
@@ -563,9 +573,9 @@ const Layout = () => {
               <button
                 onClick={toggleTheme}
                 className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
-                  sidebarTheme === 'dark'
-                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                sidebarTheme === 'dark'
+                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#0a3a3c]/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
                 title={sidebarTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
               >
@@ -583,12 +593,12 @@ const Layout = () => {
                   onClick={() => setAvatarDropdownOpen(!avatarDropdownOpen)}
                   className={`p-1.5 rounded-lg transition-all duration-200 ${
                     sidebarTheme === 'dark'
-                      ? 'hover:bg-slate-800/50'
+                      ? 'hover:bg-[#0a3a3c]/50'
                       : 'hover:bg-slate-100'
                   }`}
                   title="User menu"
                 >
-                  <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[#052829] rounded-lg flex items-center justify-center">
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                     ) : (
@@ -605,9 +615,9 @@ const Layout = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border py-1 z-50 transition-colors ${
+                      className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors ${
                         sidebarTheme === 'dark'
-                          ? 'bg-slate-800 border-slate-700'
+                          ? 'bg-[#0a3a3c] border-[#0a3a3c]'
                           : 'bg-white border-slate-200'
                       }`}
                     >
@@ -616,7 +626,7 @@ const Layout = () => {
                         onClick={() => setAvatarDropdownOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
                           sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-slate-700/50'
+                            ? 'text-slate-300 hover:bg-[#052829]/50'
                             : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
@@ -627,7 +637,7 @@ const Layout = () => {
                         onClick={handleLogout}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
                           sidebarTheme === 'dark'
-                            ? 'text-rose-400 hover:bg-slate-700/50'
+                            ? 'text-rose-400 hover:bg-[#052829]/50'
                             : 'text-rose-600 hover:bg-rose-50'
                         }`}
                       >
@@ -653,6 +663,67 @@ const Layout = () => {
           </motion.div>
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-[100] p-4"
+              onClick={cancelLogout}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className={`bg-white rounded-lg p-6 max-w-md w-full ${
+                  sidebarTheme === 'dark' ? 'bg-[#052829] border border-[#0a3a3c]' : 'bg-white border border-slate-200'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-full bg-red-100">
+                    <LogOut size={24} className="text-red-600" />
+                  </div>
+                  <h2 className={`text-xl font-bold ${
+                    sidebarTheme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+                  }`}>
+                    Confirm Logout
+                  </h2>
+                </div>
+                
+                <p className={`mb-6 ${
+                  sidebarTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                }`}>
+                  Are you sure you want to logout? You'll need to sign in again to access your account.
+                </p>
+
+                <div className="flex items-center gap-3 justify-end">
+                  <button
+                    onClick={cancelLogout}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      sidebarTheme === 'dark'
+                        ? 'bg-[#0a3a3c] text-slate-200 hover:bg-[#0d4a4d]'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    className="px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

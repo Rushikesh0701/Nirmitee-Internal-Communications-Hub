@@ -193,8 +193,8 @@ const ImageModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 shadow-xl my-8">
+      <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 my-8">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">
             {editingImage ? '✏️ Edit Image' : 'Insert Image'}
           </h3>
@@ -304,7 +304,7 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'left' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'left' 
-                      ? 'bg-slate-700 text-white border-slate-700' 
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
                       : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Align Left"
@@ -316,7 +316,7 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'center' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'center' 
-                      ? 'bg-slate-700 text-white border-slate-700' 
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
                       : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Center"
@@ -328,7 +328,7 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'right' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'right' 
-                      ? 'bg-slate-700 text-white border-slate-700' 
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
                       : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Align Right"
@@ -340,7 +340,7 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'float-left' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'float-left' 
-                      ? 'bg-slate-700 text-white border-slate-700' 
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
                       : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Float Left (text wraps around right)"
@@ -352,7 +352,7 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'float-right' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'float-right' 
-                      ? 'bg-slate-700 text-white border-slate-700' 
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
                       : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Float Right (text wraps around left)"
@@ -372,7 +372,7 @@ const ImageModal = ({
               type="button"
               onClick={handleImageInsert}
               disabled={!imageUrl.trim()}
-              className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {editingImage ? 'Update Image' : 'Insert Image'}
             </button>

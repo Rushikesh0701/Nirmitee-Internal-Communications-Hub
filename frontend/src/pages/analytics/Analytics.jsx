@@ -58,7 +58,7 @@ const Analytics = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-slate-700">
+          <div className="p-2 rounded-lg bg-[#0a3a3c]">
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
@@ -91,13 +91,13 @@ const Analytics = () => {
       {/* Stats Cards */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {statCards.map((stat, index) => (
-          <motion.div key={stat.label} className="card group hover:shadow-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+          <motion.div key={stat.label} className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-slate-500">{stat.label}</p>
                 <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className="p-2 rounded-lg bg-slate-700">
+              <div className="p-2 rounded-lg bg-[#0a3a3c]">
                 <stat.icon size={20} className="text-white" />
               </div>
             </div>
@@ -113,7 +113,7 @@ const Analytics = () => {
         ) : timeSeriesData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#334155' : '#e2e8f0'} />
+              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
               <XAxis 
                 dataKey="date" 
                 tickFormatter={formatDate} 
@@ -131,7 +131,7 @@ const Analytics = () => {
                 labelFormatter={(label) => `Date: ${formatDate(label)}`} 
                 contentStyle={{ 
                   backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                  border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', 
+                  border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0', 
                   borderRadius: '8px', 
                   color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
                 }} 
@@ -161,7 +161,7 @@ const Analytics = () => {
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                  border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', 
+                  border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0', 
                   borderRadius: '8px', 
                   color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
                 }} 

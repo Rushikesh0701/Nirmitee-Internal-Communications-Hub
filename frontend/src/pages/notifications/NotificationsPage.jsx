@@ -135,7 +135,7 @@ export default function NotificationsPage() {
           {notifications.some((n) => !n.isRead) && (
             <button
               onClick={() => markAllAsReadMutation.mutate()}
-              className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 flex items-center gap-2"
+              className="px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] flex items-center gap-2"
             >
               <Check size={18} />
               Mark all as read
@@ -186,8 +186,8 @@ export default function NotificationsPage() {
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow ${
-                      !notification.isRead ? 'border-l-4 border-slate-700' : ''
+                    className={`bg-white rounded-lg p-6 cursor-pointer transition-shadow ${
+                      !notification.isRead ? 'border-l-4 border-[#ff4701]' : ''
                     }`}
                   >
                     <div className="flex items-start gap-4">

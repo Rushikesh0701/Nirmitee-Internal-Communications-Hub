@@ -57,7 +57,7 @@ const SurveysList = () => {
               <Link
                 key={survey.id}
                 to={`/surveys/${survey.id}`}
-                className="card hover:shadow-lg transition-shadow block"
+                className="card transition-shadow block"
               >
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-pink-100 rounded-lg">

@@ -16,20 +16,20 @@ export const textColors = {
 // Common background color classes
 export const bgColors = {
   card: (theme) => theme === 'dark' 
-    ? 'bg-slate-800/50' 
+    ? 'bg-[#052829]/50' 
     : 'bg-white',
   surface: (theme) => theme === 'dark' 
-    ? 'bg-slate-800/30' 
+    ? 'bg-[#052829]/30' 
     : 'bg-slate-50',
   hover: (theme) => theme === 'dark' 
-    ? 'hover:bg-slate-700/50' 
+    ? 'hover:bg-[#052829]/50' 
     : 'hover:bg-slate-50',
 }
 
 // Common border color classes
 export const borderColors = {
   default: (theme) => theme === 'dark' 
-    ? 'border-slate-700/50' 
+    ? 'border-[#0a3a3c]/50' 
     : 'border-slate-200',
   hover: (theme, color = 'indigo') => theme === 'dark' 
     ? `hover:border-${color}-700/50` 

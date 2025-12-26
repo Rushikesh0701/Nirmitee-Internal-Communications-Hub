@@ -23,12 +23,12 @@ const BlogCard = ({ blog }) => {
         transition={{ duration: 0.3, delay: 0.1 }}
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
-        className={`rounded-xl shadow-md overflow-hidden cursor-pointer border 
-                    flex flex-col h-full hover:shadow-2xl transition-all duration-300
+        className={`rounded-xl overflow-hidden cursor-pointer border 
+                    flex flex-col h-full transition-all duration-300
                     ${theme === 'dark' 
                       ? blog.isPublished === false 
-                        ? 'bg-slate-800/50 border-yellow-500/50 border-2 opacity-90' 
-                        : 'bg-slate-800/50 border-slate-700/50'
+                        ? 'bg-[#052829]/50 border-yellow-500/50 border-2 opacity-90' 
+                        : 'bg-[#052829]/50 border-[#0a3a3c]/50'
                       : blog.isPublished === false 
                         ? 'bg-white border-yellow-300 border-2 opacity-90' 
                         : 'bg-white border-gray-200'
@@ -36,7 +36,7 @@ const BlogCard = ({ blog }) => {
       >
         {/* Image Container - Responsive Height */}
         <div className={`w-full h-24 sm:h-28 flex-shrink-0 overflow-hidden ${
-          theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
+          theme === 'dark' ? 'bg-[#052829]/50' : 'bg-gray-100'
         }`}>
           <img
             src={imageError ? placeholderImage : (blog.coverImage || blog.image || placeholderImage)}
