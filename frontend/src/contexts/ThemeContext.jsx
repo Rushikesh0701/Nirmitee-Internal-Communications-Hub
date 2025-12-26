@@ -1,33 +1,48 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 
-const ThemeContext = createContext()
+// Helper functions for theme persistence
+const getTheme = () => {
+  try {
+    const saved = localStorage.getItem('sidebarTheme')
+    return saved || 'light' // Default to light theme
+  } catch {
+    return 'light'
+  }
+}
+
+const saveTheme = (theme) => {
+  try {
+    localStorage.setItem('sidebarTheme', theme)
+  } catch (error) {
+    console.error('Failed to save theme:', error)
+  }
+}
+
+const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} })
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    // Get theme from localStorage or default to 'light'
-    try {
-      const savedTheme = localStorage.getItem('theme')
-      return savedTheme || 'light'
-    } catch {
-      return 'light'
-    }
-  })
+  const [theme, setTheme] = useState(getTheme)
 
   useEffect(() => {
-    // Save theme to localStorage whenever it changes
-    try {
-      localStorage.setItem('theme', theme)
-    } catch (error) {
-      console.error('Failed to save theme to localStorage:', error)
+    saveTheme(theme)
+    // Apply theme class to body for global dark mode
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme')
+      document.body.style.backgroundColor = '#052829'
+    } else {
+      document.body.classList.remove('dark-theme')
+      document.body.style.backgroundColor = '#ebf3ff'
     }
   }, [theme])
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark')
-  }
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }, [])
+
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   )
@@ -35,8 +50,7 @@ export const ThemeProvider = ({ children }) => {
 
 export const useTheme = () => {
   const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
+  // With default value in createContext, context will always be available
+  // This prevents crashes during HMR and development
   return context
 }

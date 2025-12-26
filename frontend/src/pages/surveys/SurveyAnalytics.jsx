@@ -5,7 +5,8 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ArrowLeft, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const SurveyAnalytics = () => {
   const { id } = useParams()
@@ -23,7 +24,7 @@ const SurveyAnalytics = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!analytics) {
@@ -36,9 +37,11 @@ const SurveyAnalytics = () => {
           <ArrowLeft size={18} />
           Back to Survey
         </Link>
-        <div className="card p-6 text-center">
-          <p className="text-gray-600">No analytics data available</p>
-        </div>
+        <EmptyState
+          icon={BarChart3}
+          title="No analytics data available"
+          message="This survey doesn't have any responses yet"
+        />
       </div>
     )
   }
@@ -94,9 +97,9 @@ const SurveyAnalytics = () => {
                 {question.type === 'RATING' && question.averageRating && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="p-4 bg-slate-50 rounded-lg">
                         <p className="text-sm text-gray-600">Average Rating</p>
-                        <p className="text-2xl font-bold text-blue-600">
+                        <p className="text-2xl font-bold text-slate-700">
                           {question.averageRating} / 5
                         </p>
                       </div>
@@ -174,9 +177,12 @@ const SurveyAnalytics = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              No questions in this survey
-            </div>
+            <EmptyState
+              icon={BarChart3}
+              title="No questions in this survey"
+              message="This survey doesn't have any questions to analyze"
+              compact
+            />
           )}
         </div>
       </div>

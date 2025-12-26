@@ -1,9 +1,11 @@
+import { memo } from 'react'
 import { useQuery } from 'react-query'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
-import { ArrowLeft, Calendar, User, Eye } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Eye, Newspaper } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const NewsDetail = () => {
   const { id } = useParams()
@@ -15,31 +17,47 @@ const NewsDetail = () => {
   )
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!news) {
-    return <div className="text-center py-12">News not found</div>
+    return (
+      <EmptyState
+        icon={Newspaper}
+        title="News not found"
+        message="The news article you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/news"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft size={18} />
-        Back to News
+        <span className="font-medium">Back to News</span>
       </Link>
 
-      <article className="card">
-        {news.imageUrl && (
-          <img
-            src={news.imageUrl}
-            alt={news.title}
-            className="w-full h-64 object-cover rounded-lg mb-6"
-          />
-        )}
+      <article className="card p-6 lg:p-8">
+        <div className="relative w-full h-64 rounded-lg mb-6 overflow-hidden">
+          {news.imageUrl ? (
+            <img
+              src={news.imageUrl}
+              alt={news.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                if (placeholder) placeholder.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`w-full h-full flex items-center justify-center bg-slate-100 news-placeholder ${news.imageUrl ? 'hidden' : ''}`}>
+            <Newspaper size={64} className="text-slate-400" />
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -51,7 +69,7 @@ const NewsDetail = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900">{news.title}</h1>
+          <h1 className="text-xl font-bold text-gray-900">{news.title}</h1>
 
           <div className="flex items-center gap-6 text-sm text-gray-600">
             <div className="flex items-center gap-2">
@@ -79,5 +97,5 @@ const NewsDetail = () => {
   )
 }
 
-export default NewsDetail
+export default memo(NewsDetail)
 

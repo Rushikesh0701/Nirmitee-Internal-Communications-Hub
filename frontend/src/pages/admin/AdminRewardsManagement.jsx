@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save } from 'lucide-react'
-import Loading from '../../components/Loading'
+import { Plus, Edit2, Trash2, Save, Gift } from 'lucide-react'
+import { CardSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const AdminRewardsManagement = () => {
   const queryClient = useQueryClient()
@@ -106,8 +107,8 @@ const AdminRewardsManagement = () => {
     }
   }
 
-  if (isLoading) {
-    return <Loading fullScreen />
+  if (isLoading && !data) {
+    return <CardSkeleton count={6} />
   }
 
   const rewards = data || []
@@ -116,15 +117,15 @@ const AdminRewardsManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rewards Management</h1>
+          <h1 className="text-xl font-bold text-gray-900">Rewards Management</h1>
           <p className="text-gray-600 mt-1">Manage the rewards catalog</p>
         </div>
         {!isCreating && !editingId && (
           <button
             onClick={() => setIsCreating(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn-add"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             Add Reward
           </button>
         )}
@@ -339,9 +340,11 @@ const AdminRewardsManagement = () => {
       </div>
 
       {rewards.length === 0 && !isCreating && (
-        <div className="text-center py-12 text-gray-500">
-          No rewards found. Create your first reward to get started.
-        </div>
+        <EmptyState
+          icon={Gift}
+          title="No rewards found"
+          message="Create your first reward to get started"
+        />
       )}
     </div>
   )

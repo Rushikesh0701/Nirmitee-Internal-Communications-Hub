@@ -193,8 +193,8 @@ const ImageModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 shadow-xl my-8">
+      <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 my-8">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">
             {editingImage ? '✏️ Edit Image' : 'Insert Image'}
           </h3>
@@ -209,7 +209,7 @@ const ImageModal = ({
               type="button"
               onClick={triggerFileInput}
               disabled={uploadingImage}
-              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-slate-600 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploadingImage ? (
                 <>
@@ -254,7 +254,7 @@ const ImageModal = ({
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
               onKeyPress={(e) => e.key === 'Enter' && handleImageInsert()}
             />
           </div>
@@ -274,7 +274,7 @@ const ImageModal = ({
                   value={imageSettings.width}
                   onChange={(e) => setImageSettings(prev => ({ ...prev, width: e.target.value }))}
                   placeholder="auto, 400px, 50%"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">e.g., auto, 400px, 50%</p>
               </div>
@@ -287,7 +287,7 @@ const ImageModal = ({
                   value={imageSettings.height}
                   onChange={(e) => setImageSettings(prev => ({ ...prev, height: e.target.value }))}
                   placeholder="auto, 300px, 400px"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">e.g., auto, 300px</p>
               </div>
@@ -304,8 +304,8 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'left' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'left' 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Align Left"
                 >
@@ -316,8 +316,8 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'center' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'center' 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Center"
                 >
@@ -328,8 +328,8 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'right' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'right' 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Align Right"
                 >
@@ -340,8 +340,8 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'float-left' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'float-left' 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Float Left (text wraps around right)"
                 >
@@ -352,8 +352,8 @@ const ImageModal = ({
                   onClick={() => setImageSettings(prev => ({ ...prev, align: 'float-right' }))}
                   className={`px-3 py-2 text-xs rounded-lg border transition-colors ${
                     imageSettings.align === 'float-right' 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      ? 'bg-[#ff4701] text-white border-[#ff4701]' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'
                   }`}
                   title="Float Right (text wraps around left)"
                 >
@@ -372,7 +372,7 @@ const ImageModal = ({
               type="button"
               onClick={handleImageInsert}
               disabled={!imageUrl.trim()}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {editingImage ? 'Update Image' : 'Insert Image'}
             </button>

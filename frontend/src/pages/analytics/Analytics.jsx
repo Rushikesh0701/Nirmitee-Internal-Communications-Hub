@@ -2,16 +2,19 @@ import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import api from '../../services/api'
+import { useTheme } from '../../contexts/ThemeContext'
 import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import Loading from '../../components/Loading'
+import { GridSkeleton, DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
-const COLORS = { news: '#3b82f6', blogs: '#10b981', discussions: '#8b5cf6' }
+const COLORS = { news: '#64748b', blogs: '#10b981', discussions: '#8b5cf6' }
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
 
 const Analytics = () => {
+  const { theme } = useTheme()
   const [dateRange, setDateRange] = useState('30')
   const [selectedEntity, setSelectedEntity] = useState('all')
 
@@ -33,8 +36,6 @@ const Analytics = () => {
     { enabled: !!stats }
   )
 
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading analytics..." />
-
   const timeSeriesData = contentAnalytics?.combinedTimeSeries || []
   const pieData = [
     { name: 'News', value: stats?.overview?.totalNews || 0, color: COLORS.news },
@@ -45,28 +46,28 @@ const Analytics = () => {
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   const statCards = [
-    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: BarChart3, color: 'from-blue-500 to-cyan-500', shadow: 'shadow-blue-500/25' },
-    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: TrendingUp, color: 'from-emerald-500 to-teal-500', shadow: 'shadow-emerald-500/25' },
-    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users, color: 'from-violet-500 to-purple-500', shadow: 'shadow-violet-500/25' },
-    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: Eye, color: 'from-rose-500 to-pink-500', shadow: 'shadow-rose-500/25' },
+    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: BarChart3 },
+    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: TrendingUp },
+    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users },
+    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: Eye },
   ]
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-            <BarChart3 size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-[#0a3a3c]">
+            <BarChart3 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Analytics Dashboard</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Platform insights and metrics</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Analytics Dashboard</h1>
+            <p className="text-slate-500 text-xs mt-0.5">Platform insights and metrics</p>
           </div>
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-slate-400" />
+            <Filter size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
             <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} className="input-select text-sm py-2">
               <option value="all">All Content</option>
               <option value="news">News</option>
@@ -75,7 +76,7 @@ const Analytics = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-slate-400" />
+            <Calendar size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="input-select text-sm py-2">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
@@ -87,46 +88,83 @@ const Analytics = () => {
       </motion.div>
 
       {/* Stats Cards */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat, index) => (
-          <motion.div key={stat.label} className="card group hover:shadow-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+      {isLoading && !stats ? (
+        <GridSkeleton columns={4} rows={1} />
+      ) : (
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {statCards.map((stat, index) => (
+          <motion.div key={stat.label} className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">{stat.label}</p>
-                <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
+                <p className="text-xs text-slate-500">{stat.label}</p>
+                <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} shadow-lg`}>
-                <stat.icon size={24} className="text-white" />
+              <div className="p-2 rounded-lg bg-[#0a3a3c]">
+                <stat.icon size={20} className="text-white" />
               </div>
             </div>
           </motion.div>
         ))}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Time Series Chart */}
+      {isLoading && !stats ? (
+        <DetailSkeleton />
+      ) : (
       <motion.div variants={itemVariants} className="card">
         <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Creation Over Time</h2>
         {isLoadingContent ? (
-          <div className="h-64 flex items-center justify-center"><Loading size="md" /></div>
+          <div className={`h-64 flex items-center justify-center animate-pulse ${
+            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-100'
+          } rounded-lg`} />
         ) : timeSeriesData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" tickFormatter={formatDate} angle={-45} textAnchor="end" height={80} stroke="#94a3b8" tick={{ fill: '#64748b' }} />
-              <YAxis stroke="#94a3b8" tick={{ fill: '#64748b' }} />
-              <Tooltip labelFormatter={(label) => `Date: ${formatDate(label)}`} contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={formatDate} 
+                angle={-45} 
+                textAnchor="end" 
+                height={80} 
+                stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }} 
+              />
+              <YAxis 
+                stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }} 
+              />
+              <Tooltip 
+                labelFormatter={(label) => `Date: ${formatDate(label)}`} 
+                contentStyle={{ 
+                  backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
+                  border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0', 
+                  borderRadius: '8px', 
+                  color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
+                }} 
+              />
+              <Legend wrapperStyle={{ color: theme === 'dark' ? '#e2e8f0' : '#1e293b' }} />
               <Line type="monotone" dataKey="news" stroke={COLORS.news} strokeWidth={2} name="News" dot={{ r: 4 }} />
               <Line type="monotone" dataKey="blogs" stroke={COLORS.blogs} strokeWidth={2} name="Blogs" dot={{ r: 4 }} />
               <Line type="monotone" dataKey="discussions" stroke={COLORS.discussions} strokeWidth={2} name="Discussions" dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-64 flex items-center justify-center text-slate-400">No data for selected period</div>
+          <EmptyState
+            icon={BarChart3}
+            title="No data for selected period"
+            message="Try selecting a different time range"
+            compact
+          />
         )}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Pie Chart */}
+      {isLoading && !stats ? (
+        <DetailSkeleton />
+      ) : (
       <motion.div variants={itemVariants} className="card">
         <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Distribution</h2>
         {pieData.length > 0 ? (
@@ -135,13 +173,26 @@ const Analytics = () => {
               <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8" dataKey="value">
                 {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
+                  border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0', 
+                  borderRadius: '8px', 
+                  color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
+                }} 
+              />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-64 flex items-center justify-center text-slate-400">No content data available</div>
+          <EmptyState
+            icon={BarChart3}
+            title="No content data available"
+            message="No content has been created yet"
+            compact
+          />
         )}
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   )
 }

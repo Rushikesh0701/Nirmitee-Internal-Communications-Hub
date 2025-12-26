@@ -106,7 +106,7 @@ const EditorStyles = () => {
       }
       .tiptap-editor img:hover {
         opacity: 0.9;
-        outline: 2px solid #3b82f6;
+        outline: 2px solid #64748b;
         outline-offset: 2px;
       }
       /* Default image styling when no custom style is applied */
@@ -208,7 +208,7 @@ const EditorStyles = () => {
         }
       }
       .tiptap-editor a {
-        color: #2563eb;
+        color: #475569;
         text-decoration: underline;
       }
       .tiptap-editor strong {
@@ -269,7 +269,7 @@ const EditorStyles = () => {
         top: 0;
         bottom: -2px;
         width: 4px;
-        background-color: #3b82f6;
+        background-color: #64748b;
         pointer-events: none;
       }
       .tiptap-editor table p {

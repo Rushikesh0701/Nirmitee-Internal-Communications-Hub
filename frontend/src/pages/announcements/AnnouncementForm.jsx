@@ -8,7 +8,7 @@ import { ArrowLeft, Save, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Editor from '../../components/blog/Editor'
 import { useCreationStore } from '../../store/creationStore'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const AnnouncementForm = () => {
   const { id } = useParams()
@@ -49,7 +49,8 @@ const AnnouncementForm = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement created successfully')
-        await queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries(['announcements'])
+        await queryClient.invalidateQueries('dashboard-announcements') // Update dashboard
         endCreation()
         navigate('/announcements')
       },
@@ -65,8 +66,9 @@ const AnnouncementForm = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement updated successfully')
-        await queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries(['announcements'])
         await queryClient.invalidateQueries(['announcement', id])
+        await queryClient.invalidateQueries('dashboard-announcements') // Update dashboard
         navigate('/announcements')
       },
       onError: (error) => {
@@ -112,33 +114,33 @@ const AnnouncementForm = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/announcements"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Announcements
+        <span className="font-medium">Back to Announcements</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-4">
+        <h1 className="text-xl font-bold text-slate-800 mb-4">
           {isEdit ? 'Edit Announcement' : 'Create New Announcement'}
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-sm py-2"
               placeholder="Enter announcement title"
             />
             {errors.title && (
@@ -147,7 +149,7 @@ const AnnouncementForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
               Content <span className="text-red-500">*</span>
             </label>
             <Editor
@@ -161,49 +163,51 @@ const AnnouncementForm = () => {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tags
-            </label>
-            <input
-              type="text"
-              {...register('tags')}
-              className="input"
-              placeholder="tag1, tag2, tag3"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Separate multiple tags with commas
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Calendar size={16} className="inline mr-1" />
-              Schedule Publication (Optional)
-            </label>
-            <input
-              type="datetime-local"
-              {...register('scheduledAt')}
-              className="input"
-            />
-            {scheduledAt && (
-              <p className="mt-1 text-sm text-blue-600">
-                This announcement will be published on{' '}
-                {new Date(scheduledAt).toLocaleString()}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                Tags
+              </label>
+              <input
+                type="text"
+                {...register('tags')}
+                className="input text-sm py-2"
+                placeholder="tag1, tag2, tag3"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Separate multiple tags with commas
               </p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              Leave empty to publish immediately
-            </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                <Calendar size={14} className="inline mr-1" />
+                Schedule Publication (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                {...register('scheduledAt')}
+                className="input text-sm py-2"
+              />
+              {scheduledAt && (
+                <p className="mt-1 text-sm text-slate-700">
+                  This announcement will be published on{' '}
+                  {new Date(scheduledAt).toLocaleString()}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-slate-500">
+                Leave empty to publish immediately
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading || (!isEdit && isAnyCreationInProgress())}
               className="btn btn-primary flex items-center gap-2"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit

@@ -48,15 +48,15 @@ export default function RewardsCatalog() {
 
       {isLoading ? (
         <Loading />
-      ) : (
+      ) : rewards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rewards.map((reward) => (
-            <div key={reward.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div key={reward.id} className="bg-white rounded-lg p-6">
               {reward.image && (
                 <img src={reward.image} alt={reward.title} className="w-full h-48 object-cover rounded-lg mb-4" />
               )}
-              <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-4 mx-auto">
-                <Gift className="text-blue-600" size={32} />
+              <div className="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-lg mb-4 mx-auto">
+                <Gift className="text-slate-700" size={32} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{reward.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{reward.description}</p>
@@ -70,7 +70,7 @@ export default function RewardsCatalog() {
                   disabled={userPoints < reward.points}
                   className={`px-4 py-2 rounded-lg font-medium ${
                     userPoints >= reward.points
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-[#ff4701] text-white hover:bg-[#ff5500]'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   }`}
                 >
@@ -83,7 +83,7 @@ export default function RewardsCatalog() {
       )}
 
       {selectedReward && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Confirm Redemption</h3>
             <p className="text-gray-600 mb-4">
@@ -94,7 +94,7 @@ export default function RewardsCatalog() {
               <button
                 onClick={() => handleRedeem(selectedReward.id)}
                 disabled={redeemMutation.isLoading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] disabled:opacity-50"
               >
                 {redeemMutation.isLoading ? 'Redeeming...' : 'Confirm'}
               </button>

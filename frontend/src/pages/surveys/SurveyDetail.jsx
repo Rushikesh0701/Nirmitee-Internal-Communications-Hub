@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
@@ -7,6 +7,8 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ArrowLeft, ClipboardList, Send, BarChart3 } from 'lucide-react'
 import Loading from '../../components/Loading'
+import EmptyState from '../../components/EmptyState'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const SurveyDetail = () => {
   const { id } = useParams()
@@ -27,7 +29,7 @@ const SurveyDetail = () => {
       onSuccess: () => {
         toast.success('Survey response submitted successfully!')
         queryClient.invalidateQueries(['survey', id])
-        queryClient.invalidateQueries('surveys')
+        queryClient.invalidateQueries(['surveys'])
         navigate('/surveys')
       },
       onError: (error) => {
@@ -74,11 +76,17 @@ const SurveyDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!survey) {
-    return <div className="text-center py-12">Survey not found</div>
+    return (
+      <EmptyState
+        icon={ClipboardList}
+        title="Survey not found"
+        message="The survey you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   const isActive = survey.status === 'ACTIVE'
@@ -221,9 +229,12 @@ const SurveyDetail = () => {
                 )
               })
             ) : (
-              <p className="text-gray-500 text-center py-8">
-                No questions available for this survey.
-              </p>
+              <EmptyState
+                icon={ClipboardList}
+                title="No questions available"
+                message="This survey doesn't have any questions yet"
+                compact
+              />
             )}
 
             <div className="flex items-center justify-end gap-4 pt-4 border-t">
@@ -250,5 +261,5 @@ const SurveyDetail = () => {
   )
 }
 
-export default SurveyDetail
+export default memo(SurveyDetail)
 

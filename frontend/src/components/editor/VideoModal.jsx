@@ -124,8 +124,8 @@ const VideoModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+      <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">Insert Video</h3>
           
           {/* File Upload Option */}
@@ -137,7 +137,7 @@ const VideoModal = ({
               type="button"
               onClick={triggerVideoInput}
               disabled={uploadingVideo}
-              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-slate-600 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploadingVideo ? (
                 <>
@@ -179,7 +179,7 @@ const VideoModal = ({
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="YouTube URL or direct video link"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
               onKeyPress={(e) => e.key === 'Enter' && handleVideoInsert()}
             />
             <p className="text-xs text-gray-500 mt-2">
@@ -193,7 +193,7 @@ const VideoModal = ({
               type="button"
               onClick={handleVideoInsert}
               disabled={!videoUrl.trim()}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Insert URL
             </button>

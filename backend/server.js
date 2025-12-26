@@ -44,17 +44,28 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://21bl2sv2-5174.inc1.devtunnels.ms',
   'https://nirmitee-internal-hub.netlify.app',
+  'https://nirmitee-internal-communications-hub.onrender.com',
   process.env.FRONTEND_URL
-];
+].filter(Boolean); // Remove any undefined values
 
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
 
+    // Check if origin is in allowed list
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      // In production, allow Render frontend domains
+      if (process.env.NODE_ENV === 'production') {
+        // Allow any Render frontend URL
+        if (origin.includes('onrender.com') || origin.includes('netlify.app')) {
+          return callback(null, true);
+        }
+      }
+      // Log the blocked origin for debugging
+      console.warn('CORS blocked origin:', origin);
       callback(new Error("Not allowed by CORS: " + origin));
     }
   },

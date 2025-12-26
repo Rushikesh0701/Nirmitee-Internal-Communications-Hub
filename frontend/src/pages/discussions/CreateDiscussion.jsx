@@ -48,7 +48,7 @@ const CreateDiscussion = () => {
         const discussionData = response.data?.data || response.data || response;
         const discussionId = discussionData._id || discussionData.id;
         toast.success('Discussion created successfully!');
-        await queryClient.invalidateQueries('discussions');
+        await queryClient.invalidateQueries(['discussions']);
         endCreation();
         navigate(`/discussions/${discussionId}`);
       },
@@ -97,11 +97,11 @@ const CreateDiscussion = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="w-full space-y-3">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-xl font-bold text-slate-800 mb-3"
       >
         Start New Discussion
       </motion.h1>
@@ -110,11 +110,11 @@ const CreateDiscussion = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-lg p-8"
+        className="card p-4 space-y-4"
       >
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
-            Title
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            Title <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -123,13 +123,13 @@ const CreateDiscussion = () => {
             onChange={handleChange}
             required
             placeholder="What's your question?"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="input text-sm py-2"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
-            Content
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            Content <span className="text-red-500">*</span>
           </label>
           <textarea
             name="content"
@@ -138,12 +138,12 @@ const CreateDiscussion = () => {
             required
             rows="8"
             placeholder="Describe your question in detail..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="input text-sm py-2 resize-y"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -153,12 +153,12 @@ const CreateDiscussion = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag (e.g., React, Node.js)"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="input flex-1 text-sm py-2"
             />
             <button
               type="button"
               onClick={handleAddTag}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="btn-add"
             >
               Add
             </button>
@@ -167,7 +167,7 @@ const CreateDiscussion = () => {
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-purple-100 text-purple-800 rounded flex items-center gap-2"
+                className="px-3 py-1 bg-slate-100 text-slate-800 rounded-lg flex items-center gap-2 text-sm"
               >
                 {tag}
                 <button
@@ -182,23 +182,18 @@ const CreateDiscussion = () => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}
-            className="px-4 sm:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createMutation.isLoading ? 'Posting...' : (
-              <>
-                <span className="md:hidden">Post</span>
-                <span className="hidden md:inline">Post Discussion</span>
-              </>
-            )}
+            {createMutation.isLoading ? 'Posting...' : 'Post Discussion'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/discussions')}
-            className="px-4 sm:px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

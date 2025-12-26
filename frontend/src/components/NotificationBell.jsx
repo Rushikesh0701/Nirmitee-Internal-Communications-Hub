@@ -115,18 +115,18 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900"
+        className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200"
       >
-        <Bell size={24} />
+        <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 left-4 md:left-auto mt-2 md:w-80 bg-white rounded-lg shadow-lg border z-[60]">
+        <div className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 left-4 md:left-auto mt-2 md:w-80 bg-white rounded-lg border z-[60]">
           <div className="p-4 border-b flex items-center justify-between">
             <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function NotificationBell() {
                     queryClient.invalidateQueries('notifications')
                     queryClient.invalidateQueries('unreadCount')
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-slate-700 hover:text-slate-700"
                 >
                   Mark all read
                 </button>
@@ -163,7 +163,7 @@ export default function NotificationBell() {
                 <div
                   key={notification.id}
                   className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50' : ''
+                    !notification.isRead ? 'bg-slate-50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -178,7 +178,7 @@ export default function NotificationBell() {
           <div className="p-4 border-t text-center">
             <Link
               to="/notifications"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-slate-700 hover:text-slate-700"
               onClick={() => setIsOpen(false)}
             >
               View all notifications

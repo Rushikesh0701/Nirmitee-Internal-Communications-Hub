@@ -88,20 +88,25 @@ const getSurveyList = async (req, res, next) => {
       data: result
     });
   } catch (error) {
-    // If database error, return dummy data
+    // If database error, return empty result
     if (error.name === 'SequelizeConnectionRefusedError' || 
         error.name === 'SequelizeConnectionError' ||
         error.name === 'MongoServerError' ||
         error.name === 'MongooseError' ||
         error.message?.includes('ECONNREFUSED') ||
         error.message?.includes('connection')) {
-      const surveys = dummyDataService.getDummySurveys({
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
-        status: queryStatus,
-        isActive: active === 'true'
+      return res.json({ 
+        success: true, 
+        data: {
+          surveys: [],
+          pagination: {
+            total: 0,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 10,
+            pages: 0
+          }
+        }
       });
-      return res.json({ success: true, data: surveys });
     }
     next(error);
   }
@@ -139,18 +144,17 @@ const getSurveyById = async (req, res, next) => {
         message: error.message
       });
     }
-    // If database error, try to return dummy data
+    // If database error, return not found
     if (error.name === 'SequelizeConnectionRefusedError' || 
         error.name === 'SequelizeConnectionError' ||
         error.name === 'MongoServerError' ||
         error.name === 'MongooseError' ||
         error.message?.includes('ECONNREFUSED') ||
         error.message?.includes('connection')) {
-      const dummySurveys = dummyDataService.getDummySurveys({});
-      const dummySurvey = dummySurveys.surveys.find(s => s.id === id || s._id === id);
-      if (dummySurvey) {
-        return res.json({ success: true, data: dummySurvey });
-      }
+      return res.status(404).json({
+        success: false,
+        message: 'Survey not found'
+      });
     }
     next(error);
   }

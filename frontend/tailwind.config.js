@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: ['class', '.dark-theme'],
   theme: {
     extend: {
       colors: {
@@ -19,6 +20,16 @@ export default {
           800: '#075985',
           900: '#0c4a6e',
         },
+      },
+      boxShadow: {
+        'sm': 'none',
+        'DEFAULT': 'none',
+        'md': 'none',
+        'lg': 'none',
+        'xl': 'none',
+        '2xl': 'none',
+        'inner': 'none',
+        'none': 'none',
       },
     },
   },

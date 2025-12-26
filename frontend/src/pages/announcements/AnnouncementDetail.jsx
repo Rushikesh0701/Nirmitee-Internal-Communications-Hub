@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { memo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../../services/api'
-import { ArrowLeft, Calendar, User, Clock, Tag, Edit, Trash2 } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Clock, Tag, Edit, Trash2, Megaphone } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
 import { isAdmin } from '../../utils/userHelpers'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const AnnouncementDetail = () => {
   const { id } = useParams()
@@ -26,7 +28,7 @@ const AnnouncementDetail = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement deleted successfully')
-        await queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries(['announcements'])
         navigate('/announcements')
       },
       onError: () => {
@@ -42,22 +44,28 @@ const AnnouncementDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!announcement) {
-    return <div className="text-center py-12">Announcement not found</div>
+    return (
+      <EmptyState
+        icon={Megaphone}
+        title="Announcement not found"
+        message="The announcement you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <Link
           to="/announcements"
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+          className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
         >
           <ArrowLeft size={18} />
-          Back to Announcements
+          <span className="font-medium">Back to Announcements</span>
         </Link>
         {userIsAdmin && (
           <div className="flex items-center gap-2">
@@ -80,7 +88,7 @@ const AnnouncementDetail = () => {
         )}
       </div>
 
-      <article className="card">
+      <article className="card p-6 lg:p-8">
         {announcement.image && (
           <img
             src={announcement.image}
@@ -104,7 +112,7 @@ const AnnouncementDetail = () => {
             </div>
           )}
 
-          <h1 className="text-3xl font-bold text-gray-900">{announcement.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{announcement.title}</h1>
 
           <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
             <div className="flex items-center gap-2">
@@ -143,5 +151,5 @@ const AnnouncementDetail = () => {
   )
 }
 
-export default AnnouncementDetail
+export default memo(AnnouncementDetail)
 

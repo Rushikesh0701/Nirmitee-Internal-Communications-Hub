@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
@@ -9,18 +9,33 @@ import { useQuery } from 'react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useBookmarks } from '../../hooks/useBookmarks';
+import { useTheme } from '../../contexts/ThemeContext';
+import Pagination from '../../components/Pagination';
+import { Plus, BookOpen } from 'lucide-react';
+import EmptyState from '../../components/EmptyState';
 
 const Blogs = () => {
+  const { theme } = useTheme();
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
   const { user, isAuthenticated } = useAuthStore();
   const { bookmarks } = useBookmarks();
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filter, categoryFilter, searchTerm]);
+
   const { data, isLoading } = useQuery(
-    ['blogs', filter, categoryFilter],
+    ['blogs', filter, categoryFilter, page, limit, searchTerm],
     async () => {
-      const params = {};
+      const params = {
+        page,
+        limit
+      };
       
       // Handle published/unpublished filter logic
       if (filter === 'all') {
@@ -39,6 +54,12 @@ const Blogs = () => {
       if (categoryFilter !== 'all') {
         params.category = categoryFilter;
       }
+
+      // Add search term if provided (client-side search for bookmarked filter)
+      if (searchTerm && filter !== 'bookmarked') {
+        // Note: Backend search would need to be implemented
+        // For now, we'll do client-side filtering for search
+      }
       
       const response = await blogAPI.getAll(params);
       // API returns { success: true, data: { blogs: [...], pagination: {...} } }
@@ -49,6 +70,11 @@ const Blogs = () => {
       return blogsData;
     },
     {
+      keepPreviousData: true,
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false, // Use cached data, don't refetch on mount
+      refetchOnWindowFocus: false, // Don't refetch on window focus
       onError: () => {
         toast.error('Failed to fetch blogs');
       }
@@ -57,66 +83,70 @@ const Blogs = () => {
 
   const categories = ['all', 'Frontend', 'Backend', 'Full Stack', 'DevOps', 'Other'];
 
-  const filteredBlogs = (data?.blogs || []).filter((blog) => {
-    const matchesSearch = 
+  // Client-side filtering for search and bookmarks (since backend doesn't support these)
+  const blogs = data?.blogs || [];
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch = !searchTerm || 
       blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = categoryFilter === 'all' || blog.category === categoryFilter;
     
     // Filter by bookmarks if the bookmarked filter is selected
     const blogId = (blog._id || blog.id)?.toString();
     const matchesBookmark = filter !== 'bookmarked' || bookmarks.includes(blogId);
     
-    return matchesSearch && matchesCategory && matchesBookmark;
+    return matchesSearch && matchesBookmark;
   });
+
+  const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };
 
   // Skeleton loader component
   const BlogCardSkeleton = () => (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col" style={{ width: '100%', height: '500px' }}>
-      <Skeleton height={192} className="flex-shrink-0" />
-      <div className="p-6 flex flex-col flex-grow">
+    <div className={`rounded-lg overflow-hidden border flex flex-col ${
+      theme === 'dark'
+        ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
+        : 'bg-white border-gray-200'
+    }`} style={{ width: '100%', height: '280px' }}>
+      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
+      <div className="p-2 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
-          <Skeleton width={80} height={20} />
-          <Skeleton width={60} height={20} />
+          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
         </div>
-        <Skeleton height={24} className="mb-2" />
-        <Skeleton count={3} className="mb-4 flex-grow" />
+        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
+        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
-            <Skeleton width={120} height={16} />
+            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
           </div>
-          <Skeleton width={60} height={20} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'} />
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 py-2">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3"
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+        <h1 className={`text-xl sm:text-2xl font-bold ${
+          theme === 'dark' ? 'text-slate-100' : 'text-gray-800'
+        }`}>
           Blogs & Articles
         </h1>
         {isAuthenticated && user && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Link
+            to="/blogs/new"
+            className="btn-add"
           >
-            <Link
-              to="/blogs/new"
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-sm sm:text-base"
-            >
-              <span className="md:hidden">+ Create</span>
-              <span className="hidden md:inline">+ Create Blog</span>
-            </Link>
-          </motion.div>
+            <Plus size={16} />
+            <span className="md:hidden">Create</span>
+            <span className="hidden md:inline">Create Blog</span>
+          </Link>
         )}
       </motion.div>
 
@@ -124,19 +154,23 @@ const Blogs = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex flex-col md:flex-row gap-4 mb-8"
+        className="flex flex-col md:flex-row gap-2 mb-3"
       >
         <input
           type="text"
           placeholder="Search blogs by title, content, or tags..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 transition-all ${
+            theme === 'dark'
+              ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200 placeholder-slate-500'
+              : 'border-gray-300 bg-white text-gray-900'
+          }`}
         />
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className="filter-select"
           title={filter === 'drafts' ? 'View your unpublished blog drafts' : filter === 'my-blogs' ? 'View all your blogs (published and drafts)' : filter === 'bookmarked' ? 'View your bookmarked blogs' : 'View all published blogs'}
         >
           <option value="all">All Blogs (Published)</option>
@@ -147,7 +181,7 @@ const Blogs = () => {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className="filter-select"
         >
           {categories.map(cat => (
             <option key={cat} value={cat}>
@@ -158,31 +192,47 @@ const Blogs = () => {
       </motion.div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+          {[...Array(10)].map((_, i) => (
             <BlogCardSkeleton key={i} />
           ))}
         </div>
       ) : (
         <>
           {filteredBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog, index) => (
-                <motion.div
-                  key={blog._id || blog.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <BlogCard blog={blog} />
-                </motion.div>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                {filteredBlogs.map((blog, index) => (
+                  <motion.div
+                    key={blog._id || blog.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <BlogCard blog={blog} />
+                  </motion.div>
+                ))}
+              </div>
+              {pagination.pages > 1 && (
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                  limit={limit}
+                  onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                  }}
+                  showLimitSelector={true}
+                />
+              )}
+            </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-xl mb-2">No blogs found</p>
-              <p className="text-sm">
-                {!isAuthenticated 
+            <EmptyState
+              icon={BookOpen}
+              title="No blogs found"
+              message={
+                !isAuthenticated 
                   ? "Login to create your first blog!" 
                   : filter === 'drafts' 
                     ? "You don't have any draft blogs. Create a blog without publishing it to see it here."
@@ -191,8 +241,7 @@ const Blogs = () => {
                       : filter === 'bookmarked'
                         ? "You haven't bookmarked any blogs yet. Click the bookmark icon on any blog to save it here!"
                         : "Try adjusting your filters"}
-              </p>
-            </div>
+            />
           )}
         </>
       )}
@@ -200,4 +249,4 @@ const Blogs = () => {
   );
 };
 
-export default Blogs;
+export default memo(Blogs);

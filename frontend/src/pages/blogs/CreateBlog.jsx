@@ -30,7 +30,8 @@ const CreateBlog = () => {
         const blogData = response.data?.data || response.data || response;
         const blogId = blogData._id || blogData.id;
         toast.success('Blog created successfully!');
-        await queryClient.invalidateQueries('blogs');
+        await queryClient.invalidateQueries(['blogs']);
+        await queryClient.invalidateQueries('dashboard-stats'); // Update dashboard stats if shown
         endCreation();
         navigate(`/blogs/${blogId}`);
       },
@@ -156,11 +157,11 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="w-full space-y-3">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-xl font-bold text-slate-800 mb-3"
       >
         Create New Blog
       </motion.h1>
@@ -169,10 +170,10 @@ const CreateBlog = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-lg p-8"
+        className="card p-4 space-y-4"
       >
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -181,49 +182,49 @@ const CreateBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-sm py-2"
           />
         </div>
 
-        <div className="mb-6">
-          <div className="flex items-center gap-4 mb-3">
-            <label className="text-gray-700 font-medium whitespace-nowrap">
-              Cover Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleCoverImageChange}
-              id="cover-image-upload"
-              className="hidden"
-            />
-            <label
-              htmlFor="cover-image-upload"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
-            >
-              <svg 
-                className="w-5 h-5" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                />
-              </svg>
-              <span className="font-medium">Upload Image</span>
-            </label>
-          </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            Cover Image
+          </label>
           <div className="space-y-3">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">OR</span>
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverImageChange}
+                id="cover-image-upload"
+                className="hidden"
+              />
+              <label
+                htmlFor="cover-image-upload"
+                className="btn-add cursor-pointer"
+              >
+                <svg 
+                  className="w-5 h-5" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                  />
+                </svg>
+                Upload Image
+              </label>
+              <div className="relative flex items-center flex-1">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm px-3">
+                  <span className="px-2 bg-white text-slate-500">OR</span>
+                </div>
               </div>
             </div>
             <input
@@ -231,7 +232,7 @@ const CreateBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="input text-sm py-2"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -256,8 +257,8 @@ const CreateBlog = () => {
           </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Excerpt <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -267,12 +268,12 @@ const CreateBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-sm py-2 resize-y"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <Editor
@@ -282,8 +283,8 @@ const CreateBlog = () => {
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -293,15 +294,15 @@ const CreateBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-sm py-2"
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Enter a custom category for your blog post
           </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -311,12 +312,12 @@ const CreateBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="input flex-1 text-sm py-2"
             />
             <button
               type="button"
               onClick={handleAddTag}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="btn-add"
             >
               Add
             </button>
@@ -325,7 +326,7 @@ const CreateBlog = () => {
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-blue-100 text-blue-800 rounded flex items-center gap-2"
+                className="px-3 py-1 bg-slate-100 text-slate-800 rounded flex items-center gap-2"
               >
                 {tag}
                 <button
@@ -340,43 +341,38 @@ const CreateBlog = () => {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               name="isPublished"
               checked={formData.isPublished}
               onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
             />
-            <span className="text-gray-700">
+            <span className="text-sm font-semibold text-gray-700">
               Publish immediately
             </span>
           </label>
-          <p className="text-sm text-gray-500 mt-1 ml-6">
+          <p className="text-xs text-slate-500 mt-1 ml-6">
             {formData.isPublished 
               ? 'This blog will be visible to everyone when created.' 
               : 'This blog will be saved as a draft and only visible to you.'}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}
-            className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createMutation.isLoading ? 'Creating...' : (
-              <>
-                <span className="md:hidden">Create</span>
-                <span className="hidden md:inline">Create Blog</span>
-              </>
-            )}
+            {createMutation.isLoading ? 'Creating...' : 'Create Blog'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/blogs')}
-            className="px-4 sm:px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

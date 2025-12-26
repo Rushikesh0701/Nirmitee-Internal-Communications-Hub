@@ -7,8 +7,9 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { isAdmin } from '../../utils/userHelpers';
 import { useCreationStore } from '../../store/creationStore';
-import Loading from '../../components/Loading';
+import { DetailSkeleton } from '../../components/skeletons';
 import { ArrowLeft, Edit, Trash2, MessageCircle, User, Calendar, Tag, ChevronDown, ChevronUp } from 'lucide-react';
+import EmptyState from '../../components/EmptyState';
 
 const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
   const commentId = comment._id || comment.id;
@@ -112,7 +113,7 @@ const DiscussionDetail = () => {
   useEffect(() => { fetchDiscussion(); }, [fetchDiscussion]);
 
   const deleteMutation = useMutation(() => discussionAPI.delete(id), {
-    onSuccess: async () => { toast.success('Discussion deleted'); await queryClient.invalidateQueries('discussions'); navigate('/discussions'); },
+    onSuccess: async () => { toast.success('Discussion deleted'); await queryClient.invalidateQueries(['discussions']); navigate('/discussions'); },
     onError: (error) => { toast.error(error.response?.data?.message || 'Failed to delete'); setIsDeleting(false); }
   });
 
@@ -194,7 +195,7 @@ const DiscussionDetail = () => {
     );
   }
 
-  if (loading) return <Loading fullScreen size="lg" />;
+  if (loading) return <DetailSkeleton />;
   if (!discussion) return null;
 
   const getAuthorName = (author) => {
@@ -208,9 +209,10 @@ const DiscussionDetail = () => {
   };
 
   return (
-    <motion.div className="max-w-4xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <button onClick={() => navigate('/discussions')} className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2">
-        <ArrowLeft size={18} /> Back to Discussions
+    <div className="w-full space-y-6">
+      <button onClick={() => navigate('/discussions')} className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4">
+        <ArrowLeft size={18} />
+        <span className="font-medium">Back to Discussions</span>
       </button>
 
       <motion.article className="card p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -256,15 +258,17 @@ const DiscussionDetail = () => {
           ))}
           
           {(!discussion.Comments || discussion.Comments.length === 0) && (
-            <div className="empty-state py-8">
-              <MessageCircle size={40} className="empty-state-icon" />
-              <p className="empty-state-text">No comments yet. Be the first!</p>
-            </div>
+            <EmptyState
+              icon={MessageCircle}
+              title="No comments yet"
+              message="Be the first!"
+              compact
+            />
           )}
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
-export default DiscussionDetail;
+export default memo(DiscussionDetail);
