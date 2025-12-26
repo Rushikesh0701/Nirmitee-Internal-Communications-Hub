@@ -18,10 +18,10 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Leaderboard</h1>
-        <p className="text-gray-600 mt-1">Top performers by recognition points</p>
+        <h1 className="text-xl font-bold text-gray-900">Leaderboard</h1>
+        <p className="text-sm text-gray-600 mt-0.5">Top performers by recognition points</p>
       </div>
 
       {isLoading ? (
@@ -32,8 +32,8 @@ export default function Leaderboard() {
             {leaderboard.map((entry) => (
               <div
                 key={entry.userId}
-                className={`p-6 flex items-center gap-4 ${
-                  entry.rank <= 3 ? 'bg-gradient-to-r from-yellow-50 to-transparent' : ''
+                className={`p-3 flex items-center gap-3 ${
+                  entry.rank <= 3 ? 'bg-slate-50' : ''
                 }`}
               >
                 <div className="flex-shrink-0 w-12 flex items-center justify-center">

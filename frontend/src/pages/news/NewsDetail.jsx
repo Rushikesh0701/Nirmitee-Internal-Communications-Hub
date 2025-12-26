@@ -46,7 +46,7 @@ const NewsDetail = () => {
               }}
             />
           ) : null}
-          <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 news-placeholder ${news.imageUrl ? 'hidden' : ''}`}>
+          <div className={`w-full h-full flex items-center justify-center bg-slate-100 news-placeholder ${news.imageUrl ? 'hidden' : ''}`}>
             <Newspaper size={64} className="text-slate-400" />
           </div>
         </div>
@@ -61,7 +61,7 @@ const NewsDetail = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900">{news.title}</h1>
+          <h1 className="text-xl font-bold text-gray-900">{news.title}</h1>
 
           <div className="flex items-center gap-6 text-sm text-gray-600">
             <div className="flex items-center gap-2">

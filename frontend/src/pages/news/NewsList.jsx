@@ -782,7 +782,7 @@ function NewsList() {
 
       {/* No Results State */}
       {!loading && !error && articles.length === 0 && (
-        <div className={`text-center py-8 rounded-lg ${
+        <div className={`text-center py-4 rounded-lg ${
           theme === 'dark'
             ? 'bg-slate-800/50'
             : 'bg-gray-50'
@@ -855,7 +855,7 @@ function NewsList() {
                         }}
                       />
                     ) : null}
-                    <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 ${imageUrl ? 'hidden' : ''} news-placeholder`}>
+                    <div className={`w-full h-full flex items-center justify-center bg-slate-100 ${imageUrl ? 'hidden' : ''} news-placeholder`}>
                       <Newspaper size={24} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
                     </div>
                   </div>

@@ -56,7 +56,7 @@ const ForgotPassword = () => {
         transition={{ duration: 0.4 }}
       >
         <motion.div
-          className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6"
+          className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-4"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -65,7 +65,7 @@ const ForgotPassword = () => {
         </motion.div>
 
         <motion.h2 
-          className="text-3xl font-bold text-slate-800 mb-3"
+          className="text-xl font-bold text-slate-800 mb-2"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -83,7 +83,7 @@ const ForgotPassword = () => {
         </motion.p>
 
         <motion.p 
-          className="text-indigo-600 font-semibold mb-6"
+          className="text-blue-600 font-semibold mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -92,7 +92,7 @@ const ForgotPassword = () => {
         </motion.p>
 
         <motion.div
-          className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6"
+          className="bg-slate-100 border border-slate-200 rounded-lg p-3 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -111,7 +111,7 @@ const ForgotPassword = () => {
         >
           <Link 
             to="/login"
-            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
             <ArrowLeft size={18} />
             Back to Sign In
@@ -128,18 +128,18 @@ const ForgotPassword = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <motion.div
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-4"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 mb-3"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <span className="text-xs font-medium text-indigo-600">Password Reset</span>
+          <span className="text-xs font-medium text-slate-600">Password Reset</span>
         </motion.div>
 
         <motion.h2 
-          className="text-3xl font-bold text-slate-800 mb-2"
+          className="text-xl font-bold text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -157,7 +157,7 @@ const ForgotPassword = () => {
         </motion.p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -167,7 +167,7 @@ const ForgotPassword = () => {
             Email Address
           </label>
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
             <input
               type="email"
               {...register('email', { 
@@ -177,10 +177,10 @@ const ForgotPassword = () => {
                   message: 'Invalid email address' 
                 }
               })}
-              className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+              className="w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                         focus:outline-none transition-all duration-300"
+                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:outline-none transition-all duration-200"
               placeholder="your.name@nirmitee.io"
             />
           </div>
@@ -190,8 +190,7 @@ const ForgotPassword = () => {
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full py-4 rounded-xl font-semibold text-white relative overflow-hidden group disabled:opacity-70"
-          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 relative overflow-hidden group disabled:opacity-70"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -219,7 +218,7 @@ const ForgotPassword = () => {
       </form>
 
       <motion.div 
-        className="mt-8 text-center"
+        className="mt-4 text-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}

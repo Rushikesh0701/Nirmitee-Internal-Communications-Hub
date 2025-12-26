@@ -34,18 +34,18 @@ const Register = () => {
 
   return (
     <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <motion.div
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-4"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 mb-3"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <UserPlus size={14} className="text-indigo-600" />
-          <span className="text-xs font-medium text-indigo-600">Join Us</span>
+          <UserPlus size={14} className="text-slate-600" />
+          <span className="text-xs font-medium text-slate-600">Join Us</span>
         </motion.div>
         <motion.h2 
-          className="text-3xl font-bold text-slate-800 mb-2"
+          className="text-xl font-bold text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -62,19 +62,19 @@ const Register = () => {
         </motion.p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="grid grid-cols-2 gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
             <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
             <div className="relative group">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={14} />
               <input
                 type="text"
                 {...register('firstName', { required: 'Required' })}
-                className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl 
+                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                            text-slate-800 placeholder-slate-400 text-sm
-                           focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                           focus:outline-none transition-all duration-300"
+                           focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                           focus:outline-none transition-all duration-200"
                 placeholder="John"
               />
             </div>
@@ -84,14 +84,14 @@ const Register = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
             <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
             <div className="relative group">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={14} />
               <input
                 type="text"
                 {...register('lastName', { required: 'Required' })}
-                className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl 
+                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                            text-slate-800 placeholder-slate-400 text-sm
-                           focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                           focus:outline-none transition-all duration-300"
+                           focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                           focus:outline-none transition-all duration-200"
                 placeholder="Doe"
               />
             </div>
@@ -102,17 +102,17 @@ const Register = () => {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
           <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
             <input
               type="email"
               {...register('email', { 
                 required: 'Email is required',
                 pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
               })}
-              className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+              className="w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                         focus:outline-none transition-all duration-300"
+                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:outline-none transition-all duration-200"
               placeholder="your.name@nirmitee.io"
             />
           </div>
@@ -122,14 +122,14 @@ const Register = () => {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}>
           <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
           <div className="relative group">
-            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
             <input
               type={showPassword ? 'text' : 'password'}
               {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
-              className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+              className="w-full pl-10 pr-10 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                         focus:outline-none transition-all duration-300"
+                         focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         focus:outline-none transition-all duration-200"
               placeholder="••••••••"
             />
             <button
@@ -146,8 +146,7 @@ const Register = () => {
         <motion.button
           type="submit"
           disabled={isLoading}
-          className="w-full py-4 rounded-xl font-semibold text-white relative overflow-hidden group disabled:opacity-70 mt-6"
-          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 relative overflow-hidden group disabled:opacity-70 mt-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -182,7 +181,7 @@ const Register = () => {
       >
         <p className="text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+          <Link to="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
             Sign in
           </Link>
         </p>

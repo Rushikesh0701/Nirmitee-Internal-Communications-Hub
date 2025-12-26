@@ -156,11 +156,11 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-4 max-w-4xl">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-xl font-bold text-gray-800 mb-4"
       >
         Create New Blog
       </motion.h1>
@@ -169,9 +169,9 @@ const CreateBlog = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-lg p-8"
+        className="bg-white rounded-lg shadow-md p-4"
       >
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-gray-700 mb-2">
             Title <span className="text-red-500">*</span>
           </label>
@@ -199,7 +199,7 @@ const CreateBlog = () => {
             />
             <label
               htmlFor="cover-image-upload"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
             >
               <svg 
                 className="w-5 h-5" 

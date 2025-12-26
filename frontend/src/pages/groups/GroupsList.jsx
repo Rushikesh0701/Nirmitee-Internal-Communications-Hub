@@ -59,7 +59,7 @@ const GroupsList = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 shadow-lg shadow-pink-500/25">
+          <div className="p-2 rounded-lg bg-blue-600">
             <Users size={20} className="text-white" />
           </div>
           <div>
@@ -101,7 +101,7 @@ const GroupsList = () => {
                       {group.coverImage ? (
                         <img src={group.coverImage} alt={group.name} className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
-                        <div className="w-full h-20 bg-gradient-to-br from-pink-500/20 via-rose-500/20 to-indigo-500/20 flex items-center justify-center">
+                        <div className="w-full h-20 bg-slate-100 flex items-center justify-center">
                           <Users size={32} className="text-pink-400/50" />
                         </div>
                       )}

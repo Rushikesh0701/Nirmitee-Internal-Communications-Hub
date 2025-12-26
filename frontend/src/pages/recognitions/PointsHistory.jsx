@@ -14,14 +14,14 @@ export default function PointsHistory() {
   const redemptions = redemptionsData?.data?.data || []
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg p-6 text-white">
+    <div className="space-y-3">
+      <div className="bg-blue-600 rounded-lg p-3 text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-yellow-100 text-sm mb-2">Total Points</p>
             <div className="flex items-center gap-2">
               <Star size={32} />
-              <span className="text-4xl font-bold">{userPoints}</span>
+              <span className="text-2xl font-bold">{userPoints}</span>
             </div>
           </div>
           <TrendingUp size={48} className="opacity-50" />

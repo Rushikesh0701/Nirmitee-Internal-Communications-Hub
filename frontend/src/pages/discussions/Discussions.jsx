@@ -76,7 +76,7 @@ const Discussions = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg shadow-violet-500/25">
+          <div className="p-2 rounded-lg bg-blue-600">
             <MessageSquare size={20} className="text-white" />
           </div>
           <div>
@@ -96,7 +96,7 @@ const Discussions = () => {
       {/* Search & Filter */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
           <input
             type="text"
             placeholder="Search discussions..."

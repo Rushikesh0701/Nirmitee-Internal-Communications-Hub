@@ -47,10 +47,10 @@ const Analytics = () => {
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   const statCards = [
-    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: BarChart3, color: 'from-blue-500 to-cyan-500', shadow: 'shadow-blue-500/25' },
-    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: TrendingUp, color: 'from-emerald-500 to-teal-500', shadow: 'shadow-emerald-500/25' },
-    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users, color: 'from-violet-500 to-purple-500', shadow: 'shadow-violet-500/25' },
-    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: Eye, color: 'from-rose-500 to-pink-500', shadow: 'shadow-rose-500/25' },
+    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: BarChart3 },
+    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: TrendingUp },
+    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users },
+    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: Eye },
   ]
 
   return (
@@ -58,7 +58,7 @@ const Analytics = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
+          <div className="p-2 rounded-lg bg-blue-600">
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
@@ -97,7 +97,7 @@ const Analytics = () => {
                 <p className="text-xs text-slate-500">{stat.label}</p>
                 <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} ${stat.shadow} shadow-lg`}>
+              <div className="p-2 rounded-lg bg-blue-600">
                 <stat.icon size={20} className="text-white" />
               </div>
             </div>

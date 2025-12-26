@@ -208,7 +208,7 @@ const SurveyForm = () => {
             </div>
 
             {questions.length === 0 && (
-              <p className="text-gray-500 text-center py-8">
+              <p className="text-gray-500 text-center py-4">
                 No questions added yet. Click &quot;Add Question&quot; to get started.
               </p>
             )}

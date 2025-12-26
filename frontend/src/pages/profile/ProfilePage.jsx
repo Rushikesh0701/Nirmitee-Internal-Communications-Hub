@@ -95,7 +95,7 @@ export default function ProfilePage() {
     return (
       <motion.div className="max-w-2xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
+          <div className="p-2 rounded-lg bg-blue-600">
             <Edit size={22} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800">
@@ -133,7 +133,7 @@ export default function ProfilePage() {
           {isAdmin(currentUser) && (
             <>
               <div><label className="form-label">Role</label><select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select"><option value="">Select Role</option>{roles.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <div className="flex items-center gap-2"><input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-indigo-500" /><label htmlFor="isActive" className="text-sm text-slate-600">Active User</label></div>
+              <div className="flex items-center gap-2"><input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600" /><label htmlFor="isActive" className="text-sm text-slate-600">Active User</label></div>
             </>
           )}
           
@@ -147,15 +147,15 @@ export default function ProfilePage() {
   }
 
   return (
-    <motion.div className="max-w-4xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="max-w-4xl mx-auto space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-4">
             {profile.avatar ? (
-              <img src={profile.avatar} alt={profile.name} className="w-24 h-24 rounded-full ring-4 ring-indigo-200" />
+              <img src={profile.avatar} alt={profile.name} className="w-16 h-16 rounded-full ring-2 ring-slate-200" />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center ring-4 ring-indigo-200">
-                <span className="text-white font-semibold text-3xl">
+              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center ring-2 ring-slate-200">
+                <span className="text-white font-semibold text-lg">
                   {profile.firstName && profile.lastName
                     ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
                     : ((profile.firstName && profile.firstName.charAt(0)) || profile.name?.charAt(0) || 'U').toUpperCase()}
@@ -163,19 +163,19 @@ export default function ProfilePage() {
               </div>
             )}
             <div>
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-3xl font-bold text-slate-800">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h1 className="text-xl font-bold text-slate-800">
                   {profile.firstName && profile.lastName 
                     ? `${profile.firstName} ${profile.lastName}`.trim()
                     : profile.name || profile.displayName || 'User'}
                 </h1>
-                {profile.role && <RoleBadge role={profile.role} size="md" />}
+                {profile.role && <RoleBadge role={profile.role} size="sm" />}
               </div>
-              {profile.designation && <p className="text-lg text-slate-600 flex items-center gap-2"><Briefcase size={16} /> {profile.designation}</p>}
-              {profile.department && <p className="text-slate-500 flex items-center gap-2 mt-1"><Building size={16} /> {profile.department}</p>}
+              {profile.designation && <p className="text-sm text-slate-600 flex items-center gap-1.5"><Briefcase size={14} /> {profile.designation}</p>}
+              {profile.department && <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5"><Building size={14} /> {profile.department}</p>}
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {canEdit && (
               <button onClick={() => setIsEditing(true)} className="btn btn-primary flex items-center gap-2">
                 <Edit size={18} /> {isOwnProfile ? 'Edit Profile' : 'Edit User'}
@@ -193,18 +193,18 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {profile.bio && <div className="mb-6"><h2 className="text-lg font-semibold text-slate-800 mb-2">About</h2><p className="text-slate-600">{profile.bio}</p></div>}
+        {profile.bio && <div className="mb-4"><h2 className="text-sm font-semibold text-slate-800 mb-1">About</h2><p className="text-sm text-slate-600">{profile.bio}</p></div>}
 
-        <div className="flex flex-wrap gap-6">
-          {profile.email && <div className="flex items-center gap-2 text-slate-500"><Mail size={18} /> {profile.email}</div>}
-          {profile.points > 0 && <div className="flex items-center gap-2 text-amber-500"><Star size={18} /> {profile.points} points</div>}
+        <div className="flex flex-wrap gap-4">
+          {profile.email && <div className="flex items-center gap-1.5 text-xs text-slate-500"><Mail size={14} /> {profile.email}</div>}
+          {profile.points > 0 && <div className="flex items-center gap-1.5 text-xs text-blue-600"><Star size={14} /> {profile.points} points</div>}
         </div>
       </motion.div>
 
       {profile.badges?.length > 0 && (
         <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2"><Award className="text-amber-500" size={24} /> Recognition Badges</h2>
-          <div className="flex flex-wrap gap-2">{profile.badges.map((badge, index) => <span key={index} className="badge badge-warning">{badge}</span>)}</div>
+          <h2 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Award className="text-blue-600" size={18} /> Recognition Badges</h2>
+          <div className="flex flex-wrap gap-2">{profile.badges.map((badge, index) => <span key={index} className="badge badge-primary text-xs">{badge}</span>)}</div>
         </motion.div>
       )}
 
@@ -223,9 +223,9 @@ export default function ProfilePage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+              className="bg-white rounded-lg shadow-lg max-w-md w-full p-4"
             >
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-3 rounded-full bg-rose-100">
                   <AlertTriangle size={24} className="text-rose-600" />
                 </div>
