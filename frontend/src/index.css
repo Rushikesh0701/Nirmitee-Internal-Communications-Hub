@@ -486,6 +486,44 @@
   background: linear-gradient(180deg, #818cf8, #a5b4fc);
 }
 
+/* Hide scrollbar by default, show on hover with original styling */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent; /* Chrome, Safari, Opera */
+}
+
+.scrollbar-hide:hover {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #a5b4fc #e2e8f0; /* Firefox thumb and track */
+  -ms-overflow-style: auto; /* IE and Edge */
+}
+
+.scrollbar-hide:hover::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  display: block; /* Chrome, Safari, Opera */
+}
+
+.scrollbar-hide:hover::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.scrollbar-hide:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a5b4fc, #c7d2fe);
+  border-radius: 4px;
+}
+
+.scrollbar-hide:hover::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #818cf8, #a5b4fc);
+}
+
 /* ================================
    FOCUS & SELECTION STYLES
    ================================ */

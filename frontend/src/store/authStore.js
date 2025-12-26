@@ -15,11 +15,65 @@ const setTokens = (accessToken, refreshToken) => {
 const clearTokens = () => {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
+  localStorage.removeItem('userRole') // Clear cached role on logout
   delete api.defaults.headers.common['Authorization']
 }
 
 const getAccessToken = () => localStorage.getItem('accessToken')
 const getRefreshToken = () => localStorage.getItem('refreshToken')
+
+// Helper functions to manage user role in localStorage
+const getUserRoleFromStorage = () => {
+  try {
+    const roleData = localStorage.getItem('userRole')
+    return roleData ? JSON.parse(roleData) : null
+  } catch {
+    return null
+  }
+}
+
+const setUserRoleInStorage = (user) => {
+  if (!user) {
+    localStorage.removeItem('userRole')
+    return
+  }
+  
+  // Extract role information from user object
+  // Handle different user object structures (roleId can be populated object or just _id)
+  const roleName = user.role || 
+                   (user.roleId?.name) || 
+                   (typeof user.roleId === 'object' && user.roleId?.name) ||
+                   user.Role?.name || 
+                   'Employee'
+  
+  const roleData = {
+    role: roleName,
+    roleId: (typeof user.roleId === 'object' && user.roleId?._id) || 
+            (typeof user.roleId === 'object' && user.roleId?.id) ||
+            user.roleId || 
+            user.Role?._id || 
+            user.Role?.id,
+    roleName: roleName
+  }
+  
+  localStorage.setItem('userRole', JSON.stringify(roleData))
+}
+
+const getUserFromStorage = () => {
+  try {
+    const roleData = getUserRoleFromStorage()
+    if (!roleData) return null
+    
+    // Create a minimal user object with role info for immediate use
+    return {
+      role: roleData.role,
+      roleId: roleData.roleId ? { name: roleData.roleName } : null,
+      Role: roleData.roleName ? { name: roleData.roleName } : null
+    }
+  } catch {
+    return null
+  }
+}
 
 // Set token on initialization if it exists
 const accessToken = getAccessToken()
@@ -27,8 +81,12 @@ if (accessToken) {
   api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 }
 
-const useAuthStore = create((set, get) => ({
-  user: null,
+const useAuthStore = create((set, get) => {
+  // Try to get cached user role from localStorage for immediate access
+  const cachedUser = getUserFromStorage()
+  
+  return {
+  user: cachedUser, // Initialize with cached user role for immediate sidebar rendering
   isAuthenticated: false,
   isLoading: true, // Start as true to wait for initial check
   _initializing: false, // Track if initialization is in progress
@@ -49,8 +107,10 @@ const useAuthStore = create((set, get) => ({
     try {
       set({ isLoading: true, _initializing: true })
       const response = await api.get('/auth/me')
+      const user = response.data.data.user
+      setUserRoleInStorage(user) // Store role in localStorage
       set({ 
-        user: response.data.data.user, 
+        user, 
         isAuthenticated: true,
         isLoading: false,
         _initializing: false,
@@ -68,8 +128,10 @@ const useAuthStore = create((set, get) => ({
           
           // Retry getting user info
           const userResponse = await api.get('/auth/me')
+          const user = userResponse.data.data.user
+          setUserRoleInStorage(user) // Store role in localStorage
           set({ 
-            user: userResponse.data.data.user, 
+            user, 
             isAuthenticated: true,
             isLoading: false,
             _initializing: false,
@@ -133,6 +195,8 @@ const useAuthStore = create((set, get) => ({
           setTokens(accessToken, refreshToken)
         }
         
+        setUserRoleInStorage(user) // Store role in localStorage
+        
         set({ 
           user, 
           isAuthenticated: true,
@@ -177,6 +241,8 @@ const useAuthStore = create((set, get) => ({
         setTokens(accessToken, refreshToken)
       }
       
+      setUserRoleInStorage(user) // Store role in localStorage
+      
       set({ 
         user, 
         isAuthenticated: true,
@@ -215,8 +281,10 @@ const useAuthStore = create((set, get) => ({
   fetchUser: async () => {
     try {
       const response = await api.get('/auth/me')
+      const user = response.data.data.user
+      setUserRoleInStorage(user) // Store role in localStorage
       set({ 
-        user: response.data.data.user, 
+        user, 
         isAuthenticated: true
       })
       return { success: true }
@@ -227,8 +295,11 @@ const useAuthStore = create((set, get) => ({
   },
 
   updateUser: (userData) => {
-    set({ user: { ...get().user, ...userData } })
+    const updatedUser = { ...get().user, ...userData }
+    setUserRoleInStorage(updatedUser) // Update role in localStorage
+    set({ user: updatedUser })
   }
-}))
+  }
+})
 
 export { useAuthStore }
