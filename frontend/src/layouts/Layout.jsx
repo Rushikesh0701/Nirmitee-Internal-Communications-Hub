@@ -5,10 +5,7 @@ import NotificationBell from '../components/NotificationBell'
 import { getUserRole } from '../utils/userHelpers'
 import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
 import { useTheme } from '../contexts/ThemeContext'
-<<<<<<< HEAD
 import { getThoughtOfTheDay } from '../utils/thoughtsOfTheDay'
-=======
->>>>>>> b650a69
 import Logo from '../assets/Logo.png'
 import CollapsedLogo from '../assets/Untitled_design-removebg-preview.png'
 import {
@@ -34,16 +31,10 @@ import {
   Moon,
   Sun,
   Shield,
-<<<<<<< HEAD
   UserCheck,
   Quote
 } from 'lucide-react'
-import { useState, useEffect, useMemo, useRef } from 'react'
-=======
-  UserCheck
-} from 'lucide-react'
 import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
->>>>>>> b650a69
 
 // Helper functions for sidebar state persistence
 const getSidebarCollapsedState = () => {
@@ -89,24 +80,11 @@ const Layout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
-<<<<<<< HEAD
   const [thoughtOfTheDay] = useState(() => getThoughtOfTheDay())
-=======
->>>>>>> b650a69
 
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
 
-<<<<<<< HEAD
-  const handleLogout = () => {
-    setAvatarDropdownOpen(false)
-    setShowLogoutModal(true)
-  }
-
-  const confirmLogout = () => {
-    setShowLogoutModal(false)
-    logout()
-=======
   const handleLogout = useCallback(() => {
     setAvatarDropdownOpen(false)
     setShowLogoutModal(true)
@@ -115,7 +93,6 @@ const Layout = () => {
   const confirmLogout = useCallback(async () => {
     setShowLogoutModal(false)
     await logout()
->>>>>>> b650a69
     navigate('/login')
   }, [logout, navigate])
 
@@ -135,33 +112,10 @@ const Layout = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [avatarDropdownOpen])
 
-<<<<<<< HEAD
-  const cancelLogout = () => {
-    setShowLogoutModal(false)
-  }
-
-  // Close avatar dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (avatarDropdownOpen && !event.target.closest('.avatar-dropdown-container')) {
-        setAvatarDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [avatarDropdownOpen])
-
   const userRole = getUserRole(user)
   const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) ||
     ['ADMIN', 'MODERATOR'].includes(user?.role)
 
-=======
-  const userRole = getUserRole(user)
-  const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) ||
-    ['ADMIN', 'MODERATOR'].includes(user?.role)
-
->>>>>>> b650a69
   // Get role icon for glowy display
   const getRoleIcon = (roleName) => {
     switch (roleName) {
@@ -217,75 +171,6 @@ const Layout = () => {
       }]
       : [])
   ], [isAdminOrModerator])
-<<<<<<< HEAD
-
-  // State to track expanded sections - load from localStorage or initialize all as expanded
-  const [expandedSections, setExpandedSections] = useState(() => {
-    const savedSections = getExpandedSectionsState()
-    if (savedSections) {
-      return savedSections
-    }
-    // Initialize with default sections (admin will be added when user loads)
-    const sections = {}
-    const defaultSections = ['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']
-    defaultSections.forEach(title => {
-      sections[title] = true
-    })
-    return sections
-  })
-
-  // Track which sections have been rendered before (to skip animation on first appearance)
-  // Use ref to avoid re-renders and for immediate access
-  const renderedSectionsRef = useRef(new Set(['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']))
-
-  // Update expanded sections immediately when navSections changes (e.g., admin section appears)
-  // Merge saved state with new sections, defaulting new sections to expanded
-  useEffect(() => {
-    setExpandedSections(prev => {
-      const updated = { ...prev }
-      let hasChanges = false
-      navSections.forEach(section => {
-        // If section is new (wasn't in previous state), add it as expanded
-        if (updated[section.title] === undefined) {
-          updated[section.title] = true
-          hasChanges = true
-        }
-      })
-      // Only update if there are actual changes to prevent unnecessary re-renders
-      return hasChanges ? updated : prev
-    })
-
-    // Track newly added sections in ref (updates synchronously, no re-render)
-    navSections.forEach(section => {
-      renderedSectionsRef.current.add(section.title)
-    })
-  }, [navSections])
-
-  // Save sidebar collapsed state to localStorage whenever it changes
-  useEffect(() => {
-    setSidebarCollapsedState(sidebarCollapsed)
-  }, [sidebarCollapsed])
-
-  // Save expanded sections to localStorage whenever they change
-  useEffect(() => {
-    setExpandedSectionsState(expandedSections)
-  }, [expandedSections])
-
-  const toggleSection = (sectionTitle) => {
-    setExpandedSections(prev => {
-      const updated = {
-        ...prev,
-        [sectionTitle]: !prev[sectionTitle]
-      }
-      return updated
-    })
-  }
-
-  const handleSidebarCollapseToggle = (collapsed) => {
-    setSidebarCollapsed(collapsed)
-  }
-=======
->>>>>>> b650a69
 
   // State to track expanded sections - load from localStorage or initialize all as expanded
   const [expandedSections, setExpandedSections] = useState(() => {
@@ -415,11 +300,7 @@ const Layout = () => {
                   onClick={() => handleSidebarCollapseToggle(false)}
                     className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
                 >
-<<<<<<< HEAD
-                  <img src={Logo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
-=======
                   <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
->>>>>>> b650a69
                 </button>
               ) : (
                 <>
@@ -461,11 +342,7 @@ const Layout = () => {
                         title={item.label}
                       >
                         <Icon
-<<<<<<< HEAD
-                          size={20}
-=======
                           size={18}
->>>>>>> b650a69
                           className={`transition-all duration-200 ${isActive
                               ? 'text-white'
                               : sidebarTheme === 'dark'
@@ -677,7 +554,6 @@ const Layout = () => {
             }`}
           >
             <div className="hidden lg:flex items-center gap-3">
-<<<<<<< HEAD
               <motion.div 
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -703,117 +579,6 @@ const Layout = () => {
                   </p>
                 </div>
               </motion.div>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Theme Toggle Button */}
-              <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
-                sidebarTheme === 'dark'
-                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#0a3a3c]/50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
-                title={sidebarTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-              >
-                {sidebarTheme === 'dark' ? (
-                  <Sun size={18} className="transition-colors" />
-                ) : (
-                  <Moon size={18} className="transition-colors" />
-                )}
-              </button>
-              <NotificationBell />
-              
-              {/* Avatar Dropdown */}
-              <div className="relative avatar-dropdown-container">
-                <button
-                  onClick={() => setAvatarDropdownOpen(!avatarDropdownOpen)}
-                  className={`p-1.5 rounded-lg transition-all duration-200 ${
-                    sidebarTheme === 'dark'
-                      ? 'hover:bg-[#0a3a3c]/50'
-                      : 'hover:bg-slate-100'
-                  }`}
-                  title="User menu"
-                >
-                  <div className="w-8 h-8 bg-[#052829] rounded-lg flex items-center justify-center">
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
-                    ) : (
-                      <User size={16} className="text-white" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Dropdown Menu */}
-                <AnimatePresence>
-                  {avatarDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors ${
-                        sidebarTheme === 'dark'
-                          ? 'bg-[#0a3a3c] border-[#0a3a3c]'
-                          : 'bg-white border-slate-200'
-                      }`}
-                    >
-                      <Link
-                        to="/profile"
-                        onClick={() => setAvatarDropdownOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-[#052829]/50'
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <User size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
-                        <span className="text-sm font-medium">Profile</span>
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          sidebarTheme === 'dark'
-                            ? 'text-rose-400 hover:bg-[#052829]/50'
-                            : 'text-rose-600 hover:bg-rose-50'
-                        }`}
-                      >
-                        <LogOut size={18} className={sidebarTheme === 'dark' ? 'text-rose-400' : 'text-rose-500'} />
-                        <span className="text-sm font-medium">Logout</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-
-          {/* Page content */}
-          <motion.div
-            className="flex-1 p-2 lg:p-3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            key={location.pathname}
-          >
-=======
-              <div className={`flex items-center gap-3 px-3 py-1.5 transition-all duration-200 ${
-                sidebarTheme === 'dark'
-                  ? 'text-slate-300'
-                  : 'text-slate-700'
-              }`}>
-                <span className={`text-sm font-normal ${
-                  sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                }`}>
-                  Welcome back,
-                </span>
-                <span className={`text-sm font-semibold ${
-                  sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'
-                }`}>
-                  {user?.firstName && user?.lastName 
-                    ? `${user.firstName} ${user.lastName}`.trim()
-                    : user?.displayName || user?.name || 'User'}
-                </span>
-              </div>
             </div>
             <div className="flex items-center gap-2">
               {/* Theme Toggle Button */}
@@ -904,7 +669,6 @@ const Layout = () => {
 
           {/* Page content */}
           <div className="flex-1 p-2 lg:p-3">
->>>>>>> b650a69
             <Outlet />
           </div>
         </main>
@@ -950,36 +714,23 @@ const Layout = () => {
                 <div className="flex items-center gap-3 justify-end">
                   <button
                     onClick={cancelLogout}
-<<<<<<< HEAD
-=======
                     disabled={isLoggingOut}
->>>>>>> b650a69
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       sidebarTheme === 'dark'
                         ? 'bg-[#0a3a3c] text-slate-200 hover:bg-[#0d4a4d]'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-<<<<<<< HEAD
-                    }`}
-=======
                     } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
->>>>>>> b650a69
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmLogout}
-<<<<<<< HEAD
-                    className="px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
-                  >
-                    Logout
-=======
                     disabled={isLoggingOut}
                     className={`px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors ${
                       isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
                     {isLoggingOut ? 'Logging out...' : 'Logout'}
->>>>>>> b650a69
                   </button>
                 </div>
               </motion.div>
@@ -987,8 +738,6 @@ const Layout = () => {
           </>
         )}
       </AnimatePresence>
-<<<<<<< HEAD
-=======
 
       {/* Logout Loading Overlay */}
       <AnimatePresence>
@@ -1023,14 +772,9 @@ const Layout = () => {
           </motion.div>
         )}
       </AnimatePresence>
->>>>>>> b650a69
     </div>
   )
 }
 
-<<<<<<< HEAD
-export default Layout
-=======
 // Memoize Layout to prevent unnecessary re-renders - Layout must stay mounted
 export default memo(Layout)
->>>>>>> b650a69
