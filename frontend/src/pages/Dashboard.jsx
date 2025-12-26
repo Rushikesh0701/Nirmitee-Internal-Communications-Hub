@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { useMemo, useCallback, memo } from 'react'
+import { useMemo, useCallback, memo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import { useTheme } from '../contexts/ThemeContext'
@@ -95,11 +95,35 @@ const Dashboard = () => {
     { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: MessageSquare }
   ], [stats])
 
-  const getGreeting = useCallback(() => {
+  const [greeting, setGreeting] = useState(() => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning !!'
-    if (hour < 17) return 'Good afternoon !!'
-    return 'Good evening !!'
+    if (hour >= 5 && hour < 12) return 'Good morning !!'
+    if (hour >= 12 && hour < 17) return 'Good afternoon !!'
+    if (hour >= 17 && hour < 22) return 'Good evening !!'
+    return 'Good night !!'
+  })
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hour = new Date().getHours()
+      if (hour >= 5 && hour < 12) {
+        setGreeting('Good morning !!')
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting('Good afternoon !!')
+      } else if (hour >= 17 && hour < 22) {
+        setGreeting('Good evening !!')
+      } else {
+        setGreeting('Good night !!')
+      }
+    }
+
+    // Update immediately
+    updateGreeting()
+
+    // Update every minute to catch hour changes
+    const interval = setInterval(updateGreeting, 60000)
+
+    return () => clearInterval(interval)
   }, [])
 
   const getUserDisplayName = useCallback(() => {
@@ -136,7 +160,7 @@ const Dashboard = () => {
                 <span className={`text-xs font-medium transition-colors ${
                   theme === 'dark' ? 'text-slate-500' : 'text-slate-700'
                 }`}>
-                  {getGreeting()}
+                  {greeting}
                 </span>
               </div>
               
