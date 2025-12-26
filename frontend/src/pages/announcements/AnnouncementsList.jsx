@@ -6,6 +6,7 @@ import api from '../../services/api'
 import { Plus, Calendar, User, Tag, Filter, Megaphone, X, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
+import { useTheme } from '../../contexts/ThemeContext'
 import { isAdmin } from '../../utils/userHelpers'
 import Loading from '../../components/Loading'
 
@@ -21,6 +22,7 @@ const itemVariants = {
 
 const AnnouncementsList = () => {
   const { user } = useAuthStore()
+  const { theme } = useTheme()
   const userIsAdmin = isAdmin(user)
   
   const [page, setPage] = useState(1)
@@ -65,8 +67,12 @@ const AnnouncementsList = () => {
             <Megaphone size={22} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Company Announcements</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Stay updated with company news and updates</p>
+            <h1 className={`text-2xl sm:text-3xl font-bold transition-colors ${
+              theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+            }`}>Company Announcements</h1>
+            <p className={`text-sm mt-0.5 transition-colors ${
+              theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+            }`}>Stay updated with company news and updates</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -97,8 +103,14 @@ const AnnouncementsList = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-slate-800">Filters</h3>
-              <button onClick={clearFilters} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+              <h3 className={`font-semibold transition-colors ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+              }`}>Filters</h3>
+              <button onClick={clearFilters} className={`text-sm font-medium transition-colors ${
+                theme === 'dark'
+                  ? 'text-indigo-400 hover:text-indigo-300'
+                  : 'text-indigo-600 hover:text-indigo-700'
+              }`}>
                 Clear all
               </button>
             </div>
@@ -160,13 +172,23 @@ const AnnouncementsList = () => {
                     ))}
                   </div>
                 )}
-                <h3 className="text-lg font-semibold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                <h3 className={`text-lg font-semibold line-clamp-2 transition-colors ${
+                  theme === 'dark'
+                    ? 'text-slate-200 group-hover:text-indigo-400'
+                    : 'text-slate-800 group-hover:text-indigo-600'
+                }`}>
                   {announcement.title}
                 </h3>
-                <p className="text-slate-500 text-sm line-clamp-2">
+                <p className={`text-sm line-clamp-2 transition-colors ${
+                  theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                }`}>
                   {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...
                 </p>
-                <div className="flex items-center gap-4 text-xs text-slate-400 pt-3 border-t border-slate-100">
+                <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors ${
+                  theme === 'dark'
+                    ? 'text-slate-500 border-slate-700/50'
+                    : 'text-slate-400 border-slate-100'
+                }`}>
                   <div className="flex items-center gap-1.5">
                     <User size={14} />
                     <span>{announcement.createdBy?.firstName} {announcement.createdBy?.lastName}</span>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import api from '../../services/api'
+import { useTheme } from '../../contexts/ThemeContext'
 import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Loading from '../../components/Loading'
@@ -12,6 +13,7 @@ const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, trans
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }
 
 const Analytics = () => {
+  const { theme } = useTheme()
   const [dateRange, setDateRange] = useState('30')
   const [selectedEntity, setSelectedEntity] = useState('all')
 
@@ -66,7 +68,7 @@ const Analytics = () => {
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-slate-400" />
+            <Filter size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
             <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} className="input-select text-sm py-2">
               <option value="all">All Content</option>
               <option value="news">News</option>
@@ -75,7 +77,7 @@ const Analytics = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-slate-400" />
+            <Calendar size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="input-select text-sm py-2">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
@@ -111,18 +113,39 @@ const Analytics = () => {
         ) : timeSeriesData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" tickFormatter={formatDate} angle={-45} textAnchor="end" height={80} stroke="#94a3b8" tick={{ fill: '#64748b' }} />
-              <YAxis stroke="#94a3b8" tick={{ fill: '#64748b' }} />
-              <Tooltip labelFormatter={(label) => `Date: ${formatDate(label)}`} contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#334155' : '#e2e8f0'} />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={formatDate} 
+                angle={-45} 
+                textAnchor="end" 
+                height={80} 
+                stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }} 
+              />
+              <YAxis 
+                stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }} 
+              />
+              <Tooltip 
+                labelFormatter={(label) => `Date: ${formatDate(label)}`} 
+                contentStyle={{ 
+                  backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
+                  border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', 
+                  borderRadius: '8px', 
+                  color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
+                }} 
+              />
+              <Legend wrapperStyle={{ color: theme === 'dark' ? '#e2e8f0' : '#1e293b' }} />
               <Line type="monotone" dataKey="news" stroke={COLORS.news} strokeWidth={2} name="News" dot={{ r: 4 }} />
               <Line type="monotone" dataKey="blogs" stroke={COLORS.blogs} strokeWidth={2} name="Blogs" dot={{ r: 4 }} />
               <Line type="monotone" dataKey="discussions" stroke={COLORS.discussions} strokeWidth={2} name="Discussions" dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-64 flex items-center justify-center text-slate-400">No data for selected period</div>
+          <div className={`h-64 flex items-center justify-center transition-colors ${
+            theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+          }`}>No data for selected period</div>
         )}
       </motion.div>
 
@@ -135,11 +158,20 @@ const Analytics = () => {
               <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8" dataKey="value">
                 {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#1e293b' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
+                  border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', 
+                  borderRadius: '8px', 
+                  color: theme === 'dark' ? '#e2e8f0' : '#1e293b' 
+                }} 
+              />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-64 flex items-center justify-center text-slate-400">No content data available</div>
+          <div className={`h-64 flex items-center justify-center transition-colors ${
+            theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+          }`}>No content data available</div>
         )}
       </motion.div>
     </motion.div>

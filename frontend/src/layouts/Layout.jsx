@@ -2,9 +2,9 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
-import RoleBadge from '../components/RoleBadge'
 import { getUserRole } from '../utils/userHelpers'
 import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
+import { useTheme } from '../contexts/ThemeContext'
 import Logo from '../assets/Logo.png'
 import CollapsedLogo from '../assets/Untitled_design-removebg-preview.png'
 import {
@@ -28,7 +28,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Moon,
-  Sun
+  Sun,
+  Shield,
+  UserCheck
 } from 'lucide-react'
 import { useState, useEffect, useMemo, useRef } from 'react'
 
@@ -67,31 +69,13 @@ const setExpandedSectionsState = (sections) => {
   }
 }
 
-// Helper functions for theme persistence
-const getSidebarTheme = () => {
-  try {
-    const saved = localStorage.getItem('sidebarTheme')
-    return saved || 'light' // Default to light theme
-  } catch {
-    return 'light'
-  }
-}
-
-const saveSidebarTheme = (theme) => {
-  try {
-    localStorage.setItem('sidebarTheme', theme)
-  } catch (error) {
-    console.error('Failed to save sidebar theme:', error)
-  }
-}
-
 const Layout = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const { theme: sidebarTheme, toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
-  const [sidebarTheme, setSidebarTheme] = useState(getSidebarTheme) // 'light' or 'dark'
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
 
   useDocumentTitle('Nirmitee Hub')
@@ -118,6 +102,18 @@ const Layout = () => {
   const userRole = getUserRole(user)
   const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) ||
     ['ADMIN', 'MODERATOR'].includes(user?.role)
+
+  // Get role icon for glowy display
+  const getRoleIcon = (roleName) => {
+    switch (roleName) {
+      case 'Admin':
+        return Shield
+      case 'Moderator':
+        return UserCheck
+      default:
+        return Users
+    }
+  }
 
   // Organize navigation into sections - use useMemo to prevent unnecessary recalculations
   const navSections = useMemo(() => [
@@ -214,15 +210,6 @@ const Layout = () => {
   useEffect(() => {
     setExpandedSectionsState(expandedSections)
   }, [expandedSections])
-
-  // Save sidebar theme to localStorage whenever it changes
-  useEffect(() => {
-    saveSidebarTheme(sidebarTheme)
-  }, [sidebarTheme])
-
-  const toggleTheme = () => {
-    setSidebarTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
 
   const toggleSection = (sectionTitle) => {
     setExpandedSections(prev => {
@@ -321,7 +308,7 @@ const Layout = () => {
             </div>
 
             {/* Navigation with Sections */}
-            <nav className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+            <nav className={`flex-1 overflow-y-auto p-2 scrollbar-hide ${sidebarTheme === 'dark' ? 'sidebar-scrollbar-dark' : 'sidebar-scrollbar-light'}`}>
               {sidebarCollapsed ? (
                 // Collapsed view - show only icons
                 <div className="space-y-1">
@@ -463,9 +450,61 @@ const Layout = () => {
                         ? `${user.firstName} ${user.lastName}`.trim()
                         : user?.displayName || user?.name || 'User'}
                     </p>
-                    <div className="flex items-center gap-1">
-                      <RoleBadge role={userRole || 'Employee'} size="sm" />
-                      <ChevronDown size={9} className={sidebarTheme === 'dark' ? 'text-slate-500 group-hover:text-slate-300 transition-colors' : 'text-slate-400 group-hover:text-indigo-600 transition-colors'} />
+                    <div className="flex items-center gap-1.5">
+                      {(() => {
+                        const RoleIcon = getRoleIcon(userRole || 'Employee')
+                        const isAdmin = userRole === 'Admin'
+                        const isModerator = userRole === 'Moderator'
+                        return (
+                          <>
+                            <RoleIcon 
+                              size={12} 
+                              className={sidebarTheme === 'dark' 
+                                ? isAdmin 
+                                  ? 'text-purple-400' 
+                                  : isModerator
+                                  ? 'text-blue-400'
+                                  : 'text-slate-400'
+                                : isAdmin
+                                  ? 'text-purple-600'
+                                  : isModerator
+                                  ? 'text-blue-600'
+                                  : 'text-slate-600'
+                              }
+                              style={{
+                                filter: isAdmin 
+                                  ? 'drop-shadow(0 0 6px rgba(168, 85, 247, 0.8)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4))'
+                                  : isModerator
+                                  ? 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 12px rgba(59, 130, 246, 0.4))'
+                                  : 'drop-shadow(0 0 4px rgba(156, 163, 175, 0.6))'
+                              }}
+                            />
+                            <span 
+                              className={`text-[10px] font-semibold ${sidebarTheme === 'dark' 
+                                ? isAdmin 
+                                  ? 'text-purple-400' 
+                                  : isModerator
+                                  ? 'text-blue-400'
+                                  : 'text-slate-400'
+                                : isAdmin
+                                  ? 'text-purple-600'
+                                  : isModerator
+                                  ? 'text-blue-600'
+                                  : 'text-slate-600'
+                              }`}
+                              style={{
+                                textShadow: isAdmin
+                                  ? '0 0 8px rgba(168, 85, 247, 0.8), 0 0 16px rgba(168, 85, 247, 0.4)'
+                                  : isModerator
+                                  ? '0 0 8px rgba(59, 130, 246, 0.8), 0 0 16px rgba(59, 130, 246, 0.4)'
+                                  : '0 0 4px rgba(156, 163, 175, 0.5)'
+                              }}
+                            >
+                              {userRole || 'Employee'}
+                            </span>
+                          </>
+                        )
+                      })()}
                     </div>
                   </div>
                 </Link>
@@ -505,7 +544,9 @@ const Layout = () => {
         </AnimatePresence>
 
         {/* Main content */}
-        <main className={`flex-1 min-h-screen flex flex-col pt-14 lg:pt-0 relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'}`}>
+        <main className={`flex-1 min-h-screen flex flex-col pt-14 lg:pt-0 relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'} ${
+          sidebarTheme === 'dark' ? 'bg-[#0a0e17]' : 'bg-[#ebf3ff]'
+        }`}>
           {/* Top bar */}
           <div
             className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[60px] items-center justify-between sticky top-0 z-20 shadow-sm transition-colors duration-200 ${

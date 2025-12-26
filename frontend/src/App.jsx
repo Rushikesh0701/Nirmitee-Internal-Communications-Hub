@@ -9,6 +9,7 @@ import AuthLayout from './layouts/AuthLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import AnnouncementNotification from './components/AnnouncementNotification'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { publicRoutes, protectedRoutes } from './config/routes'
 
 const queryClient = new QueryClient({
@@ -32,13 +33,14 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <Router
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <AnnouncementNotification />
+      <ThemeProvider>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <AnnouncementNotification />
         <Routes>
           <Route element={<AuthLayout />}>
             {publicRoutes.map(({ path, component: Component }) => (
@@ -89,7 +91,8 @@ function App() {
             },
           }}
         />
-      </Router>
+        </Router>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
