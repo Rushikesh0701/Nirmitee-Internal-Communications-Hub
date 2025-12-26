@@ -23,25 +23,25 @@ export default function RoleBadge({ role, size = 'sm', showIcon = true }) {
   const getRoleIcon = (roleName) => {
     switch (roleName) {
       case 'Admin':
-        return <Shield size={size === 'sm' ? 12 : 16} />
+        return <Shield size={size === 'sm' ? 10 : 16} />
       case 'Moderator':
-        return <UserCheck size={size === 'sm' ? 12 : 16} />
+        return <UserCheck size={size === 'sm' ? 10 : 16} />
       case 'Employee':
-        return <Users size={size === 'sm' ? 12 : 16} />
+        return <Users size={size === 'sm' ? 10 : 16} />
       default:
-        return <Users size={size === 'sm' ? 12 : 16} />
+        return <Users size={size === 'sm' ? 10 : 16} />
     }
   }
 
   const sizeClasses = {
-    sm: 'text-xs px-2 py-0.5',
+    sm: 'text-xs px-1 py-0.5',
     md: 'text-sm px-3 py-1',
     lg: 'text-base px-4 py-1.5'
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-semibold border ${getRoleBadgeStyle(role)} ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1 rounded-full font-semibold border ${getRoleBadgeStyle(role)} ${sizeClasses[size]}`}
     >
       {showIcon && getRoleIcon(role)}
       {role}

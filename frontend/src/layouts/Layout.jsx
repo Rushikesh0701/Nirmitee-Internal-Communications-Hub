@@ -80,9 +80,9 @@ const Layout = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-3">
           <Link to="/dashboard">
-            <img src={Logo} alt="Nirmitee.io" className="h-8 cursor-pointer hover:opacity-80 transition-opacity" />
+            <img src={Logo} alt="Nirmitee.io" className="h-7 cursor-pointer hover:opacity-80 transition-opacity" />
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
@@ -94,11 +94,11 @@ const Layout = () => {
               <AnimatePresence mode="wait">
                 {sidebarOpen ? (
                   <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                    <X size={24} />
+                    <X size={20} />
                   </motion.div>
                 ) : (
                   <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                    <Menu size={24} />
+                    <Menu size={20} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -111,22 +111,22 @@ const Layout = () => {
         {/* Light Sidebar */}
         <aside
           className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-72
+            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64
              transition-transform duration-300 ease-in-out bg-white border-r border-slate-200 shadow-lg`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className="p-6 border-b border-slate-100">
+            <div className="p-4 border-b border-slate-100">
               <Link to="/dashboard" className="block">
                 <motion.div whileHover={{ scale: 1.02 }}>
-                  <img src={Logo} alt="Nirmitee.io" className="h-10" />
+                  <img src={Logo} alt="Nirmitee.io" className="h-8" />
                 </motion.div>
               </Link>
-              <p className="text-xs text-slate-500 tracking-wide font-medium mt-3">Internal Communications Hub</p>
+              <p className="text-xs text-slate-500 tracking-wide font-medium mt-2">Internal Communications Hub</p>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
               {navItems.map((item, index) => {
                 const Icon = item.icon
                 const isActive = isActivePath(item.path)
@@ -140,21 +140,21 @@ const Layout = () => {
                     <Link
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 group
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 group
                         ${isActive 
                           ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25' 
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}
                     >
-                      <Icon size={20} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'} />
-                      <span className="flex-1">{item.label}</span>
+                      <Icon size={18} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'} />
+                      <span className="flex-1 text-sm">{item.label}</span>
                       {isActive && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ type: "spring", stiffness: 500 }}
                         >
-                          <ChevronRight size={16} />
+                          <ChevronRight size={14} />
                         </motion.div>
                       )}
                     </Link>
@@ -164,23 +164,23 @@ const Layout = () => {
             </nav>
 
             {/* User Profile Section */}
-            <div className="p-4 border-t border-slate-100">
+            <div className="p-1.5 border-t border-slate-100">
               <Link
                 to="/profile"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
+                className="flex items-center gap-1.5 p-1.5 rounded-md bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
               >
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-md">
+                  <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-full object-cover" />
                     ) : (
-                      <User size={20} className="text-white" />
+                      <User size={14} className="text-white" />
                     )}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">
+                  <p className="text-xs font-medium text-slate-800 truncate leading-tight">
                     {user?.name || user?.displayName || 'User'}
                   </p>
                   <div className="mt-0.5">
@@ -191,12 +191,12 @@ const Layout = () => {
               
               <motion.button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 mt-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all"
+                className="w-full flex items-center gap-1.5 px-2 py-1 mt-1 rounded-md text-rose-500 hover:bg-rose-50 transition-all"
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <LogOut size={18} />
-                <span className="font-medium">Logout</span>
+                <LogOut size={12} />
+                <span className="font-medium text-xs">Logout</span>
               </motion.button>
             </div>
           </div>
@@ -216,16 +216,16 @@ const Layout = () => {
         </AnimatePresence>
 
         {/* Main content */}
-        <main className="flex-1 lg:ml-72 min-h-screen flex flex-col pt-16 lg:pt-0 relative">
+        <main className="flex-1 lg:ml-64 min-h-screen flex flex-col pt-14 lg:pt-0 relative">
           {/* Top bar */}
           <motion.div 
-            className="hidden lg:flex bg-white/80 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-8 py-4 items-center justify-between sticky top-0 lg:top-0 z-20 shadow-sm"
+            className="hidden lg:flex bg-white/80 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-6 py-3 items-center justify-between sticky top-0 lg:top-0 z-20 shadow-sm"
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
             <div className="hidden lg:flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100">
                 <span className="text-sm text-slate-600">Welcome back,</span>
                 <span className="text-sm font-semibold text-indigo-600">{user?.displayName || user?.name || user?.firstName || 'User'}</span>
               </div>

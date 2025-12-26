@@ -15,7 +15,12 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm()
+  } = useForm({
+    defaultValues: {
+      email: 'admin@nirmitee.io',
+      password: 'admin123'
+    }
+  })
 
   useEffect(() => {
     const checkAuth = async () => {
