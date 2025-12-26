@@ -13,7 +13,7 @@ import DraftBanner from '../../components/blog/DraftBanner';
 import { isValidBlogId, checkIfLiked, checkIsOwner, checkCanEdit, isDraft as checkIsDraft, formatDate, getAuthorName, extractId } from '../../utils/blogHelpers';
 import { sanitizeHtml } from '../../utils/sanitize';
 import '../../styles/blog-content.css';
-import Loading from '../../components/Loading';
+import { DetailSkeleton } from '../../components/skeletons';
 import { ArrowLeft, BookOpen, Calendar, Heart, MessageCircle, Tag } from 'lucide-react';
 
 const BlogDetail = () => {
@@ -59,7 +59,7 @@ const BlogDetail = () => {
   const handleUnpublish = () => { if (blog?.isPublished) publishMutation.mutate(false); };
   const handleDeleteBlog = () => { if (window.confirm('Are you sure you want to delete this blog?')) { deleteBlogMutation.mutate(undefined, { onSuccess: () => { toast.success('Blog deleted!'); navigate('/blogs'); } }); } };
 
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading blog..." />;
+  if (isLoading) return <DetailSkeleton />;
 
   if (error || !blog) {
     return (

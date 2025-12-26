@@ -8,7 +8,7 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const DiscussionForm = () => {
   const { id } = useParams()
@@ -109,7 +109,7 @@ const DiscussionForm = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (

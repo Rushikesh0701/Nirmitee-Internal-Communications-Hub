@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { useEffect } from 'react'
+import { useEffect, useCallback, Suspense } from 'react'
 import { useAuthStore } from './store/authStore'
 
 import Layout from './layouts/Layout'
@@ -11,25 +11,48 @@ import AdminRoute from './components/AdminRoute'
 import AnnouncementNotification from './components/AnnouncementNotification'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { publicRoutes, protectedRoutes } from './config/routes'
+import { PageSkeleton } from './components/skeletons'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      refetchOnMount: 'always', // Always fetch fresh data when component mounts
+      refetchOnMount: false, // Don't refetch on mount if data exists and is fresh
+      refetchOnReconnect: false, // Don't auto-refetch on reconnect
       retry: 1,
-      staleTime: 30 * 1000, // 30 seconds - prevents delayed spinner on refresh
-      cacheTime: 5 * 60 * 1000, // 5 minutes - how long to keep unused data in cache
+      staleTime: 10 * 60 * 1000, // 10 minutes - data stays fresh longer
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep data in cache much longer
+      keepPreviousData: true, // Keep previous data while fetching new data
+      structuralSharing: true, // Optimize re-renders
     },
   },
 })
 
+// Suspense fallback component for page content only
+const PageSuspenseFallback = () => (
+  <div className="flex-1 p-2 lg:p-3">
+    <PageSkeleton lines={8} showHeader={true} />
+  </div>
+)
+
+// Auth Suspense fallback
+const AuthSuspenseFallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <PageSkeleton lines={5} showHeader={false} />
+  </div>
+)
+
 function App() {
   const { initialize } = useAuthStore()
   
-  useEffect(() => {
+  // Memoize initialize to prevent unnecessary re-renders
+  const handleInitialize = useCallback(() => {
     initialize()
   }, [initialize])
+  
+  useEffect(() => {
+    handleInitialize()
+  }, [handleInitialize])
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -44,7 +67,15 @@ function App() {
         <Routes>
           <Route element={<AuthLayout />}>
             {publicRoutes.map(({ path, component: Component }) => (
-              <Route key={path} path={path} element={<Component />} />
+              <Route 
+                key={path} 
+                path={path} 
+                element={
+                  <Suspense fallback={<AuthSuspenseFallback />}>
+                    <Component />
+                  </Suspense>
+                } 
+              />
             ))}
           </Route>
 
@@ -57,7 +88,9 @@ function App() {
                   path={path}
                   element={
                     <RouteWrapper>
-                      <Component />
+                      <Suspense fallback={<PageSuspenseFallback />}>
+                        <Component />
+                      </Suspense>
                     </RouteWrapper>
                   }
                 />

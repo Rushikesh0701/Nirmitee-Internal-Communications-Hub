@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useCreationStore } from '../../store/creationStore'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const GroupForm = () => {
   const { id } = useParams()
@@ -115,7 +115,7 @@ const GroupForm = () => {
   }
 
   if (isEdit && groupLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (

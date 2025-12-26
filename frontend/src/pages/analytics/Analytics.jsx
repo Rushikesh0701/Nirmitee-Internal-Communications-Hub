@@ -5,7 +5,7 @@ import api from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
 import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import Loading from '../../components/Loading'
+import { GridSkeleton, DetailSkeleton } from '../../components/skeletons'
 
 const COLORS = { news: '#64748b', blogs: '#10b981', discussions: '#8b5cf6' }
 
@@ -34,8 +34,6 @@ const Analytics = () => {
     },
     { enabled: !!stats }
   )
-
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading analytics..." />
 
   const timeSeriesData = contentAnalytics?.combinedTimeSeries || []
   const pieData = [
@@ -89,8 +87,11 @@ const Analytics = () => {
       </motion.div>
 
       {/* Stats Cards */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
-        {statCards.map((stat, index) => (
+      {isLoading && !stats ? (
+        <GridSkeleton columns={4} rows={1} />
+      ) : (
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {statCards.map((stat, index) => (
           <motion.div key={stat.label} className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <div className="flex items-center justify-between">
               <div>
@@ -103,13 +104,19 @@ const Analytics = () => {
             </div>
           </motion.div>
         ))}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Time Series Chart */}
+      {isLoading && !stats ? (
+        <DetailSkeleton />
+      ) : (
       <motion.div variants={itemVariants} className="card">
         <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Creation Over Time</h2>
         {isLoadingContent ? (
-          <div className="h-64 flex items-center justify-center"><Loading size="md" /></div>
+          <div className={`h-64 flex items-center justify-center animate-pulse ${
+            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-100'
+          } rounded-lg`} />
         ) : timeSeriesData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
@@ -147,9 +154,13 @@ const Analytics = () => {
             theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
           }`}>No data for selected period</div>
         )}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Pie Chart */}
+      {isLoading && !stats ? (
+        <DetailSkeleton />
+      ) : (
       <motion.div variants={itemVariants} className="card">
         <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Distribution</h2>
         {pieData.length > 0 ? (
@@ -173,7 +184,8 @@ const Analytics = () => {
             theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
           }`}>No content data available</div>
         )}
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   )
 }

@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
 import { isAdmin } from '../../utils/userHelpers'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const AnnouncementDetail = () => {
   const { id } = useParams()
@@ -42,7 +42,7 @@ const AnnouncementDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!announcement) {

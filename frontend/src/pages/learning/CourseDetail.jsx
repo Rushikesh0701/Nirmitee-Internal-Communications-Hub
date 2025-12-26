@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, GraduationCap, Users, Star, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const CourseDetail = () => {
   const { id } = useParams()
@@ -24,7 +24,7 @@ const CourseDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!course) {

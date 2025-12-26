@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Plus, Award, Trophy, Star } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { ListSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 
 export default function RecognitionsFeed() {
@@ -13,7 +13,7 @@ export default function RecognitionsFeed() {
   const { data, isLoading } = useQuery(
     ['recognitionFeed', page, limit],
     () => recognitionRewardApi.getRecognitionFeed({ page, limit }),
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { keepPreviousData: true }
   )
 
   const recognitions = data?.data?.recognitions || []
@@ -35,8 +35,8 @@ export default function RecognitionsFeed() {
         </Link>
       </div>
 
-      {isLoading ? (
-        <Loading />
+      {isLoading && !data ? (
+        <ListSkeleton count={5} />
       ) : (
         <>
           {recognitions.length > 0 ? (

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import api from '../../services/api'
 import RoleBadge from '../../components/RoleBadge'
 import { Search, Mail, Building, Briefcase, X, Users } from 'lucide-react'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }
@@ -33,8 +33,6 @@ export default function EmployeeDirectory() {
   const users = data?.data?.data?.users || []
   const pagination = data?.data?.data?.pagination || { total: 0, page: 1, limit: 20, pages: 1 }
   const departments = [...new Set(users.map((u) => u.department).filter(Boolean))]
-
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading directory..." />
 
   return (
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
@@ -76,7 +74,9 @@ export default function EmployeeDirectory() {
       {users.length > 0 && <motion.div variants={itemVariants} className="text-sm text-slate-500">Showing {users.length} {users.length === 1 ? 'employee' : 'employees'}</motion.div>}
 
       {/* User Grid */}
-      {users.length > 0 ? (
+      {isLoading && !data ? (
+        <CardSkeleton count={8} />
+      ) : users.length > 0 ? (
         <>
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" variants={containerVariants}>
             {users.map((user) => (
@@ -118,12 +118,14 @@ export default function EmployeeDirectory() {
           )}
         </>
       ) : (
-        <motion.div variants={itemVariants} className="empty-state">
+        !isLoading && (
+          <motion.div variants={itemVariants} className="empty-state">
           <Users size={56} className="empty-state-icon" />
           <h3 className="empty-state-title">No employees found</h3>
           <p className="empty-state-text mb-4">{search || department ? 'Try adjusting your search' : 'No employees yet'}</p>
           {(search || department) && <button onClick={() => { setSearch(''); setDepartment(''); }} className="btn btn-primary">Clear Filters</button>}
-        </motion.div>
+          </motion.div>
+        )
       )}
     </motion.div>
   )

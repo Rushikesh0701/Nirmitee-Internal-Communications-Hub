@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical } from 'lucide-react'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 import { useTheme } from '../../contexts/ThemeContext'
 
@@ -212,8 +212,8 @@ const RssManagement = () => {
     setActiveMenuId(null);
   }
 
-  if (isLoading) {
-    return <Loading fullScreen />
+  if (isLoading && !data) {
+    return <CardSkeleton count={6} />
   }
 
   // Handle error state

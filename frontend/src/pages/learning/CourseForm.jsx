@@ -6,7 +6,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const CourseForm = () => {
   const { id } = useParams()
@@ -87,7 +87,7 @@ const CourseForm = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (

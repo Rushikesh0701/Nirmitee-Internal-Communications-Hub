@@ -32,7 +32,7 @@ import {
   Shield,
   UserCheck
 } from 'lucide-react'
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
 
 // Helper functions for sidebar state persistence
 const getSidebarCollapsedState = () => {
@@ -70,7 +70,7 @@ const setExpandedSectionsState = (sections) => {
 }
 
 const Layout = () => {
-  const { user, logout } = useAuthStore()
+  const { user, logout, isLoggingOut } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const { theme: sidebarTheme, toggleTheme } = useTheme()
@@ -82,20 +82,20 @@ const Layout = () => {
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setAvatarDropdownOpen(false)
     setShowLogoutModal(true)
-  }
+  }, [])
 
-  const confirmLogout = () => {
+  const confirmLogout = useCallback(async () => {
     setShowLogoutModal(false)
-    logout()
+    await logout()
     navigate('/login')
-  }
+  }, [logout, navigate])
 
-  const cancelLogout = () => {
+  const cancelLogout = useCallback(() => {
     setShowLogoutModal(false)
-  }
+  }, [])
 
   // Close avatar dropdown when clicking outside
   useEffect(() => {
@@ -658,15 +658,9 @@ const Layout = () => {
           </div>
 
           {/* Page content */}
-          <motion.div
-            className="flex-1 p-2 lg:p-3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            key={location.pathname}
-          >
+          <div className="flex-1 p-2 lg:p-3">
             <Outlet />
-          </motion.div>
+          </div>
         </main>
       </div>
 
@@ -710,19 +704,23 @@ const Layout = () => {
                 <div className="flex items-center gap-3 justify-end">
                   <button
                     onClick={cancelLogout}
+                    disabled={isLoggingOut}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       sidebarTheme === 'dark'
                         ? 'bg-[#0a3a3c] text-slate-200 hover:bg-[#0d4a4d]'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
+                    } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmLogout}
-                    className="px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                    disabled={isLoggingOut}
+                    className={`px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors ${
+                      isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
-                    Logout
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
                   </button>
                 </div>
               </motion.div>
@@ -730,8 +728,43 @@ const Layout = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Logout Loading Overlay */}
+      <AnimatePresence>
+        {isLoggingOut && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-[200]"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <motion.div
+                className={`w-10 h-10 rounded-full border-2 ${
+                  sidebarTheme === 'dark' 
+                    ? 'border-[#052829] border-t-[#ff4701]' 
+                    : 'border-slate-200 border-t-[#ff4701]'
+                }`}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <p className={`text-sm font-medium ${
+                sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+              }`}>
+                Logging out...
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-export default Layout
+// Memoize Layout to prevent unnecessary re-renders - Layout must stay mounted
+export default memo(Layout)

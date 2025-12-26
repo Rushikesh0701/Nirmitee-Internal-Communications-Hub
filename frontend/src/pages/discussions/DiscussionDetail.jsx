@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { isAdmin } from '../../utils/userHelpers';
 import { useCreationStore } from '../../store/creationStore';
-import Loading from '../../components/Loading';
+import { DetailSkeleton } from '../../components/SkeletonLoader';
 import { ArrowLeft, Edit, Trash2, MessageCircle, User, Calendar, Tag, ChevronDown, ChevronUp } from 'lucide-react';
 
 const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
@@ -194,7 +194,7 @@ const DiscussionDetail = () => {
     );
   }
 
-  if (loading) return <Loading fullScreen size="lg" />;
+  if (loading) return <DetailSkeleton />;
   if (!discussion) return null;
 
   const getAuthorName = (author) => {

@@ -9,13 +9,14 @@ import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
 import toast from 'react-hot-toast'
-import Loading from '../../components/Loading'
+import { useTheme } from '../../contexts/ThemeContext'
 
 export default function ProfilePage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user: currentUser } = useAuthStore()
+  const { theme } = useTheme()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({})
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -75,7 +76,23 @@ export default function ProfilePage() {
     }
   }, [isEditing, profile])
 
-  if (isLoading && !profile) return <Loading fullScreen size="lg" text="Loading profile..." />
+  // Use skeleton loader instead of full-page loader
+  if (isLoading && !profile) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className={`h-32 rounded-lg ${
+          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+        }`} />
+        <div className="space-y-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={`h-4 rounded ${
+              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+            } ${i === 5 ? 'w-3/4' : 'w-full'}`} />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   if (isError) {
     return (

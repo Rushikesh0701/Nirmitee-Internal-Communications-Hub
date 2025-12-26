@@ -8,7 +8,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { Plus, Users, Lock, Search, LogIn } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06 } } }
@@ -38,7 +38,7 @@ const GroupsList = () => {
       if (filter === 'private') params.append('isPublic', 'false')
       return api.get(`/groups?${params.toString()}`).then((res) => res.data.data)
     },
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { keepPreviousData: true }
   )
 
   const joinMutation = useMutation((groupId) => api.post(`/groups/${groupId}/join`), {
@@ -48,8 +48,6 @@ const GroupsList = () => {
 
   const canCreateGroup = isAdminOrModerator(user)
   const handleJoin = (e, groupId) => { e.preventDefault(); e.stopPropagation(); joinMutation.mutate(groupId); }
-
-  if (isLoading) return <Loading fullScreen />
 
   const groups = data?.groups || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -89,7 +87,9 @@ const GroupsList = () => {
       </motion.div>
 
       {/* Groups Grid */}
-      {groups.length > 0 ? (
+      {isLoading && !data ? (
+        <CardSkeleton count={6} />
+      ) : groups.length > 0 ? (
         <>
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
             {groups.map((group, index) => {
@@ -150,7 +150,7 @@ const GroupsList = () => {
       ) : null}
 
       {/* Empty State */}
-      {groups.length === 0 && (
+      {!isLoading && groups.length === 0 && (
         <motion.div variants={itemVariants} className="empty-state">
           <Users size={56} className="empty-state-icon" />
           <h3 className="empty-state-title">No groups found</h3>

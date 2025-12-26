@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import api from '../../services/api'
 import { Users, Star, Clock } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 
 const LearningList = () => {
@@ -22,12 +22,8 @@ const LearningList = () => {
       params.append('limit', limit.toString())
       return api.get(`/learning?${params.toString()}`).then((res) => res.data.data)
     },
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { keepPreviousData: true }
   )
-
-  if (isLoading) {
-    return <Loading fullScreen />
-  }
 
   const courses = data?.courses || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -46,7 +42,9 @@ const LearningList = () => {
         )}
       </div>
 
-      {courses.length > 0 ? (
+      {isLoading && !data ? (
+        <CardSkeleton count={6} />
+      ) : courses.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {courses.map((course) => (
@@ -108,9 +106,11 @@ const LearningList = () => {
           )}
         </>
       ) : (
-        <div className="text-center py-12 text-gray-500">
-          No courses available yet
-        </div>
+        !isLoading && (
+          <div className="text-center py-12 text-gray-500">
+            No courses available yet
+          </div>
+        )
       )}
     </div>
   )

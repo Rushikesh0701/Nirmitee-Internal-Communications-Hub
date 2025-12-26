@@ -8,7 +8,7 @@ import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
 import { useTheme } from '../../contexts/ThemeContext'
 import { isAdmin } from '../../utils/userHelpers'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,7 +40,7 @@ const AnnouncementsList = () => {
   const { data, isLoading } = useQuery(
     ['announcements', page, filters],
     () => api.get(`/announcements?${queryParams}`).then((res) => res.data.data),
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { keepPreviousData: true }
   )
 
   const handleFilterChange = (key, value) => {
@@ -52,8 +52,6 @@ const AnnouncementsList = () => {
     setFilters({ tags: '', scheduled: '', published: '' })
     setPage(1)
   }
-
-  if (isLoading && !data) return <Loading fullScreen />
 
   const announcements = data?.announcements || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -150,8 +148,11 @@ const AnnouncementsList = () => {
       </AnimatePresence>
 
       {/* Announcements Grid */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
-        {announcements.map((announcement, index) => (
+      {isLoading && !data ? (
+        <CardSkeleton count={6} />
+      ) : (
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
+          {announcements.map((announcement, index) => (
           <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
             <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
               {announcement.image && (
@@ -201,10 +202,11 @@ const AnnouncementsList = () => {
             </Link>
           </motion.div>
         ))}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Empty State */}
-      {announcements.length === 0 && (
+      {!isLoading && announcements.length === 0 && (
         <motion.div variants={itemVariants} className="empty-state">
           <Megaphone size={56} className="empty-state-icon" />
           <h3 className="empty-state-title">No announcements yet</h3>

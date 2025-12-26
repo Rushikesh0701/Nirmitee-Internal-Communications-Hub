@@ -7,7 +7,7 @@ import DiscussionCard from '../../components/discussion/DiscussionCard';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { MessageSquare, Search, Plus } from 'lucide-react';
-import Loading from '../../components/Loading';
+import { ListSkeleton } from '../../components/SkeletonLoader';
 import Pagination from '../../components/Pagination';
 
 const containerVariants = {
@@ -47,7 +47,6 @@ const Discussions = () => {
     },
     {
       keepPreviousData: true,
-      refetchOnMount: 'always',
       onError: (error) => {
         toast.error(error.response?.data?.message || 'Failed to fetch discussions');
       }
@@ -68,8 +67,6 @@ const Discussions = () => {
   // Get all tags from all discussions (for tag filter dropdown)
   // Note: This might need to be fetched separately or from first page only
   const allTags = [...new Set(discussions.flatMap((d) => d.tags || []))].sort();
-
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading discussions..." />;
 
   return (
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
@@ -112,7 +109,9 @@ const Discussions = () => {
       </motion.div>
 
       {/* Discussion List */}
-      {filteredDiscussions.length > 0 ? (
+      {isLoading && !data ? (
+        <ListSkeleton count={5} />
+      ) : filteredDiscussions.length > 0 ? (
         <>
           <motion.div className="space-y-4" variants={containerVariants}>
             {filteredDiscussions.map((discussion, index) => {
@@ -140,7 +139,8 @@ const Discussions = () => {
           )}
         </>
       ) : (
-        <motion.div variants={itemVariants} className="empty-state">
+        !isLoading && (
+          <motion.div variants={itemVariants} className="empty-state">
           <MessageSquare size={56} className="empty-state-icon" />
           <h3 className="empty-state-title">No discussions found</h3>
           <p className="empty-state-text mb-4">
@@ -151,7 +151,8 @@ const Discussions = () => {
               <Plus size={16} /> Start First Discussion
             </Link>
           )}
-        </motion.div>
+          </motion.div>
+        )
       )}
     </motion.div>
   );

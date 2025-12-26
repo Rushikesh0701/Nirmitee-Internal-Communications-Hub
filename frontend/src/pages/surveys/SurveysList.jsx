@@ -6,7 +6,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ClipboardList, Calendar, Users, Plus } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/SkeletonLoader'
 import Pagination from '../../components/Pagination'
 
 const SurveysList = () => {
@@ -23,14 +23,10 @@ const SurveysList = () => {
       params.append('limit', limit.toString())
       return api.get(`/surveys/list?${params.toString()}`).then((res) => res.data.data)
     },
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { keepPreviousData: true }
   )
 
   const canCreateSurvey = isAdminOrModerator(user)
-
-  if (isLoading) {
-    return <Loading fullScreen />
-  }
 
   const surveys = data?.surveys || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
@@ -50,7 +46,9 @@ const SurveysList = () => {
         )}
       </div>
 
-      {surveys.length > 0 ? (
+      {isLoading && !data ? (
+        <CardSkeleton count={6} />
+      ) : surveys.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {surveys.map((survey) => (
@@ -106,9 +104,11 @@ const SurveysList = () => {
           )}
         </>
       ) : (
-        <div className="text-center py-12 text-gray-500">
-          No active surveys
-        </div>
+        !isLoading && (
+          <div className="text-center py-12 text-gray-500">
+            No active surveys
+          </div>
+        )
       )}
     </div>
   )

@@ -5,7 +5,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ArrowLeft, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const SurveyAnalytics = () => {
   const { id } = useParams()
@@ -23,7 +23,7 @@ const SurveyAnalytics = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!analytics) {

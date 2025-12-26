@@ -89,6 +89,7 @@ const useAuthStore = create((set, get) => {
   user: cachedUser, // Initialize with cached user role for immediate sidebar rendering
   isAuthenticated: false,
   isLoading: true, // Start as true to wait for initial check
+  isLoggingOut: false, // Track if logout is in progress
   _initializing: false, // Track if initialization is in progress
   _initialized: false, // Track if initial auth check has completed
 
@@ -262,6 +263,7 @@ const useAuthStore = create((set, get) => {
 
   logout: async () => {
     try {
+      set({ isLoggingOut: true })
       await api.post('/auth/logout', {}, {
         withCredentials: true
       })
@@ -273,6 +275,7 @@ const useAuthStore = create((set, get) => {
         user: null, 
         isAuthenticated: false,
         isLoading: false,
+        isLoggingOut: false,
         _initialized: true
       })
     }

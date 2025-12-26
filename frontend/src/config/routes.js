@@ -1,47 +1,49 @@
 /**
- * Centralized route configuration
+ * Centralized route configuration with code splitting
  */
 
-import Dashboard from '../pages/Dashboard'
-import NewsList from '../pages/news/NewsList'
-import NewsDetail from '../pages/news/NewsDetail'
-import Blogs from '../pages/blogs/Blogs'
-import BlogDetail from '../pages/blogs/BlogDetail'
-import CreateBlog from '../pages/blogs/CreateBlog'
-import EditBlog from '../pages/blogs/EditBlog'
-import Discussions from '../pages/discussions/Discussions'
-import DiscussionDetail from '../pages/discussions/DiscussionDetail'
-import CreateDiscussion from '../pages/discussions/CreateDiscussion'
-import DiscussionForm from '../pages/discussions/DiscussionForm'
-import RecognitionsFeed from '../pages/recognitions/RecognitionsFeed'
-import RecognitionForm from '../pages/recognitions/RecognitionForm'
-import RewardsCatalog from '../pages/recognitions/RewardsCatalog'
-import Leaderboard from '../pages/recognitions/Leaderboard'
-import PointsHistory from '../pages/recognitions/PointsHistory'
-import SurveysList from '../pages/surveys/SurveysList'
-import SurveyDetail from '../pages/surveys/SurveyDetail'
-import SurveyForm from '../pages/surveys/SurveyForm'
-import LearningList from '../pages/learning/LearningList'
-import CourseDetail from '../pages/learning/CourseDetail'
-import CourseForm from '../pages/learning/CourseForm'
+import { lazy } from 'react'
 
-import Analytics from '../pages/analytics/Analytics'
-import AdminRewardsManagement from '../pages/admin/AdminRewardsManagement'
-import RssManagement from '../pages/admin/RssManagement'
-import ProfilePage from '../pages/profile/ProfilePage'
-import EmployeeDirectory from '../pages/directory/EmployeeDirectory'
-import NotificationsPage from '../pages/notifications/NotificationsPage'
-import AnnouncementsList from '../pages/announcements/AnnouncementsList'
-import AnnouncementDetail from '../pages/announcements/AnnouncementDetail'
-import AnnouncementForm from '../pages/announcements/AnnouncementForm'
-import GroupsList from '../pages/groups/GroupsList'
-import GroupDetail from '../pages/groups/GroupDetail'
-import GroupForm from '../pages/groups/GroupForm'
-import SurveyAnalytics from '../pages/surveys/SurveyAnalytics'
-import Login from '../pages/auth/Login'
-import Register from '../pages/auth/Register'
-import ForgotPassword from '../pages/auth/ForgotPassword'
-import ResetPassword from '../pages/auth/ResetPassword'
+// Lazy load all page components for code splitting
+const Dashboard = lazy(() => import('../pages/Dashboard'))
+const NewsList = lazy(() => import('../pages/news/NewsList'))
+const NewsDetail = lazy(() => import('../pages/news/NewsDetail'))
+const Blogs = lazy(() => import('../pages/blogs/Blogs'))
+const BlogDetail = lazy(() => import('../pages/blogs/BlogDetail'))
+const CreateBlog = lazy(() => import('../pages/blogs/CreateBlog'))
+const EditBlog = lazy(() => import('../pages/blogs/EditBlog'))
+const Discussions = lazy(() => import('../pages/discussions/Discussions'))
+const DiscussionDetail = lazy(() => import('../pages/discussions/DiscussionDetail'))
+const CreateDiscussion = lazy(() => import('../pages/discussions/CreateDiscussion'))
+const DiscussionForm = lazy(() => import('../pages/discussions/DiscussionForm'))
+const RecognitionsFeed = lazy(() => import('../pages/recognitions/RecognitionsFeed'))
+const RecognitionForm = lazy(() => import('../pages/recognitions/RecognitionForm'))
+const RewardsCatalog = lazy(() => import('../pages/recognitions/RewardsCatalog'))
+const Leaderboard = lazy(() => import('../pages/recognitions/Leaderboard'))
+const PointsHistory = lazy(() => import('../pages/recognitions/PointsHistory'))
+const SurveysList = lazy(() => import('../pages/surveys/SurveysList'))
+const SurveyDetail = lazy(() => import('../pages/surveys/SurveyDetail'))
+const SurveyForm = lazy(() => import('../pages/surveys/SurveyForm'))
+const LearningList = lazy(() => import('../pages/learning/LearningList'))
+const CourseDetail = lazy(() => import('../pages/learning/CourseDetail'))
+const CourseForm = lazy(() => import('../pages/learning/CourseForm'))
+const Analytics = lazy(() => import('../pages/analytics/Analytics'))
+const AdminRewardsManagement = lazy(() => import('../pages/admin/AdminRewardsManagement'))
+const RssManagement = lazy(() => import('../pages/admin/RssManagement'))
+const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
+const EmployeeDirectory = lazy(() => import('../pages/directory/EmployeeDirectory'))
+const NotificationsPage = lazy(() => import('../pages/notifications/NotificationsPage'))
+const AnnouncementsList = lazy(() => import('../pages/announcements/AnnouncementsList'))
+const AnnouncementDetail = lazy(() => import('../pages/announcements/AnnouncementDetail'))
+const AnnouncementForm = lazy(() => import('../pages/announcements/AnnouncementForm'))
+const GroupsList = lazy(() => import('../pages/groups/GroupsList'))
+const GroupDetail = lazy(() => import('../pages/groups/GroupDetail'))
+const GroupForm = lazy(() => import('../pages/groups/GroupForm'))
+const SurveyAnalytics = lazy(() => import('../pages/surveys/SurveyAnalytics'))
+const Login = lazy(() => import('../pages/auth/Login'))
+const Register = lazy(() => import('../pages/auth/Register'))
+const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
+const ResetPassword = lazy(() => import('../pages/auth/ResetPassword'))
 
 export const publicRoutes = [
   { path: '/login', component: Login },

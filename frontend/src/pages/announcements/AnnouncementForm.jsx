@@ -8,7 +8,7 @@ import { ArrowLeft, Save, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Editor from '../../components/blog/Editor'
 import { useCreationStore } from '../../store/creationStore'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const AnnouncementForm = () => {
   const { id } = useParams()
@@ -112,7 +112,7 @@ const AnnouncementForm = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (

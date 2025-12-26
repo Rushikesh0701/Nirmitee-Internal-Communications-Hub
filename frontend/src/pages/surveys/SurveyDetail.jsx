@@ -74,7 +74,7 @@ const SurveyDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!survey) {

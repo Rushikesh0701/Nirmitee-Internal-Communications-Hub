@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, Calendar, User, Eye, Newspaper } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const NewsDetail = () => {
   const { id } = useParams()
@@ -15,7 +15,7 @@ const NewsDetail = () => {
   )
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!news) {

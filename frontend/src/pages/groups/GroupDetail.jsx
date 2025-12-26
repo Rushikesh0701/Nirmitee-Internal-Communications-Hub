@@ -9,7 +9,7 @@ import PostComposer from '../../components/PostComposer'
 import CommentsComponent from '../../components/CommentsComponent'
 import { ArrowLeft, Users, Lock, Pin, Heart, Trash2, LogOut, LogIn, Calendar, User } from 'lucide-react'
 import { format } from 'date-fns'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/SkeletonLoader'
 
 const GroupDetail = () => {
   const { id } = useParams()
@@ -46,7 +46,7 @@ const GroupDetail = () => {
     })
   }
 
-  if (groupLoading) return <Loading fullScreen />
+  if (groupLoading) return <DetailSkeleton />
   if (!group) return <div className="empty-state"><Users size={56} className="empty-state-icon" /><h3 className="empty-state-title">Group not found</h3></div>
 
   const posts = postsData?.posts || []
