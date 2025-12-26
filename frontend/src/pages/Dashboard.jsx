@@ -24,7 +24,6 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
-import Loading from '../components/Loading'
 import EmptyState from '../components/EmptyState'
 
 const containerVariants = {
@@ -56,13 +55,25 @@ const Dashboard = () => {
   const { data: announcementsData, isLoading: announcementsLoading } = useQuery(
     'dashboard-announcements',
     () => api.get('/announcements?limit=3&sortBy=createdAt&sortOrder=desc').then((res) => res.data.data),
-    { staleTime: 60000 }
+    { 
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchInterval: 5 * 60 * 1000 // Background refetch every 5 minutes (silent, no loader)
+    }
   )
 
   const { data: newsData, isLoading: newsLoading } = useQuery(
     'dashboard-news',
     () => api.get('/news?limit=6&language=en').then((res) => res.data.data || res.data),
-    { staleTime: 60000 }
+    { 
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchInterval: 5 * 60 * 1000 // Background refetch every 5 minutes (silent, no loader)
+    }
   )
 
   const announcements = announcementsData?.announcements || announcementsData || []
@@ -262,8 +273,42 @@ const Dashboard = () => {
             
             <div className="min-h-[120px]">
               {announcementsLoading ? (
-                <div className="flex items-center justify-center h-full min-h-[100px]">
-                  <Loading size="md" />
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`p-3 rounded-lg border animate-pulse ${
+                        theme === 'dark'
+                          ? 'bg-[#052829] border-[#0a3a3c]'
+                          : 'bg-white border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className={`h-4 w-3/4 rounded ${
+                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                          }`} />
+                          <div className={`h-3 w-full rounded ${
+                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                          }`} />
+                          <div className={`h-3 w-2/3 rounded ${
+                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                          }`} />
+                          <div className="flex items-center gap-3 mt-2">
+                            <div className={`h-3 w-20 rounded ${
+                              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                            }`} />
+                            <div className={`h-3 w-24 rounded ${
+                              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                            }`} />
+                          </div>
+                        </div>
+                        <div className={`w-4 h-4 rounded flex-shrink-0 ${
+                          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                        }`} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : announcements.length > 0 ? (
                 <div className="space-y-2">
@@ -388,8 +433,34 @@ const Dashboard = () => {
             </div>
             
             {newsLoading ? (
-              <div className="flex items-center justify-center py-4">
-                <Loading size="md" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`relative rounded-lg overflow-hidden border animate-pulse ${
+                      theme === 'dark'
+                        ? 'bg-[#052829] border-[#0a3a3c]'
+                        : 'bg-white border-slate-200'
+                    } h-full flex flex-col`}
+                  >
+                    <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
+                      theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                    }`} />
+                    <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px] space-y-2">
+                      <div className={`h-3 w-full rounded ${
+                        theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                      }`} />
+                      <div className={`h-3 w-4/5 rounded ${
+                        theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                      }`} />
+                      <div className="mt-auto">
+                        <div className={`h-2 w-16 rounded ${
+                          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                        }`} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : newsArticles.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">

@@ -6,6 +6,8 @@ import NewsUpdateToast from '../../components/NewsUpdateToast';
 import Loading from '../../components/Loading';
 import { useTheme } from '../../contexts/ThemeContext';
 import EmptyState from '../../components/EmptyState';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function NewsList() {
   const { theme } = useTheme();
@@ -775,7 +777,39 @@ function NewsList() {
 
       {/* Loading State */}
       {loading && (
-        <Loading text="Searching for news..." />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className={`flex flex-col rounded-lg overflow-hidden ${
+                theme === 'dark'
+                  ? 'border border-[#0a3a3c]/50 bg-[#052829]/50'
+                  : 'border border-gray-200 bg-white'
+              }`}
+            >
+              <Skeleton
+                height={80}
+                baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
+                highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                className="w-full"
+              />
+              <div className="p-2 space-y-2">
+                <Skeleton
+                  height={14}
+                  count={2}
+                  baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
+                  highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                />
+                <Skeleton
+                  height={12}
+                  width="60%"
+                  baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
+                  highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Error State */}
@@ -914,21 +948,21 @@ function NewsList() {
 
       {/* Pagination Controls */}
       {!loading && articles.length > 0 && (
-        <div className={`mt-3 rounded-lg border p-2.5 ${
+        <div className={`mt-3 rounded-lg border p-2 ${
           theme === 'dark'
             ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
             : 'bg-white border-gray-200'
         }`}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             {/* Left: Records per page selector */}
-            <div className={`flex items-center gap-2 text-sm ${
+            <div className={`flex items-center gap-1.5 text-xs ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
             }`}>
-              <span>Records per page:</span>
+              <span>Per page:</span>
               <select
                 value={recordsPerPage}
                 onChange={handleRecordsPerPageChange}
-                className={`px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 font-medium cursor-pointer ${
+                className={`px-2 py-1 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-slate-600 font-medium cursor-pointer ${
                   theme === 'dark'
                     ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200'
                     : 'border-gray-300 text-gray-700 bg-white'
@@ -942,7 +976,7 @@ function NewsList() {
             </div>
 
             {/* Center: Page range info */}
-            <div className={`text-sm ${
+            <div className={`text-xs ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
             }`}>
               {(() => {
@@ -957,7 +991,7 @@ function NewsList() {
                     <span className="font-semibold">
                       {startIndex}-{endIndex}
                     </span>
-                    <span className="mx-1">of</span>
+                    <span className="mx-0.5">of</span>
                     <span className="font-semibold">{totalResults > 0 ? totalResults : articles.length}</span>
                   </>
                 );
@@ -965,19 +999,19 @@ function NewsList() {
             </div>
 
             {/* Right: Navigation Controls */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {/* First Page Button */}
               <button
                 onClick={handleFirstPage}
                 disabled={currentPage === 1 || loadingMore}
-                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
                     ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="First page"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="11 17 6 12 11 7"></polyline>
                   <polyline points="18 17 13 12 18 7"></polyline>
                 </svg>
@@ -987,18 +1021,18 @@ function NewsList() {
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1 || loadingMore}
-                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
                     ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="Previous page"
               >
-                <ChevronDown className="rotate-90" size={18} />
+                <ChevronDown className="rotate-90" size={14} />
               </button>
 
               {/* Page Number Display */}
-              <div className={`hidden sm:flex items-center px-4 py-2 border font-semibold rounded-lg min-w-[60px] justify-center ${
+              <div className={`hidden sm:flex items-center px-2.5 py-1 border font-semibold rounded text-xs min-w-[44px] justify-center ${
                 theme === 'dark'
                   ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400'
                   : 'bg-slate-50 border-slate-300 text-slate-700'
@@ -1010,7 +1044,7 @@ function NewsList() {
               <button
                 onClick={handleNextPage}
                 disabled={!hasMorePages || loadingMore}
-                className={`p-2 rounded-lg transition-colors disabled:cursor-not-allowed ${
+                className={`p-1.5 rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-[#052829]/50 disabled:text-slate-500'
                     : 'bg-[#ff4701] text-white hover:bg-[#ff5500] disabled:bg-gray-300 disabled:text-gray-500'
@@ -1018,9 +1052,9 @@ function NewsList() {
                 title={hasMorePages ? "Next page" : "No more pages"}
               >
                 {loadingMore ? (
-                  <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                 ) : (
-                  <ChevronDown className="rotate-[-90deg]" size={18} />
+                  <ChevronDown className="rotate-[-90deg]" size={14} />
                 )}
               </button>
 
@@ -1028,14 +1062,14 @@ function NewsList() {
               <button
                 onClick={handleLastPage}
                 disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
-                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
                     ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="13 17 18 12 13 7"></polyline>
                   <polyline points="6 17 11 12 6 7"></polyline>
                 </svg>

@@ -28,7 +28,7 @@ const AnnouncementDetail = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement deleted successfully')
-        await queryClient.invalidateQueries('announcements')
+        await queryClient.invalidateQueries(['announcements'])
         navigate('/announcements')
       },
       onError: () => {

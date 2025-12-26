@@ -24,7 +24,13 @@ const SurveysList = () => {
       params.append('limit', limit.toString())
       return api.get(`/surveys?${params.toString()}`).then((res) => res.data.data)
     },
-    { keepPreviousData: true }
+    { 
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000, // 3 minutes - data stays fresh for 3 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    }
   )
 
   const canCreateSurvey = isAdminOrModerator(user)

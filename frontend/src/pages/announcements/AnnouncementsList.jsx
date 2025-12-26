@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -41,7 +41,13 @@ const AnnouncementsList = () => {
   const { data, isLoading } = useQuery(
     ['announcements', page, filters],
     () => api.get(`/announcements?${queryParams}`).then((res) => res.data.data),
-    { keepPreviousData: true }
+    { 
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000, // 3 minutes - data stays fresh for 3 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    }
   )
 
   const handleFilterChange = useCallback((key, value) => {

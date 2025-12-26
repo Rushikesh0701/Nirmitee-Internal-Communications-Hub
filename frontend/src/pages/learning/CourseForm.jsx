@@ -46,7 +46,7 @@ const CourseForm = () => {
     {
       onSuccess: async () => {
         toast.success('Course created successfully')
-        await queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries(['courses'])
         navigate('/learning')
       },
       onError: (error) => {
@@ -60,7 +60,7 @@ const CourseForm = () => {
     {
       onSuccess: async () => {
         toast.success('Course updated successfully')
-        await queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries(['courses'])
         await queryClient.invalidateQueries(['course', id])
         navigate('/learning')
       },

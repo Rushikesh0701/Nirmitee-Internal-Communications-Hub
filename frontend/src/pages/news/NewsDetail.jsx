@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useQuery } from 'react-query'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'

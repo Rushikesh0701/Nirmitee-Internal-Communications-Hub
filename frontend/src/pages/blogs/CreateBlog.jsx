@@ -30,7 +30,8 @@ const CreateBlog = () => {
         const blogData = response.data?.data || response.data || response;
         const blogId = blogData._id || blogData.id;
         toast.success('Blog created successfully!');
-        await queryClient.invalidateQueries('blogs');
+        await queryClient.invalidateQueries(['blogs']);
+        await queryClient.invalidateQueries('dashboard-stats'); // Update dashboard stats if shown
         endCreation();
         navigate(`/blogs/${blogId}`);
       },

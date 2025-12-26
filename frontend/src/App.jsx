@@ -16,12 +16,12 @@ import { PageSkeleton } from './components/skeletons'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: false, // Don't refetch on window focus - use staleTime instead
       refetchOnMount: false, // Don't refetch on mount if data exists and is fresh
       refetchOnReconnect: false, // Don't auto-refetch on reconnect
       retry: 1,
-      staleTime: 10 * 60 * 1000, // 10 minutes - data stays fresh longer
-      cacheTime: 30 * 60 * 1000, // 30 minutes - keep data in cache much longer
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep data in cache for 30 minutes
       keepPreviousData: true, // Keep previous data while fetching new data
       structuralSharing: true, // Optimize re-renders
     },

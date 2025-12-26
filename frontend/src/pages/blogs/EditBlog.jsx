@@ -69,7 +69,7 @@ const EditBlog = () => {
     {
       onSuccess: async () => {
         toast.success('Blog updated successfully!');
-        await queryClient.invalidateQueries('blogs');
+        await queryClient.invalidateQueries(['blogs']);
         await queryClient.invalidateQueries(['blog', id]);
         navigate(`/blogs/${id}`);
       },

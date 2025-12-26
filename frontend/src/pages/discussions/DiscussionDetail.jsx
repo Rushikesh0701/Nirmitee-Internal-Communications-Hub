@@ -113,7 +113,7 @@ const DiscussionDetail = () => {
   useEffect(() => { fetchDiscussion(); }, [fetchDiscussion]);
 
   const deleteMutation = useMutation(() => discussionAPI.delete(id), {
-    onSuccess: async () => { toast.success('Discussion deleted'); await queryClient.invalidateQueries('discussions'); navigate('/discussions'); },
+    onSuccess: async () => { toast.success('Discussion deleted'); await queryClient.invalidateQueries(['discussions']); navigate('/discussions'); },
     onError: (error) => { toast.error(error.response?.data?.message || 'Failed to delete'); setIsDeleting(false); }
   });
 

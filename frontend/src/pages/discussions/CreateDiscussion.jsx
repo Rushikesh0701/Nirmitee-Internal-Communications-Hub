@@ -48,7 +48,7 @@ const CreateDiscussion = () => {
         const discussionData = response.data?.data || response.data || response;
         const discussionId = discussionData._id || discussionData.id;
         toast.success('Discussion created successfully!');
-        await queryClient.invalidateQueries('discussions');
+        await queryClient.invalidateQueries(['discussions']);
         endCreation();
         navigate(`/discussions/${discussionId}`);
       },

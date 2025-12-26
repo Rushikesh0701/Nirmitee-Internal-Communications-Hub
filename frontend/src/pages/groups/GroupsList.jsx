@@ -39,7 +39,13 @@ const GroupsList = () => {
       if (filter === 'private') params.append('isPublic', 'false')
       return api.get(`/groups?${params.toString()}`).then((res) => res.data.data)
     },
-    { keepPreviousData: true }
+    { 
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000, // 3 minutes - data stays fresh for 3 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    }
   )
 
   const joinMutation = useMutation((groupId) => api.post(`/groups/${groupId}/join`), {

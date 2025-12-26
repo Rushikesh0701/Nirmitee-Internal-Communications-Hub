@@ -73,7 +73,7 @@ export const useBlogMutations = (blogId) => {
     {
       onSuccess: (_, isPublished) => {
         queryClient.invalidateQueries(['blog', blogId]);
-        queryClient.invalidateQueries('blogs');
+        queryClient.invalidateQueries(['blogs']);
         toast.success(isPublished ? 'Blog published successfully!' : 'Blog unpublished and saved as draft');
       },
       onError: () => {

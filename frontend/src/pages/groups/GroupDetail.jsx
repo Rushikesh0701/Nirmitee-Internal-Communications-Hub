@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -11,6 +12,7 @@ import { ArrowLeft, Users, Lock, Pin, Heart, Trash2, LogOut, LogIn, Calendar, Us
 import { format } from 'date-fns'
 import { DetailSkeleton } from '../../components/skeletons'
 import EmptyState from '../../components/EmptyState'
+import Loading from '../../components/Loading'
 
 const GroupDetail = () => {
   const { id } = useParams()

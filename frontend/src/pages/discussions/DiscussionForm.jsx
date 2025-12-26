@@ -65,7 +65,7 @@ const DiscussionForm = () => {
     {
       onSuccess: async () => {
         toast.success('Discussion created successfully')
-        await queryClient.invalidateQueries('discussions')
+        await queryClient.invalidateQueries(['discussions'])
         navigate('/discussions')
       },
       onError: (error) => {
@@ -79,7 +79,7 @@ const DiscussionForm = () => {
     {
       onSuccess: async () => {
         toast.success('Discussion updated successfully')
-        await queryClient.invalidateQueries('discussions')
+        await queryClient.invalidateQueries(['discussions'])
         await queryClient.invalidateQueries(['discussion', id])
         navigate('/discussions')
       },

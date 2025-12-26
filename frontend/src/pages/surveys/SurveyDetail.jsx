@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
@@ -29,7 +29,7 @@ const SurveyDetail = () => {
       onSuccess: () => {
         toast.success('Survey response submitted successfully!')
         queryClient.invalidateQueries(['survey', id])
-        queryClient.invalidateQueries('surveys')
+        queryClient.invalidateQueries(['surveys'])
         navigate('/surveys')
       },
       onError: (error) => {

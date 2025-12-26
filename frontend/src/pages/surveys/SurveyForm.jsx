@@ -86,7 +86,7 @@ const SurveyForm = () => {
     {
       onSuccess: async () => {
         toast.success('Survey created successfully')
-        await queryClient.invalidateQueries('surveys')
+        await queryClient.invalidateQueries(['surveys'])
         navigate('/surveys')
       },
       onError: (error) => {
@@ -100,7 +100,7 @@ const SurveyForm = () => {
     {
       onSuccess: async () => {
         toast.success('Survey updated successfully')
-        await queryClient.invalidateQueries('surveys')
+        await queryClient.invalidateQueries(['surveys'])
         await queryClient.invalidateQueries(['survey', id])
         navigate('/surveys')
       },
