@@ -52,7 +52,7 @@ const LearningList = () => {
               <Link
                 key={course.id}
                 to={`/learning/${course.id}`}
-                className="card transition-shadow block"
+                className="card block"
               >
                 {course.thumbnail && (
                   <img

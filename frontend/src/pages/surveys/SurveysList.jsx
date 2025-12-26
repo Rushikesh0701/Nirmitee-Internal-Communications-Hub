@@ -62,7 +62,7 @@ const SurveysList = () => {
               <Link
                 key={survey.id}
                 to={`/surveys/${survey.id}`}
-                className="card transition-shadow block"
+                className="card block"
               >
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-pink-100 rounded-lg">

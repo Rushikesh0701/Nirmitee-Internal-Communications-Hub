@@ -231,10 +231,10 @@ export default function ProfilePage() {
                 <img 
                   src={profile.avatar} 
                   alt={profile.name} 
-                  className="relative w-20 h-20 rounded-2xl object-cover ring-2 ring-slate-200 shadow-lg" 
+                  className="relative w-20 h-20 rounded-2xl object-cover ring-2 ring-slate-200" 
                 />
               ) : (
-                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#ff4701] to-[#ff5500] flex items-center justify-center ring-2 ring-slate-200 shadow-lg">
+                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#ff4701] to-[#ff5500] flex items-center justify-center ring-2 ring-slate-200">
                   <span className="text-white font-bold text-xl">
                     {profile.firstName && profile.lastName
                       ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
@@ -385,7 +385,7 @@ export default function ProfilePage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl max-w-md w-full p-6 border border-slate-200 shadow-2xl"
+              className="bg-white rounded-2xl max-w-md w-full p-6 border border-slate-200"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-rose-100 to-red-100">
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleConfirmDelete}
                   disabled={permanentDeleteMutation.isLoading}
-                  className="px-4 py-2.5 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-xl hover:from-rose-700 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg shadow-rose-500/20"
+                  className="px-4 py-2.5 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-xl hover:from-rose-700 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   {permanentDeleteMutation.isLoading ? 'Deleting...' : 'Delete User'}
                 </button>

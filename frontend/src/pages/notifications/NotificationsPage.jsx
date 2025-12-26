@@ -187,7 +187,7 @@ export default function NotificationsPage() {
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`bg-white rounded-lg p-6 cursor-pointer transition-shadow ${
+                    className={`bg-white rounded-lg p-6 cursor-pointer ${
                       !notification.isRead ? 'border-l-4 border-[#ff4701]' : ''
                     }`}
                   >

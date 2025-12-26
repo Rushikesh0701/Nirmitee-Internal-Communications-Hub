@@ -863,7 +863,7 @@ function NewsList() {
               return (
                 <div
                   key={uniqueKey}
-                  className={`flex flex-col rounded-lg transition-shadow overflow-hidden cursor-pointer group ${
+                  className={`flex flex-col rounded-lg overflow-hidden cursor-pointer group ${
                     theme === 'dark'
                       ? 'border border-[#0a3a3c]/50 bg-[#052829]/50'
                       : 'border border-gray-200 bg-white'
