@@ -9,8 +9,10 @@ import { useQuery } from 'react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useBookmarks } from '../../hooks/useBookmarks';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Blogs = () => {
+  const { theme } = useTheme();
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,20 +76,24 @@ const Blogs = () => {
 
   // Skeleton loader component
   const BlogCardSkeleton = () => (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col" style={{ width: '100%', height: '500px' }}>
-      <Skeleton height={192} className="flex-shrink-0" />
+    <div className={`rounded-lg shadow-md overflow-hidden border flex flex-col ${
+      theme === 'dark'
+        ? 'bg-slate-800/50 border-slate-700/50'
+        : 'bg-white border-gray-200'
+    }`} style={{ width: '100%', height: '500px' }}>
+      <Skeleton height={192} className="flex-shrink-0" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
-          <Skeleton width={80} height={20} />
-          <Skeleton width={60} height={20} />
+          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
         </div>
-        <Skeleton height={24} className="mb-2" />
-        <Skeleton count={3} className="mb-4 flex-grow" />
+        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
+        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
-            <Skeleton width={120} height={16} />
+            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
           </div>
-          <Skeleton width={60} height={20} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#1e293b' : undefined} highlightColor={theme === 'dark' ? '#334155' : undefined} />
         </div>
       </div>
     </div>
@@ -101,7 +107,9 @@ const Blogs = () => {
         transition={{ duration: 0.3 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+        <h1 className={`text-2xl sm:text-3xl font-bold ${
+          theme === 'dark' ? 'text-slate-100' : 'text-gray-800'
+        }`}>
           Blogs & Articles
         </h1>
         {isAuthenticated && user && (
@@ -131,12 +139,20 @@ const Blogs = () => {
           placeholder="Search blogs by title, content, or tags..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+            theme === 'dark'
+              ? 'border-slate-600 bg-slate-700/50 text-slate-200 placeholder-slate-500'
+              : 'border-gray-300 bg-white text-gray-900'
+          }`}
         />
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className={`px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+            theme === 'dark'
+              ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+              : 'border-gray-300 bg-white text-gray-900'
+          }`}
           title={filter === 'drafts' ? 'View your unpublished blog drafts' : filter === 'my-blogs' ? 'View all your blogs (published and drafts)' : filter === 'bookmarked' ? 'View your bookmarked blogs' : 'View all published blogs'}
         >
           <option value="all">All Blogs (Published)</option>
@@ -147,7 +163,11 @@ const Blogs = () => {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 transition-all"
+          className={`px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+            theme === 'dark'
+              ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+              : 'border-gray-300 bg-white text-gray-900'
+          }`}
         >
           {categories.map(cat => (
             <option key={cat} value={cat}>
@@ -179,8 +199,12 @@ const Blogs = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-xl mb-2">No blogs found</p>
+            <div className={`text-center py-12 ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
+            }`}>
+              <p className={`text-xl mb-2 ${
+                theme === 'dark' ? 'text-slate-300' : 'text-gray-600'
+              }`}>No blogs found</p>
               <p className="text-sm">
                 {!isAuthenticated 
                   ? "Login to create your first blog!" 

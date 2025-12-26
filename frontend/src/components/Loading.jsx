@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
+import { useTheme } from '../contexts/ThemeContext'
 
 const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
+  const { theme } = useTheme()
   const sizeClasses = {
     sm: { ring: 'w-8 h-8', dots: 'w-2 h-2', text: 'text-xs' },
     md: { ring: 'w-12 h-12', dots: 'w-2.5 h-2.5', text: 'text-sm' },
@@ -8,7 +10,11 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
   }
 
   const containerClasses = fullScreen
-    ? 'fixed inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-50'
+    ? `fixed inset-0 flex flex-col items-center justify-center backdrop-blur-sm z-50 ${
+        theme === 'dark' 
+          ? 'bg-[#0a0e17]/90' 
+          : 'bg-white/80'
+      }`
     : 'flex flex-col items-center justify-center py-12'
 
   return (
@@ -59,7 +65,9 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
       {/* Loading Text */}
       {text && (
         <motion.p 
-          className={`mt-4 ${sizeClasses[size].text} text-slate-500 font-medium`}
+          className={`mt-4 ${sizeClasses[size].text} font-medium ${
+            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+          }`}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}

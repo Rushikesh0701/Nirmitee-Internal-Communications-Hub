@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const BlogCard = ({ blog }) => {
+  const { theme } = useTheme();
   const blogId = blog._id || blog.id;
   const [imageError, setImageError] = useState(false);
 
@@ -21,12 +23,21 @@ const BlogCard = ({ blog }) => {
         transition={{ duration: 0.3, delay: 0.1 }}
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
-        className={`bg-white rounded-xl shadow-md overflow-hidden cursor-pointer border 
+        className={`rounded-xl shadow-md overflow-hidden cursor-pointer border 
                     flex flex-col h-full hover:shadow-2xl transition-all duration-300
-                    ${blog.isPublished === false ? 'border-yellow-300 border-2 opacity-90' : 'border-gray-200'}`}
+                    ${theme === 'dark' 
+                      ? blog.isPublished === false 
+                        ? 'bg-slate-800/50 border-yellow-500/50 border-2 opacity-90' 
+                        : 'bg-slate-800/50 border-slate-700/50'
+                      : blog.isPublished === false 
+                        ? 'bg-white border-yellow-300 border-2 opacity-90' 
+                        : 'bg-white border-gray-200'
+                    }`}
       >
         {/* Image Container - Responsive Height */}
-        <div className="w-full h-48 sm:h-56 md:h-64 flex-shrink-0 overflow-hidden bg-gray-100">
+        <div className={`w-full h-48 sm:h-56 md:h-64 flex-shrink-0 overflow-hidden ${
+          theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
+        }`}>
           <img
             src={imageError ? placeholderImage : (blog.coverImage || blog.image || placeholderImage)}
             alt={blog.title}
@@ -40,25 +51,37 @@ const BlogCard = ({ blog }) => {
         <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
           {/* Category and Status */}
           <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-            <span className="text-xs sm:text-sm text-gray-500 font-medium">
+            <span className={`text-xs sm:text-sm font-medium ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
+            }`}>
               {blog.category || 'Uncategorized'}
             </span>
             {blog.isPublished === false && (
-              <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full">
+              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                theme === 'dark' 
+                  ? 'bg-yellow-500/20 text-yellow-400' 
+                  : 'bg-yellow-100 text-yellow-800'
+              }`}>
                 Draft
               </span>
             )}
           </div>
 
           {/* Title - Responsive Text Size */}
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3 
-                         hover:text-primary-600 transition-colors line-clamp-2">
+          <h3 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-3 
+                         transition-colors line-clamp-2 ${
+            theme === 'dark' 
+              ? 'text-slate-200 hover:text-indigo-400' 
+              : 'text-gray-800 hover:text-primary-600'
+          }`}>
             {blog.title}
           </h3>
 
           {/* Excerpt */}
           {blog.excerpt && (
-            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 line-clamp-3 flex-grow">
+            <p className={`text-sm sm:text-base mb-3 sm:mb-4 line-clamp-3 flex-grow ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               {blog.excerpt}
             </p>
           )}
@@ -66,7 +89,9 @@ const BlogCard = ({ blog }) => {
           {/* Footer Section */}
           <div className="mt-auto space-y-3">
             {/* Meta Information */}
-            <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 flex-wrap gap-2">
+            <div className={`flex items-center justify-between text-xs sm:text-sm flex-wrap gap-2 ${
+              theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+            }`}>
               <span className="flex items-center gap-1 truncate max-w-[60%]">
                 <span className="text-base">👤</span>
                 <span className="truncate">
@@ -89,8 +114,11 @@ const BlogCard = ({ blog }) => {
                 {blog.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded-full 
-                               hover:bg-primary-100 transition-colors"
+                    className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30'
+                        : 'bg-primary-50 text-primary-700 hover:bg-primary-100'
+                    }`}
                   >
                     #{tag}
                   </span>

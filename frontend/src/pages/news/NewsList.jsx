@@ -3,8 +3,11 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import NewsUpdateToast from '../../components/NewsUpdateToast';
+import Loading from '../../components/Loading';
+import { useTheme } from '../../contexts/ThemeContext';
 
 function NewsList() {
+  const { theme } = useTheme();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [articles, setArticles] = useState([]);
@@ -491,23 +494,37 @@ function NewsList() {
   return (
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Tech News Feed</h1>
-        <p className="text-gray-600">Search and filter technology news with advanced options</p>
+        <h1 className={`text-3xl font-bold mb-2 ${
+          theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
+        }`}>Tech News Feed</h1>
+        <p className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}>
+          Search and filter technology news with advanced options
+        </p>
       </div>
 
 
 
       {/* Main Search Bar */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className={`rounded-lg shadow-sm border p-4 mb-4 ${
+        theme === 'dark'
+          ? 'bg-slate-800/50 border-slate-700/50'
+          : 'bg-white border-gray-200'
+      }`}>
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+              theme === 'dark' ? 'text-slate-500' : 'text-gray-400'
+            }`} size={20} />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search news by keywords, phrases, or topics..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                theme === 'dark'
+                  ? 'border-slate-600 bg-slate-700/50 text-slate-200 placeholder-slate-500'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             />
           </div>
           <button
@@ -521,7 +538,9 @@ function NewsList() {
         </form>
 
         {/* Quick Search Tips */}
-        <div className="mt-3 text-xs text-gray-500 flex flex-wrap gap-2">
+        <div className={`mt-3 text-xs flex flex-wrap gap-2 ${
+          theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+        }`}>
           <span className="flex items-center gap-1">
             <span className="font-semibold">Tip:</span> Use quotes for exact phrases
           </span>
@@ -533,13 +552,23 @@ function NewsList() {
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className={`rounded-lg shadow-sm border p-4 mb-4 ${
+        theme === 'dark'
+          ? 'bg-slate-800/50 border-slate-700/50'
+          : 'bg-white border-gray-200'
+      }`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Filter size={18} className="text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <Filter size={18} className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'} />
+            <h2 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
+            }`}>Filters</h2>
             {activeFiltersCount > 0 && (
-              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                theme === 'dark'
+                  ? 'bg-indigo-500/20 text-indigo-400'
+                  : 'bg-blue-100 text-blue-700'
+              }`}>
                 {activeFiltersCount} active
               </span>
             )}
@@ -548,7 +577,11 @@ function NewsList() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+                className={`text-sm flex items-center gap-1 ${
+                  theme === 'dark'
+                    ? 'text-slate-400 hover:text-slate-300'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
               >
                 <X size={14} />
                 Clear All
@@ -556,7 +589,11 @@ function NewsList() {
             )}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              className={`text-sm flex items-center gap-1 ${
+                theme === 'dark'
+                  ? 'text-indigo-400 hover:text-indigo-300'
+                  : 'text-blue-600 hover:text-blue-700'
+              }`}
             >
               {showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               {showAdvancedFilters ? 'Hide' : 'Show'} Advanced
@@ -567,14 +604,20 @@ function NewsList() {
         {/* Basic Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-sm font-medium mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <TrendingUp size={14} className="inline mr-1" />
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                theme === 'dark'
+                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             >
               {techCategories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -585,14 +628,20 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-sm font-medium mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <Clock size={14} className="inline mr-1" />
               Date Range
             </label>
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                theme === 'dark'
+                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             >
               {dateRanges.map((range) => (
                 <option key={range.value} value={range.value}>
@@ -603,14 +652,20 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-sm font-medium mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <TrendingUp size={14} className="inline mr-1" />
               Sort By
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                theme === 'dark'
+                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -621,14 +676,20 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-sm font-medium mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <Globe size={14} className="inline mr-1" />
               Language
             </label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                theme === 'dark'
+                  ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -727,24 +788,35 @@ function NewsList() {
 
       {/* Loading State */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Searching for news...</p>
-        </div>
+        <Loading text="Searching for news..." />
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-          <p className="text-red-700 text-center">{error}</p>
+        <div className={`border rounded-lg p-4 mb-4 ${
+          theme === 'dark'
+            ? 'bg-red-900/20 border-red-800/50'
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <p className={`text-center ${
+            theme === 'dark' ? 'text-red-400' : 'text-red-700'
+          }`}>{error}</p>
         </div>
       )}
 
       {/* No Results State */}
       {!loading && !error && articles.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600 text-lg font-medium">No articles found</p>
-          <p className="text-gray-500 text-sm mt-2">
+        <div className={`text-center py-12 rounded-lg ${
+          theme === 'dark'
+            ? 'bg-slate-800/50'
+            : 'bg-gray-50'
+        }`}>
+          <p className={`text-lg font-medium ${
+            theme === 'dark' ? 'text-slate-300' : 'text-gray-600'
+          }`}>No articles found</p>
+          <p className={`text-sm mt-2 ${
+            theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+          }`}>
             Try adjusting your search criteria or filters
           </p>
         </div>
@@ -754,7 +826,9 @@ function NewsList() {
       {!loading && articles.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-600">
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               Found <span className="font-semibold">{articles.length}</span> articles
             </p>
           </div>
@@ -777,7 +851,11 @@ function NewsList() {
               return (
                 <div
                   key={uniqueKey}
-                  className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
+                  className={`flex flex-col rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer group ${
+                    theme === 'dark'
+                      ? 'border border-slate-700/50 bg-slate-800/50'
+                      : 'border border-gray-200 bg-white'
+                  }`}
                   onClick={() => {
                     if (link) {
                       // Open the link - backend should have extracted the actual URL
@@ -787,7 +865,9 @@ function NewsList() {
                   }}
                 >
                   {imageUrl && (
-                    <div className="relative w-full h-32 overflow-hidden bg-gray-100">
+                    <div className={`relative w-full h-32 overflow-hidden ${
+                      theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-100'
+                    }`}>
                       <img
                         src={imageUrl}
                         alt={title}
@@ -800,26 +880,42 @@ function NewsList() {
                   )}
                   <div className="p-3 flex flex-col flex-1">
                     <div className="mb-2">
-                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className={`text-sm font-semibold line-clamp-2 mb-1 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-slate-200 group-hover:text-indigo-400'
+                          : 'text-gray-900 group-hover:text-blue-600'
+                      }`}>
                         {title}
                       </h3>
                       {date && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <span className={`text-xs flex items-center gap-1 ${
+                          theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+                        }`}>
                           <Clock size={10} />
                           {new Date(date).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 line-clamp-2 flex-1">
+                    <p className={`text-xs mb-3 line-clamp-2 flex-1 ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+                    }`}>
                       {description.replace(/<[^>]*>/g, '')}
                     </p>
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                      <span className="text-xs text-gray-500 truncate flex-1 mr-2 flex items-center gap-1">
+                    <div className={`flex items-center justify-between mt-auto pt-2 border-t ${
+                      theme === 'dark' ? 'border-slate-700/50' : 'border-gray-100'
+                    }`}>
+                      <span className={`text-xs truncate flex-1 mr-2 flex items-center gap-1 ${
+                        theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+                      }`}>
                         <User size={12} />
                         {source}
                       </span>
                       {article.category && (
-                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs whitespace-nowrap">
+                        <span className={`px-1.5 py-0.5 rounded text-xs whitespace-nowrap ${
+                          theme === 'dark'
+                            ? 'bg-slate-700/50 text-slate-300'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
                           {article.category}
                         </span>
                       )}
@@ -834,15 +930,25 @@ function NewsList() {
 
       {/* Pagination Controls */}
       {!loading && articles.length > 0 && (
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className={`mt-8 rounded-lg shadow-sm border p-4 ${
+          theme === 'dark'
+            ? 'bg-slate-800/50 border-slate-700/50'
+            : 'bg-white border-gray-200'
+        }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Left: Records per page selector */}
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className={`flex items-center gap-2 text-sm ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               <span>Records per page:</span>
               <select
                 value={recordsPerPage}
                 onChange={handleRecordsPerPageChange}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-medium bg-white cursor-pointer"
+                className={`px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer ${
+                  theme === 'dark'
+                    ? 'border-slate-600 bg-slate-700/50 text-slate-200'
+                    : 'border-gray-300 text-gray-700 bg-white'
+                }`}
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -852,7 +958,9 @@ function NewsList() {
             </div>
 
             {/* Center: Page range info */}
-            <div className="text-sm text-gray-600">
+            <div className={`text-sm ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               {(() => {
                 // Pagination formula:
                 // startIndex = (currentPage - 1) * pageSize
@@ -878,7 +986,11 @@ function NewsList() {
               <button
                 onClick={handleFirstPage}
                 disabled={currentPage === 1 || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title="First page"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -891,14 +1003,22 @@ function NewsList() {
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1 || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title="Previous page"
               >
                 <ChevronDown className="rotate-90" size={18} />
               </button>
 
               {/* Page Number Display */}
-              <div className="hidden sm:flex items-center px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 font-semibold rounded-lg min-w-[60px] justify-center">
+              <div className={`hidden sm:flex items-center px-4 py-2 border font-semibold rounded-lg min-w-[60px] justify-center ${
+                theme === 'dark'
+                  ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400'
+                  : 'bg-blue-50 border-blue-200 text-blue-700'
+              }`}>
                 {currentPage}
               </div>
 
@@ -906,7 +1026,11 @@ function NewsList() {
               <button
                 onClick={handleNextPage}
                 disabled={!hasMorePages || loadingMore}
-                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+                className={`p-2 rounded-lg transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-700/50 disabled:text-slate-500'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500'
+                }`}
                 title={hasMorePages ? "Next page" : "No more pages"}
               >
                 {loadingMore ? (
@@ -920,7 +1044,11 @@ function NewsList() {
               <button
                 onClick={handleLastPage}
                 disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-2 border rounded-lg transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
