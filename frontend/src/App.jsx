@@ -3,7 +3,6 @@ import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { useEffect } from 'react'
 import { useAuthStore } from './store/authStore'
-import { ThemeProvider } from './contexts/ThemeContext'
 
 import Layout from './layouts/Layout'
 import AuthLayout from './layouts/AuthLayout'
@@ -33,14 +32,13 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Router
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <AnnouncementNotification />
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <AnnouncementNotification />
         <Routes>
           <Route element={<AuthLayout />}>
             {publicRoutes.map(({ path, component: Component }) => (
@@ -91,8 +89,7 @@ function App() {
             },
           }}
         />
-        </Router>
-      </ThemeProvider>
+      </Router>
     </QueryClientProvider>
   )
 }
