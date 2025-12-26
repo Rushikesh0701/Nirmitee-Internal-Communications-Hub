@@ -158,7 +158,7 @@ const CreateDiscussion = () => {
             <button
               type="button"
               onClick={handleAddTag}
-              className="btn-add px-4 py-2.5"
+              className="btn-add"
             >
               Add
             </button>
@@ -186,14 +186,14 @@ const CreateDiscussion = () => {
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}
-            className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {createMutation.isLoading ? 'Posting...' : 'Post Discussion'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/discussions')}
-            className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

@@ -142,20 +142,20 @@ const SurveyForm = () => {
     <div className="w-full space-y-6">
       <Link
         to="/surveys"
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
+        className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
         <span className="font-medium">Back to Surveys</span>
       </Link>
 
-      <div className="card p-6 lg:p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <div className="card p-6 lg:p-8 dark:bg-[#052829]">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-8">
           {isEdit ? 'Edit Survey' : 'Create New Survey'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -170,7 +170,7 @@ const SurveyForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Description
             </label>
             <textarea
@@ -183,7 +183,7 @@ const SurveyForm = () => {
 
           {isEdit && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Status
               </label>
               <select {...register('status')} className="input text-base py-2.5">
@@ -194,13 +194,13 @@ const SurveyForm = () => {
             </div>
           )}
 
-          <div className="border-t border-slate-200 pt-8">
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Questions</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Questions</h2>
               <button
                 type="button"
                 onClick={addQuestion}
-                className="btn-add px-4 py-2.5"
+                className="btn-add"
               >
                 <Plus size={18} />
                 Add Question
@@ -208,19 +208,19 @@ const SurveyForm = () => {
             </div>
 
             {questions.length === 0 && (
-              <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                <p className="text-gray-500 text-base">
+              <div className="text-center py-12 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-[#0a3a3c]">
+                <p className="text-gray-500 dark:text-slate-400 text-base">
                   No questions added yet. Click &quot;Add Question&quot; to get started.
                 </p>
               </div>
             )}
 
             {questions.map((question, qIndex) => (
-              <div key={qIndex} className="border-2 border-slate-200 rounded-xl p-6 mb-6 bg-white hover:border-slate-300 transition-colors">
+              <div key={qIndex} className="border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6 mb-6 bg-white dark:bg-[#0a3a3c] hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-5">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                         Question {qIndex + 1}
                       </label>
                       <input
@@ -233,7 +233,7 @@ const SurveyForm = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                         Type
                       </label>
                       <select
@@ -249,7 +249,7 @@ const SurveyForm = () => {
 
                     {question.type !== 'TEXT' && question.type !== 'RATING' && (
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">
                           Options
                         </label>
                         <div className="space-y-3">
@@ -265,7 +265,7 @@ const SurveyForm = () => {
                               <button
                                 type="button"
                                 onClick={() => removeOption(qIndex, oIndex)}
-                                className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                                className="p-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0"
                                 title="Remove option"
                               >
                                 <Trash2 size={18} />
@@ -275,7 +275,7 @@ const SurveyForm = () => {
                           <button
                             type="button"
                             onClick={() => addOption(qIndex)}
-                            className="text-sm font-medium text-slate-700 hover:text-slate-900 hover:underline transition-colors"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:underline transition-colors"
                           >
                             + Add Option
                           </button>
@@ -287,7 +287,7 @@ const SurveyForm = () => {
                   <button
                     type="button"
                     onClick={() => removeQuestion(qIndex)}
-                    className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                    className="p-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0"
                     title="Remove question"
                   >
                     <Trash2 size={20} />
@@ -297,11 +297,11 @@ const SurveyForm = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
+              className="btn btn-primary flex items-center gap-2"
             >
               <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
@@ -313,7 +313,7 @@ const SurveyForm = () => {
             <button
               type="button"
               onClick={() => navigate('/surveys')}
-              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
+              className="btn btn-secondary"
             >
               Cancel
             </button>

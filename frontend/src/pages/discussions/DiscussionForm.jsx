@@ -218,7 +218,7 @@ const DiscussionForm = () => {
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
+              className="btn btn-primary flex items-center gap-2"
             >
               <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
@@ -230,7 +230,7 @@ const DiscussionForm = () => {
             <button
               type="button"
               onClick={() => navigate('/discussions')}
-              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
+              className="btn btn-secondary"
             >
               Cancel
             </button>

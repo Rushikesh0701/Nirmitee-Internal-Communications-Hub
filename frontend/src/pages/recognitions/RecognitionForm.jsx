@@ -118,14 +118,14 @@ export default function RecognitionForm() {
             <button
               type="submit"
               disabled={sendMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
+              className="btn btn-primary flex items-center gap-2"
             >
               {sendMutation.isLoading ? 'Sending...' : 'Send Recognition'}
             </button>
             <button
               type="button"
               onClick={() => navigate('/recognitions')}
-              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
+              className="btn btn-secondary"
             >
               Cancel
             </button>

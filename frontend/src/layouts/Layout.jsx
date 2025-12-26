@@ -551,16 +551,18 @@ const Layout = () => {
             }`}
           >
             <div className="hidden lg:flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors ${
+              <div className={`flex items-center gap-3 px-3 py-1.5 transition-all duration-200 ${
                 sidebarTheme === 'dark'
-                  ? 'bg-[#0a3a3c] border-black'
-                  : 'bg-slate-100 border-slate-200'
+                  ? 'text-slate-300'
+                  : 'text-slate-700'
               }`}>
-                <span className={`text-sm transition-colors ${
-                  sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-600'
-                }`}>Welcome back,</span>
-                <span className={`text-sm font-semibold transition-colors ${
-                  sidebarTheme === 'dark' ? 'text-slate-500' : 'text-slate-700'
+                <span className={`text-sm font-normal ${
+                  sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                }`}>
+                  Welcome back,
+                </span>
+                <span className={`text-sm font-semibold ${
+                  sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'
                 }`}>
                   {user?.firstName && user?.lastName 
                     ? `${user.firstName} ${user.lastName}`.trim()

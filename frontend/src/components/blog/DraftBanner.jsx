@@ -22,7 +22,7 @@ const DraftBanner = ({ onPublish, isPublishing }) => {
         <button
           onClick={onPublish}
           disabled={isPublishing}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          className="btn btn-success disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           aria-label="Publish blog"
         >
           {isPublishing ? 'Publishing...' : '📢 Publish Now'}

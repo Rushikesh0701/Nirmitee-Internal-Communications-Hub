@@ -388,14 +388,14 @@ const EditBlog = () => {
           <button
             type="submit"
             disabled={updateMutation.isLoading}
-            className="px-6 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updateMutation.isLoading ? 'Updating...' : 'Update Blog'}
           </button>
           <button
             type="button"
             onClick={() => navigate(`/blogs/${id}`)}
-            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

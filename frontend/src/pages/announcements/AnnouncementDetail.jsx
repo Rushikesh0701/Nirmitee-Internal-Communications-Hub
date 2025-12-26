@@ -50,14 +50,14 @@ const AnnouncementDetail = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <Link
           to="/announcements"
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+          className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
         >
           <ArrowLeft size={18} />
-          Back to Announcements
+          <span className="font-medium">Back to Announcements</span>
         </Link>
         {userIsAdmin && (
           <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ const AnnouncementDetail = () => {
         )}
       </div>
 
-      <article className="card">
+      <article className="card p-6 lg:p-8">
         {announcement.image && (
           <img
             src={announcement.image}
@@ -104,7 +104,7 @@ const AnnouncementDetail = () => {
             </div>
           )}
 
-          <h1 className="text-3xl font-bold text-gray-900">{announcement.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{announcement.title}</h1>
 
           <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
             <div className="flex items-center gap-2">

@@ -379,14 +379,14 @@ const RssManagement = () => {
             <button
               onClick={handleCreate}
               disabled={createMutation.isLoading}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 sm:flex-1 md:flex-none"
+              className="btn btn-primary flex items-center justify-center gap-2 disabled:opacity-50 sm:flex-1 md:flex-none"
             >
               <Save size={18} />
               {createMutation.isLoading ? 'Adding...' : 'Add Source'}
             </button>
             <button 
               onClick={handleCancel} 
-              className="px-6 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-all sm:flex-1 md:flex-none text-center"
+              className="btn btn-secondary sm:flex-1 md:flex-none text-center"
             >
               Cancel
             </button>

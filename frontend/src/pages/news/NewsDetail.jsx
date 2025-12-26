@@ -23,16 +23,16 @@ const NewsDetail = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/news"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft size={18} />
-        Back to News
+        <span className="font-medium">Back to News</span>
       </Link>
 
-      <article className="card">
+      <article className="card p-6 lg:p-8">
         <div className="relative w-full h-64 rounded-lg mb-6 overflow-hidden">
           {news.imageUrl ? (
             <img

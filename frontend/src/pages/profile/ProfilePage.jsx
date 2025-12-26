@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
 import userAPI from '../../services/userApi'
-import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X, Trash2, AlertTriangle } from 'lucide-react'
+import { Edit, Award, Star, Mail, Building, User, Briefcase, Save, X, Trash2, AlertTriangle, Sparkles, TrendingUp, CheckCircle2 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { isAdmin } from '../../utils/userHelpers'
 import RoleBadge from '../../components/RoleBadge'
@@ -93,19 +93,19 @@ export default function ProfilePage() {
     const roles = ['Admin', 'Moderator', 'Employee']
     
     return (
-      <motion.div className="max-w-2xl mx-auto space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <motion.div className="w-full space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-[#0a3a3c]">
             <Edit size={22} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
             {isOwnProfile ? 'Edit Profile' : `Edit - ${profile.firstName && profile.lastName 
               ? `${profile.firstName} ${profile.lastName}`.trim()
               : profile.name || profile.displayName || 'User'}`}
           </h1>
         </div>
 
-        <div className="card space-y-4">
+        <div className="card p-6 lg:p-8 space-y-4">
           {isAdmin(currentUser) && !isOwnProfile && (
             <div className="p-3 bg-slate-50 border border-slate-300 rounded-lg">
               <p className="text-sm text-slate-700"><strong>Admin Mode:</strong> Editing another user's profile</p>
@@ -147,8 +147,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <motion.div className="max-w-4xl mx-auto space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div className="w-full space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <motion.div className="card p-6 lg:p-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
             {profile.avatar ? (
@@ -164,15 +164,15 @@ export default function ProfilePage() {
             )}
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h1 className="text-xl font-bold text-slate-800">
+                <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
                   {profile.firstName && profile.lastName 
                     ? `${profile.firstName} ${profile.lastName}`.trim()
                     : profile.name || profile.displayName || 'User'}
                 </h1>
                 {profile.role && <RoleBadge role={profile.role} size="sm" />}
               </div>
-              {profile.designation && <p className="text-sm text-slate-600 flex items-center gap-1.5"><Briefcase size={14} /> {profile.designation}</p>}
-              {profile.department && <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5"><Building size={14} /> {profile.department}</p>}
+              {profile.designation && <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5"><Briefcase size={14} /> {profile.designation}</p>}
+              {profile.department && <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5"><Building size={14} /> {profile.department}</p>}
             </div>
           </div>
           <div className="flex gap-2">
@@ -193,17 +193,17 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {profile.bio && <div className="mb-4"><h2 className="text-sm font-semibold text-slate-800 mb-1">About</h2><p className="text-sm text-slate-600">{profile.bio}</p></div>}
+        {profile.bio && <div className="mb-4"><h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">About</h2><p className="text-sm text-slate-600 dark:text-slate-300">{profile.bio}</p></div>}
 
         <div className="flex flex-wrap gap-4">
-          {profile.email && <div className="flex items-center gap-1.5 text-xs text-slate-500"><Mail size={14} /> {profile.email}</div>}
-          {profile.points > 0 && <div className="flex items-center gap-1.5 text-xs text-slate-700"><Star size={14} /> {profile.points} points</div>}
+          {profile.email && <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"><Mail size={14} /> {profile.email}</div>}
+          {profile.points > 0 && <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300"><Star size={14} /> {profile.points} points</div>}
         </div>
       </motion.div>
 
       {profile.badges?.length > 0 && (
-        <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <h2 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Award className="text-slate-700" size={18} /> Recognition Badges</h2>
+        <motion.div className="card p-6 lg:p-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2"><Award className="text-slate-700 dark:text-slate-400" size={18} /> Recognition Badges</h2>
           <div className="flex flex-wrap gap-2">{profile.badges.map((badge, index) => <span key={index} className="badge badge-primary text-xs">{badge}</span>)}</div>
         </motion.div>
       )}
