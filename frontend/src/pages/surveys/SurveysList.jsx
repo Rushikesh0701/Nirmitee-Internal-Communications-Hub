@@ -6,7 +6,7 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ClipboardList, Calendar, Users, Plus } from 'lucide-react'
 import { format } from 'date-fns'
-import { CardSkeleton } from '../../components/SkeletonLoader'
+import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
 
 const SurveysList = () => {
@@ -21,7 +21,7 @@ const SurveysList = () => {
       params.append('active', 'true')
       params.append('page', page.toString())
       params.append('limit', limit.toString())
-      return api.get(`/surveys/list?${params.toString()}`).then((res) => res.data.data)
+      return api.get(`/surveys?${params.toString()}`).then((res) => res.data.data)
     },
     { keepPreviousData: true }
   )

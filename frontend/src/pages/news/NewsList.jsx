@@ -141,6 +141,12 @@ function NewsList() {
 
   // Fetch news with enhanced filters
   const fetchNews = async (isNewSearch = false, targetPage = null) => {
+    // Prevent duplicate calls (especially in React StrictMode)
+    if (fetchingRef.current) {
+      return;
+    }
+    
+    fetchingRef.current = true;
     const currentQuery = buildSearchQuery();
     const pageToLoad = targetPage !== null ? targetPage : currentPage;
 
@@ -243,6 +249,7 @@ function NewsList() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      fetchingRef.current = false;
     }
   };
 
@@ -353,6 +360,9 @@ function NewsList() {
 
   // Track if this is the initial mount
   const [isInitialMount, setIsInitialMount] = useState(true);
+
+  // Prevent duplicate API calls (especially in React StrictMode)
+  const fetchingRef = useRef(false);
 
   // News update polling state
   const pollingIntervalRef = useRef(null);
