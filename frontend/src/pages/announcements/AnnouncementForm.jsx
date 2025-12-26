@@ -116,29 +116,29 @@ const AnnouncementForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/announcements"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Announcements
+        <span className="font-medium">Back to Announcements</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-6 lg:p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {isEdit ? 'Edit Announcement' : 'Create New Announcement'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-base py-2.5"
               placeholder="Enter announcement title"
             />
             {errors.title && (
@@ -147,7 +147,7 @@ const AnnouncementForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Content <span className="text-red-500">*</span>
             </label>
             <Editor
@@ -161,49 +161,51 @@ const AnnouncementForm = () => {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tags
-            </label>
-            <input
-              type="text"
-              {...register('tags')}
-              className="input"
-              placeholder="tag1, tag2, tag3"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Separate multiple tags with commas
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Calendar size={16} className="inline mr-1" />
-              Schedule Publication (Optional)
-            </label>
-            <input
-              type="datetime-local"
-              {...register('scheduledAt')}
-              className="input"
-            />
-            {scheduledAt && (
-              <p className="mt-1 text-sm text-slate-700">
-                This announcement will be published on{' '}
-                {new Date(scheduledAt).toLocaleString()}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tags
+              </label>
+              <input
+                type="text"
+                {...register('tags')}
+                className="input text-base py-2.5"
+                placeholder="tag1, tag2, tag3"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Separate multiple tags with commas
               </p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              Leave empty to publish immediately
-            </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <Calendar size={16} className="inline mr-1" />
+                Schedule Publication (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                {...register('scheduledAt')}
+                className="input text-base py-2.5"
+              />
+              {scheduledAt && (
+                <p className="mt-1 text-sm text-slate-700">
+                  This announcement will be published on{' '}
+                  {new Date(scheduledAt).toLocaleString()}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-slate-500">
+                Leave empty to publish immediately
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading || (!isEdit && isAnyCreationInProgress())}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit
@@ -213,7 +215,7 @@ const AnnouncementForm = () => {
             <button
               type="button"
               onClick={() => navigate('/announcements')}
-              className="btn btn-secondary"
+              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
             >
               Cancel
             </button>

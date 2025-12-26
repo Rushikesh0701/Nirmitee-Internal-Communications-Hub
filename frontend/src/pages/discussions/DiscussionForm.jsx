@@ -113,29 +113,29 @@ const DiscussionForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/discussions"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Discussions
+        <span className="font-medium">Back to Discussions</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-6 lg:p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {isEdit ? 'Edit Discussion' : 'Start New Discussion'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-base py-2.5"
               placeholder="Enter discussion title"
             />
             {errors.title && (
@@ -144,13 +144,13 @@ const DiscussionForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Content <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('content', { required: 'Content is required' })}
-              rows={10}
-              className="input"
+              rows={8}
+              className="input text-base py-2.5 resize-y"
               placeholder="Share your thoughts..."
             />
             {errors.content && (
@@ -158,12 +158,12 @@ const DiscussionForm = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Category
               </label>
-              <select {...register('category')} className="input">
+              <select {...register('category')} className="input text-base py-2.5">
                 <option value="General">General</option>
                 <option value="Technical">Technical</option>
                 <option value="Product">Product</option>
@@ -173,16 +173,16 @@ const DiscussionForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Tags
               </label>
               <input
                 type="text"
                 {...register('tags')}
-                className="input"
+                className="input text-base py-2.5"
                 placeholder="tag1, tag2, tag3"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-slate-500">
                 Separate multiple tags with commas
               </p>
             </div>
@@ -194,9 +194,9 @@ const DiscussionForm = () => {
                 type="checkbox"
                 id="isPinned"
                 {...register('isPinned')}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
               />
-              <label htmlFor="isPinned" className="text-sm font-medium text-gray-700">
+              <label htmlFor="isPinned" className="text-sm font-semibold text-gray-700">
                 Pin discussion
               </label>
             </div>
@@ -206,21 +206,21 @@ const DiscussionForm = () => {
                 type="checkbox"
                 id="isLocked"
                 {...register('isLocked')}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
               />
-              <label htmlFor="isLocked" className="text-sm font-medium text-gray-700">
+              <label htmlFor="isLocked" className="text-sm font-semibold text-gray-700">
                 Lock discussion
               </label>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit
@@ -230,7 +230,7 @@ const DiscussionForm = () => {
             <button
               type="button"
               onClick={() => navigate('/discussions')}
-              className="btn btn-secondary"
+              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
             >
               Cancel
             </button>

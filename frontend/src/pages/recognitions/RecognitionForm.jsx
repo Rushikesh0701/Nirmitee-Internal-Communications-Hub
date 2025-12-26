@@ -50,84 +50,88 @@ export default function RecognitionForm() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Send Recognition</h1>
+    <div className="w-full space-y-6">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Send Recognition</h1>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">Recipient *</label>
-          <select
-            value={formData.receiverId}
-            onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          >
-            <option value="">Select a colleague</option>
-            {usersData?.users?.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name} - {user.department || 'No department'}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="card p-6 lg:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Recipient <span className="text-red-500">*</span></label>
+            <select
+              value={formData.receiverId}
+              onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
+              className="input text-base py-2.5"
+              required
+            >
+              <option value="">Select a colleague</option>
+              {usersData?.users?.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} - {user.department || 'No department'}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Badge</label>
-          <select
-            value={formData.badge}
-            onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-          >
-            <option value="">No badge</option>
-            {BADGES.map((badge) => (
-              <option key={badge} value={badge}>
-                {badge}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Badge</label>
+              <select
+                value={formData.badge}
+                onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                className="input text-base py-2.5"
+              >
+                <option value="">No badge</option>
+                {BADGES.map((badge) => (
+                  <option key={badge} value={badge}>
+                    {badge}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Points</label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={formData.points}
-            onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Points</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.points}
+                onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
+                className="input text-base py-2.5"
+              />
+            </div>
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Message *</label>
-          <textarea
-            value={formData.message}
-            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-            rows={6}
-            className="w-full px-4 py-2 border rounded-lg"
-            placeholder="Write a message recognizing your colleague's contribution..."
-            required
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Message <span className="text-red-500">*</span></label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              rows={5}
+              className="input text-base py-2.5 resize-y"
+              placeholder="Write a message recognizing your colleague's contribution..."
+              required
+            />
+          </div>
 
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={sendMutation.isLoading}
-            className="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
-          >
-            {sendMutation.isLoading ? 'Sending...' : 'Send Recognition'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/recognitions')}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
+            <button
+              type="submit"
+              disabled={sendMutation.isLoading}
+              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
+            >
+              {sendMutation.isLoading ? 'Sending...' : 'Send Recognition'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/recognitions')}
+              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

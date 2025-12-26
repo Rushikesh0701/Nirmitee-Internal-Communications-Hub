@@ -91,29 +91,29 @@ const CourseForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/learning"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Learning
+        <span className="font-medium">Back to Learning</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-6 lg:p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {isEdit ? 'Edit Course' : 'Create New Course'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-base py-2.5"
               placeholder="Enter course title"
             />
             {errors.title && (
@@ -122,23 +122,23 @@ const CourseForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Description
             </label>
             <textarea
               {...register('description')}
-              rows={6}
-              className="input"
+              rows={5}
+              className="input text-base py-2.5 resize-y"
               placeholder="Describe the course content and objectives"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Difficulty
               </label>
-              <select {...register('difficulty')} className="input">
+              <select {...register('difficulty')} className="input text-base py-2.5">
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
@@ -146,13 +146,13 @@ const CourseForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Duration (hours)
               </label>
               <input
                 type="number"
                 {...register('duration')}
-                className="input"
+                className="input text-base py-2.5"
                 placeholder="e.g., 10"
                 min="0"
               />
@@ -160,20 +160,20 @@ const CourseForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Thumbnail URL
             </label>
             <input
               type="url"
               {...register('thumbnail')}
-              className="input"
+              className="input text-base py-2.5"
               placeholder="https://example.com/image.jpg"
             />
             {watch('thumbnail') && (
               <img
                 src={watch('thumbnail')}
                 alt="Preview"
-                className="mt-2 w-full h-48 object-cover rounded-lg border"
+                className="mt-3 w-full h-48 object-cover rounded-lg border border-slate-200"
                 onError={(e) => {
                   e.target.style.display = 'none'
                 }}
@@ -181,13 +181,13 @@ const CourseForm = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit
@@ -197,7 +197,7 @@ const CourseForm = () => {
             <button
               type="button"
               onClick={() => navigate('/learning')}
-              className="btn btn-secondary"
+              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
             >
               Cancel
             </button>

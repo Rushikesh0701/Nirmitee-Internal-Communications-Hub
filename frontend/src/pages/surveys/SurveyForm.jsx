@@ -139,29 +139,29 @@ const SurveyForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/surveys"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Surveys
+        <span className="font-medium">Back to Surveys</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-6 lg:p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {isEdit ? 'Edit Survey' : 'Create New Survey'}
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-base py-2.5"
               placeholder="Enter survey title"
             />
             {errors.title && (
@@ -170,23 +170,23 @@ const SurveyForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Description
             </label>
             <textarea
               {...register('description')}
-              rows={3}
-              className="input"
+              rows={4}
+              className="input text-base py-2.5 resize-y"
               placeholder="Describe the survey purpose"
             />
           </div>
 
           {isEdit && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Status
               </label>
-              <select {...register('status')} className="input">
+              <select {...register('status')} className="input text-base py-2.5">
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
                 <option value="CLOSED">Closed</option>
@@ -194,50 +194,52 @@ const SurveyForm = () => {
             </div>
           )}
 
-          <div className="border-t pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Questions</h2>
+          <div className="border-t border-slate-200 pt-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Questions</h2>
               <button
                 type="button"
                 onClick={addQuestion}
-                className="btn-add"
+                className="btn-add px-4 py-2.5"
               >
-                <Plus size={16} />
+                <Plus size={18} />
                 Add Question
               </button>
             </div>
 
             {questions.length === 0 && (
-              <p className="text-gray-500 text-center py-4">
-                No questions added yet. Click &quot;Add Question&quot; to get started.
-              </p>
+              <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
+                <p className="text-gray-500 text-base">
+                  No questions added yet. Click &quot;Add Question&quot; to get started.
+                </p>
+              </div>
             )}
 
             {questions.map((question, qIndex) => (
-              <div key={qIndex} className="border rounded-lg p-4 mb-4 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-4">
+              <div key={qIndex} className="border-2 border-slate-200 rounded-xl p-6 mb-6 bg-white hover:border-slate-300 transition-colors shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Question {qIndex + 1}
                       </label>
                       <input
                         type="text"
                         value={question.questionText}
                         onChange={(e) => updateQuestion(qIndex, 'questionText', e.target.value)}
-                        className="input"
+                        className="input text-base py-2.5"
                         placeholder="Enter question text"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Type
                       </label>
                       <select
                         value={question.type}
                         onChange={(e) => updateQuestion(qIndex, 'type', e.target.value)}
-                        className="input"
+                        className="input text-base py-2.5"
                       >
                         <option value="TEXT">Text</option>
                         <option value="MCQ">Multiple Choice (MCQ)</option>
@@ -247,34 +249,37 @@ const SurveyForm = () => {
 
                     {question.type !== 'TEXT' && question.type !== 'RATING' && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
                           Options
                         </label>
-                        {question.options?.map((option, oIndex) => (
-                          <div key={oIndex} className="flex items-center gap-2 mb-2">
-                            <input
-                              type="text"
-                              value={option}
-                              onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                              className="input flex-1"
-                              placeholder={`Option ${oIndex + 1}`}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeOption(qIndex, oIndex)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => addOption(qIndex)}
-                          className="text-sm text-primary-600 hover:text-primary-700"
-                        >
-                          + Add Option
-                        </button>
+                        <div className="space-y-3">
+                          {question.options?.map((option, oIndex) => (
+                            <div key={oIndex} className="flex items-center gap-3">
+                              <input
+                                type="text"
+                                value={option}
+                                onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                                className="input flex-1 text-base py-2.5"
+                                placeholder={`Option ${oIndex + 1}`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeOption(qIndex, oIndex)}
+                                className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                                title="Remove option"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => addOption(qIndex)}
+                            className="text-sm font-medium text-slate-700 hover:text-slate-900 hover:underline transition-colors"
+                          >
+                            + Add Option
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -282,22 +287,23 @@ const SurveyForm = () => {
                   <button
                     type="button"
                     onClick={() => removeQuestion(qIndex)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded ml-4"
+                    className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                    title="Remove question"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-200">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary flex items-center gap-2 px-6 py-2.5 text-base font-semibold"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit
@@ -307,7 +313,7 @@ const SurveyForm = () => {
             <button
               type="button"
               onClick={() => navigate('/surveys')}
-              className="btn btn-secondary"
+              className="btn btn-secondary px-6 py-2.5 text-base font-semibold"
             >
               Cancel
             </button>
