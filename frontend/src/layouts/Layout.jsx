@@ -534,7 +534,7 @@ const Layout = () => {
         }`}>
           {/* Top bar */}
           <div
-            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[60px] items-center justify-between sticky top-0 z-20 shadow-sm transition-colors duration-200 ${
+            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 shadow-sm transition-colors duration-200 ${
               sidebarTheme === 'dark'
                 ? 'bg-slate-900 border-slate-800'
                 : 'bg-white border-slate-200'
