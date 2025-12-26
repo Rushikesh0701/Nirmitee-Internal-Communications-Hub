@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import { useTheme } from '../contexts/ThemeContext'
 import api from '../services/api'
+import Snowfall from 'react-snowfall'
 import {
   Newspaper,
   BookOpen,
@@ -143,12 +144,28 @@ const Dashboard = () => {
       <motion.div className="relative space-y-3" variants={containerVariants} initial="hidden" animate="visible">
         {/* Enhanced Welcome Header */}
         <motion.div variants={itemVariants}>
-          <div className={`rounded-lg p-3 border transition-all duration-200 ${
+          <div className={`relative rounded-lg p-3 border transition-all duration-200 overflow-hidden ${
             theme === 'dark'
               ? 'bg-[#052829] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}>
-            <div>
+            {/* Snowfall Effect */}
+            <div className="absolute inset-0 pointer-events-none">
+              <Snowfall
+                snowflakeCount={50}
+                speed={[0.5, 1.5]}
+                wind={[-0.5, 0.5]}
+                radius={[0.5, 3]}
+                color={theme === 'dark' ? '#ffffff' : '#94a3b8'}
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 1
+                }}
+              />
+            </div>
+            <div className="relative z-10">
               <div className="flex items-center gap-2 mb-1">
                 <div className={`p-1.5 rounded-lg border transition-all duration-200 ${
                   theme === 'dark' 

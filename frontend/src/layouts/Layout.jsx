@@ -575,7 +575,7 @@ const Layout = () => {
                   <p className={`text-sm font-medium italic leading-tight truncate ${
                     sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
                   }`}>
-                    &ldquo;{thoughtOfTheDay}&rdquo;
+                    {"\u201C"}{thoughtOfTheDay}{"\u201D"}
                   </p>
                 </div>
               </motion.div>

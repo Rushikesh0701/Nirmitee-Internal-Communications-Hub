@@ -101,47 +101,77 @@ const AnnouncementsList = () => {
       <AnimatePresence>
         {showFilters && (
           <motion.div 
-            className="card space-y-4"
+            className="card space-y-2 p-3"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between">
-              <h3 className={`font-semibold transition-colors ${
+              <h3 className={`text-sm font-semibold transition-colors ${
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
               }`}>Filters</h3>
-              <button onClick={clearFilters} className="btn-filter">
+              <button onClick={clearFilters} className={`text-xs px-2 py-1 rounded border transition-colors ${
+                theme === 'dark' 
+                  ? 'border-slate-600 text-slate-300 hover:bg-slate-700' 
+                  : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+              }`}>
                 Clear all
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
-                <label className="form-label">Tags</label>
+                <label className={`block text-xs font-medium mb-1 transition-colors ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                }`}>Tags</label>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                   <input
                     type="text"
                     placeholder="Filter by tags"
                     value={filters.tags}
                     onChange={(e) => handleFilterChange('tags', e.target.value)}
-                    className="input pl-11"
+                    className={`w-full px-2.5 pl-8 py-1.5 text-sm rounded-lg border transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500'
+                        : 'bg-white border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-primary-500'
+                    } focus:outline-none focus:ring-1 focus:ring-primary-500`}
                   />
                 </div>
               </div>
               {userIsAdmin && (
                 <>
                   <div>
-                    <label className="form-label">Scheduled</label>
-                    <select value={filters.scheduled} onChange={(e) => handleFilterChange('scheduled', e.target.value)} className="filter-select">
+                    <label className={`block text-xs font-medium mb-1 transition-colors ${
+                      theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                    }`}>Scheduled</label>
+                    <select 
+                      value={filters.scheduled} 
+                      onChange={(e) => handleFilterChange('scheduled', e.target.value)} 
+                      className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 focus:border-indigo-500'
+                          : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
+                      } focus:outline-none focus:ring-1 focus:ring-primary-500`}
+                    >
                       <option value="">All</option>
                       <option value="true">Scheduled</option>
                       <option value="false">Not Scheduled</option>
                     </select>
                   </div>
                   <div>
-                    <label className="form-label">Published</label>
-                    <select value={filters.published} onChange={(e) => handleFilterChange('published', e.target.value)} className="filter-select">
+                    <label className={`block text-xs font-medium mb-1 transition-colors ${
+                      theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                    }`}>Published</label>
+                    <select 
+                      value={filters.published} 
+                      onChange={(e) => handleFilterChange('published', e.target.value)} 
+                      className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 focus:border-indigo-500'
+                          : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
+                      } focus:outline-none focus:ring-1 focus:ring-primary-500`}
+                    >
                       <option value="">All</option>
                       <option value="true">Published</option>
                       <option value="false">Unpublished</option>
