@@ -165,7 +165,7 @@ const Login = () => {
         transition={{ delay: 0.7 }}
       >
         <p className="text-slate-500">
-          Don't have an account?{' '}
+          Don't have an account?
           <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
             Sign up
           </Link>
