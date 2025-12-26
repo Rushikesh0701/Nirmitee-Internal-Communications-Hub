@@ -56,8 +56,11 @@ const GroupDetail = () => {
   const isGroupAdmin = group.memberRole === 'admin' || group.memberRole === 'moderator'
 
   return (
-    <motion.div className="max-w-4xl mx-auto space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Link to="/groups" className="text-slate-700 hover:text-slate-700 flex items-center gap-2 text-sm"><ArrowLeft size={16} /> Back to Groups</Link>
+    <div className="w-full space-y-6">
+      <Link to="/groups" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4">
+        <ArrowLeft size={18} />
+        <span className="font-medium">Back to Groups</span>
+      </Link>
 
       {/* Group Header */}
       <motion.div className="card overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -105,7 +108,17 @@ const GroupDetail = () => {
             <motion.div key={postId} className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               {post.isPinned && <div className="flex items-center gap-2 mb-4 text-amber-500"><Pin size={16} /><span className="text-sm font-semibold">Pinned Post</span></div>}
               <div className="flex items-start gap-3 mb-3">
-                {post.authorId?.avatar ? <img src={post.authorId.avatar} alt="" className="w-10 h-10 rounded-full" /> : <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><span className="text-slate-700 font-semibold text-sm">{post.authorId?.firstName?.[0]}</span></div>}
+                {post.authorId?.avatar ? (
+                  <img src={post.authorId.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff4701] to-[#ff5500] flex items-center justify-center ring-2 ring-slate-200">
+                    <span className="text-white font-bold text-sm">
+                      {post.authorId?.firstName && post.authorId?.lastName
+                        ? `${post.authorId.firstName.charAt(0)}${post.authorId.lastName.charAt(0)}`.toUpperCase()
+                        : (post.authorId?.firstName?.charAt(0) || post.authorId?.name?.charAt(0) || 'U').toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold text-slate-800">{post.authorId?.firstName} {post.authorId?.lastName}</span>
@@ -127,7 +140,7 @@ const GroupDetail = () => {
 
         {!postsLoading && posts.length === 0 && <div className="empty-state py-12"><Users size={48} className="empty-state-icon" /><p className="empty-state-text">No posts yet. Be the first to post!</p></div>}
       </div>
-    </motion.div>
+    </div>
   )
 }
 

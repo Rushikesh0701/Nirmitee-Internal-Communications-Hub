@@ -93,91 +93,91 @@ export default function ProfilePage() {
     const roles = ['Admin', 'Moderator', 'Employee']
     
     return (
-      <motion.div className="w-full space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ff4701] to-[#ff5500] shadow-lg shadow-[#ff4701]/20">
-            <Edit size={20} className="text-white" />
+      <motion.div className="w-full space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-[#ff4701] to-[#ff5500]">
+            <Edit size={18} className="text-white" />
           </div>
-          <h1 className="text-xl font-bold text-slate-800">
+          <h1 className="text-lg font-bold text-slate-800">
             {isOwnProfile ? 'Edit Profile' : `Edit - ${profile.firstName && profile.lastName 
               ? `${profile.firstName} ${profile.lastName}`.trim()
               : profile.name || profile.displayName || 'User'}`}
           </h1>
         </div>
 
-        <div className="card p-5 space-y-4">
+        <div className="card p-4 space-y-3">
           {isAdmin(currentUser) && !isOwnProfile && (
-            <div className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl">
-              <p className="text-sm text-amber-800 font-medium"><strong>Admin Mode:</strong> Editing another user's profile</p>
+            <div className="p-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+              <p className="text-xs text-amber-800 font-medium"><strong>Admin Mode:</strong> Editing another user's profile</p>
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">First Name</label>
-              <input type="text" value={formData.firstName || ''} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="input" />
+              <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">First Name</label>
+              <input type="text" value={formData.firstName || ''} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="input text-sm py-1.5 px-3" />
             </div>
             <div>
-              <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Last Name</label>
-              <input type="text" value={formData.lastName || ''} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="input" />
+              <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Last Name</label>
+              <input type="text" value={formData.lastName || ''} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="input text-sm py-1.5 px-3" />
             </div>
           </div>
           
           <div>
-            <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Display Name</label>
-            <input type="text" value={formData.displayName || ''} onChange={(e) => setFormData({ ...formData, displayName: e.target.value })} className="input" />
+            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Display Name</label>
+            <input type="text" value={formData.displayName || ''} onChange={(e) => setFormData({ ...formData, displayName: e.target.value })} className="input text-sm py-1.5 px-3" />
           </div>
           
           {isAdmin(currentUser) && (
             <div>
-              <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Email</label>
-              <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input" />
+              <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Email</label>
+              <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input text-sm py-1.5 px-3" />
             </div>
           )}
           
           <div>
-            <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Bio</label>
-            <textarea value={formData.bio || ''} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} rows={4} className="textarea" />
+            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Bio</label>
+            <textarea value={formData.bio || ''} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} rows={3} className="textarea text-sm py-1.5 px-3" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Department</label>
-              <input type="text" value={formData.department || ''} onChange={(e) => setFormData({ ...formData, department: e.target.value })} className="input" />
+              <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Department</label>
+              <input type="text" value={formData.department || ''} onChange={(e) => setFormData({ ...formData, department: e.target.value })} className="input text-sm py-1.5 px-3" />
             </div>
             <div>
-              <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Designation</label>
-              <input type="text" value={formData.designation || ''} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="input" />
+              <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Designation</label>
+              <input type="text" value={formData.designation || ''} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="input text-sm py-1.5 px-3" />
             </div>
           </div>
           
           <div>
-            <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Avatar URL</label>
-            <input type="text" value={formData.avatar || ''} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} className="input" placeholder="https://..." />
+            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Avatar URL</label>
+            <input type="text" value={formData.avatar || ''} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} className="input text-sm py-1.5 px-3" placeholder="https://..." />
           </div>
           
           {isAdmin(currentUser) && (
             <>
               <div>
-                <label className="form-label text-xs font-semibold uppercase tracking-wide mb-1.5">Role</label>
-                <select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select">
+                <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Role</label>
+                <select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select text-sm py-1.5 px-3">
                   <option value="">Select Role</option>
                   {roles.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
                 <input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-[#ff4701] focus:ring-2 focus:ring-[#ff4701]/20" />
-                <label htmlFor="isActive" className="text-sm font-medium text-slate-700 cursor-pointer">Active User</label>
+                <label htmlFor="isActive" className="text-xs font-medium text-slate-700 cursor-pointer">Active User</label>
               </div>
             </>
           )}
           
-          <div className="flex gap-3 pt-2">
-            <button onClick={() => updateMutation.mutate(formData)} disabled={updateMutation.isLoading} className="btn btn-primary flex items-center gap-2 px-4 py-2.5">
-              <Save size={16} /> {updateMutation.isLoading ? 'Saving...' : 'Save Changes'}
+          <div className="flex gap-2 pt-1">
+            <button onClick={() => updateMutation.mutate(formData)} disabled={updateMutation.isLoading} className="btn btn-primary flex items-center gap-2 px-3 py-2 text-sm">
+              <Save size={14} /> {updateMutation.isLoading ? 'Saving...' : 'Save Changes'}
             </button>
-            <button onClick={() => { setIsEditing(false); setFormData({}); }} className="btn btn-secondary flex items-center gap-2 px-4 py-2.5">
-              <X size={16} /> Cancel
+            <button onClick={() => { setIsEditing(false); setFormData({}); }} className="btn btn-secondary flex items-center gap-2 px-3 py-2 text-sm">
+              <X size={14} /> Cancel
             </button>
           </div>
         </div>

@@ -600,7 +600,11 @@ const Layout = () => {
                   }`}
                   title="User menu"
                 >
-                  <div className="w-8 h-8 bg-[#052829] rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    sidebarTheme === 'dark'
+                      ? 'bg-[#ff4701]'
+                      : 'bg-[#052829]'
+                  }`}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                     ) : (

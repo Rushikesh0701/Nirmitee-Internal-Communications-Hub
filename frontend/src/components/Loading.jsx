@@ -12,7 +12,7 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
   const containerClasses = fullScreen
     ? `fixed inset-0 flex flex-col items-center justify-center backdrop-blur-sm z-50 ${
         theme === 'dark' 
-          ? 'bg-slate-900/90' 
+          ? 'bg-[#052829]/90' 
           : 'bg-white/90'
       }`
     : 'flex flex-col items-center justify-center py-12'

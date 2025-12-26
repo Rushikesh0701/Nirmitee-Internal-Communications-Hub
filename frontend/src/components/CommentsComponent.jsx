@@ -82,10 +82,14 @@ const CommentsComponent = ({ postId }) => {
             <div key={commentId} className="p-3 bg-slate-50 rounded-lg border border-slate-100">
               <div className="flex items-start gap-3">
                 {comment.authorId?.avatar ? (
-                  <img src={comment.authorId.avatar} alt="" className="w-9 h-9 rounded-full" />
+                  <img src={comment.authorId.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <span className="text-indigo-600 font-semibold text-sm">{comment.authorId?.firstName?.[0]}</span>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff4701] to-[#ff5500] flex items-center justify-center ring-2 ring-slate-200">
+                    <span className="text-white font-bold text-xs">
+                      {comment.authorId?.firstName && comment.authorId?.lastName
+                        ? `${comment.authorId.firstName.charAt(0)}${comment.authorId.lastName.charAt(0)}`.toUpperCase()
+                        : (comment.authorId?.firstName?.charAt(0) || comment.authorId?.name?.charAt(0) || 'U').toUpperCase()}
+                    </span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
