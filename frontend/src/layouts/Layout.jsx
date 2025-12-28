@@ -163,12 +163,6 @@ const Layout = () => {
         { path: '/directory', icon: UsersRound, label: 'Directory' }
       ]
     },
-    {
-      title: 'ACCOUNT',
-      items: [
-        { path: '/settings', icon: Settings, label: 'Settings' }
-      ]
-    },
     ...(isAdminOrModerator
       ? [{
         title: 'ADMIN',
@@ -180,7 +174,13 @@ const Layout = () => {
           { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
         ]
       }]
-      : [])
+      : []),
+    {
+      title: 'ACCOUNT',
+      items: [
+        { path: '/settings', icon: Settings, label: 'Settings' }
+      ]
+    }
   ], [isAdminOrModerator])
 
   // State to track expanded sections - load from localStorage or initialize all as expanded

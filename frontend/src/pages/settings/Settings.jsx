@@ -105,98 +105,95 @@ const Settings = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="card space-y-2">
-            {tabs.map(tab => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-[#0a3a3c] text-white'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* Tabs */}
+      <motion.div variants={itemVariants} className="flex gap-2 border-b pb-2 overflow-x-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'bg-[#ff4701] text-white hover:bg-[#ff5500]'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+            >
+              <Icon size={16} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </motion.div>
 
-        {/* Content */}
-        <div className="lg:col-span-3">
+      {/* Content */}
+      <motion.div variants={itemVariants}>
           {/* Profile Settings */}
           {activeTab === 'profile' && (
-            <form onSubmit={handleSubmit} className="card space-y-4">
-              <h2 className="text-lg font-semibold text-slate-800">
+            <form onSubmit={handleSubmit} className="card space-y-3">
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">
                 Profile Information
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     First Name
                   </label>
                   <input
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="input-field w-full"
+                    className="input-field w-full text-sm py-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Last Name
                   </label>
                   <input
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="input-field w-full"
+                    className="input-field w-full text-sm py-2"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   disabled
-                  className="input-field w-full bg-slate-100"
+                  className="input-field w-full bg-slate-100 text-sm py-2"
                 />
                 <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Department
                 </label>
                 <input
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                  className="input-field w-full"
+                  className="input-field w-full text-sm py-2"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Bio
                 </label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={4}
-                  className="input-field w-full"
+                  rows={3}
+                  className="input-field w-full text-sm py-2"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -204,7 +201,7 @@ const Settings = () => {
               <button
                 type="submit"
                 disabled={updateUserMutation.isLoading}
-                className="btn-primary flex items-center gap-2"
+                className="btn btn-primary flex items-center gap-2 text-sm"
               >
                 <Save size={16} />
                 {updateUserMutation.isLoading ? 'Saving...' : 'Save Changes'}
@@ -214,18 +211,18 @@ const Settings = () => {
 
           {/* Notification Settings */}
           {activeTab === 'notifications' && (
-            <form onSubmit={handleSubmit} className="card space-y-4">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+            <form onSubmit={handleSubmit} className="card space-y-3">
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">
                 Notification Preferences
               </h2>
               
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                    <h3 className="text-sm font-medium text-slate-800">
                       Email Notifications
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600">
                       Receive notifications via email
                     </p>
                   </div>
@@ -236,16 +233,16 @@ const Settings = () => {
                       onChange={(e) => handleNotificationChange('emailNotifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff4701]"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                    <h3 className="text-sm font-medium text-slate-800">
                       Push Notifications
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600">
                       Receive browser push notifications
                     </p>
                   </div>
@@ -256,16 +253,16 @@ const Settings = () => {
                       onChange={(e) => handleNotificationChange('pushNotifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff4701]"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                    <h3 className="text-sm font-medium text-slate-800">
                       Blog Notifications
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600">
                       Get notified about new blogs
                     </p>
                   </div>
@@ -276,16 +273,16 @@ const Settings = () => {
                       onChange={(e) => handleNotificationChange('blogNotifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff4701]"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                    <h3 className="text-sm font-medium text-slate-800">
                       Discussion Notifications
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600">
                       Get notified about new discussions
                     </p>
                   </div>
@@ -296,16 +293,16 @@ const Settings = () => {
                       onChange={(e) => handleNotificationChange('discussionNotifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff4701]"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                    <h3 className="text-sm font-medium text-slate-800">
                       Recognition Notifications
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600">
                       Get notified about recognitions
                     </p>
                   </div>
@@ -316,7 +313,7 @@ const Settings = () => {
                       onChange={(e) => handleNotificationChange('recognitionNotifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff4701]"></div>
                   </label>
                 </div>
               </div>
@@ -324,7 +321,7 @@ const Settings = () => {
               <button
                 type="submit"
                 disabled={updateUserMutation.isLoading}
-                className="btn-primary flex items-center gap-2"
+                className="btn btn-primary flex items-center gap-2 text-sm"
               >
                 <Save size={16} />
                 {updateUserMutation.isLoading ? 'Saving...' : 'Save Preferences'}
@@ -334,11 +331,11 @@ const Settings = () => {
 
           {/* Privacy Settings */}
           {activeTab === 'privacy' && (
-            <div className="card space-y-4">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+            <div className="card space-y-3">
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">
                 Privacy Settings
               </h2>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600">
                 Privacy settings will be available in a future update.
               </p>
             </div>
@@ -346,23 +343,23 @@ const Settings = () => {
 
           {/* Appearance Settings */}
           {activeTab === 'appearance' && (
-            <div className="card space-y-4">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+            <div className="card space-y-3">
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">
                 Appearance
               </h2>
               
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div>
-                  <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                  <h3 className="text-sm font-medium text-slate-800">
                     Theme
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-600">
                     Switch between light and dark mode
                   </p>
                 </div>
                 <button
                   onClick={toggleTheme}
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn btn-secondary flex items-center gap-2 text-sm"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
@@ -370,8 +367,7 @@ const Settings = () => {
               </div>
             </div>
           )}
-        </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
