@@ -185,7 +185,7 @@ const Dashboard = () => {
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
               }`}>
                 Welcome back,{' '}
-                <span className="text-slate-700">
+                <span className={theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}>
                   {getUserDisplayName()}
                 </span>
                 !

@@ -12,8 +12,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         // Use localhost for local development
-        target: 'http://localhost:5002',
-        // target: 'https://nirmitee-internal-communications-hub.onrender.com',
+        // target: 'http://localhost:5002',
+        target: 'https://nirmitee-internal-communications-hub.onrender.com',
         changeOrigin: true,
         secure: false,
         // Deployed backend URL (commented out for local development)

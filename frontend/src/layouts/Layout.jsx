@@ -257,10 +257,14 @@ const Layout = () => {
   }, [location.pathname])
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`min-h-screen transition-colors duration-200 ${sidebarTheme === 'dark' ? 'bg-[#0a0e17]' : 'bg-slate-50'}`}>
       {/* Mobile header */}
       <motion.div
-        className="lg:hidden bg-white/80 backdrop-blur-xl border-b border-slate-200 fixed top-0 left-0 right-0 z-30"
+        className={`lg:hidden backdrop-blur-xl border-b fixed top-0 left-0 right-0 z-30 transition-colors duration-200 ${
+          sidebarTheme === 'dark'
+            ? 'bg-[#0a0e17]/80 border-[#151a28]'
+            : 'bg-white/80 border-slate-200'
+        }`}
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
