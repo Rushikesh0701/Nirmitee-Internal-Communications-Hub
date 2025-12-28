@@ -299,17 +299,17 @@ const Layout = () => {
             } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
              transition-all duration-300 ease-in-out 
              ${sidebarTheme === 'dark'
-              ? 'bg-[#0a0e17] border-r border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-r border-[#151a28]'
               : 'bg-white border-r border-slate-200'
             }`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#0a0e17]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#151a28] bg-[#0a0e17]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
               {sidebarCollapsed ? (
                 <button
                   onClick={() => handleSidebarCollapseToggle(false)}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
+                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
                 >
                   <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
                 </button>
@@ -321,7 +321,7 @@ const Layout = () => {
                   </Link>
                   <button
                     onClick={() => handleSidebarCollapseToggle(true)}
-                    className={`p-1.5 rounded-lg transition-all duration-200 ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
+                    className={`p-1.5 rounded-lg transition-all duration-200 ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
                     title="Collapse sidebar"
                   >
                     <ChevronsLeft size={16} className={sidebarTheme === 'dark' ? 'text-slate-400 hover:text-slate-300 transition-colors' : 'text-slate-500 hover:text-slate-700 transition-colors'} />
@@ -347,7 +347,7 @@ const Layout = () => {
                           ${isActive
                             ? 'bg-[#ff4701] text-white'
                             : sidebarTheme === 'dark'
-                              ? 'text-slate-300 hover:text-slate-500 hover:bg-[#0a3a3c]'
+                              ? 'text-slate-300 hover:text-slate-500 hover:bg-[#151a28]'
                               : 'text-slate-600 hover:text-slate-700 hover:bg-slate-100'
                           }`}
                         title={item.label}
@@ -370,11 +370,11 @@ const Layout = () => {
                 navSections.map((section) => {
                   const isExpanded = expandedSections[section.title] !== false
                   return (
-                    <div key={section.title} className="mb-3">
+                    <div key={section.title} className="mb-1.5">
                       {/* Section Header - Clickable */}
                       <button
                         onClick={() => toggleSection(section.title)}
-                          className={`w-full flex items-center justify-between px-3 py-2 mb-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#0a3a3c]' : 'hover:bg-slate-100'}`}
+                          className={`w-full flex items-center justify-between px-3 py-1 mb-1 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
                       >
                         <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${sidebarTheme === 'dark' ? 'text-slate-400 group-hover:text-slate-300' : 'text-slate-600 group-hover:text-slate-800'}`}>
                           {section.title}
@@ -389,7 +389,7 @@ const Layout = () => {
                       <AnimatePresence>
                         {isExpanded && (
                           <motion.div
-                            className="space-y-0.5"
+                            className="space-y-0"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -415,11 +415,11 @@ const Layout = () => {
                                   <Link
                                     to={item.path}
                                     onClick={() => setSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-all duration-200 group relative
+                                    className={`flex items-center gap-3 px-3 py-1.5 rounded-lg font-medium transition-all duration-200 group relative
                                       ${isActive
                                         ? 'bg-[#ff4701] text-white'
                                         : sidebarTheme === 'dark'
-                                          ? 'text-slate-300 hover:text-white hover:bg-[#0a3a3c]'
+                                          ? 'text-slate-300 hover:text-white hover:bg-[#151a28]'
                                           : 'text-slate-700 hover:text-slate-700 hover:bg-slate-100'
                                       }`}
                                   >
@@ -447,28 +447,65 @@ const Layout = () => {
               )}
             </nav>
 
-            {/* User Profile Section - Above Logout */}
-            {!sidebarCollapsed && (
-              <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#0a0e17]' : 'border-slate-200 bg-white'}`}>
-                <Link
-                  to="/profile"
-                  onClick={() => setSidebarOpen(false)}
-                    className={`flex items-start gap-2 p-2 rounded-lg transition-all duration-200 cursor-pointer group ${sidebarTheme === 'dark'
-                      ? 'bg-[#0a3a3c] hover:bg-[#0d4a4d]'
-                      : 'bg-slate-50 hover:bg-slate-100'
-                    }`}
+            {/* Enhanced Logout Section with User Profile */}
+            <div className={`py-1 px-2 border-t ${sidebarTheme === 'dark' ? 'border-[#151a28] bg-[#0a0e17]' : 'border-slate-200 bg-white'}`}>
+              {sidebarCollapsed ? (
+                <motion.button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center p-2 rounded-lg transition-all duration-200 font-medium group relative overflow-hidden"
+                  style={{
+                    background: sidebarTheme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.15) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.1) 100%)'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Logout"
                 >
-                  <div className="relative">
+                  <LogOut 
+                    size={18} 
+                    className={`transition-all duration-200 ${
+                      sidebarTheme === 'dark'
+                        ? 'text-red-400 group-hover:text-red-300 group-hover:rotate-12'
+                        : 'text-red-600 group-hover:text-red-700 group-hover:rotate-12'
+                    }`}
+                  />
+                </motion.button>
+              ) : (
+                <motion.div
+                  className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-200 group ${
+                    sidebarTheme === 'dark'
+                      ? 'bg-[#151a28] hover:bg-[#1a1f2e]'
+                      : 'bg-slate-50 hover:bg-slate-100'
+                  }`}
+                  whileHover={{ x: 2 }}
+                >
+                  {/* User Avatar */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex-shrink-0"
+                  >
                     <div className="w-7 h-7 bg-[#0a0e17] rounded-lg flex items-center justify-center">
                       {user?.avatar ? (
-                        <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
+                        <img 
+                          src={user.avatar} 
+                          alt={user?.name || 'User'} 
+                          className="w-full h-full rounded-lg object-cover" 
+                        />
                       ) : (
                         <User size={14} className="text-white" />
                       )}
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                    <p className={`text-[11px] font-semibold leading-tight transition-colors break-words line-clamp-2 ${sidebarTheme === 'dark' ? 'text-slate-200 group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900'}`}>
+                  </Link>
+                  
+                  {/* User Info */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex-1 min-w-0 flex flex-col gap-0"
+                  >
+                    <p className={`text-[11px] font-semibold leading-none transition-colors break-words line-clamp-1 ${sidebarTheme === 'dark' ? 'text-slate-200 group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900'}`}>
                       {user?.firstName && user?.lastName
                         ? `${user.firstName} ${user.lastName}`.trim()
                         : user?.displayName || user?.name || 'User'}
@@ -515,26 +552,28 @@ const Layout = () => {
                         )
                       })()}
                     </div>
-                  </div>
-                </Link>
-              </div>
-            )}
-
-            {/* Logout Button at Bottom */}
-            <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-black bg-black' : 'border-slate-200 bg-white'}`}>
-              <motion.button
-                onClick={handleLogout}
-                className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-2'} px-3 py-2 rounded-lg transition-all duration-200 font-medium ${sidebarTheme === 'dark'
-                    ? 'text-red-400 hover:text-white hover:bg-red-600'
-                    : 'text-red-600 hover:text-white hover:bg-red-600'
-                  }`}
-                whileHover={{ x: sidebarCollapsed ? 0 : 2 }}
-                whileTap={{ scale: 0.98 }}
-                title={sidebarCollapsed ? "Logout" : ""}
-              >
-                <LogOut size={16} className="transition-transform duration-200 group-hover:scale-110" />
-                {!sidebarCollapsed && <span className="text-xs font-semibold">Logout</span>}
-              </motion.button>
+                  </Link>
+                  
+                  {/* Logout Button */}
+                  <motion.button
+                    onClick={handleLogout}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all duration-200 font-medium flex-shrink-0 ${
+                      sidebarTheme === 'dark'
+                        ? 'text-red-400 hover:text-white hover:bg-red-600/20 active:bg-red-600/30'
+                        : 'text-red-600 hover:text-white hover:bg-red-600 active:bg-red-700'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    title="Logout"
+                  >
+                    <LogOut 
+                      size={14} 
+                      className="transition-all duration-200 group-hover:rotate-12"
+                    />
+                    <span className="text-[10px] font-semibold">Logout</span>
+                  </motion.button>
+                </motion.div>
+              )}
             </div>
           </div>
         </aside>
@@ -560,7 +599,7 @@ const Layout = () => {
           <div
             className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-colors duration-200 ${
               sidebarTheme === 'dark'
-                ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                ? 'bg-[#0a0e17] border-[#151a28]'
                 : 'bg-white border-slate-200'
             }`}
           >
@@ -597,7 +636,7 @@ const Layout = () => {
                 onClick={toggleTheme}
                 className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
                 sidebarTheme === 'dark'
-                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#0a3a3c]/50'
+                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#151a28]/50'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
                 title={sidebarTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
@@ -616,7 +655,7 @@ const Layout = () => {
                   onClick={() => setAvatarDropdownOpen(!avatarDropdownOpen)}
                   className={`p-1.5 rounded-lg transition-all duration-200 ${
                     sidebarTheme === 'dark'
-                      ? 'hover:bg-[#0a3a3c]/50'
+                      ? 'hover:bg-[#151a28]/50'
                       : 'hover:bg-slate-100'
                   }`}
                   title="User menu"
@@ -644,7 +683,7 @@ const Layout = () => {
                       transition={{ duration: 0.2 }}
                       className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors ${
                         sidebarTheme === 'dark'
-                          ? 'bg-[#0a3a3c] border-[#0a3a3c]'
+                          ? 'bg-[#151a28] border-[#151a28]'
                           : 'bg-white border-slate-200'
                       }`}
                     >
@@ -714,7 +753,7 @@ const Layout = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={(e) => e.stopPropagation()}
                 className={`bg-white rounded-lg p-6 max-w-md w-full ${
-                  sidebarTheme === 'dark' ? 'bg-[#0a0e17] border border-[#0a3a3c]' : 'bg-white border border-slate-200'
+                  sidebarTheme === 'dark' ? 'bg-[#0a0e17] border border-[#151a28]' : 'bg-white border border-slate-200'
                 }`}
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -740,7 +779,7 @@ const Layout = () => {
                     disabled={isLoggingOut}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       sidebarTheme === 'dark'
-                        ? 'bg-[#0a3a3c] text-slate-200 hover:bg-[#0d4a4d]'
+                        ? 'bg-[#151a28] text-slate-200 hover:bg-[#1a1f2e]'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >

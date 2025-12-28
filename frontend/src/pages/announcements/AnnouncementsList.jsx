@@ -68,7 +68,7 @@ const AnnouncementsList = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-[#0a3a3c]">
+          <div className="p-2 rounded-lg bg-[#151a28]">
             <Megaphone size={20} className="text-white" />
           </div>
           <div>
@@ -133,7 +133,7 @@ const AnnouncementsList = () => {
                     onChange={(e) => handleFilterChange('tags', e.target.value)}
                     className={`w-full px-2.5 pl-8 py-1.5 text-sm rounded-lg border transition-colors ${
                       theme === 'dark'
-                        ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500'
+                        ? 'bg-[#151a28] border-[#151a28] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500'
                         : 'bg-white border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-primary-500'
                     } focus:outline-none focus:ring-1 focus:ring-primary-500`}
                   />
@@ -150,7 +150,7 @@ const AnnouncementsList = () => {
                       onChange={(e) => handleFilterChange('scheduled', e.target.value)} 
                       className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
                         theme === 'dark'
-                          ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 focus:border-indigo-500'
+                          ? 'bg-[#151a28] border-[#151a28] text-slate-200 focus:border-indigo-500'
                           : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
                       } focus:outline-none focus:ring-1 focus:ring-primary-500`}
                     >
@@ -168,7 +168,7 @@ const AnnouncementsList = () => {
                       onChange={(e) => handleFilterChange('published', e.target.value)} 
                       className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
                         theme === 'dark'
-                          ? 'bg-[#0a3a3c] border-[#0a3a3c] text-slate-200 focus:border-indigo-500'
+                          ? 'bg-[#151a28] border-[#151a28] text-slate-200 focus:border-indigo-500'
                           : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
                       } focus:outline-none focus:ring-1 focus:ring-primary-500`}
                     >
@@ -220,7 +220,7 @@ const AnnouncementsList = () => {
                 </p>
                 <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors mt-auto ${
                   theme === 'dark'
-                    ? 'text-slate-500 border-[#0a3a3c]/50'
+                    ? 'text-slate-500 border-[#151a28]/50'
                     : 'text-slate-400 border-slate-100'
                 }`}>
                   <div className="flex items-center gap-1.5">

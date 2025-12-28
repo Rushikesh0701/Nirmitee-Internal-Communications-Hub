@@ -195,7 +195,7 @@ const SurveyForm = () => {
             </div>
           )}
 
-          <div className="border-t border-slate-200 dark:border-[#0a3a3c] pt-4">
+          <div className="border-t border-slate-200 dark:border-[#151a28] pt-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-800">Questions</h2>
               <button
@@ -218,7 +218,7 @@ const SurveyForm = () => {
             )}
 
             {questions.map((question, qIndex) => (
-              <div key={qIndex} className="border-2 border-slate-200 dark:border-[#0a3a3c] rounded-xl p-4 mb-4 bg-white dark:bg-[#0a0e17] hover:border-slate-300 dark:hover:border-[#0d4a4d] transition-colors question-card">
+              <div key={qIndex} className="border-2 border-slate-200 dark:border-[#151a28] rounded-xl p-4 mb-4 bg-white dark:bg-[#0a0e17] hover:border-slate-300 dark:hover:border-[#1a1f2e] transition-colors question-card">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-3">
                     <div>
@@ -299,7 +299,7 @@ const SurveyForm = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}

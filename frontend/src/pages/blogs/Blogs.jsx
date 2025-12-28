@@ -98,22 +98,22 @@ const Blogs = () => {
   const BlogCardSkeleton = () => (
     <div className={`rounded-lg overflow-hidden border flex flex-col ${
       theme === 'dark'
-        ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50'
+        ? 'bg-[#0a0e17]/50 border-[#151a28]/50'
         : 'bg-white border-gray-200'
     }`} style={{ width: '100%', height: '280px' }}>
-      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+      <Skeleton height={96} className="flex-shrink-0" baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
       <div className="p-2 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
-          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
-          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+          <Skeleton width={80} height={20} baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
         </div>
-        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
-        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+        <Skeleton height={24} className="mb-2" baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+        <Skeleton count={3} className="mb-4 flex-grow" baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
-            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+            <Skeleton width={120} height={16} baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
           </div>
-          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
+          <Skeleton width={60} height={20} baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'} highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'} />
         </div>
       </div>
     </div>

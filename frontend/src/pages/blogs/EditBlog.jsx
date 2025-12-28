@@ -389,7 +389,7 @@ const EditBlog = () => {
           </p>
         </div>
 
-        <div className="flex gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
+        <div className="flex gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
           <button
             type="submit"
             disabled={updateMutation.isLoading}

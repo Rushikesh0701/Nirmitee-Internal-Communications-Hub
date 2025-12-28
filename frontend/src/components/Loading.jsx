@@ -29,7 +29,7 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
       <div className="relative">
         <motion.div
           className={`${sizeClasses[size].ring} rounded-full border-3 ${
-            theme === 'dark' ? 'border-[#0a0e17] border-t-[#0a3a3c]' : 'border-slate-200 border-t-[#ff4701]'
+            theme === 'dark' ? 'border-[#0a0e17] border-t-[#151a28]' : 'border-slate-200 border-t-[#ff4701]'
           }`}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

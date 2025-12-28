@@ -28,7 +28,7 @@ const BlogCard = ({ blog }) => {
                     ${theme === 'dark' 
                       ? blog.isPublished === false 
                         ? 'bg-[#0a0e17]/50 border-yellow-500/50 border-2 opacity-90' 
-                        : 'bg-[#0a0e17]/50 border-[#0a3a3c]/50'
+                        : 'bg-[#0a0e17]/50 border-[#151a28]/50'
                       : blog.isPublished === false 
                         ? 'bg-white border-yellow-300 border-2 opacity-90' 
                         : 'bg-white border-gray-200'

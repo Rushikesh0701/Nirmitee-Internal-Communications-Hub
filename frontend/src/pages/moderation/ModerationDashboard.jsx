@@ -94,7 +94,7 @@ const ModerationDashboard = () => {
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[#0a3a3c]">
+        <div className="p-2 rounded-lg bg-[#151a28]">
           <Shield size={22} className="text-white" />
         </div>
         <div>

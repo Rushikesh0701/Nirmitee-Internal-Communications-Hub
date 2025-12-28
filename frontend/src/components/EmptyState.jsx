@@ -24,7 +24,7 @@ const EmptyState = ({
     >
       <div className={`rounded-xl border ${
         theme === 'dark'
-          ? 'bg-[#0a0e17] border-[#0a3a3c]'
+          ? 'bg-[#0a0e17] border-[#151a28]'
           : 'bg-white border-slate-200'
       } ${compact ? 'p-6 py-8' : 'p-10 py-12'} w-full`}>
         <div className="flex flex-col items-center text-center">
@@ -32,7 +32,7 @@ const EmptyState = ({
           {Icon && (
             <div className={`${compact ? 'mb-2 p-2' : 'mb-4 p-3'} rounded-lg ${
               theme === 'dark'
-                ? 'bg-[#0a3a3c]'
+                ? 'bg-[#151a28]'
                 : 'bg-slate-50'
             }`}>
               <Icon 

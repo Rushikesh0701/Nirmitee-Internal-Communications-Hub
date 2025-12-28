@@ -64,7 +64,7 @@ const GroupsList = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-[#0a3a3c]">
+          <div className="p-2 rounded-lg bg-[#151a28]">
             <Users size={20} className="text-white" />
           </div>
           <div>

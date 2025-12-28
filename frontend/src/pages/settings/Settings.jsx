@@ -92,7 +92,7 @@ const Settings = () => {
     >
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[#0a3a3c]">
+        <div className="p-2 rounded-lg bg-[#151a28]">
           <SettingsIcon size={22} className="text-white" />
         </div>
         <div>
@@ -168,7 +168,7 @@ const Settings = () => {
                   type="email"
                   value={formData.email}
                   disabled
-                  className="input w-full bg-slate-100 dark:bg-[#0a3a3c] dark:border-[#0a3a3c] text-sm py-2"
+                  className="input w-full bg-slate-100 dark:bg-[#151a28] dark:border-[#151a28] text-sm py-2"
                 />
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
               </div>
@@ -217,7 +217,7 @@ const Settings = () => {
               </h2>
               
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
                     <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       Email Notifications
@@ -237,7 +237,7 @@ const Settings = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
                     <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       Push Notifications
@@ -257,7 +257,7 @@ const Settings = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
                     <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       Blog Notifications
@@ -277,7 +277,7 @@ const Settings = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
                     <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       Discussion Notifications
@@ -297,7 +297,7 @@ const Settings = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
                     <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       Recognition Notifications
@@ -348,7 +348,7 @@ const Settings = () => {
                 Appearance
               </h2>
               
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0a3a3c] rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                 <div>
                   <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
                     Theme

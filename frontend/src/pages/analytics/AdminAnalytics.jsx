@@ -91,7 +91,7 @@ const AdminAnalytics = () => {
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[#0a3a3c]">
+        <div className="p-2 rounded-lg bg-[#151a28]">
           <BarChart3 size={22} className="text-white" />
         </div>
         <div>
@@ -108,7 +108,7 @@ const AdminAnalytics = () => {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-[#0a3a3c] text-white'
+                ? 'bg-[#151a28] text-white'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
@@ -210,33 +210,75 @@ const AdminAnalytics = () => {
                     <Target className="text-purple-500" size={20} />
                     <h3 className="font-semibold text-slate-800">Sentiment Analysis</h3>
                   </div>
-                  {sentiment?.implementationStatus === 'NOT_IMPLEMENTED' ? (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-sm text-yellow-800">{sentiment?.message || 'Sentiment analysis is not yet implemented.'}</p>
+                  {sentiment?.implementationStatus === 'NOT_IMPLEMENTED' || sentiment?.implementationStatus === 'ERROR' ? (
+                    <div className={`${theme === 'dark' ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-200'} border rounded-lg p-3`}>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                        {sentiment?.message || sentiment?.error || 'Sentiment analysis is not yet implemented.'}
+                      </p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
+                      {/* Overall Sentiment */}
                       <div>
-                        <p className="text-sm text-slate-500 mb-1">Overall Sentiment</p>
-                        <p className="text-lg font-bold text-slate-800 capitalize">{sentiment?.overall?.sentiment?.toLowerCase() || 'Neutral'}</p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className={`text-sm mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Overall Sentiment</p>
+                        <p className={`text-lg font-bold capitalize ${theme === 'dark' ? 'text-slate-100' : 'text-slate-800'}`}>
+                          {sentiment?.overall?.sentiment?.toLowerCase() || 'Neutral'}
+                        </p>
+                        <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
                           Score: {sentiment?.overall?.score || 0} (Confidence: {((sentiment?.overall?.confidence || 0) * 100).toFixed(0)}%)
                         </p>
+                        {sentiment?.analyzedItems && (
+                          <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                            Analyzed {sentiment.analyzedItems} of {sentiment.totalItems || sentiment.analyzedItems} items
+                          </p>
+                        )}
                       </div>
+
+                      {/* Distribution */}
                       <div className="grid grid-cols-3 gap-2">
-                        <div className="text-center p-2 bg-green-50 rounded">
-                          <p className="text-lg font-bold text-green-600">{sentiment?.distribution?.positive || 0}%</p>
-                          <p className="text-xs text-slate-600">Positive</p>
+                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-green-900/20 border border-green-800' : 'bg-green-50'}`}>
+                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
+                            {sentiment?.distribution?.positive || 0}%
+                          </p>
+                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Positive</p>
                         </div>
-                        <div className="text-center p-2 bg-gray-50 rounded">
-                          <p className="text-lg font-bold text-gray-600">{sentiment?.distribution?.neutral || 0}%</p>
-                          <p className="text-xs text-slate-600">Neutral</p>
+                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-slate-700/50 border border-slate-600' : 'bg-gray-50'}`}>
+                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-gray-600'}`}>
+                            {sentiment?.distribution?.neutral || 0}%
+                          </p>
+                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Neutral</p>
                         </div>
-                        <div className="text-center p-2 bg-red-50 rounded">
-                          <p className="text-lg font-bold text-red-600">{sentiment?.distribution?.negative || 0}%</p>
-                          <p className="text-xs text-slate-600">Negative</p>
+                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-red-900/20 border border-red-800' : 'bg-red-50'}`}>
+                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>
+                            {sentiment?.distribution?.negative || 0}%
+                          </p>
+                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Negative</p>
                         </div>
                       </div>
+
+                      {/* Top Keywords */}
+                      {sentiment?.topKeywords && sentiment.topKeywords.length > 0 && (
+                        <div>
+                          <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Top Keywords</p>
+                          <div className="flex flex-wrap gap-2">
+                            {sentiment.topKeywords.slice(0, 10).map((keyword, idx) => (
+                              <span
+                                key={idx}
+                                className={`px-2 py-1 rounded text-xs ${theme === 'dark' ? 'bg-[#151a28] text-slate-300 border border-[#151a28]' : 'bg-slate-100 text-slate-700'}`}
+                              >
+                                {keyword.word} ({keyword.count})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Success Message */}
+                      {sentiment?.message && sentiment.implementationStatus === 'IMPLEMENTED' && (
+                        <p className={`text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                          {sentiment.message}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

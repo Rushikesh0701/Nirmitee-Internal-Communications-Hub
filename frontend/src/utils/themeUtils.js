@@ -29,7 +29,7 @@ export const bgColors = {
 // Common border color classes
 export const borderColors = {
   default: (theme) => theme === 'dark' 
-    ? 'border-[#0a3a3c]/50' 
+    ? 'border-[#151a28]/50' 
     : 'border-slate-200',
   hover: (theme, color = 'indigo') => theme === 'dark' 
     ? `hover:border-${color}-700/50` 

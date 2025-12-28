@@ -16,7 +16,7 @@ export default function PointsHistory() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-[#0a3a3c] rounded-lg p-3 text-white">
+      <div className="bg-[#151a28] rounded-lg p-3 text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-yellow-100 text-sm mb-2">Total Points</p>

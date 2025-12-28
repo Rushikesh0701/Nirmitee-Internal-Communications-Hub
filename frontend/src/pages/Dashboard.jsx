@@ -146,7 +146,7 @@ const Dashboard = () => {
         <motion.div variants={itemVariants}>
           <div className={`relative rounded-lg p-3 border transition-all duration-200 overflow-hidden ${
             theme === 'dark'
-              ? 'bg-[#0a0e17] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#151a28]'
               : 'bg-white border-slate-200'
           }`}>
             {/* Snowfall Effect */}
@@ -169,7 +169,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-2 mb-1">
                 <div className={`p-1.5 rounded-lg border transition-all duration-200 ${
                   theme === 'dark' 
-                    ? 'bg-[#0a3a3c] border-[#0a3a3c]' 
+                    ? 'bg-[#151a28] border-[#151a28]' 
                     : 'bg-slate-100 border-slate-200'
                 }`}>
                   <Sparkles size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-700'} />
@@ -215,7 +215,7 @@ const Dashboard = () => {
                   variants={cardVariants}
                   className={`relative h-24 rounded-xl backdrop-blur-xl border animate-pulse transition-colors ${
                     theme === 'dark' 
-                      ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50' 
+                      ? 'bg-[#0a0e17]/50 border-[#151a28]/50' 
                       : 'bg-white/60 border-slate-200/50'
                   }`}
                 />
@@ -230,7 +230,7 @@ const Dashboard = () => {
                     custom={index}
                     className={`group relative h-20 rounded-lg border overflow-hidden transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                        ? 'bg-[#0a0e17] border-[#151a28]'
                         : 'bg-white border-slate-200'
                     }`}
                     whileHover={{ 
@@ -278,12 +278,12 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-[#0a0e17] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#151a28]'
               : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#0a3a3c]">
+                <div className="p-2 rounded-lg bg-[#151a28]">
                   <Megaphone size={18} className="text-white" />
                 </div>
                 <div>
@@ -320,32 +320,32 @@ const Dashboard = () => {
                       key={i}
                       className={`p-3 rounded-lg border animate-pulse ${
                         theme === 'dark'
-                          ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                          ? 'bg-[#0a0e17] border-[#151a28]'
                           : 'bg-white border-slate-200'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0 space-y-2">
                           <div className={`h-4 w-3/4 rounded ${
-                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                           }`} />
                           <div className={`h-3 w-full rounded ${
-                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                           }`} />
                           <div className={`h-3 w-2/3 rounded ${
-                            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                           }`} />
                           <div className="flex items-center gap-3 mt-2">
                             <div className={`h-3 w-20 rounded ${
-                              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                             }`} />
                             <div className={`h-3 w-24 rounded ${
-                              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                             }`} />
                           </div>
                         </div>
                         <div className={`w-4 h-4 rounded flex-shrink-0 ${
-                          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                         }`} />
                       </div>
                     </div>
@@ -364,7 +364,7 @@ const Dashboard = () => {
                         to={`/announcements/${announcement._id || announcement.id}`}
                         className={`group relative block p-3 rounded-lg border transition-all duration-200 ${
                           theme === 'dark'
-                            ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
+                            ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
                             : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                       >
@@ -439,12 +439,12 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-[#0a0e17] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#151a28]'
               : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#0a3a3c]">
+                <div className="p-2 rounded-lg bg-[#151a28]">
                   <Newspaper size={18} className="text-white" />
                 </div>
                 <div>
@@ -480,23 +480,23 @@ const Dashboard = () => {
                     key={i}
                     className={`relative rounded-lg overflow-hidden border animate-pulse ${
                       theme === 'dark'
-                        ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                        ? 'bg-[#0a0e17] border-[#151a28]'
                         : 'bg-white border-slate-200'
                     } h-full flex flex-col`}
                   >
                     <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
-                      theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                      theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                     }`} />
                     <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px] space-y-2">
                       <div className={`h-3 w-full rounded ${
-                        theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                       }`} />
                       <div className={`h-3 w-4/5 rounded ${
-                        theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                       }`} />
                       <div className="mt-auto">
                         <div className={`h-2 w-16 rounded ${
-                          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+                          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
                         }`} />
                       </div>
                     </div>
@@ -523,7 +523,7 @@ const Dashboard = () => {
                       <div 
                         className={`relative rounded-lg overflow-hidden border transition-all duration-200 h-full flex flex-col ${
                           theme === 'dark'
-                            ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
+                            ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
                             : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                         onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
@@ -616,11 +616,11 @@ const Dashboard = () => {
                     to={link.path}
                     className={`group flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
+                        ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="bg-[#0a3a3c] p-2 rounded-lg">
+                    <div className="bg-[#151a28] p-2 rounded-lg">
                       <Icon className="text-white" size={18} />
                     </div>
                     

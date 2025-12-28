@@ -223,7 +223,7 @@ const RssManagement = () => {
       <div className="space-y-6 pb-20 md:pb-6">
         <div className={`p-6 rounded-2xl border transition-colors ${
           theme === 'dark' 
-            ? 'bg-[#0a0e17] border-[#0a3a3c]' 
+            ? 'bg-[#0a0e17] border-[#151a28]' 
             : 'bg-white border-slate-200'
         }`}>
           <h2 className={`text-xl font-bold mb-2 transition-colors ${
@@ -292,7 +292,7 @@ const RssManagement = () => {
       {isCreating && (
         <div className={`p-5 md:p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4 duration-300 transition-colors ${
           theme === 'dark' 
-            ? 'bg-[#0a0e17] border-[#0a3a3c]' 
+            ? 'bg-[#0a0e17] border-[#151a28]' 
             : 'bg-white border-slate-200'
         }`}>
           <div className="flex justify-between items-center mb-6">
@@ -398,7 +398,7 @@ const RssManagement = () => {
       {/* Desktop view: Table */}
       <div className={`hidden md:block rounded-2xl border overflow-hidden transition-colors ${
         theme === 'dark' 
-          ? 'bg-[#0a0e17] border-[#0a3a3c]' 
+          ? 'bg-[#0a0e17] border-[#151a28]' 
           : 'bg-white border-slate-200'
       }`}>
         <div className="overflow-x-auto">
@@ -578,7 +578,7 @@ const RssManagement = () => {
         </div>
         {pagination.pages > 1 && (
           <div className={`border-t transition-colors ${
-            theme === 'dark' ? 'border-[#0a3a3c]' : 'border-slate-200'
+            theme === 'dark' ? 'border-[#151a28]' : 'border-slate-200'
           }`}>
             <Pagination
               currentPage={page}
@@ -606,7 +606,7 @@ const RssManagement = () => {
               editingId === source._id 
                 ? 'border-indigo-500 ring-1 ring-indigo-500' 
                 : theme === 'dark'
-                  ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                  ? 'bg-[#0a0e17] border-[#151a28]'
                   : 'bg-white border-slate-200'
             }`}
           >
@@ -676,7 +676,7 @@ const RssManagement = () => {
                         onClick={handleCancel}
                         className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#0a0e17] text-slate-200 hover:bg-[#0a3a3c]'
+                            ? 'bg-[#0a0e17] text-slate-200 hover:bg-[#151a28]'
                             : 'bg-slate-100 text-slate-600'
                         }`}
                       >
@@ -727,7 +727,7 @@ const RssManagement = () => {
                       />
                       <div className={`absolute right-0 top-10 w-36 rounded-xl border py-1.5 z-20 animate-in fade-in zoom-in duration-200 origin-top-right transition-colors ${
                         theme === 'dark'
-                          ? 'bg-[#0a0e17] border-[#0a3a3c]'
+                          ? 'bg-[#0a0e17] border-[#151a28]'
                           : 'bg-white border-slate-100'
                       }`}>
                         <button
@@ -764,7 +764,7 @@ const RssManagement = () => {
                           )}
                         </button>
                         <hr className={`my-1.5 transition-colors ${
-                          theme === 'dark' ? 'border-[#0a3a3c]' : 'border-slate-100'
+                          theme === 'dark' ? 'border-[#151a28]' : 'border-slate-100'
                         }`} />
                         <button
                           onClick={() => handleDelete(source._id)}
@@ -785,7 +785,7 @@ const RssManagement = () => {
 
             {!editingId && (
               <div className={`flex items-center justify-between pt-4 border-t transition-colors ${
-                theme === 'dark' ? 'border-[#0a3a3c]' : 'border-slate-50'
+                theme === 'dark' ? 'border-[#151a28]' : 'border-slate-50'
               }`}>
                 <div className={`flex items-center gap-2 text-xs font-bold uppercase ${
                   source.isActive ? 'text-emerald-500' : theme === 'dark' ? 'text-slate-400' : 'text-slate-400'
@@ -801,7 +801,7 @@ const RssManagement = () => {
                         ? 'border-emerald-700 bg-emerald-900/30 text-emerald-400'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                       : theme === 'dark'
-                        ? 'border-[#0a3a3c] bg-[#0a0e17] text-slate-300'
+                        ? 'border-[#151a28] bg-[#0a0e17] text-slate-300'
                         : 'border-slate-200 bg-slate-50 text-slate-600'
                   }`}
                 >

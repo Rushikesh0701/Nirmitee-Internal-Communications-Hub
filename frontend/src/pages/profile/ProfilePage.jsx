@@ -82,12 +82,12 @@ export default function ProfilePage() {
     return (
       <div className="space-y-6 animate-pulse">
         <div className={`h-32 rounded-lg ${
-          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
         }`} />
         <div className="space-y-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={`h-4 rounded ${
-              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
             } ${i === 5 ? 'w-3/4' : 'w-full'}`} />
           ))}
         </div>

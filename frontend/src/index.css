@@ -150,7 +150,7 @@
   }
 
   body.dark-theme .filter-select {
-    @apply bg-[#0a0e17] border-[#0a3a3c] text-slate-200;
+    @apply bg-[#0a0e17] border-[#151a28] text-slate-200;
   }
 
   /* ================================
@@ -175,7 +175,7 @@
   }
 
   body.dark-theme .input {
-    @apply bg-[#0a0e17] border-[#0a3a3c] text-slate-200;
+    @apply bg-[#0a0e17] border-[#151a28] text-slate-200;
   }
 
   body.dark-theme .input::placeholder {
@@ -222,7 +222,7 @@
   }
 
   body.dark-theme .card {
-    @apply bg-[#0a0e17] border-[#0a3a3c];
+    @apply bg-[#0a0e17] border-[#151a28];
     box-shadow: none;
   }
 
@@ -238,7 +238,7 @@
 
   /* Empty state styling for questions */
   body.dark-theme .empty-questions-state {
-    @apply border-slate-600 bg-[#0a3a3c];
+    @apply border-slate-600 bg-[#151a28];
   }
 
   body.dark-theme .empty-questions-state p {
@@ -247,7 +247,7 @@
 
   /* Question card styling */
   body.dark-theme .question-card {
-    @apply border-slate-700 bg-[#0a3a3c];
+    @apply border-slate-700 bg-[#151a28];
   }
 
   body.dark-theme .question-card:hover {
@@ -370,7 +370,7 @@
   }
 
   body.dark-theme .pagination-btn {
-    @apply bg-[#0a0e17]/50 border-[#0a3a3c] text-slate-300;
+    @apply bg-[#0a0e17]/50 border-[#151a28] text-slate-300;
   }
 
   body.dark-theme .pagination-btn:hover:not(:disabled) {
@@ -902,19 +902,19 @@ body.dark-theme .text-slate-600 {
 }
 
 body.dark-theme .border-slate-200 {
-  border-color: #0a3a3c !important;
+  border-color: #151a28 !important;
 }
 
 body.dark-theme .border-slate-300 {
-  border-color: #0d4a4d !important;
+  border-color: #1a1f2e !important;
 }
 
 body.dark-theme .bg-slate-50 {
-  background-color: #0a3a3c !important;
+  background-color: #151a28 !important;
 }
 
 body.dark-theme .bg-white {
-  background-color: #0a3a3c !important;
+  background-color: #151a28 !important;
 }
 
 body.dark-theme .text-red-600 {
@@ -927,11 +927,11 @@ body.dark-theme .hover\:bg-red-50:hover {
 
 /* Editor Toolbar Dark Mode Support */
 body.dark-theme .editor-toolbar {
-  @apply bg-[#0a3a3c] border-slate-700;
+  @apply bg-[#151a28] border-slate-700;
 }
 
 body.dark-theme .editor-toolbar .border-gray-200 {
-  border-color: #0a3a3c !important;
+  border-color: #151a28 !important;
 }
 
 body.dark-theme .editor-toolbar button {
@@ -947,7 +947,7 @@ body.dark-theme .editor-toolbar button.bg-slate-100 {
 }
 
 body.dark-theme .editor-toolbar .bg-white {
-  @apply bg-[#0a3a3c];
+  @apply bg-[#151a28];
 }
 
 body.dark-theme .editor-toolbar .border-gray-300 {
@@ -997,19 +997,19 @@ body.dark-theme .text-slate-500 {
 }
 
 body.dark-theme .bg-slate-50 {
-  background-color: #0a3a3c !important;
+  background-color: #151a28 !important;
 }
 
 body.dark-theme .bg-slate-100 {
-  background-color: #0a3a3c !important;
+  background-color: #151a28 !important;
 }
 
 body.dark-theme .border-slate-200 {
-  border-color: #0a3a3c !important;
+  border-color: #151a28 !important;
 }
 
 body.dark-theme .ring-slate-200 {
-  --tw-ring-color: #0a3a3c !important;
+  --tw-ring-color: #151a28 !important;
 }
 
 body.dark-theme .text-slate-900 {
@@ -1022,7 +1022,7 @@ body.dark-theme .bg-white {
 
 body.dark-theme .from-slate-50,
 body.dark-theme .to-slate-100 {
-  background-color: #0a3a3c !important;
+  background-color: #151a28 !important;
 }
 
 body.dark-theme .from-amber-50,
@@ -1123,19 +1123,19 @@ body.dark-theme .border-purple-800 {
 }
 
 body.dark-theme .border-slate-200 {
-  border-color: #0a3a3c !important;
+  border-color: #151a28 !important;
 }
 
-body.dark-theme .border-[#0d4a4d] {
-  border-color: #0d4a4d !important;
+body.dark-theme .border-[#1a1f2e] {
+  border-color: #1a1f2e !important;
 }
 
-body.dark-theme .bg-\[#0a3a3c\] {
-  background-color: #0a3a3c !important;
+body.dark-theme .bg-\[#151a28\] {
+  background-color: #151a28 !important;
 }
 
-body.dark-theme .border-[#0d4a4d] {
-  border-color: #0d4a4d !important;
+body.dark-theme .border-[#1a1f2e] {
+  border-color: #1a1f2e !important;
 }
 
 /* ================================

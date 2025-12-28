@@ -11,16 +11,16 @@ const DetailSkeleton = () => {
       {/* Header */}
       <div className="space-y-3">
         <div className={`h-10 w-3/4 rounded ${
-          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
         }`} />
         <div className={`h-5 w-1/2 rounded ${
-          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
         }`} />
       </div>
       
       {/* Image/Media */}
       <div className={`h-64 w-full rounded-lg ${
-        theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
       }`} />
       
       {/* Content */}
@@ -29,7 +29,7 @@ const DetailSkeleton = () => {
           <div
             key={i}
             className={`h-4 rounded ${
-              theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
             } ${i === 7 ? 'w-3/4' : 'w-full'}`}
           />
         ))}
@@ -38,10 +38,10 @@ const DetailSkeleton = () => {
       {/* Actions */}
       <div className="flex gap-3">
         <div className={`h-10 w-24 rounded ${
-          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
         }`} />
         <div className={`h-10 w-24 rounded ${
-          theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
         }`} />
       </div>
     </div>

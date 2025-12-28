@@ -58,7 +58,7 @@ const Analytics = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-[#0a3a3c]">
+          <div className="p-2 rounded-lg bg-[#151a28]">
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
@@ -108,7 +108,7 @@ const Analytics = () => {
                 <p className="text-xs text-slate-500">{stat.label}</p>
                 <p className="text-xl font-bold text-slate-800">{stat.value}</p>
               </div>
-              <div className="p-2 rounded-lg bg-[#0a3a3c]">
+              <div className="p-2 rounded-lg bg-[#151a28]">
                 <stat.icon size={20} className="text-white" />
               </div>
             </div>
@@ -125,7 +125,7 @@ const Analytics = () => {
         <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Creation Over Time</h2>
         {isLoadingContent ? (
           <div className={`h-64 flex items-center justify-center animate-pulse ${
-            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-100'
+            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-100'
           } rounded-lg`} />
         ) : timeSeriesData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>

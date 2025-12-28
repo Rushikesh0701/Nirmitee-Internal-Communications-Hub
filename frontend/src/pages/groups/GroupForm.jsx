@@ -212,7 +212,7 @@ const GroupForm = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
           <button
             type="button"
             onClick={() => navigate(-1)}

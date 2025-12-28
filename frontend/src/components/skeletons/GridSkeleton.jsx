@@ -14,18 +14,18 @@ const GridSkeleton = ({ columns = 3, rows = 2 }) => {
           key={i}
           className={`rounded-lg p-6 border ${
             theme === 'dark'
-              ? 'bg-[#0a0e17] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#151a28]'
               : 'bg-white border-slate-200'
           } animate-pulse`}
         >
           <div className={`h-6 w-1/2 rounded mb-4 ${
-            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
           }`} />
           <div className={`h-8 w-1/3 rounded mb-2 ${
-            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
           }`} />
           <div className={`h-4 w-2/3 rounded ${
-            theme === 'dark' ? 'bg-[#0a3a3c]' : 'bg-slate-200'
+            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
           }`} />
         </div>
       ))}

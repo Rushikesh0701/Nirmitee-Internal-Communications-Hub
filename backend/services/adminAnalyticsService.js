@@ -15,6 +15,7 @@ const {
   DiscussionComment
 } = require('../models');
 const mongoose = require('mongoose');
+const Sentiment = require('sentiment');
 
 /**
  * Get overview statistics
@@ -456,37 +457,199 @@ const getPostsAndCommentsCount = async () => {
 /**
  * Get sentiment analysis for feedback/surveys/blogs
  * 
- * NOTE: This is a placeholder implementation. To enable real sentiment analysis:
- * 1. Integrate with an AI service (Google Cloud Natural Language API, AWS Comprehend, Azure Text Analytics)
- * 2. Or implement a custom ML model using libraries like Natural, Sentiment, or TensorFlow.js
- * 3. Process text content from surveys, blog comments, or feedback forms
- * 
- * Example integration structure:
- * - Fetch content based on contentType and date range
- * - Send text to AI service for analysis
- * - Aggregate results and calculate metrics
- * - Store results for caching/performance
+ * Uses the 'sentiment' library for text analysis
+ * Supports: survey responses, blog comments, and discussion comments
  */
 const getSentimentAnalysis = async (options = {}) => {
   const { contentType = 'survey', startDate, endDate } = options;
   const logger = require('../utils/logger');
+  const sentiment = new Sentiment();
 
   try {
     // Calculate date range
     const periodStart = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const periodEnd = endDate ? new Date(endDate) : new Date();
 
-    // TODO: Implement actual sentiment analysis
-    // 1. Fetch content based on contentType:
-    //    - For 'survey': Get SurveyResponse feedback/comments
-    //    - For 'blog': Get BlogComment content
-    //    - For 'discussion': Get DiscussionComment content
-    // 2. Extract text content
-    // 3. Call AI service or ML model for each text
-    // 4. Aggregate results
+    // Date query for filtering
+    const dateQuery = {
+      createdAt: {
+        $gte: periodStart,
+        $lte: periodEnd
+      }
+    };
 
-    // Placeholder: Return structured response indicating not implemented
-    logger.warn('Sentiment analysis called but not implemented', { contentType, periodStart, periodEnd });
+    let texts = [];
+    let totalItems = 0;
+
+    // Fetch text content based on contentType
+    if (contentType === 'survey') {
+      // Get survey responses - extract text from answer fields
+      const responses = await SurveyResponse.find(dateQuery)
+        .populate('surveyId', 'title')
+        .lean();
+
+      totalItems = responses.length;
+      responses.forEach(response => {
+        response.responses.forEach(resp => {
+          // Extract text from answer field (for text-based questions)
+          if (resp.answer && typeof resp.answer === 'string' && resp.answer.trim().length > 0) {
+            texts.push(resp.answer.trim());
+          }
+        });
+      });
+    } else if (contentType === 'blog') {
+      // Get blog comments
+      const comments = await BlogComment.find(dateQuery)
+        .select('content createdAt')
+        .lean();
+
+      totalItems = comments.length;
+      texts = comments
+        .map(comment => comment.content?.trim())
+        .filter(text => text && text.length > 0);
+    } else if (contentType === 'discussion') {
+      // Get discussion comments
+      const comments = await DiscussionComment.find(dateQuery)
+        .select('content createdAt')
+        .lean();
+
+      totalItems = comments.length;
+      texts = comments
+        .map(comment => comment.content?.trim())
+        .filter(text => text && text.length > 0);
+    } else {
+      // Default: analyze all content types
+      const [surveyResponses, blogComments, discussionComments] = await Promise.all([
+        SurveyResponse.find(dateQuery).lean(),
+        BlogComment.find(dateQuery).select('content').lean(),
+        DiscussionComment.find(dateQuery).select('content').lean()
+      ]);
+
+      totalItems = surveyResponses.length + blogComments.length + discussionComments.length;
+
+      // Extract text from survey responses
+      surveyResponses.forEach(response => {
+        response.responses?.forEach(resp => {
+          if (resp.answer && typeof resp.answer === 'string' && resp.answer.trim().length > 0) {
+            texts.push(resp.answer.trim());
+          }
+        });
+      });
+
+      // Extract text from blog comments
+      blogComments.forEach(comment => {
+        if (comment.content?.trim()) {
+          texts.push(comment.content.trim());
+        }
+      });
+
+      // Extract text from discussion comments
+      discussionComments.forEach(comment => {
+        if (comment.content?.trim()) {
+          texts.push(comment.content.trim());
+        }
+      });
+    }
+
+    // If no text found, return empty results
+    if (texts.length === 0) {
+      logger.info('No text content found for sentiment analysis', { contentType, periodStart, periodEnd, totalItems });
+      return {
+        contentType,
+        period: {
+          startDate: periodStart,
+          endDate: periodEnd
+        },
+        overall: {
+          sentiment: 'NEUTRAL',
+          score: 0.0,
+          confidence: 0.0
+        },
+        distribution: {
+          positive: 0,
+          neutral: 100,
+          negative: 0
+        },
+        topKeywords: [],
+        trends: [],
+        totalItems: 0,
+        analyzedItems: 0,
+        implementationStatus: 'IMPLEMENTED',
+        message: 'No text content found in the specified date range.'
+      };
+    }
+
+    // Analyze sentiment for each text
+    const sentimentResults = texts.map(text => {
+      const result = sentiment.analyze(text);
+      // Convert score to -1 to 1 scale (sentiment library uses -5 to 5)
+      const normalizedScore = Math.max(-1, Math.min(1, result.score / 5));
+      
+      // Determine sentiment category
+      let sentimentCategory = 'NEUTRAL';
+      if (normalizedScore > 0.1) {
+        sentimentCategory = 'POSITIVE';
+      } else if (normalizedScore < -0.1) {
+        sentimentCategory = 'NEGATIVE';
+      }
+
+      return {
+        text: text.substring(0, 100), // Store first 100 chars for reference
+        score: normalizedScore,
+        sentiment: sentimentCategory,
+        comparative: result.comparative,
+        tokens: result.tokens?.length || 0
+      };
+    });
+
+    // Calculate overall metrics
+    const totalScore = sentimentResults.reduce((sum, r) => sum + r.score, 0);
+    const averageScore = totalScore / sentimentResults.length;
+    const averageConfidence = sentimentResults.reduce((sum, r) => sum + Math.abs(r.score), 0) / sentimentResults.length;
+
+    // Determine overall sentiment
+    let overallSentiment = 'NEUTRAL';
+    if (averageScore > 0.1) {
+      overallSentiment = 'POSITIVE';
+    } else if (averageScore < -0.1) {
+      overallSentiment = 'NEGATIVE';
+    }
+
+    // Calculate distribution
+    const positiveCount = sentimentResults.filter(r => r.sentiment === 'POSITIVE').length;
+    const negativeCount = sentimentResults.filter(r => r.sentiment === 'NEGATIVE').length;
+    const neutralCount = sentimentResults.filter(r => r.sentiment === 'NEUTRAL').length;
+    const total = sentimentResults.length;
+
+    const distribution = {
+      positive: total > 0 ? Math.round((positiveCount / total) * 100) : 0,
+      neutral: total > 0 ? Math.round((neutralCount / total) * 100) : 0,
+      negative: total > 0 ? Math.round((negativeCount / total) * 100) : 0
+    };
+
+    // Extract top keywords (simple frequency-based)
+    const keywordMap = new Map();
+    sentimentResults.forEach(result => {
+      const words = result.text.toLowerCase().split(/\s+/);
+      words.forEach(word => {
+        if (word.length > 3) { // Only words longer than 3 chars
+          keywordMap.set(word, (keywordMap.get(word) || 0) + 1);
+        }
+      });
+    });
+
+    const topKeywords = Array.from(keywordMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([word, count]) => ({ word, count }));
+
+    logger.info('Sentiment analysis completed', {
+      contentType,
+      totalItems,
+      analyzedItems: texts.length,
+      overallSentiment,
+      averageScore
+    });
 
     return {
       contentType,
@@ -495,31 +658,20 @@ const getSentimentAnalysis = async (options = {}) => {
         endDate: periodEnd
       },
       overall: {
-        sentiment: 'NEUTRAL', // POSITIVE, NEGATIVE, NEUTRAL, MIXED
-        score: 0.0, // -1 to 1 scale (0 = neutral)
-        confidence: 0.0 // 0 to 1 scale
+        sentiment: overallSentiment,
+        score: parseFloat(averageScore.toFixed(3)),
+        confidence: parseFloat(averageConfidence.toFixed(3))
       },
-      distribution: {
-        positive: 0, // percentage
-        neutral: 100,
-        negative: 0
-      },
-      topKeywords: [],
-      trends: [],
-      // Implementation status
-      implementationStatus: 'NOT_IMPLEMENTED',
-      message: 'Sentiment analysis is not yet implemented. To enable: integrate with AI service (Google NLP, AWS Comprehend, Azure Text Analytics) or implement custom ML model.',
-      // Suggested implementation steps
-      implementationGuide: {
-        step1: 'Choose an AI service or ML library',
-        step2: 'Fetch text content from the specified contentType and date range',
-        step3: 'Process text through sentiment analysis service',
-        step4: 'Aggregate results and calculate metrics',
-        step5: 'Cache results for performance'
-      }
+      distribution,
+      topKeywords,
+      trends: [], // Can be enhanced with time-series data
+      totalItems,
+      analyzedItems: texts.length,
+      implementationStatus: 'IMPLEMENTED',
+      message: `Analyzed ${texts.length} text items from ${totalItems} total items.`
     };
   } catch (error) {
-    logger.error('Error in sentiment analysis', { error: error.message, options });
+    logger.error('Error in sentiment analysis', { error: error.message, stack: error.stack, options });
     // Return error response
     return {
       contentType,
@@ -539,6 +691,8 @@ const getSentimentAnalysis = async (options = {}) => {
       },
       topKeywords: [],
       trends: [],
+      totalItems: 0,
+      analyzedItems: 0,
       implementationStatus: 'ERROR',
       error: error.message
     };

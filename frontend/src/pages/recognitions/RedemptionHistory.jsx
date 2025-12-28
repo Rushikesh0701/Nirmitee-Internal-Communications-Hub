@@ -53,7 +53,7 @@ const RedemptionHistory = () => {
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[#0a3a3c]">
+        <div className="p-2 rounded-lg bg-[#151a28]">
           <Gift size={22} className="text-white" />
         </div>
         <div>
@@ -73,7 +73,7 @@ const RedemptionHistory = () => {
             }}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               statusFilter === status
-                ? 'bg-[#0a3a3c] text-white'
+                ? 'bg-[#151a28] text-white'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >

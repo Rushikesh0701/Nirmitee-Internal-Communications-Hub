@@ -181,7 +181,7 @@ const CourseForm = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#0a3a3c]">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}

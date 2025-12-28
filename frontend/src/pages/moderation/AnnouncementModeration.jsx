@@ -184,7 +184,7 @@ const AnnouncementModeration = () => {
           <Link to="/moderation" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
             <ArrowLeft size={20} className="text-slate-600 dark:text-slate-300" />
           </Link>
-          <div className="p-2 rounded-lg bg-[#0a3a3c]">
+          <div className="p-2 rounded-lg bg-[#151a28]">
             <Megaphone size={22} className="text-white" />
           </div>
           <div>
@@ -209,7 +209,7 @@ const AnnouncementModeration = () => {
               }}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 status === s
-                  ? 'bg-[#0a3a3c] text-white'
+                  ? 'bg-[#151a28] text-white'
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'
               }`}
             >
@@ -381,7 +381,7 @@ const AnnouncementModeration = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-[#0a0e17] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#0a3a3c]"
+            className="bg-white dark:bg-[#0a0e17] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#151a28]"
           >
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
               {isBulkMode ? `Reject ${selectedAnnouncements.size} Announcement(s)` : 'Reject Announcement'}
@@ -394,7 +394,7 @@ const AnnouncementModeration = () => {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Enter rejection reason..."
               rows={4}
-              className="w-full p-3 border border-slate-300 dark:border-[#0a3a3c] dark:bg-[#0a3a3c] dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className="w-full p-3 border border-slate-300 dark:border-[#151a28] dark:bg-[#151a28] dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             />
             <div className="flex gap-3 mt-4">
               <button
