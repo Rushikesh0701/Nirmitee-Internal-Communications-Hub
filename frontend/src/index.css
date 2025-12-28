@@ -40,7 +40,7 @@
   }
 
   body.dark-theme {
-    background-color: #052829;
+    background-color: #0a0e17;
     color: #e2e8f0;
   }
 
@@ -150,7 +150,7 @@
   }
 
   body.dark-theme .filter-select {
-    @apply bg-[#052829] border-[#0a3a3c] text-slate-200;
+    @apply bg-[#0a0e17] border-[#0a3a3c] text-slate-200;
   }
 
   /* ================================
@@ -175,7 +175,7 @@
   }
 
   body.dark-theme .input {
-    @apply bg-[#052829] border-[#0a3a3c] text-slate-200;
+    @apply bg-[#0a0e17] border-[#0a3a3c] text-slate-200;
   }
 
   body.dark-theme .input::placeholder {
@@ -183,12 +183,12 @@
   }
 
   body.dark-theme .input:focus {
-    @apply border-[#ff4701] bg-[#052829];
+    @apply border-[#ff4701] bg-[#0a0e17];
     box-shadow: 0 0 0 3px rgba(255, 71, 1, 0.2);
   }
 
   body.dark-theme .input:hover:not(:focus) {
-    @apply border-[#ff4701] bg-[#052829];
+    @apply border-[#ff4701] bg-[#0a0e17];
   }
 
   body.dark-theme .input-select {
@@ -222,7 +222,7 @@
   }
 
   body.dark-theme .card {
-    @apply bg-[#052829] border-[#0a3a3c];
+    @apply bg-[#0a0e17] border-[#0a3a3c];
     box-shadow: none;
   }
 
@@ -370,7 +370,7 @@
   }
 
   body.dark-theme .pagination-btn {
-    @apply bg-[#052829]/50 border-[#0a3a3c] text-slate-300;
+    @apply bg-[#0a0e17]/50 border-[#0a3a3c] text-slate-300;
   }
 
   body.dark-theme .pagination-btn:hover:not(:disabled) {
@@ -424,7 +424,7 @@
      TOOLTIP
      ================================ */
   .tooltip {
-    @apply absolute z-50 px-3 py-2 text-sm text-white rounded-lg bg-[#052829];
+    @apply absolute z-50 px-3 py-2 text-sm text-white rounded-lg bg-[#0a0e17];
     box-shadow: none;
   }
 
@@ -956,7 +956,7 @@ body.dark-theme .editor-toolbar .border-gray-300 {
 
 body.dark-theme .editor-toolbar input,
 body.dark-theme .editor-toolbar select {
-  @apply bg-[#052829] border-slate-600 text-slate-200;
+  @apply bg-[#0a0e17] border-slate-600 text-slate-200;
 }
 
 body.dark-theme .editor-toolbar .text-gray-700 {
@@ -1017,7 +1017,7 @@ body.dark-theme .text-slate-900 {
 }
 
 body.dark-theme .bg-white {
-  background-color: #052829 !important;
+  background-color: #0a0e17 !important;
 }
 
 body.dark-theme .from-slate-50,

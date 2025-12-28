@@ -9,7 +9,7 @@ const NewsUpdateToast = ({ newArticlesCount, latestArticles, onViewNow, onDismis
   const { theme } = useTheme();
   return (
     <div className={`border-l-4 border-slate-600 rounded-lg p-4 max-w-md ${
-      theme === 'dark' ? 'bg-[#052829]/90' : 'bg-white'
+      theme === 'dark' ? 'bg-[#0a0e17]/90' : 'bg-white'
     }`}>
       <div className="flex items-start gap-3">
         {/* Icon */}

@@ -268,7 +268,7 @@ const AdminAnalytics = () => {
               <h3 className="font-semibold text-slate-800 mb-4">Engagement Over Time</h3>
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={engagement.timeSeries}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
                   <XAxis 
                     dataKey="date" 
                     stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
@@ -281,7 +281,7 @@ const AdminAnalytics = () => {
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                      border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0'
+                      border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
                     }} 
                   />
                   <Legend />
@@ -499,7 +499,7 @@ const AdminAnalytics = () => {
                   <h3 className="font-semibold text-slate-800 mb-4">Posts and Comments Over Time</h3>
                   <ResponsiveContainer width="100%" height={400}>
                     <AreaChart data={postsComments.timeSeries}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
                       <XAxis 
                         dataKey="date" 
                         stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
@@ -512,7 +512,7 @@ const AdminAnalytics = () => {
                       <Tooltip 
                         contentStyle={{ 
                           backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                          border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0'
+                          border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
                         }} 
                       />
                       <Legend />

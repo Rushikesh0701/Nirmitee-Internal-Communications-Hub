@@ -10,7 +10,7 @@ import { useTheme } from '../contexts/ThemeContext'
 export const CardSkeleton = ({ count = 3, className = '' }) => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
@@ -19,7 +19,7 @@ export const CardSkeleton = ({ count = 3, className = '' }) => {
           key={i}
           className={`rounded-lg overflow-hidden border ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}
         >
@@ -66,7 +66,7 @@ export const CardSkeleton = ({ count = 3, className = '' }) => {
 export const GridCardSkeleton = ({ count = 6, cols = 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6' }) => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div className={`grid ${cols} gap-3`}>
@@ -75,7 +75,7 @@ export const GridCardSkeleton = ({ count = 6, cols = 'grid-cols-2 sm:grid-cols-3
           key={i}
           className={`rounded-lg overflow-hidden border ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}
         >
@@ -108,7 +108,7 @@ export const GridCardSkeleton = ({ count = 6, cols = 'grid-cols-2 sm:grid-cols-3
 export const ListSkeleton = ({ count = 5 }) => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div className="space-y-3">
@@ -117,7 +117,7 @@ export const ListSkeleton = ({ count = 5 }) => {
           key={i}
           className={`rounded-lg border p-4 ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}
         >
@@ -167,13 +167,13 @@ export const ListSkeleton = ({ count = 5 }) => {
 export const DetailSkeleton = () => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div
       className={`rounded-lg border p-6 ${
         theme === 'dark'
-          ? 'bg-[#052829] border-[#0a3a3c]'
+          ? 'bg-[#0a0e17] border-[#0a3a3c]'
           : 'bg-white border-slate-200'
       }`}
     >
@@ -219,13 +219,13 @@ export const DetailSkeleton = () => {
 export const TableSkeleton = ({ rows = 10, cols = 5 }) => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div
       className={`rounded-lg border overflow-hidden ${
         theme === 'dark'
-          ? 'bg-[#052829] border-[#0a3a3c]'
+          ? 'bg-[#0a0e17] border-[#0a3a3c]'
           : 'bg-white border-slate-200'
       }`}
     >
@@ -259,7 +259,7 @@ export const TableSkeleton = ({ rows = 10, cols = 5 }) => {
 export const StatsSkeleton = ({ count = 4 }) => {
   const { theme } = useTheme()
   const baseColor = theme === 'dark' ? '#0a3a3c' : '#e2e8f0'
-  const highlightColor = theme === 'dark' ? '#052829' : '#f1f5f9'
+  const highlightColor = theme === 'dark' ? '#0a0e17' : '#f1f5f9'
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -268,7 +268,7 @@ export const StatsSkeleton = ({ count = 4 }) => {
           key={i}
           className={`rounded-lg border p-4 ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}
         >
@@ -297,7 +297,7 @@ export const PageSkeleton = ({ children, className = '' }) => {
   return (
     <div
       className={`min-h-[400px] ${className} ${
-        theme === 'dark' ? 'bg-[#052829]' : 'bg-slate-50'
+        theme === 'dark' ? 'bg-[#0a0e17]' : 'bg-slate-50'
       }`}
     >
       {children}

@@ -16,13 +16,13 @@ export const textColors = {
 // Common background color classes
 export const bgColors = {
   card: (theme) => theme === 'dark' 
-    ? 'bg-[#052829]/50' 
+    ? 'bg-[#0a0e17]/50' 
     : 'bg-white',
   surface: (theme) => theme === 'dark' 
-    ? 'bg-[#052829]/30' 
+    ? 'bg-[#0a0e17]/30' 
     : 'bg-slate-50',
   hover: (theme) => theme === 'dark' 
-    ? 'hover:bg-[#052829]/50' 
+    ? 'hover:bg-[#0a0e17]/50' 
     : 'hover:bg-slate-50',
 }
 

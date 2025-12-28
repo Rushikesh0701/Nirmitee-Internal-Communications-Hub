@@ -38,7 +38,7 @@ const RecognitionAnalyticsChart = ({ data, type = 'bar' }) => {
           <Tooltip 
             contentStyle={{ 
               backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-              border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0'
+              border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
             }} 
           />
         </PieChart>
@@ -49,7 +49,7 @@ const RecognitionAnalyticsChart = ({ data, type = 'bar' }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
         <XAxis 
           dataKey="name" 
           stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
@@ -62,7 +62,7 @@ const RecognitionAnalyticsChart = ({ data, type = 'bar' }) => {
         <Tooltip 
           contentStyle={{ 
             backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-            border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0'
+            border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
           }} 
         />
         <Legend />

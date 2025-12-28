@@ -218,7 +218,7 @@ const SurveyForm = () => {
             )}
 
             {questions.map((question, qIndex) => (
-              <div key={qIndex} className="border-2 border-slate-200 dark:border-[#0a3a3c] rounded-xl p-4 mb-4 bg-white dark:bg-[#052829] hover:border-slate-300 dark:hover:border-[#0d4a4d] transition-colors question-card">
+              <div key={qIndex} className="border-2 border-slate-200 dark:border-[#0a3a3c] rounded-xl p-4 mb-4 bg-white dark:bg-[#0a0e17] hover:border-slate-300 dark:hover:border-[#0d4a4d] transition-colors question-card">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-3">
                     <div>

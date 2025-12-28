@@ -14,7 +14,7 @@ const GridSkeleton = ({ columns = 3, rows = 2 }) => {
           key={i}
           className={`rounded-lg p-6 border ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           } animate-pulse`}
         >

@@ -87,7 +87,7 @@ export default function EmployeeDirectory() {
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200" />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-[#052829] flex items-center justify-center ring-2 ring-slate-200">
+                      <div className="w-20 h-20 rounded-full bg-[#0a0e17] flex items-center justify-center ring-2 ring-slate-200">
                         <span className="text-white font-semibold text-2xl">{user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                       </div>
                     )}

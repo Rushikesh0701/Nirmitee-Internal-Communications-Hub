@@ -140,7 +140,7 @@ const AnnouncementNotification = () => {
           onClick={() => handleReadMore(announcement)}
           className={`rounded-lg border-l-4 p-4 flex items-start gap-3 animate-slide-in cursor-pointer ${
             theme === 'dark'
-              ? 'bg-[#052829]/90 border-indigo-500'
+              ? 'bg-[#0a0e17]/90 border-indigo-500'
               : 'bg-white border-primary-600'
           }`}
         >

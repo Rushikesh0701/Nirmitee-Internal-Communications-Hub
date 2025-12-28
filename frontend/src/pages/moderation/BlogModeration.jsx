@@ -413,7 +413,7 @@ const BlogModeration = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-[#052829] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#0a3a3c]"
+            className="bg-white dark:bg-[#0a0e17] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#0a3a3c]"
           >
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
               {isBulkMode ? `Reject ${selectedBlogs.size} Blog(s)` : 'Reject Blog'}

@@ -12,7 +12,7 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
   const containerClasses = fullScreen
     ? `fixed inset-0 flex flex-col items-center justify-center backdrop-blur-sm z-50 ${
         theme === 'dark' 
-          ? 'bg-[#052829]/90' 
+          ? 'bg-[#0a0e17]/90' 
           : 'bg-white/90'
       }`
     : 'flex flex-col items-center justify-center py-12'
@@ -29,7 +29,7 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
       <div className="relative">
         <motion.div
           className={`${sizeClasses[size].ring} rounded-full border-3 ${
-            theme === 'dark' ? 'border-[#052829] border-t-[#0a3a3c]' : 'border-slate-200 border-t-[#ff4701]'
+            theme === 'dark' ? 'border-[#0a0e17] border-t-[#0a3a3c]' : 'border-slate-200 border-t-[#ff4701]'
           }`}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -56,7 +56,7 @@ const Loading = ({ fullScreen = false, size = 'md', text = '' }) => {
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className={`w-1.5 h-1.5 rounded-full ${theme === 'dark' ? 'bg-[#052829]' : 'bg-[#ff4701]'}`}
+              className={`w-1.5 h-1.5 rounded-full ${theme === 'dark' ? 'bg-[#0a0e17]' : 'bg-[#ff4701]'}`}
               animate={{ y: [0, -6, 0] }}
               transition={{ 
                 duration: 0.6, 

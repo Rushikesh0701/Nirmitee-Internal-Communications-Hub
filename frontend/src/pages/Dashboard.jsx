@@ -146,7 +146,7 @@ const Dashboard = () => {
         <motion.div variants={itemVariants}>
           <div className={`relative rounded-lg p-3 border transition-all duration-200 overflow-hidden ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}>
             {/* Snowfall Effect */}
@@ -215,7 +215,7 @@ const Dashboard = () => {
                   variants={cardVariants}
                   className={`relative h-24 rounded-xl backdrop-blur-xl border animate-pulse transition-colors ${
                     theme === 'dark' 
-                      ? 'bg-[#052829]/50 border-[#0a3a3c]/50' 
+                      ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50' 
                       : 'bg-white/60 border-slate-200/50'
                   }`}
                 />
@@ -230,7 +230,7 @@ const Dashboard = () => {
                     custom={index}
                     className={`group relative h-20 rounded-lg border overflow-hidden transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-[#052829] border-[#0a3a3c]'
+                        ? 'bg-[#0a0e17] border-[#0a3a3c]'
                         : 'bg-white border-slate-200'
                     }`}
                     whileHover={{ 
@@ -278,7 +278,7 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-3">
@@ -320,7 +320,7 @@ const Dashboard = () => {
                       key={i}
                       className={`p-3 rounded-lg border animate-pulse ${
                         theme === 'dark'
-                          ? 'bg-[#052829] border-[#0a3a3c]'
+                          ? 'bg-[#0a0e17] border-[#0a3a3c]'
                           : 'bg-white border-slate-200'
                       }`}
                     >
@@ -364,7 +364,7 @@ const Dashboard = () => {
                         to={`/announcements/${announcement._id || announcement.id}`}
                         className={`group relative block p-3 rounded-lg border transition-all duration-200 ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                            ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
                             : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                       >
@@ -439,7 +439,7 @@ const Dashboard = () => {
         <motion.section variants={itemVariants}>
           <div className={`rounded-lg p-3 border transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center justify-between mb-2">
@@ -480,7 +480,7 @@ const Dashboard = () => {
                     key={i}
                     className={`relative rounded-lg overflow-hidden border animate-pulse ${
                       theme === 'dark'
-                        ? 'bg-[#052829] border-[#0a3a3c]'
+                        ? 'bg-[#0a0e17] border-[#0a3a3c]'
                         : 'bg-white border-slate-200'
                     } h-full flex flex-col`}
                   >
@@ -523,14 +523,14 @@ const Dashboard = () => {
                       <div 
                         className={`relative rounded-lg overflow-hidden border transition-all duration-200 h-full flex flex-col ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                            ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
                             : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                         onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
                       >
                         
                         <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
-                          theme === 'dark' ? 'bg-[#052829]/50' : 'bg-slate-100'
+                          theme === 'dark' ? 'bg-[#0a0e17]/50' : 'bg-slate-100'
                         }`}>
                           {imageUrl ? (
                             <motion.img 
@@ -616,7 +616,7 @@ const Dashboard = () => {
                     to={link.path}
                     className={`group flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
                       theme === 'dark'
-                        ? 'bg-[#052829] border-[#0a3a3c] hover:border-[#ff4701]'
+                        ? 'bg-[#0a0e17] border-[#0a3a3c] hover:border-[#ff4701]'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >

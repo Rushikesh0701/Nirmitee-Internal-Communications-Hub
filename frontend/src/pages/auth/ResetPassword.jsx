@@ -110,7 +110,7 @@ const ResetPassword = () => {
           transition={{ delay: 0.5 }}
         >
           <motion.div
-            className="w-4 h-4 border-2 border-[#052829]/30 border-t-[#ff4701] rounded-full"
+            className="w-4 h-4 border-2 border-[#0a0e17]/30 border-t-[#ff4701] rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />

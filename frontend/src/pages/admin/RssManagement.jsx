@@ -223,7 +223,7 @@ const RssManagement = () => {
       <div className="space-y-6 pb-20 md:pb-6">
         <div className={`p-6 rounded-2xl border transition-colors ${
           theme === 'dark' 
-            ? 'bg-[#052829] border-[#0a3a3c]' 
+            ? 'bg-[#0a0e17] border-[#0a3a3c]' 
             : 'bg-white border-slate-200'
         }`}>
           <h2 className={`text-xl font-bold mb-2 transition-colors ${
@@ -292,7 +292,7 @@ const RssManagement = () => {
       {isCreating && (
         <div className={`p-5 md:p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4 duration-300 transition-colors ${
           theme === 'dark' 
-            ? 'bg-[#052829] border-[#0a3a3c]' 
+            ? 'bg-[#0a0e17] border-[#0a3a3c]' 
             : 'bg-white border-slate-200'
         }`}>
           <div className="flex justify-between items-center mb-6">
@@ -322,7 +322,7 @@ const RssManagement = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm ${
                     theme === 'dark'
-                      ? 'bg-[#052829] border-[#ff4701] text-slate-200 placeholder-slate-500'
+                      ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200 placeholder-slate-500'
                       : 'bg-slate-50 border-slate-200'
                   }`}
                   placeholder="e.g., TechCrunch Tech"
@@ -340,7 +340,7 @@ const RssManagement = () => {
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm appearance-none cursor-pointer ${
                   theme === 'dark'
-                    ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                    ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                     : 'bg-slate-50 border-slate-200'
                 }`}
               >
@@ -368,7 +368,7 @@ const RssManagement = () => {
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm ${
                     theme === 'dark'
-                      ? 'bg-[#052829] border-[#ff4701] text-slate-200 placeholder-slate-500'
+                      ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200 placeholder-slate-500'
                       : 'bg-slate-50 border-slate-200'
                   }`}
                   placeholder="https://example.com/feed"
@@ -398,7 +398,7 @@ const RssManagement = () => {
       {/* Desktop view: Table */}
       <div className={`hidden md:block rounded-2xl border overflow-hidden transition-colors ${
         theme === 'dark' 
-          ? 'bg-[#052829] border-[#0a3a3c]' 
+          ? 'bg-[#0a0e17] border-[#0a3a3c]' 
           : 'bg-white border-slate-200'
       }`}>
         <div className="overflow-x-auto">
@@ -406,7 +406,7 @@ const RssManagement = () => {
             <thead>
               <tr className={`border-b transition-colors ${
                 theme === 'dark' 
-                  ? 'bg-[#052829]/50 border-[#ff4701]' 
+                  ? 'bg-[#0a0e17]/50 border-[#ff4701]' 
                   : 'bg-slate-50/50 border-slate-200'
               }`}>
                 <th className={`px-3 py-2 text-xs font-bold uppercase tracking-wider text-center transition-colors ${
@@ -437,7 +437,7 @@ const RssManagement = () => {
                 return (
                 <tr key={source._id} className={`group transition-colors ${
                   theme === 'dark' 
-                    ? 'hover:bg-[#052829]/50' 
+                    ? 'hover:bg-[#0a0e17]/50' 
                     : 'hover:bg-slate-50/50'
                 }`}>
                   <td className="px-3 py-2 text-center">
@@ -455,7 +455,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className={`w-full px-2 py-1 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-white border-slate-200'
                         }`}
                       />
@@ -472,7 +472,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className={`w-full px-2 py-1 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-white border-slate-200'
                         }`}
                       >
@@ -500,7 +500,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                         className={`w-full px-2 py-1 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-white border-slate-200'
                         }`}
                       />
@@ -606,7 +606,7 @@ const RssManagement = () => {
               editingId === source._id 
                 ? 'border-indigo-500 ring-1 ring-indigo-500' 
                 : theme === 'dark'
-                  ? 'bg-[#052829] border-[#0a3a3c]'
+                  ? 'bg-[#0a0e17] border-[#0a3a3c]'
                   : 'bg-white border-slate-200'
             }`}
           >
@@ -624,7 +624,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-slate-50 border-slate-200'
                         }`}
                       />
@@ -638,7 +638,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-slate-50 border-slate-200'
                         }`}
                       >
@@ -659,7 +659,7 @@ const RssManagement = () => {
                         onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] border-[#ff4701] text-slate-200'
+                            ? 'bg-[#0a0e17] border-[#ff4701] text-slate-200'
                             : 'bg-slate-50 border-slate-200'
                         }`}
                       />
@@ -676,7 +676,7 @@ const RssManagement = () => {
                         onClick={handleCancel}
                         className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-colors ${
                           theme === 'dark'
-                            ? 'bg-[#052829] text-slate-200 hover:bg-[#0a3a3c]'
+                            ? 'bg-[#0a0e17] text-slate-200 hover:bg-[#0a3a3c]'
                             : 'bg-slate-100 text-slate-600'
                         }`}
                       >
@@ -727,14 +727,14 @@ const RssManagement = () => {
                       />
                       <div className={`absolute right-0 top-10 w-36 rounded-xl border py-1.5 z-20 animate-in fade-in zoom-in duration-200 origin-top-right transition-colors ${
                         theme === 'dark'
-                          ? 'bg-[#052829] border-[#0a3a3c]'
+                          ? 'bg-[#0a0e17] border-[#0a3a3c]'
                           : 'bg-white border-slate-100'
                       }`}>
                         <button
                           onClick={() => handleEdit(source)}
                           className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                             theme === 'dark'
-                              ? 'text-slate-300 hover:bg-[#052829]'
+                              ? 'text-slate-300 hover:bg-[#0a0e17]'
                               : 'text-slate-600 hover:bg-slate-50'
                           }`}
                         >
@@ -747,7 +747,7 @@ const RssManagement = () => {
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                             theme === 'dark'
-                              ? 'text-slate-300 hover:bg-[#052829]'
+                              ? 'text-slate-300 hover:bg-[#0a0e17]'
                               : 'text-slate-600 hover:bg-slate-50'
                           }`}
                         >
@@ -770,7 +770,7 @@ const RssManagement = () => {
                           onClick={() => handleDelete(source._id)}
                           className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                             theme === 'dark'
-                              ? 'text-rose-400 hover:bg-[#052829]'
+                              ? 'text-rose-400 hover:bg-[#0a0e17]'
                               : 'text-rose-600 hover:bg-rose-50'
                           }`}
                         >
@@ -801,7 +801,7 @@ const RssManagement = () => {
                         ? 'border-emerald-700 bg-emerald-900/30 text-emerald-400'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                       : theme === 'dark'
-                        ? 'border-[#0a3a3c] bg-[#052829] text-slate-300'
+                        ? 'border-[#0a3a3c] bg-[#0a0e17] text-slate-300'
                         : 'border-slate-200 bg-slate-50 text-slate-600'
                   }`}
                 >

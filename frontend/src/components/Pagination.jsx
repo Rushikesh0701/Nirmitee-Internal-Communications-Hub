@@ -82,7 +82,7 @@ const Pagination = ({
               onChange={(e) => onLimitChange?.(parseInt(e.target.value))}
               className={`px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 ${
                 theme === 'dark'
-                  ? 'border-[#0a3a3c] bg-[#052829]/50 text-slate-200'
+                  ? 'border-[#0a3a3c] bg-[#0a0e17]/50 text-slate-200'
                   : 'border-gray-300 bg-white text-gray-900'
               }`}
             >

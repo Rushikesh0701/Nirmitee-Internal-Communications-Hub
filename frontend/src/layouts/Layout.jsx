@@ -299,13 +299,13 @@ const Layout = () => {
             } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
              transition-all duration-300 ease-in-out 
              ${sidebarTheme === 'dark'
-              ? 'bg-[#052829] border-r border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-r border-[#0a3a3c]'
               : 'bg-white border-r border-slate-200'
             }`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#052829]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#0a0e17]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
               {sidebarCollapsed ? (
                 <button
                   onClick={() => handleSidebarCollapseToggle(false)}
@@ -449,7 +449,7 @@ const Layout = () => {
 
             {/* User Profile Section - Above Logout */}
             {!sidebarCollapsed && (
-              <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#052829]' : 'border-slate-200 bg-white'}`}>
+              <div className={`p-2 border-t ${sidebarTheme === 'dark' ? 'border-[#0a3a3c] bg-[#0a0e17]' : 'border-slate-200 bg-white'}`}>
                 <Link
                   to="/profile"
                   onClick={() => setSidebarOpen(false)}
@@ -459,7 +459,7 @@ const Layout = () => {
                     }`}
                 >
                   <div className="relative">
-                    <div className="w-7 h-7 bg-[#052829] rounded-lg flex items-center justify-center">
+                    <div className="w-7 h-7 bg-[#0a0e17] rounded-lg flex items-center justify-center">
                       {user?.avatar ? (
                         <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                       ) : (
@@ -554,13 +554,13 @@ const Layout = () => {
 
         {/* Main content */}
         <main className={`flex-1 min-h-screen flex flex-col pt-14 lg:pt-0 relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'} ${
-          sidebarTheme === 'dark' ? 'bg-[#052829]' : 'bg-slate-50'
+          sidebarTheme === 'dark' ? 'bg-[#0a0e17]' : 'bg-slate-50'
         }`}>
           {/* Top bar */}
           <div
             className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-colors duration-200 ${
               sidebarTheme === 'dark'
-                ? 'bg-[#052829] border-[#0a3a3c]'
+                ? 'bg-[#0a0e17] border-[#0a3a3c]'
                 : 'bg-white border-slate-200'
             }`}
           >
@@ -624,7 +624,7 @@ const Layout = () => {
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                     sidebarTheme === 'dark'
                       ? 'bg-[#ff4701]'
-                      : 'bg-[#052829]'
+                      : 'bg-[#0a0e17]'
                   }`}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
@@ -653,7 +653,7 @@ const Layout = () => {
                         onClick={() => setAvatarDropdownOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
                           sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-[#052829]/50'
+                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
                             : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
@@ -665,7 +665,7 @@ const Layout = () => {
                         onClick={() => setAvatarDropdownOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
                           sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-[#052829]/50'
+                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
                             : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
@@ -676,7 +676,7 @@ const Layout = () => {
                         onClick={handleLogout}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
                           sidebarTheme === 'dark'
-                            ? 'text-rose-400 hover:bg-[#052829]/50'
+                            ? 'text-rose-400 hover:bg-[#0a0e17]/50'
                             : 'text-rose-600 hover:bg-rose-50'
                         }`}
                       >
@@ -714,7 +714,7 @@ const Layout = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={(e) => e.stopPropagation()}
                 className={`bg-white rounded-lg p-6 max-w-md w-full ${
-                  sidebarTheme === 'dark' ? 'bg-[#052829] border border-[#0a3a3c]' : 'bg-white border border-slate-200'
+                  sidebarTheme === 'dark' ? 'bg-[#0a0e17] border border-[#0a3a3c]' : 'bg-white border border-slate-200'
                 }`}
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -780,7 +780,7 @@ const Layout = () => {
               <motion.div
                 className={`w-10 h-10 rounded-full border-2 ${
                   sidebarTheme === 'dark' 
-                    ? 'border-[#052829] border-t-[#ff4701]' 
+                    ? 'border-[#0a0e17] border-t-[#ff4701]' 
                     : 'border-slate-200 border-t-[#ff4701]'
                 }`}
                 animate={{ rotate: 360 }}

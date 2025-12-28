@@ -13,7 +13,7 @@ const CardSkeleton = ({ count = 3 }) => {
           key={i}
           className={`rounded-lg p-4 border ${
             theme === 'dark'
-              ? 'bg-[#052829] border-[#0a3a3c]'
+              ? 'bg-[#0a0e17] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           } animate-pulse`}
         >

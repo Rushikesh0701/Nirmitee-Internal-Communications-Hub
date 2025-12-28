@@ -520,7 +520,7 @@ function NewsList() {
       {/* Main Search Bar */}
       <div className={`rounded-lg border p-2.5 ${
         theme === 'dark'
-          ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
+          ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
       }`}>
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
@@ -535,7 +535,7 @@ function NewsList() {
               placeholder="Search news by keywords, phrases, or topics..."
               className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent ${
                 theme === 'dark'
-                  ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200 placeholder-slate-500'
+                  ? 'border-[#ff4701] bg-[#0a0e17]/50 text-slate-200 placeholder-slate-500'
                   : 'border-gray-300 bg-white text-gray-900'
               }`}
             />
@@ -567,7 +567,7 @@ function NewsList() {
       {/* Filters Section */}
       <div className={`rounded-lg border p-2.5 ${
         theme === 'dark'
-          ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
+          ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
       }`}>
         <div className="flex items-center justify-between mb-2">
@@ -783,14 +783,14 @@ function NewsList() {
               key={i}
               className={`flex flex-col rounded-lg overflow-hidden ${
                 theme === 'dark'
-                  ? 'border border-[#0a3a3c]/50 bg-[#052829]/50'
+                  ? 'border border-[#0a3a3c]/50 bg-[#0a0e17]/50'
                   : 'border border-gray-200 bg-white'
               }`}
             >
               <Skeleton
                 height={80}
                 baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
-                highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
                 className="w-full"
               />
               <div className="p-2 space-y-2">
@@ -798,13 +798,13 @@ function NewsList() {
                   height={14}
                   count={2}
                   baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
-                  highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                  highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
                 />
                 <Skeleton
                   height={12}
                   width="60%"
                   baseColor={theme === 'dark' ? '#0a3a3c' : '#e2e8f0'}
-                  highlightColor={theme === 'dark' ? '#052829' : '#f1f5f9'}
+                  highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
                 />
               </div>
             </div>
@@ -865,7 +865,7 @@ function NewsList() {
                   key={uniqueKey}
                   className={`flex flex-col rounded-lg overflow-hidden cursor-pointer group ${
                     theme === 'dark'
-                      ? 'border border-[#0a3a3c]/50 bg-[#052829]/50'
+                      ? 'border border-[#0a3a3c]/50 bg-[#0a0e17]/50'
                       : 'border border-gray-200 bg-white'
                   }`}
                   onClick={() => {
@@ -877,7 +877,7 @@ function NewsList() {
                   }}
                 >
                   <div className={`relative w-full h-20 overflow-hidden ${
-                    theme === 'dark' ? 'bg-[#052829]/50' : 'bg-gray-100'
+                    theme === 'dark' ? 'bg-[#0a0e17]/50' : 'bg-gray-100'
                   }`}>
                     {imageUrl ? (
                       <img
@@ -931,7 +931,7 @@ function NewsList() {
                       {article.category && (
                         <span className={`px-1 py-0.5 rounded text-[10px] whitespace-nowrap ${
                           theme === 'dark'
-                            ? 'bg-[#052829]/50 text-slate-300'
+                            ? 'bg-[#0a0e17]/50 text-slate-300'
                             : 'bg-gray-100 text-gray-700'
                         }`}>
                           {article.category}
@@ -950,7 +950,7 @@ function NewsList() {
       {!loading && articles.length > 0 && (
         <div className={`mt-3 rounded-lg border p-2 ${
           theme === 'dark'
-            ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
+            ? 'bg-[#0a0e17]/50 border-[#0a3a3c]/50'
             : 'bg-white border-gray-200'
         }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
@@ -964,7 +964,7 @@ function NewsList() {
                 onChange={handleRecordsPerPageChange}
                 className={`px-2 py-1 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-slate-600 font-medium cursor-pointer ${
                   theme === 'dark'
-                    ? 'border-[#ff4701] bg-[#052829]/50 text-slate-200'
+                    ? 'border-[#ff4701] bg-[#0a0e17]/50 text-slate-200'
                     : 'border-gray-300 text-gray-700 bg-white'
                 }`}
               >
@@ -1006,7 +1006,7 @@ function NewsList() {
                 disabled={currentPage === 1 || loadingMore}
                 className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
+                    ? 'bg-[#0a0e17]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="First page"
@@ -1023,7 +1023,7 @@ function NewsList() {
                 disabled={currentPage === 1 || loadingMore}
                 className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
+                    ? 'bg-[#0a0e17]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title="Previous page"
@@ -1046,7 +1046,7 @@ function NewsList() {
                 disabled={!hasMorePages || loadingMore}
                 className={`p-1.5 rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-[#052829]/50 disabled:text-slate-500'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-[#0a0e17]/50 disabled:text-slate-500'
                     : 'bg-[#ff4701] text-white hover:bg-[#ff5500] disabled:bg-gray-300 disabled:text-gray-500'
                 }`}
                 title={hasMorePages ? "Next page" : "No more pages"}
@@ -1064,7 +1064,7 @@ function NewsList() {
                 disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
                 className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
                   theme === 'dark'
-                    ? 'bg-[#052829]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#052829]/50 disabled:text-slate-600'
+                    ? 'bg-[#0a0e17]/50 border-[#0a3a3c] text-slate-300 hover:bg-[#0a3a3c] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
                 }`}
                 title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}

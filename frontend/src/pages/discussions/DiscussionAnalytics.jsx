@@ -180,7 +180,7 @@ const DiscussionAnalytics = () => {
                   <Tooltip
                     contentStyle={{
                       backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
-                      border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0',
+                      border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0',
                       borderRadius: '8px',
                       color: theme === 'dark' ? '#e2e8f0' : '#1e293b'
                     }}

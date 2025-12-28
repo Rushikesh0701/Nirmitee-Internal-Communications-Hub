@@ -28,7 +28,7 @@ export const ThemeProvider = ({ children }) => {
     // Apply theme class to body for global dark mode
     if (theme === 'dark') {
       document.body.classList.add('dark-theme')
-      document.body.style.backgroundColor = '#052829'
+      document.body.style.backgroundColor = '#0a0e17'
     } else {
       document.body.classList.remove('dark-theme')
       document.body.style.backgroundColor = '#ebf3ff'

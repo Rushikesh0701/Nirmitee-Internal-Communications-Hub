@@ -24,7 +24,7 @@ const EmptyState = ({
     >
       <div className={`rounded-xl border ${
         theme === 'dark'
-          ? 'bg-[#052829] border-[#0a3a3c]'
+          ? 'bg-[#0a0e17] border-[#0a3a3c]'
           : 'bg-white border-slate-200'
       } ${compact ? 'p-6 py-8' : 'p-10 py-12'} w-full`}>
         <div className="flex flex-col items-center text-center">

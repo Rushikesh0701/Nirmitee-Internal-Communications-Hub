@@ -246,7 +246,7 @@
   font-size: 18px;
   line-height: 1.7;
   letter-spacing: -0.003em;
-  color: #052829;
+  color: #0a0e17;
 }
 
 .blog-content-dark p {
@@ -307,7 +307,7 @@
 
 .blog-content-dark pre {
   background-color: #1e293b;
-  border: 1px solid #052829;
+  border: 1px solid #0a0e17;
   padding: 16px;
   border-radius: 8px;
   overflow-x: auto;
