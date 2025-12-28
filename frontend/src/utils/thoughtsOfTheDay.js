@@ -85,3 +85,5 @@ export const getThoughtOfTheDay = () => {
   return thoughtsOfTheDay[index]
 }
 
+
+

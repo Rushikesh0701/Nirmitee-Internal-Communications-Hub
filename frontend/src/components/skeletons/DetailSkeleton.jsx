@@ -50,3 +50,5 @@ const DetailSkeleton = () => {
 
 export default DetailSkeleton
 
+
+

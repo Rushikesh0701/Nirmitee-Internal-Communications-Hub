@@ -80,6 +80,11 @@ export default function RewardsCatalog() {
             </div>
           ))}
         </div>
+      ) : (
+        <div className="text-center py-12">
+          <Gift className="text-gray-400 mx-auto mb-4" size={48} />
+          <p className="text-gray-600 text-lg">No rewards available at the moment</p>
+        </div>
       )}
 
       {selectedReward && (
