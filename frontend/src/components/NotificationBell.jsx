@@ -119,7 +119,7 @@ export default function NotificationBell() {
       >
         <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-overline rounded-full w-4 h-4 flex items-center justify-center font-semibold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -137,7 +137,7 @@ export default function NotificationBell() {
                     queryClient.invalidateQueries('notifications')
                     queryClient.invalidateQueries('unreadCount')
                   }}
-                  className="text-sm text-slate-700 hover:text-slate-700"
+                  className="text-caption text-slate-700 hover:text-slate-700"
                 >
                   Mark all read
                 </button>
@@ -146,7 +146,7 @@ export default function NotificationBell() {
                 <button
                   onClick={handleClearAll}
                   disabled={deleteAllMutation.isLoading}
-                  className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                  className="text-caption text-red-600 hover:text-red-700 flex items-center gap-1"
                   title="Clear all notifications"
                 >
                   <Trash2 size={14} />
@@ -167,8 +167,8 @@ export default function NotificationBell() {
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <p className="text-sm text-gray-900">{notification.content}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-caption text-gray-900">{notification.content}</p>
+                  <p className="text-overline text-gray-500 mt-1">
                     {format(new Date(notification.createdAt), 'MMM d, h:mm a')}
                   </p>
                 </div>
@@ -178,7 +178,7 @@ export default function NotificationBell() {
           <div className="p-4 border-t text-center">
             <Link
               to="/notifications"
-              className="text-sm text-slate-700 hover:text-slate-700"
+              className="text-caption text-slate-700 hover:text-slate-700"
               onClick={() => setIsOpen(false)}
             >
               View all notifications

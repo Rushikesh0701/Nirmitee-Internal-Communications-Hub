@@ -42,10 +42,10 @@ const Register = () => {
           transition={{ delay: 0.1 }}
         >
           <UserPlus size={14} className="text-slate-600" />
-          <span className="text-xs font-medium text-slate-600">Join Us</span>
+          <span className="text-overline text-slate-600">Join Us</span>
         </motion.div>
         <motion.h2 
-          className="text-xl font-bold text-slate-800 mb-1"
+          className="text-h1 text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -65,7 +65,7 @@ const Register = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="grid grid-cols-2 gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
+            <label className="block text-button text-slate-700 mb-2">First Name</label>
             <div className="relative group">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={14} />
               <input
@@ -78,11 +78,11 @@ const Register = () => {
                 placeholder="John"
               />
             </div>
-            {errors.firstName && <p className="text-rose-500 text-xs mt-1">{errors.firstName.message}</p>}
+            {errors.firstName && <p className="text-rose-500 text-overline mt-1">{errors.firstName.message}</p>}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
+            <label className="block text-button text-slate-700 mb-2">Last Name</label>
             <div className="relative group">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={14} />
               <input
@@ -95,12 +95,12 @@ const Register = () => {
                 placeholder="Doe"
               />
             </div>
-            {errors.lastName && <p className="text-rose-500 text-xs mt-1">{errors.lastName.message}</p>}
+            {errors.lastName && <p className="text-rose-500 text-overline mt-1">{errors.lastName.message}</p>}
           </motion.div>
         </div>
 
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+          <label className="block text-button text-slate-700 mb-2">Email Address</label>
           <div className="relative group">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
@@ -116,11 +116,11 @@ const Register = () => {
               placeholder="your.name@nirmitee.io"
             />
           </div>
-          {errors.email && <p className="text-rose-500 text-xs mt-1.5">{errors.email.message}</p>}
+          {errors.email && <p className="text-rose-500 text-overline mt-1.5">{errors.email.message}</p>}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <label className="block text-button text-slate-700 mb-2">Password</label>
           <div className="relative group">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
@@ -140,7 +140,7 @@ const Register = () => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.password && <p className="text-rose-500 text-xs mt-1.5">{errors.password.message}</p>}
+          {errors.password && <p className="text-rose-500 text-overline mt-1.5">{errors.password.message}</p>}
         </motion.div>
 
         <motion.button

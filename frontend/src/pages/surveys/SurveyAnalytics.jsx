@@ -79,15 +79,15 @@ const SurveyAnalytics = () => {
             analytics.questions.map((question, index) => (
               <div key={question.questionId} className="border-t pt-6">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="text-h2 text-gray-900 mb-2">
                     Question {index + 1}: {question.questionText}
                   </h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-caption text-gray-600">
                     <span className="flex items-center gap-1">
                       <TrendingUp size={16} />
                       {question.responseCount} responses
                     </span>
-                    <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
+                    <span className="px-2 py-1 bg-gray-100 rounded text-overline">
                       {question.type}
                     </span>
                   </div>
@@ -98,15 +98,15 @@ const SurveyAnalytics = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-slate-50 rounded-lg">
-                        <p className="text-sm text-gray-600">Average Rating</p>
-                        <p className="text-2xl font-bold text-slate-700">
+                        <p className="text-caption text-gray-600">Average Rating</p>
+                        <p className="text-h1 text-slate-700">
                           {question.averageRating} / 5
                         </p>
                       </div>
                       {question.ratingDistribution && (
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Range</p>
-                          <p className="text-lg font-semibold">
+                          <p className="text-caption text-gray-600">Range</p>
+                          <p className="text-h2">
                             {question.ratingDistribution.min} - {question.ratingDistribution.max}
                           </p>
                         </div>
@@ -128,7 +128,7 @@ const SurveyAnalytics = () => {
 
                         return (
                           <div key={option} className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center justify-between text-caption">
                               <span className="text-gray-700">{option}</span>
                               <span className="font-semibold text-gray-900">
                                 {count} ({percentage}%)
@@ -144,7 +144,7 @@ const SurveyAnalytics = () => {
                         )
                       })
                     ) : (
-                      <p className="text-gray-500 text-sm">No options available</p>
+                      <p className="text-gray-500 text-caption">No options available</p>
                     )}
                   </div>
                 )}
@@ -153,18 +153,18 @@ const SurveyAnalytics = () => {
                 {question.type === 'TEXT' && (
                   <div className="space-y-3">
                     <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-caption text-gray-600 mb-2">
                         {question.textResponseCount} text responses received
                       </p>
                       {question.sampleResponses && question.sampleResponses.length > 0 && (
                         <div className="mt-3 space-y-2">
-                          <p className="text-xs font-semibold text-gray-700 uppercase">
+                          <p className="text-overline text-gray-700 uppercase">
                             Sample Responses:
                           </p>
                           {question.sampleResponses.map((response, idx) => (
                             <div
                               key={idx}
-                              className="p-3 bg-white rounded border border-gray-200 text-sm text-gray-700"
+                              className="p-3 bg-white rounded border border-gray-200 text-caption text-gray-700"
                             >
                               &quot;{response}&quot;
                             </div>

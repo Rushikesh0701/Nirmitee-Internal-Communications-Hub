@@ -58,6 +58,35 @@
   body.dark-theme h6 {
     color: #f1f5f9 !important; /* text-slate-100 */
   }
+
+  /* Compact Global Typography - Base HTML Elements */
+  h1 {
+    @apply text-[20px] font-bold leading-tight tracking-tight;
+  }
+
+  h2 {
+    @apply text-[18px] font-semibold leading-snug tracking-tight;
+  }
+
+  h3 {
+    @apply text-[16px] font-semibold leading-snug tracking-tight;
+  }
+
+  h4 {
+    @apply text-[15px] font-medium leading-normal;
+  }
+
+  h5 {
+    @apply text-[15px] font-medium leading-normal;
+  }
+
+  h6 {
+    @apply text-[13px] font-medium leading-normal;
+  }
+
+  p {
+    @apply text-[15px] font-normal leading-relaxed;
+  }
   
   html {
     scroll-behavior: smooth;
@@ -464,6 +493,55 @@
 
   .text-responsive-md {
     @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  /* ================================
+     GLOBAL TYPOGRAPHY UTILITY CLASSES (COMPACT)
+     ================================ */
+  
+  /* Display / Headline (largest) */
+  .text-display {
+    @apply text-[22px] font-bold leading-tight tracking-tight;
+  }
+
+  /* Heading 1 */
+  .text-h1 {
+    @apply text-[20px] font-bold leading-tight tracking-tight;
+  }
+
+  /* Heading 2 */
+  .text-h2 {
+    @apply text-[18px] font-semibold leading-snug tracking-tight;
+  }
+
+  /* Heading 3 */
+  .text-h3 {
+    @apply text-[16px] font-semibold leading-snug tracking-tight;
+  }
+
+  /* Subheading */
+  .text-subheading {
+    @apply text-[15px] font-medium leading-normal;
+  }
+
+  /* Body / Paragraph */
+  .text-body {
+    @apply text-[15px] font-normal leading-relaxed;
+  }
+
+  /* Caption / Description */
+  .text-caption {
+    @apply text-[13px] font-normal leading-normal;
+  }
+
+  /* Button text */
+  .text-button {
+    @apply text-[14px] font-medium leading-normal tracking-wide;
+  }
+
+  /* Overline / Small text */
+  .text-overline {
+    @apply text-[11px] font-medium leading-tight tracking-widest uppercase;
   }
 }
 
@@ -1147,14 +1225,63 @@ body.dark-theme .border-[#1a1f2e] {
   @apply container mx-auto px-4 py-3 max-w-7xl;
 }
 
-/* Compact headings */
-.page-title {
-  @apply text-xl sm:text-2xl font-bold;
-}
+  /* ================================
+     GLOBAL TYPOGRAPHY UTILITY CLASSES (COMPACT)
+     ================================ */
+  
+  /* Display / Headline (largest) */
+  .text-display {
+    @apply text-[22px] font-bold leading-tight tracking-tight;
+  }
 
-.page-subtitle {
-  @apply text-sm;
-}
+  /* Heading 1 */
+  .text-h1 {
+    @apply text-[20px] font-bold leading-tight tracking-tight;
+  }
+
+  /* Heading 2 */
+  .text-h2 {
+    @apply text-[18px] font-semibold leading-snug tracking-tight;
+  }
+
+  /* Heading 3 */
+  .text-h3 {
+    @apply text-[16px] font-semibold leading-snug tracking-tight;
+  }
+
+  /* Subheading */
+  .text-subheading {
+    @apply text-[15px] font-medium leading-normal;
+  }
+
+  /* Body / Paragraph */
+  .text-body {
+    @apply text-[15px] font-normal leading-relaxed;
+  }
+
+  /* Caption / Description */
+  .text-caption {
+    @apply text-[13px] font-normal leading-normal;
+  }
+
+  /* Button text */
+  .text-button {
+    @apply text-[14px] font-medium leading-normal tracking-wide;
+  }
+
+  /* Overline / Small text */
+  .text-overline {
+    @apply text-[11px] font-medium leading-tight tracking-widest uppercase;
+  }
+
+  /* Compact headings */
+  .page-title {
+    @apply text-[20px] sm:text-[22px] font-bold;
+  }
+
+  .page-subtitle {
+    @apply text-[13px];
+  }
 
 /* Compact cards */
 .compact-card {

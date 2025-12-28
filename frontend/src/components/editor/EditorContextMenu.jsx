@@ -204,12 +204,12 @@ const EditorContextMenu = ({
         <button
           type="button"
           onClick={() => setShowFontSizePicker(!showFontSizePicker)}
-          className="w-full flex items-center gap-3 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 text-caption text-gray-700 hover:bg-gray-100 rounded transition-colors"
           title="Font Size"
         >
           <Type className="w-4 h-4 flex-shrink-0" />
           <span className="flex-1 text-left">Text Size</span>
-          <span className="text-xs text-gray-400">{getCurrentFontSize() || 'Default'}</span>
+          <span className="text-overline text-gray-400">{getCurrentFontSize() || 'Default'}</span>
         </button>
         {showFontSizePicker && (
           <div className="absolute left-full top-0 ml-1 bg-white border border-gray-300 rounded-lg z-[10000] p-2 max-h-48 overflow-y-auto">
@@ -218,7 +218,7 @@ const EditorContextMenu = ({
               placeholder="Enter size"
               min="8"
               max="200"
-              className="w-24 px-2 py-1 border border-gray-300 rounded text-sm mb-2"
+              className="w-24 px-2 py-1 border border-gray-300 rounded text-caption mb-2"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   const size = e.target.value;
@@ -255,7 +255,7 @@ const EditorContextMenu = ({
         <button
           type="button"
           onClick={() => setShowColorPicker(!showColorPicker)}
-          className="w-full flex items-center gap-3 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 text-caption text-gray-700 hover:bg-gray-100 rounded transition-colors"
           title="Text Color"
         >
           <Palette className="w-4 h-4 flex-shrink-0" />
@@ -289,7 +289,7 @@ const EditorContextMenu = ({
                           style={{ backgroundColor: color }}
                         />
                         {/* Tooltip with hex code */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10">
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-overline rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10">
                           {color}
                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                             <div className="border-4 border-transparent border-t-gray-800"></div>
@@ -304,7 +304,7 @@ const EditorContextMenu = ({
             
             {/* Custom Color Picker */}
             <div className="mt-4 pt-3 border-t border-gray-200">
-              <div className="text-xs text-gray-500 mb-2">Custom Color</div>
+              <div className="text-overline text-gray-500 mb-2">Custom Color</div>
               <div className="flex items-center gap-2">
                 <div 
                   className="w-10 h-10 rounded-lg border-2 border-gray-300 flex-shrink-0"
@@ -327,7 +327,7 @@ const EditorContextMenu = ({
                       editor.chain().focus().setColor(color).run();
                     }
                   }}
-                  className="w-20 px-2 py-1 text-xs border border-gray-300 rounded"
+                  className="w-20 px-2 py-1 text-overline border border-gray-300 rounded"
                   placeholder="#000000"
                 />
               </div>
@@ -360,7 +360,7 @@ const EditorContextMenu = ({
       ))}
       
       {/* Keyboard shortcuts info */}
-      <div className="border-t border-gray-200 mt-1 pt-1 px-4 py-2 text-xs text-gray-500">
+      <div className="border-t border-gray-200 mt-1 pt-1 px-4 py-2 text-overline text-gray-500">
         Shortcuts: ⌘B Bold, ⌘I Italic, ⌘U Underline
       </div>
     </div>

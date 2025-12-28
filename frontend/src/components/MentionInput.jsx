@@ -123,7 +123,7 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <span className="text-purple-300 font-semibold text-sm">
+                    <span className="text-purple-300 font-semibold text-caption">
                       {user.firstName?.[0]}
                     </span>
                   </div>
@@ -133,7 +133,7 @@ const MentionInput = ({ value, onChange, placeholder = 'Type @ to mention someon
                     {user.firstName} {user.lastName}
                   </div>
                   {user.displayName && (
-                    <div className="text-xs text-purple-300/50">{user.displayName}</div>
+                    <div className="text-overline text-purple-300/50">{user.displayName}</div>
                   )}
                 </div>
               </div>

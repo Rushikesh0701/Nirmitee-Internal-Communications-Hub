@@ -18,7 +18,7 @@ const AuthLayout = () => {
           <Link to="/dashboard" className="inline-block">
             <img src={Logo} alt="Nirmitee.io" className="h-12 mx-auto" />
           </Link>
-          <p className="text-slate-600 text-sm font-medium mt-3">
+          <p className="text-slate-600 text-button mt-3">
             Internal Communications Platform
           </p>
         </div>
@@ -29,7 +29,7 @@ const AuthLayout = () => {
         </div>
 
         {/* Footer text */}
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-overline text-slate-400 mt-6">
           © 2025 Nirmitee.io • All rights reserved
         </p>
       </motion.div>

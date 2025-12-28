@@ -174,14 +174,14 @@ const Dashboard = () => {
                 }`}>
                   <Sparkles size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-700'} />
                 </div>
-                <span className={`text-xs font-medium transition-colors ${
+                <span className={`text-overline transition-colors ${
                   theme === 'dark' ? 'text-slate-500' : 'text-slate-700'
                 }`}>
                   {greeting}
                 </span>
               </div>
               
-              <h1 className={`text-lg sm:text-xl lg:text-2xl font-bold mb-1 transition-colors ${
+              <h1 className={`text-lg sm:text-xl lg:text-h1 mb-1 transition-colors ${
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
               }`}>
                 Welcome back,{' '}
@@ -241,12 +241,12 @@ const Dashboard = () => {
                     <div className="h-full flex flex-col justify-between p-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className={`text-xs font-semibold uppercase tracking-wider mb-1 transition-colors ${
+                          <p className={`text-overline uppercase tracking-wider mb-1 transition-colors ${
                             theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
                           }`}>
                             {stat.label}
                           </p>
-                          <p className={`text-lg font-bold transition-colors ${
+                          <p className={`text-h2 transition-colors ${
                             theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
                           }`}>
                             {stat.value.toLocaleString()}
@@ -264,7 +264,7 @@ const Dashboard = () => {
                         >
                           <Activity size={10} className="text-emerald-500" />
                         </motion.div>
-                        <span className="text-xs font-semibold text-emerald-500">Live</span>
+                        <span className="text-overline text-emerald-500">Live</span>
                       </div>
                     </div>
                   </motion.div>
@@ -287,7 +287,7 @@ const Dashboard = () => {
                   <Megaphone size={18} className="text-white" />
                 </div>
                 <div>
-                  <h2 className={`text-lg sm:text-xl font-bold transition-colors ${
+                  <h2 className={`text-lg sm:text-h1 transition-colors ${
                     theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
                   }`}>
                     Announcements
@@ -448,7 +448,7 @@ const Dashboard = () => {
                   <Newspaper size={18} className="text-white" />
                 </div>
                 <div>
-                  <h2 className={`text-lg sm:text-xl font-bold transition-colors ${
+                  <h2 className={`text-lg sm:text-h1 transition-colors ${
                     theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
                   }`}>
                     Latest News
@@ -591,7 +591,7 @@ const Dashboard = () => {
         {/* Enhanced Quick Access Links */}
         <motion.div variants={itemVariants}>
           <div className="mb-3">
-            <h2 className={`text-lg sm:text-xl font-bold mb-1 transition-colors ${
+            <h2 className={`text-lg sm:text-h1 mb-1 transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
             }`}>
               Quick Access

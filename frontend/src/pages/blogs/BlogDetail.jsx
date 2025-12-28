@@ -48,7 +48,7 @@ const BlogDetail = () => {
           title="Invalid Blog ID"
           message="The blog ID is missing or invalid"
           action={
-            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-sm font-medium">
+            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-button">
               <ArrowLeft size={16} /> Back to Blogs
             </Link>
           }
@@ -75,7 +75,7 @@ const BlogDetail = () => {
           title="Blog not found"
           message="The blog you're looking for doesn't exist or has been removed"
           action={
-            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-sm font-medium">
+            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-button">
               <ArrowLeft size={16} /> Back to Blogs
             </Link>
           }
@@ -95,13 +95,13 @@ const BlogDetail = () => {
       {isAuthenticated && isDraft && isOwner && <DraftBanner onPublish={handlePublish} isPublishing={publishMutation.isLoading} />}
 
       <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card p-8">
-        <div className="flex items-center gap-4 mb-4 text-sm text-slate-500">
+        <div className="flex items-center gap-4 mb-4 text-caption text-slate-500">
           <span className="badge badge-primary">{blog.category || 'Uncategorized'}</span>
           <span className="flex items-center gap-1"><Calendar size={14} /> {formatDate(blog.createdAt)}</span>
           {isDraft && <span className="badge badge-warning">Draft</span>}
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 leading-tight">{blog.title}</h1>
+        <h1 className="text-3xl md:text-display text-slate-800 mb-4 leading-tight">{blog.title}</h1>
 
         <div className="flex items-center gap-4 mb-6 text-slate-500">
           <span className="font-medium text-slate-700">{authorName}</span>

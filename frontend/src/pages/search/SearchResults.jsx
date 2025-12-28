@@ -145,7 +145,7 @@ const SearchResults = () => {
     >
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+        <h1 className="text-h1 text-slate-800 dark:text-slate-200">
           Search
         </h1>
         <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -173,7 +173,7 @@ const SearchResults = () => {
 
         {/* Type Filters */}
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+          <span className="text-caption text-slate-600 dark:text-slate-400 flex items-center gap-2">
             <Filter size={16} />
             Filter by type:
           </span>
@@ -253,24 +253,24 @@ const SearchResults = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200">
+                      <h3 className="text-h3 text-slate-800 dark:text-slate-200">
                         {item.title || item.name || `${item.firstName} ${item.lastName}`}
                       </h3>
-                      <span className="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-400">
+                      <span className="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-overline text-slate-600 dark:text-slate-400">
                         {item._type}
                       </span>
                     </div>
                     {item.content && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                      <p className="text-caption text-slate-600 dark:text-slate-400 line-clamp-2">
                         {item.content.replace(/<[^>]*>/g, '').substring(0, 200)}
                       </p>
                     )}
                     {item.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                      <p className="text-caption text-slate-600 dark:text-slate-400 line-clamp-2">
                         {item.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                    <div className="flex items-center gap-4 mt-2 text-overline text-slate-500">
                       {item.createdAt && (
                         <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                       )}

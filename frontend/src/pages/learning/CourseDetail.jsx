@@ -61,7 +61,7 @@ const CourseDetail = () => {
         <div className="space-y-4">
           <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
 
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-caption text-gray-600">
             <div className="flex items-center gap-2">
               <Users size={16} />
               <span>{course.enrollmentCount} enrolled</span>
@@ -78,7 +78,7 @@ const CourseDetail = () => {
                 <span>{course.rating.toFixed(1)} rating</span>
               </div>
             )}
-            <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800">
+            <span className="px-2 py-1 text-overline rounded bg-gray-100 text-gray-800">
               {course.level}
             </span>
           </div>
@@ -101,7 +101,7 @@ const CourseDetail = () => {
                     style={{ width: `${course.enrollment.progress}%` }}
                   />
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-caption text-gray-600 mt-1">
                   Progress: {course.enrollment.progress}%
                 </p>
               </div>

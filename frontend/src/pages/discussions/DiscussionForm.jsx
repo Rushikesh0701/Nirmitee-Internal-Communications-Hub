@@ -151,47 +151,47 @@ const DiscussionForm = () => {
       </Link>
 
       <div className="card p-4">
-        <h1 className="text-xl font-bold text-slate-800 mb-4">
+        <h1 className="text-h1 text-slate-800 mb-4">
           {isEdit ? 'Edit Discussion' : 'Start New Discussion'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input text-sm py-2"
+              className="input text-caption py-2"
               placeholder="Enter discussion title"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-caption text-red-600">{errors.title.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Content <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('content', { required: 'Content is required' })}
               rows={8}
-              className="input text-sm py-2 resize-y"
+              className="input text-caption py-2 resize-y"
               placeholder="Share your thoughts..."
             />
             {errors.content && (
-              <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
+              <p className="mt-1 text-caption text-red-600">{errors.content.message}</p>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                 Category
               </label>
-              <select {...register('category')} className="input text-sm py-2">
+              <select {...register('category')} className="input text-caption py-2">
                 <option value="General">General</option>
                 <option value="Technical">Technical</option>
                 <option value="Product">Product</option>
@@ -201,16 +201,16 @@ const DiscussionForm = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                 Tags
               </label>
               <input
                 type="text"
                 {...register('tags')}
-                className="input text-sm py-2"
+                className="input text-caption py-2"
                 placeholder="tag1, tag2, tag3"
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-overline text-slate-500">
                 Separate multiple tags with commas
               </p>
             </div>
@@ -224,7 +224,7 @@ const DiscussionForm = () => {
                 {...register('isPinned')}
                 className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
               />
-              <label htmlFor="isPinned" className="text-sm font-semibold text-gray-700">
+              <label htmlFor="isPinned" className="text-caption text-gray-700">
                 Pin discussion
               </label>
             </div>
@@ -236,7 +236,7 @@ const DiscussionForm = () => {
                 {...register('isLocked')}
                 className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
               />
-              <label htmlFor="isLocked" className="text-sm font-semibold text-gray-700">
+              <label htmlFor="isLocked" className="text-caption text-gray-700">
                 Lock discussion
               </label>
             </div>

@@ -21,8 +21,8 @@ export default function Leaderboard() {
   return (
     <div className="space-y-3">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Leaderboard</h1>
-        <p className="text-sm text-gray-600 mt-0.5">Top performers by recognition points</p>
+        <h1 className="text-h1 text-gray-900">Leaderboard</h1>
+        <p className="text-caption text-gray-600 mt-0.5">Top performers by recognition points</p>
       </div>
 
       {isLoading ? (
@@ -56,12 +56,12 @@ export default function Leaderboard() {
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{entry.user?.name}</h3>
-                    <p className="text-sm text-gray-500">{entry.user?.email}</p>
+                    <p className="text-caption text-gray-500">{entry.user?.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="text-yellow-500" size={20} />
-                    <span className="text-xl font-bold text-gray-900">{entry.points}</span>
-                    <span className="text-sm text-gray-500">points</span>
+                    <span className="text-h1 text-gray-900">{entry.points}</span>
+                    <span className="text-caption text-gray-500">points</span>
                   </div>
                 </div>
               </div>

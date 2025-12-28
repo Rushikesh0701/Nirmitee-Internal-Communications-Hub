@@ -19,10 +19,10 @@ export default function PointsHistory() {
       <div className="bg-[#151a28] rounded-lg p-3 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-yellow-100 text-sm mb-2">Total Points</p>
+            <p className="text-yellow-100 text-caption mb-2">Total Points</p>
             <div className="flex items-center gap-2">
               <Star size={32} />
-              <span className="text-2xl font-bold">{userPoints}</span>
+              <span className="text-h1">{userPoints}</span>
             </div>
           </div>
           <TrendingUp size={48} className="opacity-50" />
@@ -30,7 +30,7 @@ export default function PointsHistory() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold mb-4">Redemption History</h2>
+        <h2 className="text-h1 mb-4">Redemption History</h2>
         {isLoading ? (
           <Loading />
         ) : (
@@ -44,7 +44,7 @@ export default function PointsHistory() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{redemption.reward?.title}</h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-caption text-gray-500">
                         {format(new Date(redemption.createdAt), 'MMM d, yyyy')}
                       </p>
                     </div>
@@ -55,7 +55,7 @@ export default function PointsHistory() {
                       <span className="font-medium">-{redemption.reward?.points}</span>
                     </div>
                     <span
-                      className={`text-sm font-medium ${
+                      className={`text-button ${
                         redemption.status === 'APPROVED'
                           ? 'text-green-600'
                           : redemption.status === 'REJECTED'

@@ -162,7 +162,7 @@ const AnnouncementNotification = () => {
             }`}>
               {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
             </p>
-            <span className={`text-sm font-medium ${
+            <span className={`text-button ${
               theme === 'dark'
                 ? 'text-indigo-400 hover:text-indigo-300'
                 : 'text-primary-600 hover:text-primary-700'

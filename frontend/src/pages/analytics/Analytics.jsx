@@ -62,14 +62,14 @@ const Analytics = () => {
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Analytics Dashboard</h1>
-            <p className="text-slate-500 text-xs mt-0.5">Platform insights and metrics</p>
+            <h1 className="text-h1 text-slate-800">Analytics Dashboard</h1>
+            <p className="text-slate-500 text-overline mt-0.5">Platform insights and metrics</p>
           </div>
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
             <Filter size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
-            <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} className="input-select text-sm py-2">
+            <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} className="input-select text-caption py-2">
               <option value="all">All Content</option>
               <option value="news">News</option>
               <option value="blog">Blogs</option>
@@ -78,7 +78,7 @@ const Analytics = () => {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
-            <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="input-select text-sm py-2">
+            <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="input-select text-caption py-2">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
@@ -87,7 +87,7 @@ const Analytics = () => {
           </div>
           <button
             onClick={() => exportAnalyticsToCSV({ overview: stats?.overview, combinedTimeSeries: timeSeriesData }, 'analytics-export')}
-            className="btn-secondary flex items-center gap-2 text-sm"
+            className="btn-secondary flex items-center gap-2 text-caption"
             title="Export to CSV"
           >
             <Download size={16} />
@@ -105,8 +105,8 @@ const Analytics = () => {
           <motion.div key={stat.label} className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500">{stat.label}</p>
-                <p className="text-xl font-bold text-slate-800">{stat.value}</p>
+                <p className="text-overline text-slate-500">{stat.label}</p>
+                <p className="text-h1 text-slate-800">{stat.value}</p>
               </div>
               <div className="p-2 rounded-lg bg-[#151a28]">
                 <stat.icon size={20} className="text-white" />
@@ -122,7 +122,7 @@ const Analytics = () => {
         <DetailSkeleton />
       ) : (
       <motion.div variants={itemVariants} className="card">
-        <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Creation Over Time</h2>
+        <h2 className="text-xl text-h3 text-slate-800 mb-4">Content Creation Over Time</h2>
         {isLoadingContent ? (
           <div className={`h-64 flex items-center justify-center animate-pulse ${
             theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-100'
@@ -175,7 +175,7 @@ const Analytics = () => {
         <DetailSkeleton />
       ) : (
       <motion.div variants={itemVariants} className="card">
-        <h2 className="text-xl font-semibold text-slate-800 mb-4">Content Distribution</h2>
+        <h2 className="text-xl text-h3 text-slate-800 mb-4">Content Distribution</h2>
         {pieData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>

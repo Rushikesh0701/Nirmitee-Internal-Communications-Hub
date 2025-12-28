@@ -127,7 +127,7 @@ const SurveyDetail = () => {
               <p className="text-gray-600">{survey.description}</p>
             )}
             {!isActive && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
+              <p className="mt-2 text-caption text-red-600 font-medium">
                 This survey is {survey.status.toLowerCase()}
               </p>
             )}
@@ -155,7 +155,7 @@ const SurveyDetail = () => {
 
                 return (
                   <div key={questionId} className="border-b pb-6 last:border-b-0">
-                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                    <label className="block text-h2 text-gray-900 mb-3">
                       {index + 1}. {question.questionText}
                       {question.required && (
                         <span className="text-red-500 ml-1">*</span>
@@ -211,7 +211,7 @@ const SurveyDetail = () => {
                               className="sr-only"
                               required={question.required}
                             />
-                            <span className={`text-lg font-semibold ${
+                            <span className={`text-h2 ${
                               currentResponse === rating.toString()
                                 ? 'text-primary-600'
                                 : 'text-gray-400'
@@ -220,7 +220,7 @@ const SurveyDetail = () => {
                             </span>
                           </label>
                         ))}
-                        <span className="ml-4 text-sm text-gray-500">
+                        <span className="ml-4 text-caption text-gray-500">
                           {currentResponse ? `${currentResponse}/5` : 'Select rating'}
                         </span>
                       </div>

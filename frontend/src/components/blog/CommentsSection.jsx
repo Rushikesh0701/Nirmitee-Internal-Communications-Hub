@@ -33,7 +33,7 @@ const CommentsSection = ({
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card max-w-[680px] mx-auto">
-      <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <h3 className="text-h1 text-gray-800 mb-6 flex items-center gap-2">
         <MessageCircle size={20} /> Comments ({comments.length})
       </h3>
 
@@ -109,7 +109,7 @@ const CommentsSection = ({
                     {replies.length > INITIAL_REPLIES_LIMIT && (
                       <button
                         onClick={() => toggleExpandReplies(commentId)}
-                        className="text-slate-700 hover:text-slate-700 text-sm flex items-center gap-1 mt-2"
+                        className="text-slate-700 hover:text-slate-700 text-caption flex items-center gap-1 mt-2"
                       >
                         {expandedReplies[commentId] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         {expandedReplies[commentId] ? 'View less' : `View ${replies.length - INITIAL_REPLIES_LIMIT} more`}

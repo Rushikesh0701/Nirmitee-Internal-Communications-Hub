@@ -132,7 +132,7 @@ const BlogAnalytics = () => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+            <h1 className="text-h1 text-slate-800 dark:text-slate-200">
               Blog Analytics
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -145,7 +145,7 @@ const BlogAnalytics = () => {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="input-select text-sm py-2"
+            className="input-select text-caption py-2"
           >
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
@@ -167,8 +167,8 @@ const BlogAnalytics = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
-                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-1">
+                <p className="text-caption text-slate-600 dark:text-slate-400">{stat.label}</p>
+                <p className="text-h1 text-slate-800 dark:text-slate-200 mt-1">
                   {stat.value}
                 </p>
               </div>
@@ -187,7 +187,7 @@ const BlogAnalytics = () => {
         <>
           {/* Engagement Over Time */}
           <div className="card">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+            <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
               Comments Over Time
             </h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -221,7 +221,7 @@ const BlogAnalytics = () => {
           {/* Top Commenters */}
           {analytics?.engagement?.topCommenters?.length > 0 && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+              <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                 Top Commenters
               </h2>
               <div className="space-y-3">
@@ -229,7 +229,7 @@ const BlogAnalytics = () => {
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="text-caption text-slate-600 dark:text-slate-300">
                           {commenter.user?.firstName?.[0] || 'U'}
                         </span>
                       </div>
@@ -237,7 +237,7 @@ const BlogAnalytics = () => {
                         <p className="font-medium text-slate-800 dark:text-slate-200">
                           {commenter.user?.firstName} {commenter.user?.lastName}
                         </p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-caption text-slate-600 dark:text-slate-400">
                           {commenter.commentCount || 0} comments
                         </p>
                       </div>

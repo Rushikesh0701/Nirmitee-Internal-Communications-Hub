@@ -195,14 +195,14 @@ const ImageModal = ({
     <>
       <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
         <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 my-8">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">
+          <h3 className="text-h2 mb-4 text-gray-800">
             {editingImage ? '✏️ Edit Image' : 'Insert Image'}
           </h3>
           
           {/* File Upload Option - Only show for new images */}
           {!editingImage && (
           <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-button text-gray-700 mb-2">
               Upload from Device
             </label>
             <button
@@ -226,7 +226,7 @@ const ImageModal = ({
                 </>
               )}
             </button>
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-overline text-gray-500 mt-2 text-center">
               Supports JPG, PNG, GIF, WebP (max 10MB)
             </p>
           </div>
@@ -238,7 +238,7 @@ const ImageModal = ({
             <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-caption">
                 <span className="px-2 bg-white text-gray-500">OR</span>
               </div>
             </div>
@@ -246,7 +246,7 @@ const ImageModal = ({
 
           {/* URL Input Option */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-button text-gray-700 mb-2">
               {editingImage ? 'Image URL' : 'Enter Image URL'}
             </label>
             <input
@@ -261,12 +261,12 @@ const ImageModal = ({
 
           {/* Customization Options */}
           <div className="border-t border-gray-200 pt-4 mb-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">📐 Customize Size & Position</h4>
+            <h4 className="text-caption text-gray-700 mb-3">📐 Customize Size & Position</h4>
             
             {/* Size Controls */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-overline text-gray-600 mb-1">
                   Width
                 </label>
                 <input
@@ -274,12 +274,12 @@ const ImageModal = ({
                   value={imageSettings.width}
                   onChange={(e) => setImageSettings(prev => ({ ...prev, width: e.target.value }))}
                   placeholder="auto, 400px, 50%"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+                  className="w-full px-3 py-2 text-caption border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
                 />
-                <p className="text-xs text-gray-500 mt-1">e.g., auto, 400px, 50%</p>
+                <p className="text-overline text-gray-500 mt-1">e.g., auto, 400px, 50%</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-overline text-gray-600 mb-1">
                   Height
                 </label>
                 <input
@@ -287,15 +287,15 @@ const ImageModal = ({
                   value={imageSettings.height}
                   onChange={(e) => setImageSettings(prev => ({ ...prev, height: e.target.value }))}
                   placeholder="auto, 300px, 400px"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
+                  className="w-full px-3 py-2 text-caption border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
                 />
-                <p className="text-xs text-gray-500 mt-1">e.g., auto, 300px</p>
+                <p className="text-overline text-gray-500 mt-1">e.g., auto, 300px</p>
               </div>
             </div>
 
             {/* Position/Alignment Controls */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-2">
+              <label className="block text-overline text-gray-600 mb-2">
                 Position
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -360,7 +360,7 @@ const ImageModal = ({
                   ➡️📄 Float R
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-overline text-gray-500 mt-2">
                 💡 <strong>Float</strong> allows text to wrap around the image
               </p>
             </div>

@@ -622,7 +622,7 @@ const Layout = () => {
                       sidebarTheme === 'dark' ? 'text-slate-500' : 'text-slate-400'
                     }`} />
                   </div>
-                  <p className={`text-sm font-medium italic leading-tight truncate ${
+                  <p className={`text-button italic leading-tight truncate ${
                     sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
                   }`}>
                     {"\u201C"}{thoughtOfTheDay}{"\u201D"}
@@ -697,7 +697,7 @@ const Layout = () => {
                         }`}
                       >
                         <User size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
-                        <span className="text-sm font-medium">Profile</span>
+                        <span className="text-button">Profile</span>
                       </Link>
                       <Link
                         to="/settings"
@@ -709,7 +709,7 @@ const Layout = () => {
                         }`}
                       >
                         <Settings size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
-                        <span className="text-sm font-medium">Settings</span>
+                        <span className="text-button">Settings</span>
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -720,7 +720,7 @@ const Layout = () => {
                         }`}
                       >
                         <LogOut size={18} className={sidebarTheme === 'dark' ? 'text-rose-400' : 'text-rose-500'} />
-                        <span className="text-sm font-medium">Logout</span>
+                        <span className="text-button">Logout</span>
                       </button>
                     </motion.div>
                   )}
@@ -760,7 +760,7 @@ const Layout = () => {
                   <div className="p-2 rounded-full bg-red-100">
                     <LogOut size={24} className="text-red-600" />
                   </div>
-                  <h2 className={`text-xl font-bold ${
+                  <h2 className={`text-h1 ${
                     sidebarTheme === 'dark' ? 'text-slate-100' : 'text-slate-900'
                   }`}>
                     Confirm Logout
@@ -825,7 +825,7 @@ const Layout = () => {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
-              <p className={`text-sm font-medium ${
+              <p className={`text-button ${
                 sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
               }`}>
                 Logging out...

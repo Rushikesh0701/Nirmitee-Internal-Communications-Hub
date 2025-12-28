@@ -15,7 +15,7 @@ const DraftBanner = ({ onPublish, isPublishing }) => {
           <p className="text-yellow-800 font-semibold mb-1">
             📝 This blog is saved as a draft
           </p>
-          <p className="text-yellow-700 text-sm">
+          <p className="text-yellow-700 text-caption">
             It&apos;s only visible to you. Publish it to make it visible to everyone.
           </p>
         </div>

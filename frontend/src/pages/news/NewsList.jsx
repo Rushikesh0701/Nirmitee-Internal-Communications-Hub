@@ -507,7 +507,7 @@ function NewsList() {
   return (
     <div className="space-y-3">
       <div>
-        <h1 className={`text-xl sm:text-2xl font-bold mb-0.5 ${
+        <h1 className={`text-h1 mb-0.5 ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
         }`}>Tech News Feed</h1>
         <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
@@ -577,7 +577,7 @@ function NewsList() {
               theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
             }`}>Filters</h2>
             {activeFiltersCount > 0 && (
-              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+              <span className={`px-2 py-0.5 text-overline rounded-full ${
                 theme === 'dark'
                   ? 'bg-indigo-500/20 text-indigo-400'
                   : 'bg-slate-100 text-slate-700'
@@ -609,7 +609,7 @@ function NewsList() {
         {/* Basic Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
+            <label className={`block text-button mb-1 ${
               theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
             }`}>
               <TrendingUp size={14} className="inline mr-1" />
@@ -629,7 +629,7 @@ function NewsList() {
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
+            <label className={`block text-button mb-1 ${
               theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
             }`}>
               <Clock size={14} className="inline mr-1" />
@@ -649,7 +649,7 @@ function NewsList() {
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
+            <label className={`block text-button mb-1 ${
               theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
             }`}>
               <TrendingUp size={14} className="inline mr-1" />
@@ -669,7 +669,7 @@ function NewsList() {
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
+            <label className={`block text-button mb-1 ${
               theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
             }`}>
               <Globe size={14} className="inline mr-1" />
@@ -692,10 +692,10 @@ function NewsList() {
         {/* Advanced Filters */}
         {showAdvancedFilters && (
           <div className="border-t border-gray-200 pt-4 mt-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Advanced Search Options</h3>
+            <h3 className="text-caption text-gray-700 mb-3">Advanced Search Options</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-button text-gray-700 mb-1">
                   Search In
                 </label>
                 <select
@@ -711,7 +711,7 @@ function NewsList() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-button text-gray-700 mb-1">
                   <User size={14} className="inline mr-1" />
                   Source
                 </label>
@@ -737,7 +737,7 @@ function NewsList() {
                     onChange={(e) => setExactPhrase(e.target.checked)}
                     className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
                   />
-                  <span className="text-sm text-gray-700">Exact phrase match</span>
+                  <span className="text-caption text-gray-700">Exact phrase match</span>
                 </label>
               </div>
             </div>
@@ -746,7 +746,7 @@ function NewsList() {
             {dateRange === 'custom' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     <Calendar size={14} className="inline mr-1" />
                     From Date
                   </label>
@@ -758,7 +758,7 @@ function NewsList() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     <Calendar size={14} className="inline mr-1" />
                     To Date
                   </label>
@@ -898,7 +898,7 @@ function NewsList() {
                   </div>
                   <div className="p-2 flex flex-col flex-1">
                     <div className="mb-1">
-                      <h3 className={`text-xs font-semibold line-clamp-2 mb-0.5 transition-colors ${
+                      <h3 className={`text-overline line-clamp-2 mb-0.5 transition-colors ${
                         theme === 'dark'
                           ? 'text-slate-200 group-hover:text-indigo-400'
                           : 'text-gray-900 group-hover:text-slate-700'

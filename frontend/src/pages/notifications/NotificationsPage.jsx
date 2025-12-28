@@ -129,7 +129,7 @@ export default function NotificationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
+          <h1 className="text-h1 text-gray-900">Notifications</h1>
           <p className="text-gray-600 mt-1">Stay updated with all activities</p>
         </div>
         <div className="flex items-center gap-3">
@@ -197,7 +197,7 @@ export default function NotificationsPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-900">{notification.content}</p>
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-caption text-gray-500 mt-2">
                           {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
                         </p>
                       </div>
@@ -207,7 +207,7 @@ export default function NotificationsPage() {
                             e.stopPropagation()
                             markAsReadMutation.mutate(notification.id)
                           }}
-                          className="px-3 py-1 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200"
+                          className="px-3 py-1 text-caption bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200"
                         >
                           Mark read
                         </button>

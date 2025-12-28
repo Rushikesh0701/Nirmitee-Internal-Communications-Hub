@@ -98,7 +98,7 @@ const MyProgress = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+          <h1 className="text-h1 text-slate-800 dark:text-slate-200">
             My Learning Progress
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -127,8 +127,8 @@ const MyProgress = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-1">
+                    <p className="text-caption text-slate-600 dark:text-slate-400">{stat.label}</p>
+                    <p className="text-h1 text-slate-800 dark:text-slate-200 mt-1">
                       {stat.value}
                     </p>
                   </div>
@@ -157,7 +157,7 @@ const MyProgress = () => {
           {/* Courses List */}
           {filteredCourses.length > 0 ? (
             <div className="card">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+              <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                 {filter === 'all' ? 'All Courses' : 
                  filter === 'completed' ? 'Completed Courses' :
                  filter === 'in-progress' ? 'In Progress Courses' : 'Not Started Courses'}
@@ -174,20 +174,20 @@ const MyProgress = () => {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-slate-800 dark:text-slate-200">
+                          <h3 className="text-h3 text-slate-800 dark:text-slate-200">
                             {courseData.title}
                           </h3>
                           {courseData.description && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
+                            <p className="text-caption text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
                               {courseData.description}
                             </p>
                           )}
                           <div className="mt-3">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm text-slate-600 dark:text-slate-400">
+                              <span className="text-caption text-slate-600 dark:text-slate-400">
                                 Progress
                               </span>
-                              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                              <span className="text-button text-slate-800 dark:text-slate-200">
                                 {progress}%
                               </span>
                             </div>
@@ -220,7 +220,7 @@ const MyProgress = () => {
           {/* Progress Chart */}
           {progressData.length > 0 && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+              <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                 Top Courses by Progress
               </h2>
               <ResponsiveContainer width="100%" height={300}>

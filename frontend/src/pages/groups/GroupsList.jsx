@@ -68,8 +68,8 @@ const GroupsList = () => {
             <Users size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Groups</h1>
-            <p className="text-slate-500 text-xs mt-0.5">Join communities and start discussions</p>
+            <h1 className="text-h1 text-slate-800">Groups</h1>
+            <p className="text-slate-500 text-overline mt-0.5">Join communities and start discussions</p>
           </div>
         </div>
         {canCreateGroup && (
@@ -115,21 +115,21 @@ const GroupsList = () => {
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-start justify-between">
-                        <h3 className="text-base font-semibold text-slate-800 flex-1 group-hover:text-pink-600 transition-colors">{group.name}</h3>
+                        <h3 className="text-base text-h3 text-slate-800 flex-1 group-hover:text-pink-600 transition-colors">{group.name}</h3>
                         {!group.isPublic && <Lock size={14} className="text-slate-400 flex-shrink-0 ml-2" />}
                       </div>
-                      <p className="text-slate-500 text-xs line-clamp-2">{group.description || 'No description'}</p>
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <p className="text-slate-500 text-overline line-clamp-2">{group.description || 'No description'}</p>
+                      <div className="flex items-center gap-3 text-overline text-slate-400">
                         <div className="flex items-center gap-1"><Users size={12} /> {group.memberCount || 0} members</div>
                         <span>•</span>
                         <span>{group.postCount || 0} posts</span>
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                        <span className="text-xs text-slate-400">Created {format(new Date(group.createdAt), 'MMM d, yyyy')}</span>
+                        <span className="text-overline text-slate-400">Created {format(new Date(group.createdAt), 'MMM d, yyyy')}</span>
                         {group.isMember ? (
                           <span className="badge badge-success">Member</span>
                         ) : group.isPublic && user ? (
-                          <button onClick={(e) => handleJoin(e, groupId)} disabled={joinMutation.isLoading} className="btn btn-primary text-xs px-3 py-1 flex items-center gap-1">
+                          <button onClick={(e) => handleJoin(e, groupId)} disabled={joinMutation.isLoading} className="btn btn-primary text-overline px-3 py-1 flex items-center gap-1">
                             <LogIn size={14} /> Join
                           </button>
                         ) : null}

@@ -43,8 +43,8 @@ export default function EmployeeDirectory() {
           <Users size={22} className="text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Employee Directory</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Find and connect with colleagues</p>
+          <h1 className="text-h1 text-slate-800">Employee Directory</h1>
+          <p className="text-slate-500 text-caption mt-0.5">Find and connect with colleagues</p>
         </div>
       </motion.div>
 
@@ -64,15 +64,15 @@ export default function EmployeeDirectory() {
       {/* Active Filters */}
       {(search || department) && (
         <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-slate-500">Active filters:</span>
+          <span className="text-caption text-slate-500">Active filters:</span>
           {search && <span className="badge badge-primary flex items-center gap-1">Search: "{search}" <button onClick={() => setSearch('')}><X size={12} /></button></span>}
           {department && <span className="badge badge-info flex items-center gap-1">{department} <button onClick={() => setDepartment('')}><X size={12} /></button></span>}
-          <button onClick={() => { setSearch(''); setDepartment(''); }} className="text-sm text-slate-700 hover:text-slate-700">Clear all</button>
+          <button onClick={() => { setSearch(''); setDepartment(''); }} className="text-caption text-slate-700 hover:text-slate-700">Clear all</button>
         </motion.div>
       )}
 
       {/* Results Count */}
-      {users.length > 0 && <motion.div variants={itemVariants} className="text-sm text-slate-500">Showing {users.length} {users.length === 1 ? 'employee' : 'employees'}</motion.div>}
+      {users.length > 0 && <motion.div variants={itemVariants} className="text-caption text-slate-500">Showing {users.length} {users.length === 1 ? 'employee' : 'employees'}</motion.div>}
 
       {/* User Grid */}
       {isLoading && !data ? (
@@ -92,9 +92,9 @@ export default function EmployeeDirectory() {
                       </div>
                     )}
                   </div>
-                  <h3 className="font-semibold text-slate-800 text-sm mb-1 group-hover:text-slate-700 transition-colors">{user.name}</h3>
+                  <h3 className="text-h3 text-slate-800 text-caption mb-1 group-hover:text-slate-700 transition-colors">{user.name}</h3>
                   {user.role && <div className="mb-3"><RoleBadge role={user.role} size="sm" /></div>}
-                  <div className="space-y-1.5 text-sm text-slate-500 flex-1">
+                  <div className="space-y-1.5 text-caption text-slate-500 flex-1">
                     {user.designation && <div className="flex items-center gap-2 justify-center"><Briefcase size={14} /> {user.designation}</div>}
                     {user.department && <div className="flex items-center gap-2 justify-center"><Building size={14} /> {user.department}</div>}
                     {user.email && <div className="flex items-center gap-2 justify-center truncate"><Mail size={14} /> {user.email}</div>}

@@ -127,7 +127,7 @@ const GroupForm = () => {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-slate-800">
+        <h1 className="text-h1 text-slate-800">
           {isEdit ? 'Edit Group' : 'Create New Group'}
         </h1>
       </div>
@@ -135,7 +135,7 @@ const GroupForm = () => {
       <form onSubmit={handleSubmit} className="card p-4 space-y-4">
         {/* Cover Image */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image (Optional)
           </label>
           {formData.coverImage && (
@@ -149,13 +149,13 @@ const GroupForm = () => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="input text-sm py-2"
+            className="input text-caption py-2"
           />
         </div>
 
         {/* Group Name */}
         <div>
-          <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label htmlFor="name" className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Group Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -163,7 +163,7 @@ const GroupForm = () => {
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="input text-sm py-2"
+            className="input text-caption py-2"
             placeholder="Enter group name"
             required
           />
@@ -171,14 +171,14 @@ const GroupForm = () => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label htmlFor="description" className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Description
           </label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="input text-sm py-2 resize-y"
+            className="input text-caption py-2 resize-y"
             rows={4}
             placeholder="Describe what this group is about..."
           />
@@ -186,7 +186,7 @@ const GroupForm = () => {
 
         {/* Privacy */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-2">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-2">
             Privacy
           </label>
           <div className="space-y-3">
@@ -197,7 +197,7 @@ const GroupForm = () => {
                 onChange={() => setFormData({ ...formData, isPublic: true })}
                 className="w-4 h-4 text-slate-700 focus:ring-slate-600"
               />
-              <span className="text-sm text-gray-700">Public - Anyone can join and see posts</span>
+              <span className="text-caption text-gray-700">Public - Anyone can join and see posts</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -206,7 +206,7 @@ const GroupForm = () => {
                 onChange={() => setFormData({ ...formData, isPublic: false })}
                 className="w-4 h-4 text-slate-700 focus:ring-slate-600"
               />
-              <span className="text-sm text-gray-700">Private - Only members can see posts</span>
+              <span className="text-caption text-gray-700">Private - Only members can see posts</span>
             </label>
           </div>
         </div>

@@ -23,7 +23,7 @@ const NewsUpdateToast = ({ newArticlesCount, latestArticles, onViewNow, onDismis
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className={`text-sm font-semibold ${
+              <h3 className={`text-caption ${
                 theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
               }`}>
                 {newArticlesCount} New Article{newArticlesCount !== 1 ? 's' : ''} Available
@@ -70,7 +70,7 @@ const NewsUpdateToast = ({ newArticlesCount, latestArticles, onViewNow, onDismis
           {/* Actions */}
           <button
             onClick={onViewNow}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ff4701] text-white text-xs font-medium rounded hover:bg-[#ff5500] transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ff4701] text-white text-overline rounded hover:bg-[#ff5500] transition-colors"
           >
             View Now
             <ChevronRight size={14} />

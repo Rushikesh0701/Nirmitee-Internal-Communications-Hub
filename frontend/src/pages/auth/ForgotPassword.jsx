@@ -65,7 +65,7 @@ const ForgotPassword = () => {
         </motion.div>
 
         <motion.h2 
-          className="text-xl font-bold text-slate-800 mb-2"
+          className="text-h1 text-slate-800 mb-2"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -97,7 +97,7 @@ const ForgotPassword = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <p className="text-sm text-slate-700">
+          <p className="text-caption text-slate-700">
             <strong>Note:</strong> The link will expire in <strong>1 hour</strong>.
             <br />
             Check your spam folder if you don't see the email.
@@ -135,11 +135,11 @@ const ForgotPassword = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <span className="text-xs font-medium text-slate-600">Password Reset</span>
+          <span className="text-overline text-slate-600">Password Reset</span>
         </motion.div>
 
         <motion.h2 
-          className="text-xl font-bold text-slate-800 mb-1"
+          className="text-h1 text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -163,7 +163,7 @@ const ForgotPassword = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-button text-slate-700 mb-2">
             Email Address
           </label>
           <div className="relative group">
@@ -184,7 +184,7 @@ const ForgotPassword = () => {
               placeholder="your.name@nirmitee.io"
             />
           </div>
-          {errors.email && <p className="text-rose-500 text-xs mt-1.5">{errors.email.message}</p>}
+          {errors.email && <p className="text-rose-500 text-overline mt-1.5">{errors.email.message}</p>}
         </motion.div>
 
         <motion.button

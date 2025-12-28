@@ -33,7 +33,7 @@ const ModerationCard = ({
     const badge = badges[status] || badges.PENDING
     const Icon = badge.icon
     return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded border ${badge.color} flex items-center gap-1`}>
+      <span className={`px-2 py-1 text-overline rounded border ${badge.color} flex items-center gap-1`}>
         <Icon size={12} />
         {badge.label}
       </span>
@@ -70,14 +70,14 @@ const ModerationCard = ({
         <div className="flex-1">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-1">
+              <h3 className="text-lg text-h3 text-slate-800 dark:text-slate-100 mb-1">
                 {title}
               </h3>
               {getStatusBadge(item.moderationStatus)}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300 mb-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-caption text-slate-600 dark:text-slate-300 mb-3">
             <div className="flex items-center gap-2">
               <User size={14} />
               <span>{authorName}</span>
@@ -89,13 +89,13 @@ const ModerationCard = ({
           </div>
 
           {item.moderationStatus === 'REJECTED' && item.rejectionReason && (
-            <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-sm text-red-700 dark:text-red-300 mb-2">
+            <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-caption text-red-700 dark:text-red-300 mb-2">
               <strong>Rejection Reason:</strong> {item.rejectionReason}
             </div>
           )}
 
           {item.moderationStatus === 'APPROVED' && item.approvedBy && (
-            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+            <div className="text-overline text-slate-500 dark:text-slate-400 mb-2">
               Approved by {item.approvedBy.firstName} {item.approvedBy.lastName} on{' '}
               {format(new Date(item.approvedAt), 'MMM dd, yyyy')}
             </div>
@@ -105,7 +105,7 @@ const ModerationCard = ({
             {onView && (
               <button
                 onClick={() => onView(item)}
-                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 text-sm"
+                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 text-caption"
               >
                 <Eye size={14} />
                 View
@@ -115,14 +115,14 @@ const ModerationCard = ({
               <>
                 <button
                   onClick={() => onApprove && onApprove(item._id)}
-                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm"
+                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-caption"
                 >
                   <CheckCircle size={14} />
                   Approve
                 </button>
                 <button
                   onClick={() => onReject && onReject(item)}
-                  className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
+                  className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-caption"
                 >
                   <XCircle size={14} />
                   Reject

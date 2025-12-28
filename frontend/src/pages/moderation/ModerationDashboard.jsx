@@ -98,8 +98,8 @@ const ModerationDashboard = () => {
           <Shield size={22} className="text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Moderation Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Review and moderate content</p>
+          <h1 className="text-h1 text-slate-800 dark:text-slate-100">Moderation Dashboard</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-caption mt-0.5">Review and moderate content</p>
         </div>
       </motion.div>
 
@@ -113,14 +113,14 @@ const ModerationDashboard = () => {
                   <stat.icon size={20} className={stat.color.replace('bg-', 'text-')} />
                 </div>
                 {stat.link && (
-                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <span className="text-overline text-slate-600 dark:text-slate-300">
                     View →
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{stat.value}</p>
+                <p className="text-overline text-slate-600 dark:text-slate-300 mb-1">{stat.label}</p>
+                <p className="text-h1 text-slate-800 dark:text-slate-100">{stat.value}</p>
               </div>
             </div>
           )
@@ -143,8 +143,8 @@ const ModerationDashboard = () => {
               <FileText size={24} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Moderate Blogs</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <h3 className="text-h3 text-slate-800 dark:text-slate-100 mb-1">Moderate Blogs</h3>
+              <p className="text-caption text-slate-600 dark:text-slate-300">
                 {stats?.blogs?.pending || 0} pending review
               </p>
             </div>
@@ -158,8 +158,8 @@ const ModerationDashboard = () => {
               <Megaphone size={24} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Moderate Announcements</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <h3 className="text-h3 text-slate-800 dark:text-slate-100 mb-1">Moderate Announcements</h3>
+              <p className="text-caption text-slate-600 dark:text-slate-300">
                 {stats?.announcements?.pending || 0} pending review
               </p>
             </div>

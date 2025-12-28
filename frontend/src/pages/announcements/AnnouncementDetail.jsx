@@ -103,7 +103,7 @@ const AnnouncementDetail = () => {
               {announcement.tags.map((tag, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded bg-primary-100 text-primary-800"
+                  className="inline-flex items-center gap-1 px-3 py-1 text-caption rounded bg-primary-100 text-primary-800"
                 >
                   <Tag size={14} />
                   {tag}
@@ -114,7 +114,7 @@ const AnnouncementDetail = () => {
 
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{announcement.title}</h1>
 
-          <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
+          <div className="flex items-center gap-6 text-caption text-gray-600 flex-wrap">
             <div className="flex items-center gap-2">
               <User size={16} />
               <span>
@@ -133,7 +133,7 @@ const AnnouncementDetail = () => {
               </div>
             )}
             {announcement.scheduledAt && !announcement.isPublished && (
-              <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">
+              <span className="px-2 py-1 bg-orange-100 text-orange-800 text-overline rounded">
                 Scheduled
               </span>
             )}

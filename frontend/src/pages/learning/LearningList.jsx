@@ -33,8 +33,8 @@ const LearningList = () => {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Learning & Development</h1>
-          <p className="text-gray-600 text-sm mt-0.5">Expand your skills</p>
+          <h1 className="text-h1 text-gray-900">Learning & Development</h1>
+          <p className="text-gray-600 text-caption mt-0.5">Expand your skills</p>
         </div>
         {isModerator && (
           <Link to="/learning/new" className="btn btn-primary flex items-center gap-2">
@@ -66,11 +66,11 @@ const LearningList = () => {
                     {course.title}
                   </h3>
                   {course.description && (
-                    <p className="text-gray-600 line-clamp-2 text-xs">
+                    <p className="text-gray-600 line-clamp-2 text-overline">
                       {course.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 text-overline text-gray-500">
                     <div className="flex items-center gap-1">
                       <Users size={16} />
                       <span>{course.enrollmentCount} enrolled</span>

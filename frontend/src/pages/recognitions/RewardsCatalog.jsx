@@ -59,7 +59,7 @@ export default function RewardsCatalog() {
                 <Gift className="text-slate-700" size={32} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{reward.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{reward.description}</p>
+              <p className="text-gray-600 text-caption mb-4">{reward.description}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-yellow-600">
                   <Star size={16} />
@@ -90,7 +90,7 @@ export default function RewardsCatalog() {
       {selectedReward && (
         <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Confirm Redemption</h3>
+            <h3 className="text-h1 mb-4">Confirm Redemption</h3>
             <p className="text-gray-600 mb-4">
               Are you sure you want to redeem <strong>{selectedReward.title}</strong> for{' '}
               <strong>{selectedReward.points} points</strong>?

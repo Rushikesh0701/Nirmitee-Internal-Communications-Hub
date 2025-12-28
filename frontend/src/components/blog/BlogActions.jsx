@@ -31,7 +31,7 @@ const BlogActions = ({
           <button
             onClick={onLike}
             disabled={isLiking}
-            className={`px-4 py-2 rounded-full transition-colors text-sm font-medium ${
+            className={`px-4 py-2 rounded-full transition-colors text-button ${
               isLiked
                 ? 'bg-red-100 text-red-700 hover:bg-red-200'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -44,7 +44,7 @@ const BlogActions = ({
           {/* Bookmark Button */}
           <button
             onClick={onBookmark}
-            className={`px-4 py-2 rounded-full transition-colors text-sm font-medium ${
+            className={`px-4 py-2 rounded-full transition-colors text-button ${
               isBookmarked
                 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -61,7 +61,7 @@ const BlogActions = ({
         <button
           onClick={onPublish}
           disabled={isPublishing}
-          className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors text-button disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Publish blog"
         >
           {isPublishing ? 'Publishing...' : '📢 Publish Now'}
@@ -76,7 +76,7 @@ const BlogActions = ({
             <button
               onClick={onUnpublish}
               disabled={isPublishing}
-              className="px-4 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition-colors text-button disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Unpublish blog"
             >
               {isPublishing ? 'Unpublishing...' : '📝 Unpublish'}
@@ -85,7 +85,7 @@ const BlogActions = ({
 
           <Link
             to={`/blogs/${blogId}/edit`}
-            className="px-4 py-2 bg-[#ff4701] text-white rounded-full hover:bg-[#ff5500] transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-[#ff4701] text-white rounded-full hover:bg-[#ff5500] transition-colors text-button"
             aria-label="Edit blog"
           >
             ✏️ Edit
@@ -94,7 +94,7 @@ const BlogActions = ({
           <button
             onClick={onDelete}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors text-button disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Delete blog"
           >
             🗑️ Delete

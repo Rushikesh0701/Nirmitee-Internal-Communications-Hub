@@ -86,7 +86,7 @@ const ResetPassword = () => {
         </motion.div>
 
         <motion.h2 
-          className="text-xl font-bold text-slate-800 mb-2"
+          className="text-h1 text-slate-800 mb-2"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -134,11 +134,11 @@ const ResetPassword = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <span className="text-xs font-medium text-slate-600">Reset Password</span>
+          <span className="text-overline text-slate-600">Reset Password</span>
         </motion.div>
 
         <motion.h2 
-          className="text-xl font-bold text-slate-800 mb-1"
+          className="text-h1 text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -164,8 +164,8 @@ const ResetPassword = () => {
         >
           <AlertCircle className="text-rose-600 flex-shrink-0 mt-0.5" size={20} />
           <div>
-            <p className="text-sm text-rose-800 font-medium">Invalid Reset Link</p>
-            <p className="text-xs text-rose-600 mt-1">
+            <p className="text-caption text-rose-800 font-medium">Invalid Reset Link</p>
+            <p className="text-overline text-rose-600 mt-1">
               This password reset link is invalid. Please request a new one.
             </p>
           </div>
@@ -178,7 +178,7 @@ const ResetPassword = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-button text-slate-700 mb-2">
             New Password
           </label>
           <div className="relative group">
@@ -203,7 +203,7 @@ const ResetPassword = () => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.password && <p className="text-rose-500 text-xs mt-1.5">{errors.password.message}</p>}
+          {errors.password && <p className="text-rose-500 text-overline mt-1.5">{errors.password.message}</p>}
         </motion.div>
 
         <motion.div 
@@ -211,7 +211,7 @@ const ResetPassword = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-button text-slate-700 mb-2">
             Confirm New Password
           </label>
           <div className="relative group">
@@ -236,7 +236,7 @@ const ResetPassword = () => {
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.confirmPassword && <p className="text-rose-500 text-xs mt-1.5">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="text-rose-500 text-overline mt-1.5">{errors.confirmPassword.message}</p>}
         </motion.div>
 
         <motion.button

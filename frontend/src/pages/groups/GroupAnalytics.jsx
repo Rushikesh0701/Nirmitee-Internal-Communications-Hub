@@ -137,7 +137,7 @@ const GroupAnalytics = () => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+            <h1 className="text-h1 text-slate-800 dark:text-slate-200">
               Group Analytics
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -150,7 +150,7 @@ const GroupAnalytics = () => {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="input-select text-sm py-2"
+            className="input-select text-caption py-2"
           >
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
@@ -176,8 +176,8 @@ const GroupAnalytics = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-1">
+                    <p className="text-caption text-slate-600 dark:text-slate-400">{stat.label}</p>
+                    <p className="text-h1 text-slate-800 dark:text-slate-200 mt-1">
                       {stat.value}
                     </p>
                   </div>
@@ -192,7 +192,7 @@ const GroupAnalytics = () => {
           {/* Top Posts */}
           {analytics?.topPosts?.byLikes?.length > 0 && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+              <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                 Top Posts by Likes
               </h2>
               <div className="space-y-3">
@@ -202,7 +202,7 @@ const GroupAnalytics = () => {
                       <p className="font-medium text-slate-800 dark:text-slate-200">
                         {post.content?.substring(0, 50) || 'Untitled Post'}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-4 mt-2 text-caption text-slate-600 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <Heart size={14} /> {post.likes || 0}
                         </span>
@@ -220,7 +220,7 @@ const GroupAnalytics = () => {
           {/* Engagement Chart */}
           {analytics?.trends?.postsOverTime?.length > 0 && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+              <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                 Posts Over Time
               </h2>
               <ResponsiveContainer width="100%" height={300}>

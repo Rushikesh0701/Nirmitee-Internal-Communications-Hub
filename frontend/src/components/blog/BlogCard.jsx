@@ -51,13 +51,13 @@ const BlogCard = ({ blog }) => {
         <div className="p-2 flex flex-col flex-grow">
           {/* Category and Status */}
           <div className="flex items-center justify-between mb-0.5 flex-wrap gap-1">
-            <span className={`text-xs sm:text-sm font-medium ${
+            <span className={`text-xs sm:text-button ${
               theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
             }`}>
               {blog.category || 'Uncategorized'}
             </span>
             {blog.isPublished === false && (
-              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+              <span className={`px-2 py-1 text-overline rounded-full ${
                 theme === 'dark' 
                   ? 'bg-yellow-500/20 text-yellow-400' 
                   : 'bg-yellow-100 text-yellow-800'
@@ -68,7 +68,7 @@ const BlogCard = ({ blog }) => {
           </div>
 
           {/* Title - Responsive Text Size */}
-          <h3 className={`text-base sm:text-lg font-bold mb-1 
+          <h3 className={`text-base sm:text-h2 mb-1 
                          transition-colors line-clamp-2 ${
             theme === 'dark' 
               ? 'text-slate-200 hover:text-indigo-400' 

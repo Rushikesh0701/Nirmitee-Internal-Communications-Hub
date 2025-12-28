@@ -161,7 +161,7 @@ const CreateBlog = () => {
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-xl font-bold text-slate-800 mb-3"
+        className="text-h1 text-slate-800 mb-3"
       >
         Create New Blog
       </motion.h1>
@@ -173,7 +173,7 @@ const CreateBlog = () => {
         className="card p-4 space-y-4"
       >
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -182,12 +182,12 @@ const CreateBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="input text-sm py-2"
+            className="input text-caption py-2"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image
           </label>
           <div className="space-y-3">
@@ -222,7 +222,7 @@ const CreateBlog = () => {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-300"></div>
                 </div>
-                <div className="relative flex justify-center text-sm px-3">
+                <div className="relative flex justify-center text-caption px-3">
                   <span className="px-2 bg-white text-slate-500">OR</span>
                 </div>
               </div>
@@ -232,7 +232,7 @@ const CreateBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="input text-sm py-2"
+              className="input text-caption py-2"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -252,13 +252,13 @@ const CreateBlog = () => {
               </div>
             )}
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-caption text-gray-500 mt-1">
             Upload an image or enter a URL for your blog cover image (optional)
           </p>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Excerpt <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -268,12 +268,12 @@ const CreateBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="input text-sm py-2 resize-y"
+            className="input text-caption py-2 resize-y"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <Editor
@@ -284,7 +284,7 @@ const CreateBlog = () => {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -294,15 +294,15 @@ const CreateBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="input text-sm py-2"
+            className="input text-caption py-2"
           />
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-overline text-slate-500 mt-1">
             Enter a custom category for your blog post
           </p>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -312,7 +312,7 @@ const CreateBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="input flex-1 text-sm py-2"
+              className="input flex-1 text-caption py-2"
             />
             <button
               type="button"
@@ -350,11 +350,11 @@ const CreateBlog = () => {
               onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
               className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
             />
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-caption text-gray-700">
               Publish immediately
             </span>
           </label>
-          <p className="text-xs text-slate-500 mt-1 ml-6">
+          <p className="text-overline text-slate-500 mt-1 ml-6">
             {formData.isPublished 
               ? 'This blog will be visible to everyone when created.' 
               : 'This blog will be saved as a draft and only visible to you.'}

@@ -170,7 +170,7 @@ const AnnouncementModeration = () => {
     }
     const badge = badges[status] || badges.PENDING
     return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded border ${badge.color}`}>
+      <span className={`px-2 py-1 text-overline rounded border ${badge.color}`}>
         {badge.label}
       </span>
     )
@@ -188,8 +188,8 @@ const AnnouncementModeration = () => {
             <Megaphone size={22} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Announcement Moderation</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Review and moderate announcements</p>
+            <h1 className="text-h1 text-slate-800 dark:text-slate-100">Announcement Moderation</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-caption mt-0.5">Review and moderate announcements</p>
           </div>
         </div>
       </motion.div>
@@ -207,7 +207,7 @@ const AnnouncementModeration = () => {
                 setIsBulkMode(false)
                 setSelectedAnnouncements(new Set())
               }}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-2 text-button rounded-lg transition-colors ${
                 status === s
                   ? 'bg-[#151a28] text-white'
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'
@@ -224,7 +224,7 @@ const AnnouncementModeration = () => {
                 setIsBulkMode(!isBulkMode)
                 setSelectedAnnouncements(new Set())
               }}
-              className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600"
+              className="px-4 py-2 text-button rounded-lg transition-colors bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600"
             >
               {isBulkMode ? 'Cancel Bulk' : 'Bulk Actions'}
             </button>
@@ -233,7 +233,7 @@ const AnnouncementModeration = () => {
                 <button
                   onClick={handleBulkApprove}
                   disabled={approveMutation.isLoading}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 text-button rounded-lg transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
                 >
                   <CheckCircle size={16} />
                   Approve {selectedAnnouncements.size}
@@ -241,7 +241,7 @@ const AnnouncementModeration = () => {
                 <button
                   onClick={() => setShowRejectDialog(true)}
                   disabled={rejectMutation.isLoading}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 text-button rounded-lg transition-colors bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
                 >
                   <XCircle size={16} />
                   Reject {selectedAnnouncements.size}
@@ -277,13 +277,13 @@ const AnnouncementModeration = () => {
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{announcement.title}</h3>
+                      <h3 className="text-h2 text-slate-800 dark:text-slate-100">{announcement.title}</h3>
                       {getStatusBadge(announcement.moderationStatus)}
                     </div>
                     
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 line-clamp-2">{announcement.content?.substring(0, 150)}...</p>
+                    <p className="text-caption text-slate-600 dark:text-slate-300 mb-3 line-clamp-2">{announcement.content?.substring(0, 150)}...</p>
                     
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    <div className="flex flex-wrap items-center gap-4 text-overline text-slate-500 dark:text-slate-400 mb-3">
                       <div className="flex items-center gap-1">
                         <User size={14} />
                         <span>
@@ -303,7 +303,7 @@ const AnnouncementModeration = () => {
                     </div>
 
                     {announcement.moderationStatus === 'REJECTED' && (
-                      <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-sm text-red-700 dark:text-red-300 mb-2">
+                      <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-caption text-red-700 dark:text-red-300 mb-2">
                         <strong>Status:</strong> This announcement has been rejected
                         {announcement.rejectionReason && (
                           <span> - {announcement.rejectionReason}</span>
@@ -312,7 +312,7 @@ const AnnouncementModeration = () => {
                     )}
 
                     {announcement.moderatedBy && (
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                      <div className="text-overline text-slate-500 dark:text-slate-400">
                         Moderated by {announcement.moderatedBy?.firstName} {announcement.moderatedBy?.lastName} on{' '}
                         {new Date(announcement.moderatedAt).toLocaleDateString()}
                       </div>
@@ -343,7 +343,7 @@ const AnnouncementModeration = () => {
                   {announcement.moderationStatus !== 'PENDING' && (
                     <Link
                       to={`/announcements/${announcement._id}`}
-                      className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm"
+                      className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-caption"
                     >
                       View Announcement
                     </Link>
@@ -383,10 +383,10 @@ const AnnouncementModeration = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="bg-white dark:bg-[#0a0e17] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#151a28]"
           >
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <h3 className="text-h2 text-slate-900 dark:text-slate-100 mb-4">
               {isBulkMode ? `Reject ${selectedAnnouncements.size} Announcement(s)` : 'Reject Announcement'}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+            <p className="text-caption text-slate-600 dark:text-slate-300 mb-4">
               Please provide a reason for rejecting {isBulkMode ? 'these announcements' : 'this announcement'}. The creator(s) will be notified.
             </p>
             <textarea

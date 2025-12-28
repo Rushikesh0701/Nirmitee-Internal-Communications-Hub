@@ -72,7 +72,7 @@ const AnnouncementsList = () => {
             <Megaphone size={20} className="text-white" />
           </div>
           <div>
-            <h1 className={`text-xl sm:text-2xl font-bold transition-colors ${
+            <h1 className={`text-h1 transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
             }`}>Company Announcements</h1>
             <p className={`text-xs mt-0.5 transition-colors ${
@@ -108,7 +108,7 @@ const AnnouncementsList = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between">
-              <h3 className={`text-sm font-semibold transition-colors ${
+              <h3 className={`text-caption transition-colors ${
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
               }`}>Filters</h3>
               <button onClick={clearFilters} className={`text-xs px-2 py-1 rounded border transition-colors ${
@@ -121,7 +121,7 @@ const AnnouncementsList = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
-                <label className={`block text-xs font-medium mb-1 transition-colors ${
+                <label className={`block text-overline mb-1 transition-colors ${
                   theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
                 }`}>Tags</label>
                 <div className="relative">
@@ -142,7 +142,7 @@ const AnnouncementsList = () => {
               {userIsAdmin && (
                 <>
                   <div>
-                    <label className={`block text-xs font-medium mb-1 transition-colors ${
+                    <label className={`block text-overline mb-1 transition-colors ${
                       theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
                     }`}>Scheduled</label>
                     <select 
@@ -160,7 +160,7 @@ const AnnouncementsList = () => {
                     </select>
                   </div>
                   <div>
-                    <label className={`block text-xs font-medium mb-1 transition-colors ${
+                    <label className={`block text-overline mb-1 transition-colors ${
                       theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
                     }`}>Published</label>
                     <select 
@@ -206,7 +206,7 @@ const AnnouncementsList = () => {
                     ))}
                   </div>
                 )}
-                <h3 className={`text-lg font-semibold line-clamp-2 transition-colors ${
+                <h3 className={`text-h2 line-clamp-2 transition-colors ${
                   theme === 'dark'
                     ? 'text-slate-200 group-hover:text-slate-500'
                     : 'text-slate-800 group-hover:text-slate-700'

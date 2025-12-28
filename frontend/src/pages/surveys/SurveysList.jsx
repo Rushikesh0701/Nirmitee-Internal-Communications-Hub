@@ -42,7 +42,7 @@ const SurveysList = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Surveys</h1>
+          <h1 className="text-h1 text-gray-900">Surveys</h1>
           <p className="text-gray-600 mt-1">Share your feedback</p>
         </div>
         {canCreateSurvey && (
@@ -69,15 +69,15 @@ const SurveysList = () => {
                     <ClipboardList className="text-pink-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-h2 text-gray-900 mb-2">
                       {survey.title}
                     </h3>
                     {survey.description && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-600 text-caption mb-4 line-clamp-2">
                         {survey.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-4 text-caption text-gray-500">
                       <div className="flex items-center gap-1">
                         <Users size={16} />
                         <span>{survey.responseCount} responses</span>

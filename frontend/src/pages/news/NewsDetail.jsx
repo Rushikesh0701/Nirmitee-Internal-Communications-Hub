@@ -61,17 +61,17 @@ const NewsDetail = () => {
 
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <span className="px-3 py-1 text-sm font-semibold rounded bg-primary-100 text-primary-800">
+            <span className="px-3 py-1 text-caption rounded bg-primary-100 text-primary-800">
               {news.category || 'General'}
             </span>
-            <span className="px-3 py-1 text-sm font-semibold rounded bg-gray-100 text-gray-800">
+            <span className="px-3 py-1 text-caption rounded bg-gray-100 text-gray-800">
               {news.priority}
             </span>
           </div>
 
-          <h1 className="text-xl font-bold text-gray-900">{news.title}</h1>
+          <h1 className="text-h1 text-gray-900">{news.title}</h1>
 
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-caption text-gray-600">
             <div className="flex items-center gap-2">
               <User size={16} />
               <span>

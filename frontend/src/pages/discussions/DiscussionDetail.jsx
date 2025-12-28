@@ -33,23 +33,23 @@ const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onRepl
     <div className={`${depth > 0 ? 'ml-4 sm:ml-6 mt-3' : ''}`}>
       <div className="border-l-2 border-indigo-300 pl-4 py-2">
         <div className="flex items-center gap-2 mb-2">
-          <span className="font-semibold text-slate-800 text-sm">{getAuthorName()}</span>
-          <span className="text-xs text-slate-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+          <span className="text-h3 text-slate-800 text-caption">{getAuthorName()}</span>
+          <span className="text-overline text-slate-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
         </div>
-        <p className="text-slate-600 mb-3 text-sm">{comment.content}</p>
+        <p className="text-slate-600 mb-3 text-caption">{comment.content}</p>
         
         {isAuthenticated && user && !isDummyDiscussion && (
-          <button onClick={() => onToggleReply(commentId)} className="text-xs text-indigo-600 hover:text-indigo-700">
+          <button onClick={() => onToggleReply(commentId)} className="text-overline text-indigo-600 hover:text-indigo-700">
             {isReplying ? 'Cancel' : 'Reply'}
           </button>
         )}
 
         {isReplying && isAuthenticated && user && !isDummyDiscussion && (
           <form onSubmit={(e) => onAddReply(commentId, e)} className="mt-3">
-            <textarea value={replyContent || ''} onChange={(e) => onReplyChange(commentId, e.target.value)} placeholder="Write a reply..." required rows="2" className="textarea text-sm mb-2" />
+            <textarea value={replyContent || ''} onChange={(e) => onReplyChange(commentId, e.target.value)} placeholder="Write a reply..." required rows="2" className="textarea text-caption mb-2" />
             <div className="flex gap-2">
-              <button type="submit" className="btn btn-primary text-xs py-1.5 px-3">Post Reply</button>
-              <button type="button" onClick={() => onToggleReply(commentId)} className="btn btn-secondary text-xs py-1.5 px-3">Cancel</button>
+              <button type="submit" className="btn btn-primary text-overline py-1.5 px-3">Post Reply</button>
+              <button type="button" onClick={() => onToggleReply(commentId)} className="btn btn-secondary text-overline py-1.5 px-3">Cancel</button>
             </div>
           </form>
         )}
@@ -68,7 +68,7 @@ const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onRepl
           })()}
           
           {comment.replies.length > INITIAL_REPLIES_LIMIT && (
-            <button onClick={() => onToggleExpandReplies(commentId)} className="mt-2 ml-4 text-indigo-600 hover:text-indigo-700 text-xs flex items-center gap-1">
+            <button onClick={() => onToggleExpandReplies(commentId)} className="mt-2 ml-4 text-indigo-600 hover:text-indigo-700 text-overline flex items-center gap-1">
               {expandedReplies?.[commentId] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               {expandedReplies?.[commentId] ? 'View less' : `View ${comment.replies.length - INITIAL_REPLIES_LIMIT} more`}
             </button>
@@ -249,22 +249,22 @@ const DiscussionDetail = () => {
       <motion.article className="card p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         {isDummyDiscussion && (
           <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-sm text-amber-800">
+            <p className="text-caption text-amber-800">
               <strong>Sample Discussion:</strong> This is a sample discussion for demonstration purposes. You cannot add comments or edit it. Create a real discussion to enable full functionality.
             </p>
           </div>
         )}
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-2xl font-bold text-slate-800">{discussion.title}</h1>
+          <h1 className="text-h1 text-slate-800">{discussion.title}</h1>
           {canEdit && !isDummyDiscussion && (
             <div className="flex gap-2">
-              <Link to={`/discussions/${id}/edit`} className="btn btn-primary text-sm py-1.5 px-3 flex items-center gap-1"><Edit size={14} /> Edit</Link>
-              <button onClick={handleDelete} disabled={isDeleting} className="btn btn-danger text-sm py-1.5 px-3 flex items-center gap-1"><Trash2 size={14} /> {isDeleting ? 'Deleting...' : 'Delete'}</button>
+              <Link to={`/discussions/${id}/edit`} className="btn btn-primary text-caption py-1.5 px-3 flex items-center gap-1"><Edit size={14} /> Edit</Link>
+              <button onClick={handleDelete} disabled={isDeleting} className="btn btn-danger text-caption py-1.5 px-3 flex items-center gap-1"><Trash2 size={14} /> {isDeleting ? 'Deleting...' : 'Delete'}</button>
             </div>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
+        <div className="flex flex-wrap gap-4 text-caption text-slate-500 mb-4">
           <span className="flex items-center gap-1"><User size={14} /> {getAuthorName(discussion.authorId)}</span>
           <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(discussion.createdAt).toLocaleDateString()}</span>
         </div>
@@ -279,7 +279,7 @@ const DiscussionDetail = () => {
       </motion.article>
 
       <motion.div className="card p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
-        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <h2 className="text-h1 text-slate-800 mb-6 flex items-center gap-2">
           <MessageCircle size={20} /> Comments ({discussion.Comments?.length || 0})
         </h2>
 
@@ -291,7 +291,7 @@ const DiscussionDetail = () => {
         )}
         {isAuthenticated && user && isDummyDiscussion && (
           <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-            <p className="text-sm text-slate-600">
+            <p className="text-caption text-slate-600">
               Comments are disabled for sample discussions. <Link to="/discussions/new" className="text-indigo-600 hover:text-indigo-700 underline">Create a real discussion</Link> to enable commenting.
             </p>
           </div>

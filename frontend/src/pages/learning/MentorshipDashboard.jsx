@@ -105,7 +105,7 @@ const MentorshipDashboard = () => {
     const badge = badges[status] || badges.pending;
     const Icon = badge.icon;
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white ${badge.color}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-overline text-white ${badge.color}`}>
         <Icon size={12} />
         {badge.text}
       </span>
@@ -121,7 +121,7 @@ const MentorshipDashboard = () => {
     >
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+        <h1 className="text-h1 text-slate-800 dark:text-slate-200">
           Mentorship Dashboard
         </h1>
         <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -165,8 +165,8 @@ const MentorshipDashboard = () => {
                 <div className="card">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Total</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                      <p className="text-caption text-slate-600 dark:text-slate-400">Total</p>
+                      <p className="text-h1 text-slate-800 dark:text-slate-200">
                         {mentorships?.length || 0}
                       </p>
                     </div>
@@ -176,8 +176,8 @@ const MentorshipDashboard = () => {
                 <div className="card">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Active</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                      <p className="text-caption text-slate-600 dark:text-slate-400">Active</p>
+                      <p className="text-h1 text-slate-800 dark:text-slate-200">
                         {activeMentorships.length}
                       </p>
                     </div>
@@ -187,8 +187,8 @@ const MentorshipDashboard = () => {
                 <div className="card">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Pending</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                      <p className="text-caption text-slate-600 dark:text-slate-400">Pending</p>
+                      <p className="text-h1 text-slate-800 dark:text-slate-200">
                         {pendingMentorships.length}
                       </p>
                     </div>
@@ -198,8 +198,8 @@ const MentorshipDashboard = () => {
                 <div className="card">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Completed</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                      <p className="text-caption text-slate-600 dark:text-slate-400">Completed</p>
+                      <p className="text-h1 text-slate-800 dark:text-slate-200">
                         {completedMentorships.length}
                       </p>
                     </div>
@@ -211,7 +211,7 @@ const MentorshipDashboard = () => {
               {/* Active Mentorships */}
               {activeMentorships.length > 0 && (
                 <div className="card">
-                  <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                  <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                     Active Mentorships
                   </h2>
                   <div className="space-y-3">
@@ -232,7 +232,7 @@ const MentorshipDashboard = () => {
                                 <p className="font-medium text-slate-800 dark:text-slate-200">
                                   {isMentor ? 'Mentee' : 'Mentor'}: {otherPerson?.firstName || 'Unknown'} {otherPerson?.lastName || ''}
                                 </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                <p className="text-caption text-slate-600 dark:text-slate-400">
                                   Started: {new Date(mentorship.createdAt).toLocaleDateString()}
                                 </p>
                               </div>
@@ -242,7 +242,7 @@ const MentorshipDashboard = () => {
                               {mentorship.status === 'accepted' && (
                                 <button
                                   onClick={() => handleUpdateStatus(mentorship._id, 'completed')}
-                                  className="btn-secondary text-sm"
+                                  className="btn-secondary text-caption"
                                 >
                                   Mark Complete
                                 </button>
@@ -259,7 +259,7 @@ const MentorshipDashboard = () => {
               {/* Pending Requests */}
               {pendingMentorships.length > 0 && (
                 <div className="card">
-                  <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                  <h2 className="text-xl text-h3 text-slate-800 dark:text-slate-200 mb-4">
                     Pending Requests
                   </h2>
                   <div className="space-y-3">
@@ -281,7 +281,7 @@ const MentorshipDashboard = () => {
                                 <p className="font-medium text-slate-800 dark:text-slate-200">
                                   {isMentor ? 'Mentee' : 'Mentor'}: {otherPerson?.firstName || 'Unknown'} {otherPerson?.lastName || ''}
                                 </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                <p className="text-caption text-slate-600 dark:text-slate-400">
                                   Requested: {new Date(mentorship.createdAt).toLocaleDateString()}
                                 </p>
                               </div>
@@ -292,13 +292,13 @@ const MentorshipDashboard = () => {
                                 <>
                                   <button
                                     onClick={() => handleUpdateStatus(mentorship._id, 'accepted')}
-                                    className="btn-primary text-sm"
+                                    className="btn-primary text-caption"
                                   >
                                     Accept
                                   </button>
                                   <button
                                     onClick={() => handleUpdateStatus(mentorship._id, 'rejected')}
-                                    className="btn-secondary text-sm"
+                                    className="btn-secondary text-caption"
                                   >
                                     Reject
                                   </button>
@@ -361,16 +361,16 @@ const MentorshipDashboard = () => {
                       <Users size={24} />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200">
+                      <p className="text-h3 text-slate-800 dark:text-slate-200">
                         {mentor.firstName} {mentor.lastName}
                       </p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-caption text-slate-600 dark:text-slate-400">
                         {mentor.department || 'Mentor'}
                       </p>
                     </div>
                   </div>
                   {mentor.bio && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                    <p className="text-caption text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
                       {mentor.bio}
                     </p>
                   )}

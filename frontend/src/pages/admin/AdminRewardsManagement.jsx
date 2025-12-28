@@ -117,7 +117,7 @@ const AdminRewardsManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Rewards Management</h1>
+          <h1 className="text-h1 text-gray-900">Rewards Management</h1>
           <p className="text-gray-600 mt-1">Manage the rewards catalog</p>
         </div>
         {!isCreating && !editingId && (
@@ -136,7 +136,7 @@ const AdminRewardsManagement = () => {
           <h2 className="text-xl font-semibold mb-4">Create New Reward</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-button text-gray-700 mb-1">
                 Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -148,7 +148,7 @@ const AdminRewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-button text-gray-700 mb-1">
                 Description
               </label>
               <textarea
@@ -160,7 +160,7 @@ const AdminRewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-button text-gray-700 mb-1">
                 Points Required <span className="text-red-500">*</span>
               </label>
               <input
@@ -173,7 +173,7 @@ const AdminRewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-button text-gray-700 mb-1">
                 Image URL
               </label>
               <input
@@ -192,7 +192,7 @@ const AdminRewardsManagement = () => {
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                 className="w-4 h-4 text-primary-600 border-gray-300 rounded"
               />
-              <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+              <label htmlFor="isActive" className="text-button text-gray-700">
                 Active
               </label>
             </div>
@@ -218,9 +218,9 @@ const AdminRewardsManagement = () => {
           <div key={reward.id} className="card">
             {editingId === reward.id ? (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Edit Reward</h3>
+                <h3 className="text-h2">Edit Reward</h3>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -231,7 +231,7 @@ const AdminRewardsManagement = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     Description
                   </label>
                   <textarea
@@ -242,7 +242,7 @@ const AdminRewardsManagement = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     Points <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -254,7 +254,7 @@ const AdminRewardsManagement = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     Image URL
                   </label>
                   <input
@@ -271,7 +271,7 @@ const AdminRewardsManagement = () => {
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                     className="w-4 h-4 text-primary-600 border-gray-300 rounded"
                   />
-                  <label className="text-sm font-medium text-gray-700">Active</label>
+                  <label className="text-button text-gray-700">Active</label>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -299,16 +299,16 @@ const AdminRewardsManagement = () => {
                     }}
                   />
                 )}
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{reward.title}</h3>
+                <h3 className="text-h2 text-gray-900 mb-2">{reward.title}</h3>
                 {reward.description && (
-                  <p className="text-gray-600 text-sm mb-4">{reward.description}</p>
+                  <p className="text-gray-600 text-caption mb-4">{reward.description}</p>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-primary-600">
+                  <span className="text-h2 text-primary-600">
                     {reward.points} points
                   </span>
                   <span
-                    className={`px-2 py-1 text-xs font-semibold rounded ${
+                    className={`px-2 py-1 text-overline rounded ${
                       reward.isActive !== false
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'

@@ -105,7 +105,7 @@ const Pagination = ({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+          className={`px-3 py-2 rounded-lg text-button transition-colors flex items-center gap-1 ${
             currentPage === 1
               ? 'opacity-50 cursor-not-allowed'
               : theme === 'dark'
@@ -136,7 +136,7 @@ const Pagination = ({
               <button
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
-                className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-10 h-10 rounded-lg text-button transition-colors ${
                   currentPage === pageNum
                     ? theme === 'dark'
                       ? 'bg-[#ff4701] text-white'
@@ -155,7 +155,7 @@ const Pagination = ({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+          className={`px-3 py-2 rounded-lg text-button transition-colors flex items-center gap-1 ${
             currentPage === totalPages
               ? 'opacity-50 cursor-not-allowed'
               : theme === 'dark'

@@ -101,7 +101,7 @@ const CreateDiscussion = () => {
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-xl font-bold text-slate-800 mb-3"
+        className="text-h1 text-slate-800 mb-3"
       >
         Start New Discussion
       </motion.h1>
@@ -113,7 +113,7 @@ const CreateDiscussion = () => {
         className="card p-4 space-y-4"
       >
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -123,12 +123,12 @@ const CreateDiscussion = () => {
             onChange={handleChange}
             required
             placeholder="What's your question?"
-            className="input text-sm py-2"
+            className="input text-caption py-2"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -138,12 +138,12 @@ const CreateDiscussion = () => {
             required
             rows="8"
             placeholder="Describe your question in detail..."
-            className="input text-sm py-2 resize-y"
+            className="input text-caption py-2 resize-y"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -153,7 +153,7 @@ const CreateDiscussion = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag (e.g., React, Node.js)"
-              className="input flex-1 text-sm py-2"
+              className="input flex-1 text-caption py-2"
             />
             <button
               type="button"
@@ -167,7 +167,7 @@ const CreateDiscussion = () => {
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-slate-100 text-slate-800 rounded-lg flex items-center gap-2 text-sm"
+                className="px-3 py-1 bg-slate-100 text-slate-800 rounded-lg flex items-center gap-2 text-caption"
               >
                 {tag}
                 <button

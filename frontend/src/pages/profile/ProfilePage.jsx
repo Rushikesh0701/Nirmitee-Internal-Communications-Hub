@@ -124,7 +124,7 @@ export default function ProfilePage() {
           <div className="p-2 rounded-lg bg-gradient-to-br from-[#ff4701] to-[#ff5500]">
             <Edit size={18} className="text-white" />
           </div>
-          <h1 className="text-lg font-bold text-slate-800">
+          <h1 className="text-h2 text-slate-800">
             {isOwnProfile ? 'Edit Profile' : `Edit - ${profile.firstName && profile.lastName 
               ? `${profile.firstName} ${profile.lastName}`.trim()
               : profile.name || profile.displayName || 'User'}`}
@@ -134,75 +134,75 @@ export default function ProfilePage() {
         <div className="card p-4 space-y-3">
           {isAdmin(currentUser) && !isOwnProfile && (
             <div className="p-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
-              <p className="text-xs text-amber-800 font-medium"><strong>Admin Mode:</strong> Editing another user's profile</p>
+              <p className="text-overline text-amber-800 font-medium"><strong>Admin Mode:</strong> Editing another user's profile</p>
             </div>
           )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">First Name</label>
-              <input type="text" value={formData.firstName || ''} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="input text-sm py-1.5 px-3" />
+              <input type="text" value={formData.firstName || ''} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="input text-caption py-1.5 px-3" />
             </div>
             <div>
               <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Last Name</label>
-              <input type="text" value={formData.lastName || ''} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="input text-sm py-1.5 px-3" />
+              <input type="text" value={formData.lastName || ''} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="input text-caption py-1.5 px-3" />
             </div>
           </div>
           
           <div>
             <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Display Name</label>
-            <input type="text" value={formData.displayName || ''} onChange={(e) => setFormData({ ...formData, displayName: e.target.value })} className="input text-sm py-1.5 px-3" />
+            <input type="text" value={formData.displayName || ''} onChange={(e) => setFormData({ ...formData, displayName: e.target.value })} className="input text-caption py-1.5 px-3" />
           </div>
           
           {isAdmin(currentUser) && (
             <div>
               <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Email</label>
-              <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input text-sm py-1.5 px-3" />
+              <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input text-caption py-1.5 px-3" />
             </div>
           )}
           
           <div>
             <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Bio</label>
-            <textarea value={formData.bio || ''} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} rows={3} className="textarea text-sm py-1.5 px-3" />
+            <textarea value={formData.bio || ''} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} rows={3} className="textarea text-caption py-1.5 px-3" />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Department</label>
-              <input type="text" value={formData.department || ''} onChange={(e) => setFormData({ ...formData, department: e.target.value })} className="input text-sm py-1.5 px-3" />
+              <input type="text" value={formData.department || ''} onChange={(e) => setFormData({ ...formData, department: e.target.value })} className="input text-caption py-1.5 px-3" />
             </div>
             <div>
               <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Designation</label>
-              <input type="text" value={formData.designation || ''} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="input text-sm py-1.5 px-3" />
+              <input type="text" value={formData.designation || ''} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="input text-caption py-1.5 px-3" />
             </div>
           </div>
           
           <div>
             <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Avatar URL</label>
-            <input type="text" value={formData.avatar || ''} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} className="input text-sm py-1.5 px-3" placeholder="https://..." />
+            <input type="text" value={formData.avatar || ''} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} className="input text-caption py-1.5 px-3" placeholder="https://..." />
           </div>
           
           {isAdmin(currentUser) && (
             <>
               <div>
                 <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-600 mb-0.5">Role</label>
-                <select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select text-sm py-1.5 px-3">
+                <select value={formData.role || ''} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="input-select text-caption py-1.5 px-3">
                   <option value="">Select Role</option>
                   {roles.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
                 <input type="checkbox" id="isActive" checked={formData.isActive !== undefined ? formData.isActive : true} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-[#ff4701] focus:ring-2 focus:ring-[#ff4701]/20" />
-                <label htmlFor="isActive" className="text-xs font-medium text-slate-700 cursor-pointer">Active User</label>
+                <label htmlFor="isActive" className="text-overline text-slate-700 cursor-pointer">Active User</label>
               </div>
             </>
           )}
           
           <div className="flex gap-2 pt-1">
-            <button onClick={() => updateMutation.mutate(formData)} disabled={updateMutation.isLoading} className="btn btn-primary flex items-center gap-2 px-3 py-2 text-sm">
+            <button onClick={() => updateMutation.mutate(formData)} disabled={updateMutation.isLoading} className="btn btn-primary flex items-center gap-2 px-3 py-2 text-caption">
               <Save size={14} /> {updateMutation.isLoading ? 'Saving...' : 'Save Changes'}
             </button>
-            <button onClick={() => { setIsEditing(false); setFormData({}); }} className="btn btn-secondary flex items-center gap-2 px-3 py-2 text-sm">
+            <button onClick={() => { setIsEditing(false); setFormData({}); }} className="btn btn-secondary flex items-center gap-2 px-3 py-2 text-caption">
               <X size={14} /> Cancel
             </button>
           </div>
@@ -251,7 +251,7 @@ export default function ProfilePage() {
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 mb-2 flex-wrap">
-                <h1 className="text-xl font-bold text-slate-800">
+                <h1 className="text-h1 text-slate-800">
                   {profile.firstName && profile.lastName 
                     ? `${profile.firstName} ${profile.lastName}`.trim()
                     : profile.name || profile.displayName || 'User'}
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                   <div className="p-1.5 rounded-lg bg-slate-100">
                     <Briefcase size={12} className="text-slate-600" />
                   </div>
-                  <p className="text-sm font-medium text-slate-700">{profile.designation}</p>
+                  <p className="text-button text-slate-700">{profile.designation}</p>
                 </div>
               )}
               
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                   <div className="p-1.5 rounded-lg bg-slate-100">
                     <Building size={12} className="text-slate-600" />
                   </div>
-                  <p className="text-xs text-slate-600">{profile.department}</p>
+                  <p className="text-overline text-slate-600">{profile.department}</p>
                 </div>
               )}
             </div>
@@ -283,7 +283,7 @@ export default function ProfilePage() {
             {canEdit && (
               <motion.button 
                 onClick={() => setIsEditing(true)} 
-                className="btn btn-primary flex items-center gap-2 px-3 py-2 text-sm"
+                className="btn btn-primary flex items-center gap-2 px-3 py-2 text-caption"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -294,7 +294,7 @@ export default function ProfilePage() {
               <motion.button
                 onClick={handleDeleteClick}
                 disabled={permanentDeleteMutation.isLoading}
-                className="btn bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-2 px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-2 px-3 py-2 text-caption disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -307,8 +307,8 @@ export default function ProfilePage() {
         {/* Bio Section */}
         {profile.bio && (
           <div className="mb-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200">
-            <h2 className="text-xs font-bold uppercase tracking-wide text-slate-600 mb-2">About</h2>
-            <p className="text-sm text-slate-700 leading-relaxed">{profile.bio}</p>
+            <h2 className="text-overline font-bold uppercase tracking-wide text-slate-600 mb-2">About</h2>
+            <p className="text-caption text-slate-700 leading-relaxed">{profile.bio}</p>
           </div>
         )}
 
@@ -320,8 +320,8 @@ export default function ProfilePage() {
                 <Mail size={14} className="text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-500 mb-0.5">Email</p>
-                <p className="text-xs font-medium text-slate-700 truncate">{profile.email}</p>
+                <p className="text-overline text-slate-500 mb-0.5">Email</p>
+                <p className="text-overline text-slate-700 truncate">{profile.email}</p>
               </div>
             </div>
           )}
@@ -331,8 +331,8 @@ export default function ProfilePage() {
                 <Star size={14} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-500 mb-0.5">Points</p>
-                <p className="text-xs font-bold text-amber-700">{profile.points.toLocaleString()}</p>
+                <p className="text-overline text-slate-500 mb-0.5">Points</p>
+                <p className="text-overline font-bold text-amber-700">{profile.points.toLocaleString()}</p>
               </div>
             </div>
           )}
@@ -351,13 +351,13 @@ export default function ProfilePage() {
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100">
               <Award size={18} className="text-purple-600" />
             </div>
-            <h2 className="text-sm font-bold text-slate-800">Recognition Badges</h2>
+            <h2 className="text-caption font-bold text-slate-800">Recognition Badges</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {profile.badges.map((badge, index) => (
               <motion.span 
                 key={index} 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-200"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-overline bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-200"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.15 + index * 0.05 }}
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                 <div className="p-3 rounded-xl bg-gradient-to-br from-rose-100 to-red-100">
                   <AlertTriangle size={24} className="text-rose-600" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">Delete User</h3>
+                <h3 className="text-h2 text-slate-900">Delete User</h3>
               </div>
               <p className="text-slate-600 mb-6 leading-relaxed">
                 Are you sure you want to <span className="font-bold text-rose-600">permanently delete</span>{' '}
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                 </span>?
               </p>
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 mb-6">
-                <p className="text-sm font-medium text-rose-700 flex items-center gap-2">
+                <p className="text-button text-rose-700 flex items-center gap-2">
                   <AlertTriangle size={16} />
                   This action cannot be undone!
                 </p>

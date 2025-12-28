@@ -59,7 +59,7 @@ const MyCertificates = () => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+            <h1 className="text-h1 text-slate-800 dark:text-slate-200">
               My Certificates
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -99,18 +99,18 @@ const MyCertificates = () => {
                     <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-200 mb-2">
                       {course.title || 'Course Certificate'}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                    <p className="text-caption text-slate-600 dark:text-slate-400 mb-4">
                       Certificate of Completion
                     </p>
                     
                     {/* Certificate Details */}
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-2 text-caption text-slate-600 dark:text-slate-400">
                         <Calendar size={14} />
                         <span>Issued: {formatDate(certificate.issuedAt || certificate.createdAt)}</span>
                       </div>
                       {certificate.certificateNumber && (
-                        <div className="text-xs text-slate-500 dark:text-slate-500">
+                        <div className="text-overline text-slate-500 dark:text-slate-500">
                           Certificate #: {certificate.certificateNumber}
                         </div>
                       )}
@@ -160,7 +160,7 @@ const MyCertificates = () => {
               <p className="text-3xl font-bold text-slate-800 dark:text-slate-200">
                 {certificates.length}
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-caption text-slate-600 dark:text-slate-400 mt-1">
                 Total Certificates
               </p>
             </div>
@@ -168,7 +168,7 @@ const MyCertificates = () => {
               <p className="text-3xl font-bold text-slate-800 dark:text-slate-200">
                 {new Set(certificates.map(c => c.course?._id || c.course?.id)).size}
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-caption text-slate-600 dark:text-slate-400 mt-1">
                 Unique Courses
               </p>
             </div>

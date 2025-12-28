@@ -90,13 +90,19 @@ const AdminAnalytics = () => {
   return (
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[#151a28]">
-          <BarChart3 size={22} className="text-white" />
-        </div>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Admin Analytics</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Comprehensive platform insights and metrics</p>
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-[#151a28]">
+            <BarChart3 size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className={`text-h1 transition-colors ${
+              theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+            }`}>Admin Analytics</h1>
+             <p className={`text-overline mt-0.5 transition-colors ${
+               theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+             }`}>Comprehensive platform insights and metrics</p>
+          </div>
         </div>
       </motion.div>
 
@@ -106,10 +112,12 @@ const AdminAnalytics = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+             className={`px-4 py-2 text-button rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-[#151a28] text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                : theme === 'dark'
+                  ? 'bg-[#0a0e17] text-slate-300 hover:bg-[#151a28] hover:text-white border border-[#151a28]'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             <tab.icon size={16} />
@@ -129,42 +137,70 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Users className="text-blue-500" size={20} />
-                    <span className="text-xs text-slate-500">Users</span>
+                    <span className={`text-overline ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>Users</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{overview?.users?.total || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">Total active users</p>
+                  <p className={`text-h1 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>{overview?.users?.total || 0}</p>
+                  <p className={`text-xs mt-1 ${
+                    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                  }`}>Total active users</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Award className="text-purple-500" size={20} />
-                    <span className="text-xs text-slate-500">Recognitions</span>
-                  </div>
-                  <p className="text-2xl font-bold text-slate-800">{overview?.recognitions?.total || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">Total recognitions</p>
+                     <span className={`text-overline ${
+                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                     }`}>Recognitions</span>
+                   </div>
+                   <p className={`text-h1 ${
+                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                   }`}>{overview?.recognitions?.total || 0}</p>
+                   <p className={`text-overline mt-1 ${
+                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                   }`}>Total recognitions</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <ClipboardList className="text-green-500" size={20} />
-                    <span className="text-xs text-slate-500">Surveys</span>
-                  </div>
-                  <p className="text-2xl font-bold text-slate-800">{overview?.surveys?.total || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">{overview?.surveys?.active || 0} active</p>
+                     <span className={`text-overline ${
+                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                     }`}>Surveys</span>
+                   </div>
+                   <p className={`text-h1 ${
+                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                   }`}>{overview?.surveys?.total || 0}</p>
+                   <p className={`text-overline mt-1 ${
+                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                   }`}>{overview?.surveys?.active || 0} active</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <BookOpen className="text-orange-500" size={20} />
-                    <span className="text-xs text-slate-500">Courses</span>
-                  </div>
-                  <p className="text-2xl font-bold text-slate-800">{overview?.courses?.total || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">{overview?.courses?.completed || 0} completed</p>
+                     <span className={`text-overline ${
+                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                     }`}>Courses</span>
+                   </div>
+                   <p className={`text-h1 ${
+                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                   }`}>{overview?.courses?.total || 0}</p>
+                   <p className={`text-overline mt-1 ${
+                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                   }`}>{overview?.courses?.completed || 0} completed</p>
                 </div>
               </div>
               <div className="card p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Zap className="text-yellow-500" size={20} />
-                  <h3 className="font-semibold text-slate-800">Total Points Awarded</h3>
-                </div>
-                <p className="text-4xl font-bold text-yellow-600">{overview?.points?.totalAwarded?.toLocaleString() || 0}</p>
+                   <h3 className={`text-h3 ${
+                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                   }`}>Total Points Awarded</h3>
+                 </div>
+                 <p className={`text-display ${
+                   theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'
+                 }`}>{overview?.points?.totalAwarded?.toLocaleString() || 0}</p>
               </div>
 
               {/* Posts and Comments Analytics */}
@@ -174,29 +210,47 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <MessageSquare className="text-blue-500" size={20} />
-                    <h3 className="font-semibold text-slate-800">Posts & Comments</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-slate-500 mb-1">Total Posts</p>
-                      <p className="text-2xl font-bold text-slate-800">{postsComments?.posts?.total || 0}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {postsComments?.posts?.groupPosts || 0} group posts, {postsComments?.posts?.discussions || 0} discussions
-                      </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {postsComments?.posts?.thisMonth || 0} this month
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 mb-1">Total Comments</p>
-                      <p className="text-2xl font-bold text-slate-800">{postsComments?.comments?.total || 0}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {postsComments?.comments?.groupComments || 0} group, {postsComments?.comments?.discussionComments || 0} discussion, {postsComments?.comments?.blogComments || 0} blog
-                      </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {postsComments?.comments?.thisMonth || 0} this month
-                      </p>
-                    </div>
+                     <h3 className={`text-h3 ${
+                       theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                     }`}>Posts & Comments</h3>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                       <p className={`text-caption mb-1 ${
+                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                       }`}>Total Posts</p>
+                       <p className={`text-h1 ${
+                         theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                       }`}>{postsComments?.posts?.total || 0}</p>
+                       <p className={`text-overline mt-1 ${
+                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                       }`}>
+                         {postsComments?.posts?.groupPosts || 0} group posts, {postsComments?.posts?.discussions || 0} discussions
+                       </p>
+                       <p className={`text-overline mt-1 ${
+                         theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                       }`}>
+                         {postsComments?.posts?.thisMonth || 0} this month
+                       </p>
+                     </div>
+                     <div>
+                       <p className={`text-caption mb-1 ${
+                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                       }`}>Total Comments</p>
+                       <p className={`text-h1 ${
+                         theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                       }`}>{postsComments?.comments?.total || 0}</p>
+                       <p className={`text-overline mt-1 ${
+                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                       }`}>
+                         {postsComments?.comments?.groupComments || 0} group, {postsComments?.comments?.discussionComments || 0} discussion, {postsComments?.comments?.blogComments || 0} blog
+                       </p>
+                       <p className={`text-overline mt-1 ${
+                         theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                       }`}>
+                         {postsComments?.comments?.thisMonth || 0} this month
+                       </p>
+                     </div>
                   </div>
                 </div>
               ) : null}
@@ -208,7 +262,9 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Target className="text-purple-500" size={20} />
-                    <h3 className="font-semibold text-slate-800">Sentiment Analysis</h3>
+                    <h3 className={`text-h2 ${
+                      theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                    }`}>Sentiment Analysis</h3>
                   </div>
                   {sentiment?.implementationStatus === 'NOT_IMPLEMENTED' || sentiment?.implementationStatus === 'ERROR' ? (
                     <div className={`${theme === 'dark' ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-200'} border rounded-lg p-3`}>
@@ -220,15 +276,15 @@ const AdminAnalytics = () => {
                     <div className="space-y-4">
                       {/* Overall Sentiment */}
                       <div>
-                        <p className={`text-sm mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Overall Sentiment</p>
-                        <p className={`text-lg font-bold capitalize ${theme === 'dark' ? 'text-slate-100' : 'text-slate-800'}`}>
+                        <p className={`text-caption mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Overall Sentiment</p>
+                        <p className={`text-h2 capitalize ${theme === 'dark' ? 'text-slate-100' : 'text-slate-800'}`}>
                           {sentiment?.overall?.sentiment?.toLowerCase() || 'Neutral'}
                         </p>
-                        <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <p className={`text-overline mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
                           Score: {sentiment?.overall?.score || 0} (Confidence: {((sentiment?.overall?.confidence || 0) * 100).toFixed(0)}%)
                         </p>
                         {sentiment?.analyzedItems && (
-                          <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                          <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                             Analyzed {sentiment.analyzedItems} of {sentiment.totalItems || sentiment.analyzedItems} items
                           </p>
                         )}
@@ -237,22 +293,22 @@ const AdminAnalytics = () => {
                       {/* Distribution */}
                       <div className="grid grid-cols-3 gap-2">
                         <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-green-900/20 border border-green-800' : 'bg-green-50'}`}>
-                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
+                          <p className={`text-h2 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
                             {sentiment?.distribution?.positive || 0}%
                           </p>
-                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Positive</p>
+                          <p className={`text-xs uppercase tracking-wider ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Positive</p>
                         </div>
                         <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-slate-700/50 border border-slate-600' : 'bg-gray-50'}`}>
-                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-gray-600'}`}>
+                          <p className={`text-h2 ${theme === 'dark' ? 'text-slate-300' : 'text-gray-600'}`}>
                             {sentiment?.distribution?.neutral || 0}%
                           </p>
-                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Neutral</p>
+                          <p className={`text-xs uppercase tracking-wider ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Neutral</p>
                         </div>
                         <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-red-900/20 border border-red-800' : 'bg-red-50'}`}>
-                          <p className={`text-lg font-bold ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>
+                          <p className={`text-h2 ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>
                             {sentiment?.distribution?.negative || 0}%
                           </p>
-                          <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Negative</p>
+                          <p className={`text-overline ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Negative</p>
                         </div>
                       </div>
 
@@ -264,7 +320,11 @@ const AdminAnalytics = () => {
                             {sentiment.topKeywords.slice(0, 10).map((keyword, idx) => (
                               <span
                                 key={idx}
-                                className={`px-2 py-1 rounded text-xs ${theme === 'dark' ? 'bg-[#151a28] text-slate-300 border border-[#151a28]' : 'bg-slate-100 text-slate-700'}`}
+                                className={`px-2 py-1 rounded text-xs uppercase tracking-wider ${
+                                  theme === 'dark' 
+                                    ? 'bg-[#151a28] text-slate-300 border border-[#151a28]' 
+                                    : 'bg-slate-100 text-slate-700'
+                                }`}
                               >
                                 {keyword.word} ({keyword.count})
                               </span>
@@ -275,7 +335,7 @@ const AdminAnalytics = () => {
 
                       {/* Success Message */}
                       {sentiment?.message && sentiment.implementationStatus === 'IMPLEMENTED' && (
-                        <p className={`text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                           {sentiment.message}
                         </p>
                       )}
@@ -292,11 +352,11 @@ const AdminAnalytics = () => {
       {activeTab === 'engagement' && (
         <motion.div variants={itemVariants} className="space-y-3">
           <div className="flex items-center gap-3 mb-3">
-            <Filter size={16} />
+            <Filter size={16} className={theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
             <select 
               value={engagementRange} 
               onChange={(e) => setEngagementRange(e.target.value)}
-              className="input-select text-sm"
+              className="input-select text-caption"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -307,7 +367,9 @@ const AdminAnalytics = () => {
             <DetailSkeleton />
           ) : engagement?.timeSeries?.length > 0 ? (
             <div className="card p-4">
-              <h3 className="font-semibold text-slate-800 mb-4">Engagement Over Time</h3>
+              <h3 className={`text-h2 mb-4 ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+              }`}>Engagement Over Time</h3>
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={engagement.timeSeries}>
                   <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
@@ -348,53 +410,53 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <FileText className="text-blue-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Blogs</span>
+                    <span className="text-overline text-slate-500">Total Blogs</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{blogAnalytics?.totalBlogs || 0}</p>
+                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalBlogs || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Eye className="text-green-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Views</span>
+                    <span className="text-overline text-slate-500">Total Views</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{blogAnalytics?.totalViews?.toLocaleString() || 0}</p>
+                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalViews?.toLocaleString() || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <MessageSquare className="text-purple-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Comments</span>
+                    <span className="text-overline text-slate-500">Total Comments</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{blogAnalytics?.totalComments || 0}</p>
+                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalComments || 0}</p>
                 </div>
               </div>
               <div className="card p-4">
-                <h3 className="font-semibold text-slate-800 mb-4">Top Blogs by Views</h3>
+                <h3 className="text-h3 text-slate-800 mb-4">Top Blogs by Views</h3>
                 {blogAnalytics?.topBlogsByViews?.length > 0 ? (
                   <div className="space-y-2">
                     {blogAnalytics.topBlogsByViews.slice(0, 5).map((blog, index) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                        <span className="text-sm text-slate-700">{blog.title}</span>
-                        <span className="text-sm font-semibold text-slate-800">{blog.views || 0} views</span>
+                        <span className="text-caption text-slate-700">{blog.title}</span>
+                        <span className="text-caption text-slate-800">{blog.views || 0} views</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">No blog data available</p>
+                  <p className="text-caption text-slate-500">No blog data available</p>
                 )}
               </div>
               <div className="card p-4">
-                <h3 className="font-semibold text-slate-800 mb-4">Top Blogs by Comments</h3>
+                <h3 className="text-h3 text-slate-800 mb-4">Top Blogs by Comments</h3>
                 {blogAnalytics?.topBlogsByComments?.length > 0 ? (
                   <div className="space-y-2">
                     {blogAnalytics.topBlogsByComments.slice(0, 5).map((blog, index) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                        <span className="text-sm text-slate-700">{blog.title}</span>
-                        <span className="text-sm font-semibold text-slate-800">{blog.commentCount || 0} comments</span>
+                        <span className="text-caption text-slate-700">{blog.title}</span>
+                        <span className="text-caption text-slate-800">{blog.commentCount || 0} comments</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">No blog data available</p>
+                  <p className="text-caption text-slate-500">No blog data available</p>
                 )}
               </div>
             </>
@@ -415,35 +477,55 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <ClipboardList className="text-blue-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Surveys</span>
+                    <span className={`text-overline ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>Total Surveys</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{surveyAnalytics?.totalSurveys || 0}</p>
+                  <p className={`text-h1 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>{surveyAnalytics?.totalSurveys || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Users className="text-green-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Responses</span>
+                    <span className={`text-xs uppercase tracking-wider ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>Total Responses</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{surveyAnalytics?.totalResponses || 0}</p>
+                  <p className={`text-h1 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>{surveyAnalytics?.totalResponses || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Target className="text-purple-500" size={20} />
-                    <span className="text-xs text-slate-500">Avg. Response Rate</span>
+                    <span className={`text-overline ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>Avg. Response Rate</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">
+                  <p className={`text-h1 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>
                     {surveyAnalytics?.averageResponseRate ? `${surveyAnalytics.averageResponseRate.toFixed(1)}%` : '0%'}
                   </p>
                 </div>
               </div>
               {surveyAnalytics?.topSurveys?.length > 0 && (
                 <div className="card p-4">
-                  <h3 className="font-semibold text-slate-800 mb-4">Top Surveys by Responses</h3>
+                  <h3 className={`text-h2 mb-4 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Top Surveys by Responses</h3>
                   <div className="space-y-2">
                     {surveyAnalytics.topSurveys.slice(0, 5).map((survey, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                        <span className="text-sm text-slate-700">{survey.title}</span>
-                        <span className="text-sm font-semibold text-slate-800">{survey.responseCount || 0} responses</span>
+                      <div key={index} className={`flex items-center justify-between p-2 rounded ${
+                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-50'
+                      }`}>
+                        <span className={`text-caption ${
+                          theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                        }`}>{survey.title}</span>
+                        <span className={`text-caption ${
+                          theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                        }`}>{survey.responseCount || 0} responses</span>
                       </div>
                     ))}
                   </div>
@@ -467,38 +549,38 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Award className="text-yellow-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Recognitions</span>
+                    <span className="text-overline text-slate-500">Total Recognitions</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{recognitionAnalytics?.totalRecognitions || 0}</p>
+                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.totalRecognitions || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Zap className="text-orange-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Points</span>
+                    <span className="text-overline text-slate-500">Total Points</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{recognitionAnalytics?.totalPointsAwarded?.toLocaleString() || 0}</p>
+                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.totalPointsAwarded?.toLocaleString() || 0}</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Users className="text-blue-500" size={20} />
-                    <span className="text-xs text-slate-500">Top Receivers</span>
+                    <span className="text-overline text-slate-500">Top Receivers</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{recognitionAnalytics?.topReceivers?.length || 0}</p>
+                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.topReceivers?.length || 0}</p>
                 </div>
               </div>
               {recognitionAnalytics?.topReceivers?.length > 0 && (
                 <div className="card p-4">
-                  <h3 className="font-semibold text-slate-800 mb-4">Top Recognition Receivers</h3>
+                  <h3 className="text-h3 text-slate-800 mb-4">Top Recognition Receivers</h3>
                   <div className="space-y-2">
                     {recognitionAnalytics.topReceivers.slice(0, 5).map((receiver, index) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
                         <div>
-                          <span className="text-sm font-medium text-slate-700">
+                          <span className="text-caption text-slate-700">
                             {receiver.user?.firstName} {receiver.user?.lastName}
                           </span>
-                          <p className="text-xs text-slate-500">{receiver.recognitionCount} recognitions</p>
+                          <p className="text-overline text-slate-500">{receiver.recognitionCount} recognitions</p>
                         </div>
-                        <span className="text-sm font-semibold text-yellow-600">{receiver.totalPoints || 0} pts</span>
+                        <span className="text-caption text-yellow-600">{receiver.totalPoints || 0} pts</span>
                       </div>
                     ))}
                   </div>
@@ -522,23 +604,23 @@ const AdminAnalytics = () => {
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <FileText className="text-blue-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Posts</span>
+                    <span className="text-overline text-slate-500">Total Posts</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{postsComments?.totalPosts || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">Across all groups</p>
+                  <p className="text-h1 text-slate-800">{postsComments?.totalPosts || 0}</p>
+                  <p className="text-overline text-slate-500 mt-1">Across all groups</p>
                 </div>
                 <div className="card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <MessageSquare className="text-green-500" size={20} />
-                    <span className="text-xs text-slate-500">Total Comments</span>
+                    <span className="text-overline text-slate-500">Total Comments</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">{postsComments?.totalComments || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">On all posts</p>
+                  <p className="text-h1 text-slate-800">{postsComments?.totalComments || 0}</p>
+                  <p className="text-overline text-slate-500 mt-1">On all posts</p>
                 </div>
               </div>
               {postsComments?.timeSeries && postsComments.timeSeries.length > 0 && (
                 <div className="card p-4">
-                  <h3 className="font-semibold text-slate-800 mb-4">Posts and Comments Over Time</h3>
+                  <h3 className="text-h3 text-slate-800 mb-4">Posts and Comments Over Time</h3>
                   <ResponsiveContainer width="100%" height={400}>
                     <AreaChart data={postsComments.timeSeries}>
                       <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
@@ -578,16 +660,26 @@ const AdminAnalytics = () => {
             <DetailSkeleton />
           ) : mau ? (
             <div className="card p-4">
-              <h3 className="font-semibold text-slate-800 mb-4">Monthly Active Users (MAU)</h3>
+              <h3 className={`text-h3 mb-4 ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+              }`}>Monthly Active Users (MAU)</h3>
               <div className="flex items-baseline gap-2 mb-4">
-                <p className="text-4xl font-bold text-slate-800">{mau?.currentMonth || 0}</p>
-                <p className="text-sm text-slate-500">users this month</p>
+                <p className={`text-h1 ${
+                  theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                }`}>{mau?.currentMonth || 0}</p>
+                <p className={`text-caption ${
+                  theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                }`}>users this month</p>
               </div>
               {mau?.previousMonth && (
-                <p className="text-sm text-slate-600">
+                <p className={`text-caption ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                }`}>
                   Previous month: {mau.previousMonth} users
                   {mau.currentMonth > mau.previousMonth && (
-                    <span className="text-green-600 ml-2">
+                    <span className={`ml-2 ${
+                      theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                    }`}>
                       ↑ {((mau.currentMonth - mau.previousMonth) / mau.previousMonth * 100).toFixed(1)}% increase
                     </span>
                   )}

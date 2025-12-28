@@ -150,44 +150,44 @@ const SurveyForm = () => {
       </Link>
 
       <div className="card p-4">
-        <h1 className="text-xl font-bold text-slate-800 mb-4">
+        <h1 className="text-h1 text-slate-800 mb-4">
           {isEdit ? 'Edit Survey' : 'Create New Survey'}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input text-sm py-2"
+              className="input text-caption py-2"
               placeholder="Enter survey title"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-caption text-red-600">{errors.title.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Description
             </label>
             <textarea
               {...register('description')}
               rows={4}
-              className="input text-sm py-2 resize-y"
+              className="input text-caption py-2 resize-y"
               placeholder="Describe the survey purpose"
             />
           </div>
 
           {isEdit && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                 Status
               </label>
-              <select {...register('status')} className="input text-sm py-2">
+              <select {...register('status')} className="input text-caption py-2">
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
                 <option value="CLOSED">Closed</option>
@@ -197,7 +197,7 @@ const SurveyForm = () => {
 
           <div className="border-t border-slate-200 dark:border-[#151a28] pt-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800">Questions</h2>
+              <h2 className="text-h2 text-slate-800">Questions</h2>
               <button
                 type="button"
                 onClick={addQuestion}
@@ -222,26 +222,26 @@ const SurveyForm = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                         Question {qIndex + 1}
                       </label>
                       <input
                         type="text"
                         value={question.questionText}
                         onChange={(e) => updateQuestion(qIndex, 'questionText', e.target.value)}
-                        className="input text-sm py-2"
+                        className="input text-caption py-2"
                         placeholder="Enter question text"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                         Type
                       </label>
                       <select
                         value={question.type}
                         onChange={(e) => updateQuestion(qIndex, 'type', e.target.value)}
-                        className="input text-sm py-2"
+                        className="input text-caption py-2"
                       >
                         <option value="TEXT">Text</option>
                         <option value="MCQ">Multiple Choice (MCQ)</option>
@@ -251,7 +251,7 @@ const SurveyForm = () => {
 
                     {question.type !== 'TEXT' && question.type !== 'RATING' && (
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                           Options
                         </label>
                         <div className="space-y-2">
@@ -261,7 +261,7 @@ const SurveyForm = () => {
                                 type="text"
                                 value={option}
                                 onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                                className="input flex-1 text-sm py-2"
+                                className="input flex-1 text-caption py-2"
                                 placeholder={`Option ${oIndex + 1}`}
                               />
                               <button
@@ -277,7 +277,7 @@ const SurveyForm = () => {
                           <button
                             type="button"
                             onClick={() => addOption(qIndex)}
-                            className="text-sm font-medium text-slate-700 hover:text-slate-900 hover:underline transition-colors"
+                            className="text-button text-slate-700 hover:text-slate-900 hover:underline transition-colors"
                           >
                             + Add Option
                           </button>

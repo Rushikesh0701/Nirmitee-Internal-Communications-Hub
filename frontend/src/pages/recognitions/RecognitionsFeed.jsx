@@ -24,7 +24,7 @@ export default function RecognitionsFeed() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Recognition Feed</h1>
+          <h1 className="text-h1 text-gray-900">Recognition Feed</h1>
           <p className="text-gray-600 mt-1">Celebrate your colleagues&apos; achievements</p>
         </div>
         <Link
@@ -53,11 +53,11 @@ export default function RecognitionsFeed() {
                         {recognition.badge && (
                           <div className="flex items-center gap-2 mb-2">
                             <Trophy className="text-yellow-500" size={16} />
-                            <span className="text-sm font-medium text-yellow-700">{recognition.badge}</span>
+                            <span className="text-button text-yellow-700">{recognition.badge}</span>
                           </div>
                         )}
                         <p className="text-gray-700 mb-3">{recognition.message}</p>
-                        <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center justify-between text-caption text-gray-500">
                           <div className="flex items-center gap-4">
                             <span>
                               From: <strong>{recognition.sender?.name}</strong>

@@ -126,11 +126,11 @@ const VideoModal = ({
     <>
       <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">Insert Video</h3>
+          <h3 className="text-h2 mb-4 text-gray-800">Insert Video</h3>
           
           {/* File Upload Option */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-button text-gray-700 mb-2">
               Upload from Device
             </label>
             <button
@@ -154,7 +154,7 @@ const VideoModal = ({
                 </>
               )}
             </button>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-overline text-gray-500 mt-2 text-center">
               Supports MP4, WebM, MOV (max 50MB)
             </p>
           </div>
@@ -164,14 +164,14 @@ const VideoModal = ({
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-caption">
               <span className="px-2 bg-white text-gray-500">OR</span>
             </div>
           </div>
 
           {/* URL Input Option */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-button text-gray-700 mb-2">
               Enter Video URL
             </label>
             <input
@@ -182,7 +182,7 @@ const VideoModal = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
               onKeyPress={(e) => e.key === 'Enter' && handleVideoInsert()}
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-overline text-gray-500 mt-2">
               Supports YouTube URLs and direct video links
             </p>
           </div>

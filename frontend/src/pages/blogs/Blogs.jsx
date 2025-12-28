@@ -127,7 +127,7 @@ const Blogs = () => {
         transition={{ duration: 0.3 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
       >
-        <h1 className={`text-xl sm:text-2xl font-bold ${
+        <h1 className={`text-h1 ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-800'
         }`}>
           Blogs & Articles

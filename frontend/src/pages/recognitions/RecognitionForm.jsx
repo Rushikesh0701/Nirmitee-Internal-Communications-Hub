@@ -53,17 +53,17 @@ export default function RecognitionForm() {
 
   return (
     <div className="w-full space-y-3">
-      <h1 className="text-xl font-bold text-slate-800 mb-3">Send Recognition</h1>
+      <h1 className="text-h1 text-slate-800 mb-3">Send Recognition</h1>
       
       <div className="card p-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Recipient <span className="text-red-500">*</span></label>
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">Recipient <span className="text-red-500">*</span></label>
             {usersData?.users && usersData.users.length > 0 ? (
               <select
                 value={formData.receiverId}
                 onChange={(e) => setFormData({ ...formData, receiverId: e.target.value })}
-                className="input text-sm py-2"
+                className="input text-caption py-2"
                 required
               >
                 <option value="">Select a colleague</option>
@@ -85,11 +85,11 @@ export default function RecognitionForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Badge</label>
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">Badge</label>
               <select
                 value={formData.badge}
                 onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                className="input text-sm py-2"
+                className="input text-caption py-2"
               >
                 <option value="">No badge</option>
                 {BADGES.map((badge) => (
@@ -101,25 +101,25 @@ export default function RecognitionForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Points</label>
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">Points</label>
               <input
                 type="number"
                 min="0"
                 max="100"
                 value={formData.points}
                 onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-                className="input text-sm py-2"
+                className="input text-caption py-2"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">Message <span className="text-red-500">*</span></label>
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">Message <span className="text-red-500">*</span></label>
             <textarea
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               rows={5}
-              className="input text-sm py-2 resize-y"
+              className="input text-caption py-2 resize-y"
               placeholder="Write a message recognizing your colleague's contribution..."
               required
             />

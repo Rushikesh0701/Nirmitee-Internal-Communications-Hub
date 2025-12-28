@@ -96,10 +96,10 @@ const Settings = () => {
           <SettingsIcon size={22} className="text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <h1 className="text-h1 text-slate-800 dark:text-slate-100">
             Settings
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+          <p className="text-slate-500 dark:text-slate-400 text-caption mt-0.5">
             Manage your account settings and preferences
           </p>
         </div>
@@ -113,7 +113,7 @@ const Settings = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+            className={`px-4 py-2 text-button rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-[#ff4701] text-white hover:bg-[#ff5500]'
                 : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'
@@ -131,69 +131,69 @@ const Settings = () => {
           {/* Profile Settings */}
           {activeTab === 'profile' && (
             <form onSubmit={handleSubmit} className="card space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              <h2 className="text-h2 text-slate-800 dark:text-slate-100 mb-3">
                 Profile Information
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-overline text-slate-700 dark:text-slate-300 mb-1">
                     First Name
                   </label>
                   <input
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="input w-full text-sm py-2"
+                    className="input w-full text-caption py-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-overline text-slate-700 dark:text-slate-300 mb-1">
                     Last Name
                   </label>
                   <input
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="input w-full text-sm py-2"
+                    className="input w-full text-caption py-2"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-overline text-slate-700 dark:text-slate-300 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   disabled
-                  className="input w-full bg-slate-100 dark:bg-[#151a28] dark:border-[#151a28] text-sm py-2"
+                  className="input w-full bg-slate-100 dark:bg-[#151a28] dark:border-[#151a28] text-caption py-2"
                 />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
+                <p className="text-overline text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-overline text-slate-700 dark:text-slate-300 mb-1">
                   Department
                 </label>
                 <input
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                  className="input w-full text-sm py-2"
+                  className="input w-full text-caption py-2"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-overline text-slate-700 dark:text-slate-300 mb-1">
                   Bio
                 </label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                   rows={3}
-                  className="input w-full text-sm py-2"
+                  className="input w-full text-caption py-2"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -201,7 +201,7 @@ const Settings = () => {
               <button
                 type="submit"
                 disabled={updateUserMutation.isLoading}
-                className="btn btn-primary flex items-center gap-2 text-sm"
+                className="btn btn-primary flex items-center gap-2 text-caption"
               >
                 <Save size={16} />
                 {updateUserMutation.isLoading ? 'Saving...' : 'Save Changes'}
@@ -212,17 +212,17 @@ const Settings = () => {
           {/* Notification Settings */}
           {activeTab === 'notifications' && (
             <form onSubmit={handleSubmit} className="card space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              <h2 className="text-h2 text-slate-800 dark:text-slate-100 mb-3">
                 Notification Preferences
               </h2>
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <h3 className="text-button text-slate-800 dark:text-slate-100">
                       Email Notifications
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-overline text-slate-600 dark:text-slate-300">
                       Receive notifications via email
                     </p>
                   </div>
@@ -239,10 +239,10 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <h3 className="text-button text-slate-800 dark:text-slate-100">
                       Push Notifications
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-overline text-slate-600 dark:text-slate-300">
                       Receive browser push notifications
                     </p>
                   </div>
@@ -259,10 +259,10 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <h3 className="text-button text-slate-800 dark:text-slate-100">
                       Blog Notifications
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-overline text-slate-600 dark:text-slate-300">
                       Get notified about new blogs
                     </p>
                   </div>
@@ -279,10 +279,10 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <h3 className="text-button text-slate-800 dark:text-slate-100">
                       Discussion Notifications
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-overline text-slate-600 dark:text-slate-300">
                       Get notified about new discussions
                     </p>
                   </div>
@@ -299,10 +299,10 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <h3 className="text-button text-slate-800 dark:text-slate-100">
                       Recognition Notifications
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-overline text-slate-600 dark:text-slate-300">
                       Get notified about recognitions
                     </p>
                   </div>
@@ -321,7 +321,7 @@ const Settings = () => {
               <button
                 type="submit"
                 disabled={updateUserMutation.isLoading}
-                className="btn btn-primary flex items-center gap-2 text-sm"
+                className="btn btn-primary flex items-center gap-2 text-caption"
               >
                 <Save size={16} />
                 {updateUserMutation.isLoading ? 'Saving...' : 'Save Preferences'}
@@ -332,10 +332,10 @@ const Settings = () => {
           {/* Privacy Settings */}
           {activeTab === 'privacy' && (
             <div className="card space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              <h2 className="text-h2 text-slate-800 dark:text-slate-100 mb-3">
                 Privacy Settings
               </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-caption text-slate-600 dark:text-slate-300">
                 Privacy settings will be available in a future update.
               </p>
             </div>
@@ -344,22 +344,22 @@ const Settings = () => {
           {/* Appearance Settings */}
           {activeTab === 'appearance' && (
             <div className="card space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              <h2 className="text-h2 text-slate-800 dark:text-slate-100 mb-3">
                 Appearance
               </h2>
               
               <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#151a28] rounded-lg">
                 <div>
-                  <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                  <h3 className="text-button text-slate-800 dark:text-slate-100">
                     Theme
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <p className="text-overline text-slate-600 dark:text-slate-300">
                     Switch between light and dark mode
                   </p>
                 </div>
                 <button
                   onClick={toggleTheme}
-                  className="btn btn-secondary flex items-center gap-2 text-sm"
+                  className="btn btn-secondary flex items-center gap-2 text-caption"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}

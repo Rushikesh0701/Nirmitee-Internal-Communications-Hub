@@ -226,7 +226,7 @@ const RssManagement = () => {
             ? 'bg-[#0a0e17] border-[#151a28]' 
             : 'bg-white border-slate-200'
         }`}>
-          <h2 className={`text-xl font-bold mb-2 transition-colors ${
+          <h2 className={`text-h1 mb-2 transition-colors ${
             theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
           }`}>
             Error Loading RSS Sources
@@ -296,7 +296,7 @@ const RssManagement = () => {
             : 'bg-white border-slate-200'
         }`}>
           <div className="flex justify-between items-center mb-6">
-            <h2 className={`text-xl font-bold transition-colors ${
+            <h2 className={`text-h1 transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
             }`}>New RSS Source</h2>
             <button onClick={handleCancel} className={`transition-colors ${
@@ -307,7 +307,7 @@ const RssManagement = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div className="space-y-1.5">
-              <label className={`text-sm font-semibold ml-1 transition-colors ${
+              <label className={`text-caption ml-1 transition-colors ${
                 theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
               }`}>
                 Source Name <span className="text-rose-500">*</span>
@@ -330,7 +330,7 @@ const RssManagement = () => {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className={`text-sm font-semibold ml-1 transition-colors ${
+              <label className={`text-caption ml-1 transition-colors ${
                 theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
               }`}>
                 Category <span className="text-rose-500">*</span>
@@ -353,7 +353,7 @@ const RssManagement = () => {
               </select>
             </div>
             <div className="md:col-span-2 space-y-1.5">
-              <label className={`text-sm font-semibold ml-1 transition-colors ${
+              <label className={`text-caption ml-1 transition-colors ${
                 theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
               }`}>
                 RSS Feed URL <span className="text-rose-500">*</span>
@@ -441,7 +441,7 @@ const RssManagement = () => {
                     : 'hover:bg-slate-50/50'
                 }`}>
                   <td className="px-3 py-2 text-center">
-                    <span className={`text-xs font-semibold transition-colors ${
+                    <span className={`text-overline transition-colors ${
                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
                     }`}>
                       {serialNo}
@@ -460,7 +460,7 @@ const RssManagement = () => {
                         }`}
                       />
                     ) : (
-                      <span className={`text-sm font-medium transition-colors ${
+                      <span className={`text-button transition-colors ${
                         theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
                       }`}>{source.name}</span>
                     )}
@@ -483,7 +483,7 @@ const RssManagement = () => {
                         ))}
                       </select>
                     ) : (
-                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full transition-colors ${
+                      <span className={`px-2 py-0.5 text-overline rounded-full transition-colors ${
                         theme === 'dark'
                           ? 'bg-indigo-900/50 text-indigo-300'
                           : 'bg-indigo-50 text-indigo-700'
@@ -524,7 +524,7 @@ const RssManagement = () => {
                       }`}
                     >
                       {source.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                      <span className={`text-xs font-semibold uppercase tracking-wider transition-colors ${
+                      <span className={`text-overline uppercase tracking-wider transition-colors ${
                         theme === 'dark' && !source.isActive ? 'text-slate-500' : ''
                       }`}>
                         {source.isActive ? 'Active' : 'Inactive'}
@@ -668,7 +668,7 @@ const RssManagement = () => {
                       <button
                         onClick={() => handleUpdate(source._id)}
                         disabled={updateMutation.isLoading}
-                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold"
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-lg text-caption font-bold"
                       >
                         <Save size={16} /> Save
                       </button>

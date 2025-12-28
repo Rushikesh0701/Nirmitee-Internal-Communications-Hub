@@ -24,12 +24,12 @@ const DiscussionCard = ({ discussion }) => {
   return (
     <Link to={`/discussions/${discussionId}`} className="block">
       <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }} whileTap={{ scale: 0.99 }} className="card-hover cursor-pointer group">
-        <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
+        <h3 className="text-base sm:text-h2 text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
           {discussion.title}
         </h3>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center flex-wrap gap-3 text-xs text-slate-500">
+          <div className="flex items-center flex-wrap gap-3 text-overline text-slate-500">
             <span className="flex items-center gap-1">
               <User size={12} className="text-slate-400" />
               <span className="truncate max-w-[120px] sm:max-w-none">{getAuthorName()}</span>

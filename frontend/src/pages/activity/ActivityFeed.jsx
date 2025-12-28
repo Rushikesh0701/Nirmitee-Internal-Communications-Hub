@@ -147,7 +147,7 @@ const ActivityFeed = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+          <h1 className="text-h1 text-slate-800 dark:text-slate-200">
             Activity Feed
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -161,11 +161,11 @@ const ActivityFeed = () => {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-slate-500" />
-            <span className="text-sm text-slate-600 dark:text-slate-400">Type:</span>
+            <span className="text-caption text-slate-600 dark:text-slate-400">Type:</span>
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="input-select text-sm"
+              className="input-select text-caption"
             >
               <option value="all">All Activities</option>
               <option value="blogs">Blogs</option>
@@ -176,11 +176,11 @@ const ActivityFeed = () => {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className="text-slate-500" />
-            <span className="text-sm text-slate-600 dark:text-slate-400">Period:</span>
+            <span className="text-caption text-slate-600 dark:text-slate-400">Period:</span>
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="input-select text-sm"
+              className="input-select text-caption"
             >
               <option value="1">Last 24 hours</option>
               <option value="7">Last 7 days</option>
@@ -220,10 +220,10 @@ const ActivityFeed = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">
+                        <span className="text-h3 text-slate-800 dark:text-slate-200">
                           {authorName}
                         </span>
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                        <span className="text-caption text-slate-600 dark:text-slate-400">
                           {getActivityTypeLabel(activity.type)}
                         </span>
                       </div>
@@ -231,11 +231,11 @@ const ActivityFeed = () => {
                         {activity.title}
                       </h3>
                       {activity.points && (
-                        <span className="inline-block px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded text-xs font-medium mb-2">
+                        <span className="inline-block px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded text-overline mb-2">
                           +{activity.points} points
                         </span>
                       )}
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-overline text-slate-500 dark:text-slate-400">
                         {formatTimeAgo(activity.createdAt)}
                       </p>
                     </div>

@@ -90,8 +90,8 @@ const Discussions = () => {
             <MessageSquare size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Technical Discussions</h1>
-            <p className="text-slate-500 text-xs mt-0.5">Share ideas and solve problems together</p>
+            <h1 className="text-h1 text-slate-800">Technical Discussions</h1>
+            <p className="text-slate-500 text-overline mt-0.5">Share ideas and solve problems together</p>
           </div>
         </div>
         {isAuthenticated && user && (
