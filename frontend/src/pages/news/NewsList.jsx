@@ -505,8 +505,8 @@ function NewsList() {
 
 
   return (
-    <div className="container mx-auto p-2 max-w-7xl">
-      <div className="mb-3">
+    <div className="space-y-3">
+      <div>
         <h1 className={`text-xl sm:text-2xl font-bold mb-0.5 ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
         }`}>Tech News Feed</h1>
@@ -518,7 +518,7 @@ function NewsList() {
 
 
       {/* Main Search Bar */}
-      <div className={`rounded-lg border p-2.5 mb-2.5 ${
+      <div className={`rounded-lg border p-2.5 ${
         theme === 'dark'
           ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
@@ -565,7 +565,7 @@ function NewsList() {
       </div>
 
       {/* Filters Section */}
-      <div className={`rounded-lg border p-2.5 mb-2.5 ${
+      <div className={`rounded-lg border p-2.5 ${
         theme === 'dark'
           ? 'bg-[#052829]/50 border-[#0a3a3c]/50'
           : 'bg-white border-gray-200'
@@ -814,7 +814,7 @@ function NewsList() {
 
       {/* Error State */}
       {error && !loading && (
-        <div className={`border rounded-lg p-3 mb-3 ${
+        <div className={`border rounded-lg p-3 ${
           theme === 'dark'
             ? 'bg-red-900/20 border-red-800/50'
             : 'bg-red-50 border-red-200'

@@ -126,12 +126,12 @@ const Blogs = () => {
   );
 
   return (
-    <div className="container mx-auto px-3 py-2">
+    <div className="space-y-3">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
       >
         <h1 className={`text-xl sm:text-2xl font-bold ${
           theme === 'dark' ? 'text-slate-100' : 'text-gray-800'
@@ -154,7 +154,7 @@ const Blogs = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex flex-col md:flex-row gap-2 mb-3"
+        className="flex flex-col md:flex-row gap-2"
       >
         <input
           type="text"
