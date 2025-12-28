@@ -96,12 +96,12 @@ const AdminAnalytics = () => {
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className={`text-h1 transition-colors ${
+            <h1 className={`text-xl sm:text-2xl font-bold transition-colors ${
               theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
             }`}>Admin Analytics</h1>
-             <p className={`text-overline mt-0.5 transition-colors ${
-               theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-             }`}>Comprehensive platform insights and metrics</p>
+            <p className={`text-xs mt-0.5 transition-colors ${
+              theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+            }`}>Comprehensive platform insights and metrics</p>
           </div>
         </div>
       </motion.div>
@@ -112,12 +112,12 @@ const AdminAnalytics = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-             className={`px-4 py-2 text-button rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+            className={`px-4 py-2 text-sm rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-[#151a28] text-white'
                 : theme === 'dark'
-                  ? 'bg-[#0a0e17] text-slate-300 hover:bg-[#151a28] hover:text-white border border-[#151a28]'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'text-slate-300 hover:text-white'
+                  : 'text-slate-700 hover:text-slate-900'
             }`}
           >
             <tab.icon size={16} />
@@ -133,74 +133,93 @@ const AdminAnalytics = () => {
             <GridSkeleton columns={4} rows={2} />
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="text-blue-500" size={20} />
-                    <span className={`text-overline ${
-                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                    }`}>Users</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Users</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{overview?.users?.total || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total active users</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Users size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className={`text-h1 ${
-                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                  }`}>{overview?.users?.total || 0}</p>
-                  <p className={`text-xs mt-1 ${
-                    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                  }`}>Total active users</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Award className="text-purple-500" size={20} />
-                     <span className={`text-overline ${
-                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                     }`}>Recognitions</span>
-                   </div>
-                   <p className={`text-h1 ${
-                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                   }`}>{overview?.recognitions?.total || 0}</p>
-                   <p className={`text-overline mt-1 ${
-                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                   }`}>Total recognitions</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <ClipboardList className="text-green-500" size={20} />
-                     <span className={`text-overline ${
-                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                     }`}>Surveys</span>
-                   </div>
-                   <p className={`text-h1 ${
-                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                   }`}>{overview?.surveys?.total || 0}</p>
-                   <p className={`text-overline mt-1 ${
-                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                   }`}>{overview?.surveys?.active || 0} active</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <BookOpen className="text-orange-500" size={20} />
-                     <span className={`text-overline ${
-                       theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                     }`}>Courses</span>
-                   </div>
-                   <p className={`text-h1 ${
-                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                   }`}>{overview?.courses?.total || 0}</p>
-                   <p className={`text-overline mt-1 ${
-                     theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                   }`}>{overview?.courses?.completed || 0} completed</p>
-                </div>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Recognitions</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{overview?.recognitions?.total || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total recognitions</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Award size={20} className="text-white" />
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Surveys</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{overview?.surveys?.total || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>{overview?.surveys?.active || 0} active</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <ClipboardList size={20} className="text-white" />
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Courses</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{overview?.courses?.total || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>{overview?.courses?.completed || 0} completed</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <BookOpen size={20} className="text-white" />
+                    </div>
+                  </div>
+                </motion.div>
               </div>
+              
               <div className="card p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Zap className="text-yellow-500" size={20} />
-                   <h3 className={`text-h3 ${
-                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                   }`}>Total Points Awarded</h3>
-                 </div>
-                 <p className={`text-display ${
-                   theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'
-                 }`}>{overview?.points?.totalAwarded?.toLocaleString() || 0}</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-2 rounded-lg bg-[#151a28]">
+                    <Zap size={20} className="text-white" />
+                  </div>
+                  <h3 className={`text-lg font-semibold ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Total Points Awarded</h3>
+                </div>
+                <p className={`text-2xl font-bold ${
+                  theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                }`}>{overview?.points?.totalAwarded?.toLocaleString() || 0}</p>
               </div>
 
               {/* Posts and Comments Analytics */}
@@ -208,49 +227,51 @@ const AdminAnalytics = () => {
                 <DetailSkeleton />
               ) : postsComments ? (
                 <div className="card p-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MessageSquare className="text-blue-500" size={20} />
-                     <h3 className={`text-h3 ${
-                       theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                     }`}>Posts & Comments</h3>
-                   </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div>
-                       <p className={`text-caption mb-1 ${
-                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                       }`}>Total Posts</p>
-                       <p className={`text-h1 ${
-                         theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                       }`}>{postsComments?.posts?.total || 0}</p>
-                       <p className={`text-overline mt-1 ${
-                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                       }`}>
-                         {postsComments?.posts?.groupPosts || 0} group posts, {postsComments?.posts?.discussions || 0} discussions
-                       </p>
-                       <p className={`text-overline mt-1 ${
-                         theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                       }`}>
-                         {postsComments?.posts?.thisMonth || 0} this month
-                       </p>
-                     </div>
-                     <div>
-                       <p className={`text-caption mb-1 ${
-                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                       }`}>Total Comments</p>
-                       <p className={`text-h1 ${
-                         theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                       }`}>{postsComments?.comments?.total || 0}</p>
-                       <p className={`text-overline mt-1 ${
-                         theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                       }`}>
-                         {postsComments?.comments?.groupComments || 0} group, {postsComments?.comments?.discussionComments || 0} discussion, {postsComments?.comments?.blogComments || 0} blog
-                       </p>
-                       <p className={`text-overline mt-1 ${
-                         theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                       }`}>
-                         {postsComments?.comments?.thisMonth || 0} this month
-                       </p>
-                     </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <MessageSquare size={20} className="text-white" />
+                    </div>
+                    <h3 className={`text-lg font-semibold ${
+                      theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                    }`}>Posts & Comments</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <p className={`text-sm mb-1 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Posts</p>
+                      <p className={`text-2xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{postsComments?.posts?.total || 0}</p>
+                      <p className={`text-xs mt-1 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>
+                        {postsComments?.posts?.groupPosts || 0} group posts, {postsComments?.posts?.discussions || 0} discussions
+                      </p>
+                      <p className={`text-xs mt-1 ${
+                        theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                      }`}>
+                        {postsComments?.posts?.thisMonth || 0} this month
+                      </p>
+                    </div>
+                    <div>
+                      <p className={`text-sm mb-1 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Comments</p>
+                      <p className={`text-2xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{postsComments?.comments?.total || 0}</p>
+                      <p className={`text-xs mt-1 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>
+                        {postsComments?.comments?.groupComments || 0} group, {postsComments?.comments?.discussionComments || 0} discussion, {postsComments?.comments?.blogComments || 0} blog
+                      </p>
+                      <p className={`text-xs mt-1 ${
+                        theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                      }`}>
+                        {postsComments?.comments?.thisMonth || 0} this month
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -260,70 +281,99 @@ const AdminAnalytics = () => {
                 <DetailSkeleton />
               ) : sentiment ? (
                 <div className="card p-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Target className="text-purple-500" size={20} />
-                    <h3 className={`text-h2 ${
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Target size={20} className="text-white" />
+                    </div>
+                    <h3 className={`text-lg font-semibold ${
                       theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
                     }`}>Sentiment Analysis</h3>
                   </div>
                   {sentiment?.implementationStatus === 'NOT_IMPLEMENTED' || sentiment?.implementationStatus === 'ERROR' ? (
-                    <div className={`${theme === 'dark' ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-200'} border rounded-lg p-3`}>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                    <div className={`rounded-lg border p-3 ${
+                      theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+                    }`}>
+                      <p className={`text-sm ${
+                        theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                      }`}>
                         {sentiment?.message || sentiment?.error || 'Sentiment analysis is not yet implemented.'}
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {/* Overall Sentiment */}
+                    <div className="space-y-3">
                       <div>
-                        <p className={`text-caption mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Overall Sentiment</p>
-                        <p className={`text-h2 capitalize ${theme === 'dark' ? 'text-slate-100' : 'text-slate-800'}`}>
+                        <p className={`text-sm mb-1 ${
+                          theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                        }`}>Overall Sentiment</p>
+                        <p className={`text-lg font-semibold capitalize mb-1 ${
+                          theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                        }`}>
                           {sentiment?.overall?.sentiment?.toLowerCase() || 'Neutral'}
                         </p>
-                        <p className={`text-overline mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <p className={`text-xs ${
+                          theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                        }`}>
                           Score: {sentiment?.overall?.score || 0} (Confidence: {((sentiment?.overall?.confidence || 0) * 100).toFixed(0)}%)
                         </p>
                         {sentiment?.analyzedItems && (
-                          <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                          <p className={`text-xs mt-1 ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                          }`}>
                             Analyzed {sentiment.analyzedItems} of {sentiment.totalItems || sentiment.analyzedItems} items
                           </p>
                         )}
                       </div>
-
-                      {/* Distribution */}
                       <div className="grid grid-cols-3 gap-2">
-                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-green-900/20 border border-green-800' : 'bg-green-50'}`}>
-                          <p className={`text-h2 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
+                        <div className={`text-center p-2 rounded-lg border ${
+                          theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <p className={`text-lg font-bold ${
+                            theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+                          }`}>
                             {sentiment?.distribution?.positive || 0}%
                           </p>
-                          <p className={`text-xs uppercase tracking-wider ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Positive</p>
+                          <p className={`text-xs uppercase tracking-wider ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                          }`}>Positive</p>
                         </div>
-                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-slate-700/50 border border-slate-600' : 'bg-gray-50'}`}>
-                          <p className={`text-h2 ${theme === 'dark' ? 'text-slate-300' : 'text-gray-600'}`}>
+                        <div className={`text-center p-2 rounded-lg border ${
+                          theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <p className={`text-lg font-bold ${
+                            theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+                          }`}>
                             {sentiment?.distribution?.neutral || 0}%
                           </p>
-                          <p className={`text-xs uppercase tracking-wider ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Neutral</p>
+                          <p className={`text-xs uppercase tracking-wider ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                          }`}>Neutral</p>
                         </div>
-                        <div className={`text-center p-2 rounded ${theme === 'dark' ? 'bg-red-900/20 border border-red-800' : 'bg-red-50'}`}>
-                          <p className={`text-h2 ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>
+                        <div className={`text-center p-2 rounded-lg border ${
+                          theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <p className={`text-lg font-bold ${
+                            theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+                          }`}>
                             {sentiment?.distribution?.negative || 0}%
                           </p>
-                          <p className={`text-overline ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Negative</p>
+                          <p className={`text-xs uppercase tracking-wider ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                          }`}>Negative</p>
                         </div>
                       </div>
-
-                      {/* Top Keywords */}
                       {sentiment?.topKeywords && sentiment.topKeywords.length > 0 && (
                         <div>
-                          <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Top Keywords</p>
+                          <p className={`text-sm mb-2 ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                          }`}>Top Keywords</p>
                           <div className="flex flex-wrap gap-2">
                             {sentiment.topKeywords.slice(0, 10).map((keyword, idx) => (
                               <span
                                 key={idx}
-                                className={`px-2 py-1 rounded text-xs uppercase tracking-wider ${
-                                  theme === 'dark' 
-                                    ? 'bg-[#151a28] text-slate-300 border border-[#151a28]' 
-                                    : 'bg-slate-100 text-slate-700'
+                                className={`px-2 py-1 rounded text-xs ${
+                                  theme === 'dark'
+                                    ? 'bg-slate-800 text-slate-300 border border-slate-700'
+                                    : 'bg-slate-100 text-slate-700 border border-slate-200'
                                 }`}
                               >
                                 {keyword.word} ({keyword.count})
@@ -331,13 +381,6 @@ const AdminAnalytics = () => {
                             ))}
                           </div>
                         </div>
-                      )}
-
-                      {/* Success Message */}
-                      {sentiment?.message && sentiment.implementationStatus === 'IMPLEMENTED' && (
-                        <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                          {sentiment.message}
-                        </p>
                       )}
                     </div>
                   )}
@@ -351,12 +394,12 @@ const AdminAnalytics = () => {
       {/* Engagement Tab */}
       {activeTab === 'engagement' && (
         <motion.div variants={itemVariants} className="space-y-3">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2">
             <Filter size={16} className={theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
             <select 
               value={engagementRange} 
               onChange={(e) => setEngagementRange(e.target.value)}
-              className="input-select text-caption"
+              className="input-select text-sm"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -367,29 +410,30 @@ const AdminAnalytics = () => {
             <DetailSkeleton />
           ) : engagement?.timeSeries?.length > 0 ? (
             <div className="card p-4">
-              <h3 className={`text-h2 mb-4 ${
+              <h3 className={`text-lg font-semibold mb-3 ${
                 theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
               }`}>Engagement Over Time</h3>
-              <ResponsiveContainer width="100%" height={400}>
+              <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={engagement.timeSeries}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#1a1f2e' : '#e2e8f0'} />
                   <XAxis 
                     dataKey="date" 
                     stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
-                    tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                    tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 12 }}
                   />
                   <YAxis 
                     stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
-                    tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                    tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 12 }}
                   />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                      border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
+                      border: theme === 'dark' ? '1px solid #151a28' : '1px solid #e2e8f0',
+                      borderRadius: '8px'
                     }} 
                   />
                   <Legend />
-                  <Area type="monotone" dataKey="count" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="count" stroke="#64748b" fill="#64748b" fillOpacity={0.2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -406,58 +450,110 @@ const AdminAnalytics = () => {
             <GridSkeleton columns={2} rows={2} />
           ) : blogAnalytics ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <FileText className="text-blue-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Blogs</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Blogs</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{blogAnalytics?.totalBlogs || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <FileText size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalBlogs || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Eye className="text-green-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Views</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Views</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{blogAnalytics?.totalViews?.toLocaleString() || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Eye size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalViews?.toLocaleString() || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <MessageSquare className="text-purple-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Comments</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Comments</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{blogAnalytics?.totalComments || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <MessageSquare size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{blogAnalytics?.totalComments || 0}</p>
-                </div>
+                </motion.div>
               </div>
-              <div className="card p-4">
-                <h3 className="text-h3 text-slate-800 mb-4">Top Blogs by Views</h3>
-                {blogAnalytics?.topBlogsByViews?.length > 0 ? (
-                  <div className="space-y-2">
-                    {blogAnalytics.topBlogsByViews.slice(0, 5).map((blog, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                        <span className="text-caption text-slate-700">{blog.title}</span>
-                        <span className="text-caption text-slate-800">{blog.views || 0} views</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-caption text-slate-500">No blog data available</p>
-                )}
-              </div>
-              <div className="card p-4">
-                <h3 className="text-h3 text-slate-800 mb-4">Top Blogs by Comments</h3>
-                {blogAnalytics?.topBlogsByComments?.length > 0 ? (
-                  <div className="space-y-2">
-                    {blogAnalytics.topBlogsByComments.slice(0, 5).map((blog, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                        <span className="text-caption text-slate-700">{blog.title}</span>
-                        <span className="text-caption text-slate-800">{blog.commentCount || 0} comments</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-caption text-slate-500">No blog data available</p>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <div className="card p-4">
+                  <h3 className={`text-lg font-semibold mb-3 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Top Blogs by Views</h3>
+                  {blogAnalytics?.topBlogsByViews?.length > 0 ? (
+                    <div className="space-y-2">
+                      {blogAnalytics.topBlogsByViews.slice(0, 5).map((blog, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center justify-between p-2 rounded-lg ${
+                            theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'
+                          }`}
+                        >
+                          <span className={`text-sm ${
+                            theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                          }`}>{blog.title}</span>
+                          <span className={`text-sm font-semibold ${
+                            theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                          }`}>{blog.views || 0} views</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`text-sm ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>No blog data available</p>
+                  )}
+                </div>
+                <div className="card p-4">
+                  <h3 className={`text-lg font-semibold mb-3 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Top Blogs by Comments</h3>
+                  {blogAnalytics?.topBlogsByComments?.length > 0 ? (
+                    <div className="space-y-2">
+                      {blogAnalytics.topBlogsByComments.slice(0, 5).map((blog, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center justify-between p-2 rounded-lg ${
+                            theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'
+                          }`}
+                        >
+                          <span className={`text-sm ${
+                            theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                          }`}>{blog.title}</span>
+                          <span className={`text-sm font-semibold ${
+                            theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                          }`}>{blog.commentCount || 0} comments</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`text-sm ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>No blog data available</p>
+                  )}
+                </div>
               </div>
             </>
           ) : (
@@ -473,57 +569,72 @@ const AdminAnalytics = () => {
             <GridSkeleton columns={2} rows={2} />
           ) : surveyAnalytics ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <ClipboardList className="text-blue-500" size={20} />
-                    <span className={`text-overline ${
-                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                    }`}>Total Surveys</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Surveys</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{surveyAnalytics?.totalSurveys || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <ClipboardList size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className={`text-h1 ${
-                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                  }`}>{surveyAnalytics?.totalSurveys || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="text-green-500" size={20} />
-                    <span className={`text-xs uppercase tracking-wider ${
-                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                    }`}>Total Responses</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Responses</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{surveyAnalytics?.totalResponses || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Users size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className={`text-h1 ${
-                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                  }`}>{surveyAnalytics?.totalResponses || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Target className="text-purple-500" size={20} />
-                    <span className={`text-overline ${
-                      theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-                    }`}>Avg. Response Rate</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Avg. Response Rate</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>
+                        {surveyAnalytics?.averageResponseRate ? `${surveyAnalytics.averageResponseRate.toFixed(1)}%` : '0%'}
+                      </p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Target size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className={`text-h1 ${
-                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-                  }`}>
-                    {surveyAnalytics?.averageResponseRate ? `${surveyAnalytics.averageResponseRate.toFixed(1)}%` : '0%'}
-                  </p>
-                </div>
+                </motion.div>
               </div>
               {surveyAnalytics?.topSurveys?.length > 0 && (
                 <div className="card p-4">
-                  <h3 className={`text-h2 mb-4 ${
+                  <h3 className={`text-lg font-semibold mb-3 ${
                     theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
                   }`}>Top Surveys by Responses</h3>
                   <div className="space-y-2">
                     {surveyAnalytics.topSurveys.slice(0, 5).map((survey, index) => (
-                      <div key={index} className={`flex items-center justify-between p-2 rounded ${
-                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-50'
-                      }`}>
-                        <span className={`text-caption ${
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between p-2 rounded-lg ${
+                          theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'
+                        }`}
+                      >
+                        <span className={`text-sm ${
                           theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
                         }`}>{survey.title}</span>
-                        <span className={`text-caption ${
+                        <span className={`text-sm font-semibold ${
                           theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
                         }`}>{survey.responseCount || 0} responses</span>
                       </div>
@@ -545,42 +656,79 @@ const AdminAnalytics = () => {
             <GridSkeleton columns={2} rows={2} />
           ) : recognitionAnalytics ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Award className="text-yellow-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Recognitions</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Recognitions</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{recognitionAnalytics?.totalRecognitions || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Award size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.totalRecognitions || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Zap className="text-orange-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Points</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Points</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{recognitionAnalytics?.totalPointsAwarded?.toLocaleString() || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Zap size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.totalPointsAwarded?.toLocaleString() || 0}</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="text-blue-500" size={20} />
-                    <span className="text-overline text-slate-500">Top Receivers</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Top Receivers</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{recognitionAnalytics?.topReceivers?.length || 0}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <Users size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{recognitionAnalytics?.topReceivers?.length || 0}</p>
-                </div>
+                </motion.div>
               </div>
               {recognitionAnalytics?.topReceivers?.length > 0 && (
                 <div className="card p-4">
-                  <h3 className="text-h3 text-slate-800 mb-4">Top Recognition Receivers</h3>
+                  <h3 className={`text-lg font-semibold mb-3 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Top Recognition Receivers</h3>
                   <div className="space-y-2">
                     {recognitionAnalytics.topReceivers.slice(0, 5).map((receiver, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between p-2 rounded-lg ${
+                          theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'
+                        }`}
+                      >
                         <div>
-                          <span className="text-caption text-slate-700">
+                          <span className={`text-sm ${
+                            theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                          }`}>
                             {receiver.user?.firstName} {receiver.user?.lastName}
                           </span>
-                          <p className="text-overline text-slate-500">{receiver.recognitionCount} recognitions</p>
+                          <p className={`text-xs mt-0.5 ${
+                            theme === 'dark' ? 'text-slate-500' : 'text-slate-600'
+                          }`}>{receiver.recognitionCount} recognitions</p>
                         </div>
-                        <span className="text-caption text-yellow-600">{receiver.totalPoints || 0} pts</span>
+                        <span className={`text-sm font-semibold ${
+                          theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+                        }`}>{receiver.totalPoints || 0} pts</span>
                       </div>
                     ))}
                   </div>
@@ -600,48 +748,71 @@ const AdminAnalytics = () => {
             <GridSkeleton columns={2} rows={2} />
           ) : postsComments ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <FileText className="text-blue-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Posts</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Posts</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{postsComments?.totalPosts || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Across all groups</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <FileText size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{postsComments?.totalPosts || 0}</p>
-                  <p className="text-overline text-slate-500 mt-1">Across all groups</p>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <MessageSquare className="text-green-500" size={20} />
-                    <span className="text-overline text-slate-500">Total Comments</span>
+                </motion.div>
+                <motion.div className="card group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wider ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>Total Comments</p>
+                      <p className={`text-xl font-bold ${
+                        theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                      }`}>{postsComments?.totalComments || 0}</p>
+                      <p className={`text-xs mt-0.5 ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                      }`}>On all posts</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#151a28]">
+                      <MessageSquare size={20} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-h1 text-slate-800">{postsComments?.totalComments || 0}</p>
-                  <p className="text-overline text-slate-500 mt-1">On all posts</p>
-                </div>
+                </motion.div>
               </div>
               {postsComments?.timeSeries && postsComments.timeSeries.length > 0 && (
                 <div className="card p-4">
-                  <h3 className="text-h3 text-slate-800 mb-4">Posts and Comments Over Time</h3>
-                  <ResponsiveContainer width="100%" height={400}>
+                  <h3 className={`text-lg font-semibold mb-3 ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                  }`}>Posts and Comments Over Time</h3>
+                  <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={postsComments.timeSeries}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#0a0e17' : '#e2e8f0'} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#1a1f2e' : '#e2e8f0'} />
                       <XAxis 
                         dataKey="date" 
                         stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
-                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 12 }}
                       />
                       <YAxis 
                         stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
-                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 12 }}
                       />
                       <Tooltip 
                         contentStyle={{ 
                           backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
-                          border: theme === 'dark' ? '1px solid #0a0e17' : '1px solid #e2e8f0'
+                          border: theme === 'dark' ? '1px solid #151a28' : '1px solid #e2e8f0',
+                          borderRadius: '8px'
                         }} 
                       />
                       <Legend />
-                      <Area type="monotone" dataKey="posts" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} name="Posts" />
-                      <Area type="monotone" dataKey="comments" stroke="#10b981" fill="#10b981" fillOpacity={0.3} name="Comments" />
+                      <Area type="monotone" dataKey="posts" stroke="#64748b" fill="#64748b" fillOpacity={0.2} name="Posts" />
+                      <Area type="monotone" dataKey="comments" stroke="#475569" fill="#475569" fillOpacity={0.2} name="Comments" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -660,30 +831,39 @@ const AdminAnalytics = () => {
             <DetailSkeleton />
           ) : mau ? (
             <div className="card p-4">
-              <h3 className={`text-h3 mb-4 ${
-                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
-              }`}>Monthly Active Users (MAU)</h3>
-              <div className="flex items-baseline gap-2 mb-4">
-                <p className={`text-h1 ${
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-[#151a28]">
+                  <Users size={20} className="text-white" />
+                </div>
+                <h3 className={`text-lg font-semibold ${
+                  theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+                }`}>Monthly Active Users (MAU)</h3>
+              </div>
+              <div className="flex items-baseline gap-2 mb-3">
+                <p className={`text-3xl font-bold ${
                   theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
                 }`}>{mau?.currentMonth || 0}</p>
-                <p className={`text-caption ${
+                <p className={`text-sm ${
                   theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
                 }`}>users this month</p>
               </div>
               {mau?.previousMonth && (
-                <p className={`text-caption ${
-                  theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                <div className={`p-3 rounded-lg ${
+                  theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'
                 }`}>
-                  Previous month: {mau.previousMonth} users
-                  {mau.currentMonth > mau.previousMonth && (
-                    <span className={`ml-2 ${
-                      theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                    }`}>
-                      ↑ {((mau.currentMonth - mau.previousMonth) / mau.previousMonth * 100).toFixed(1)}% increase
-                    </span>
-                  )}
-                </p>
+                  <p className={`text-sm ${
+                    theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                  }`}>
+                    Previous month: <span className="font-semibold">{mau.previousMonth}</span> users
+                    {mau.currentMonth > mau.previousMonth && (
+                      <span className={`ml-2 font-semibold ${
+                        theme === 'dark' ? 'text-slate-200' : 'text-slate-600'
+                      }`}>
+                        ↑ {((mau.currentMonth - mau.previousMonth) / mau.previousMonth * 100).toFixed(1)}% increase
+                      </span>
+                    )}
+                  </p>
+                </div>
               )}
             </div>
           ) : (
@@ -696,4 +876,3 @@ const AdminAnalytics = () => {
 }
 
 export default AdminAnalytics
-
