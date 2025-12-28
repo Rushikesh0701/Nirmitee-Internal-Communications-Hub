@@ -27,8 +27,8 @@ const ModerationDashboard = () => {
       icon: FileText,
       color: 'bg-amber-500',
       link: '/moderation/blogs?status=PENDING',
-      bgGradient: 'from-amber-50 to-orange-50',
-      borderColor: 'border-amber-200'
+      bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30',
+      borderColor: 'border-amber-200 dark:border-amber-700'
     },
     {
       label: 'Pending Announcements',
@@ -36,8 +36,8 @@ const ModerationDashboard = () => {
       icon: Megaphone,
       color: 'bg-blue-500',
       link: '/moderation/announcements?status=PENDING',
-      bgGradient: 'from-blue-50 to-cyan-50',
-      borderColor: 'border-blue-200'
+      bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30',
+      borderColor: 'border-blue-200 dark:border-blue-700'
     },
     {
       label: 'Total Pending',
@@ -45,8 +45,8 @@ const ModerationDashboard = () => {
       icon: AlertCircle,
       color: 'bg-red-500',
       link: null,
-      bgGradient: 'from-red-50 to-rose-50',
-      borderColor: 'border-red-200'
+      bgGradient: 'from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/30',
+      borderColor: 'border-red-200 dark:border-red-700'
     },
     {
       label: 'Approved Blogs',
@@ -54,8 +54,8 @@ const ModerationDashboard = () => {
       icon: CheckCircle,
       color: 'bg-green-500',
       link: '/moderation/blogs?status=APPROVED',
-      bgGradient: 'from-green-50 to-emerald-50',
-      borderColor: 'border-green-200'
+      bgGradient: 'from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30',
+      borderColor: 'border-green-200 dark:border-green-700'
     },
     {
       label: 'Approved Announcements',
@@ -63,8 +63,8 @@ const ModerationDashboard = () => {
       icon: CheckCircle,
       color: 'bg-green-500',
       link: '/moderation/announcements?status=APPROVED',
-      bgGradient: 'from-green-50 to-emerald-50',
-      borderColor: 'border-green-200'
+      bgGradient: 'from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30',
+      borderColor: 'border-green-200 dark:border-green-700'
     },
     {
       label: 'Rejected Blogs',
@@ -72,8 +72,8 @@ const ModerationDashboard = () => {
       icon: XCircle,
       color: 'bg-red-500',
       link: '/moderation/blogs?status=REJECTED',
-      bgGradient: 'from-red-50 to-rose-50',
-      borderColor: 'border-red-200'
+      bgGradient: 'from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/30',
+      borderColor: 'border-red-200 dark:border-red-700'
     },
     {
       label: 'Rejected Announcements',
@@ -81,8 +81,8 @@ const ModerationDashboard = () => {
       icon: XCircle,
       color: 'bg-red-500',
       link: '/moderation/announcements?status=REJECTED',
-      bgGradient: 'from-red-50 to-rose-50',
-      borderColor: 'border-red-200'
+      bgGradient: 'from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/30',
+      borderColor: 'border-red-200 dark:border-red-700'
     }
   ]
 
@@ -98,8 +98,8 @@ const ModerationDashboard = () => {
           <Shield size={22} className="text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Moderation Dashboard</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Review and moderate content</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Moderation Dashboard</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Review and moderate content</p>
         </div>
       </motion.div>
 
@@ -113,14 +113,14 @@ const ModerationDashboard = () => {
                   <stat.icon size={20} className={stat.color.replace('bg-', 'text-')} />
                 </div>
                 {stat.link && (
-                  <span className="text-xs font-medium text-slate-600">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
                     View →
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-xs text-slate-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mb-1">{stat.label}</p>
+                <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{stat.value}</p>
               </div>
             </div>
           )
@@ -139,31 +139,31 @@ const ModerationDashboard = () => {
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Link to="/moderation/blogs?status=PENDING" className="card p-5 hover:shadow-lg transition-all group">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 group-hover:scale-110 transition-transform">
-              <FileText size={24} className="text-amber-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 group-hover:scale-110 transition-transform">
+              <FileText size={24} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 mb-1">Moderate Blogs</h3>
-              <p className="text-sm text-slate-600">
+              <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Moderate Blogs</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 {stats?.blogs?.pending || 0} pending review
               </p>
             </div>
-            <TrendingUp size={20} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+            <TrendingUp size={20} className="text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
           </div>
         </Link>
 
         <Link to="/moderation/announcements?status=PENDING" className="card p-5 hover:shadow-lg transition-all group">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 group-hover:scale-110 transition-transform">
-              <Megaphone size={24} className="text-blue-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 group-hover:scale-110 transition-transform">
+              <Megaphone size={24} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 mb-1">Moderate Announcements</h3>
-              <p className="text-sm text-slate-600">
+              <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Moderate Announcements</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 {stats?.announcements?.pending || 0} pending review
               </p>
             </div>
-            <TrendingUp size={20} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+            <TrendingUp size={20} className="text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
           </div>
         </Link>
       </motion.div>

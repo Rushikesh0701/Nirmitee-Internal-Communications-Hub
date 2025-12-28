@@ -69,8 +69,8 @@ const EditBlog = () => {
     {
       onSuccess: async () => {
         toast.success('Blog updated successfully!');
-        await queryClient.invalidateQueries(['blogs']);
-        await queryClient.invalidateQueries(['blog', id]);
+        await queryClient.invalidateQueries(['blogs'], { refetchActive: true });
+        await queryClient.invalidateQueries(['blog', id], { refetchActive: true });
         navigate(`/blogs/${id}`);
       },
       onError: (error) => {

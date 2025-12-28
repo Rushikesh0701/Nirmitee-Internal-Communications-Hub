@@ -344,7 +344,7 @@ const MentorshipDashboard = () => {
                 placeholder="Search for mentors..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-field pl-10 w-full"
+                className="input pl-10 w-full"
               />
             </div>
           </div>

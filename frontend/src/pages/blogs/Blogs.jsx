@@ -70,9 +70,9 @@ const Blogs = () => {
     },
     {
       keepPreviousData: true,
-      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
-      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
-      refetchOnMount: false, // Use cached data, don't refetch on mount
+      staleTime: 0, // Always refetch when invalidated
+      cacheTime: 5 * 60 * 1000, // 5 minutes - keep in cache
+      refetchOnMount: true, // Refetch when component mounts
       refetchOnWindowFocus: false, // Don't refetch on window focus
       onError: () => {
         toast.error('Failed to fetch blogs');

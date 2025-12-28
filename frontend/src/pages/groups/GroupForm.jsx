@@ -45,7 +45,7 @@ const GroupForm = () => {
       onSuccess: async (response) => {
         toast.success('Group created successfully')
         const groupId = response.data.data.id || response.data.data._id
-        await queryClient.invalidateQueries(['groups'])
+        await queryClient.invalidateQueries(['groups'], { refetchActive: true })
         endCreation()
         navigate(`/groups/${groupId}`)
       },
@@ -61,8 +61,8 @@ const GroupForm = () => {
     {
       onSuccess: async () => {
         toast.success('Group updated successfully')
-        await queryClient.invalidateQueries(['groups'])
-        await queryClient.invalidateQueries(['group', id])
+        await queryClient.invalidateQueries(['groups'], { refetchActive: true })
+        await queryClient.invalidateQueries(['group', id], { refetchActive: true })
         navigate(`/groups/${id}`)
       },
       onError: (error) => {

@@ -16,17 +16,17 @@ const ModerationCard = ({
     const badges = {
       PENDING: { 
         label: 'Pending', 
-        color: 'bg-amber-100 text-amber-800 border-amber-200',
+        color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700',
         icon: Clock
       },
       APPROVED: { 
         label: 'Approved', 
-        color: 'bg-green-100 text-green-800 border-green-200',
+        color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700',
         icon: CheckCircle
       },
       REJECTED: { 
         label: 'Rejected', 
-        color: 'bg-red-100 text-red-800 border-red-200',
+        color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700',
         icon: XCircle
       }
     }
@@ -70,14 +70,14 @@ const ModerationCard = ({
         <div className="flex-1">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-800 mb-1">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-1">
                 {title}
               </h3>
               {getStatusBadge(item.moderationStatus)}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600 mb-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300 mb-3">
             <div className="flex items-center gap-2">
               <User size={14} />
               <span>{authorName}</span>
@@ -89,13 +89,13 @@ const ModerationCard = ({
           </div>
 
           {item.moderationStatus === 'REJECTED' && item.rejectionReason && (
-            <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 mb-2">
+            <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-sm text-red-700 dark:text-red-300 mb-2">
               <strong>Rejection Reason:</strong> {item.rejectionReason}
             </div>
           )}
 
           {item.moderationStatus === 'APPROVED' && item.approvedBy && (
-            <div className="text-xs text-slate-500 mb-2">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
               Approved by {item.approvedBy.firstName} {item.approvedBy.lastName} on{' '}
               {format(new Date(item.approvedAt), 'MMM dd, yyyy')}
             </div>
@@ -105,7 +105,7 @@ const ModerationCard = ({
             {onView && (
               <button
                 onClick={() => onView(item)}
-                className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-2 text-sm"
+                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 text-sm"
               >
                 <Eye size={14} />
                 View

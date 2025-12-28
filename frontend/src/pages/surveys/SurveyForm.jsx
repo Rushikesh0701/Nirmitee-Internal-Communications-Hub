@@ -100,8 +100,8 @@ const SurveyForm = () => {
     {
       onSuccess: async () => {
         toast.success('Survey updated successfully')
-        await queryClient.invalidateQueries(['surveys'])
-        await queryClient.invalidateQueries(['survey', id])
+        await queryClient.invalidateQueries(['surveys'], { refetchActive: true })
+        await queryClient.invalidateQueries(['survey', id], { refetchActive: true })
         navigate('/surveys')
       },
       onError: (error) => {

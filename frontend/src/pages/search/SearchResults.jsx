@@ -163,7 +163,7 @@ const SearchResults = () => {
               placeholder="Search blogs, discussions, groups, users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10 w-full"
+              className="input pl-10 w-full"
             />
           </div>
           <button type="submit" className="btn-primary">

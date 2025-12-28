@@ -168,9 +168,9 @@ const BlogModeration = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      PENDING: { label: 'Pending', color: 'bg-amber-100 text-amber-800 border-amber-200' },
-      APPROVED: { label: 'Approved', color: 'bg-green-100 text-green-800 border-green-200' },
-      REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-800 border-red-200' }
+      PENDING: { label: 'Pending', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700' },
+      APPROVED: { label: 'Approved', color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700' },
+      REJECTED: { label: 'Rejected', color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700' }
     }
     const badge = badges[status] || badges.PENDING
     return (
@@ -185,21 +185,21 @@ const BlogModeration = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <Link to="/moderation" className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
-            <ArrowLeft size={20} className="text-slate-600" />
+          <Link to="/moderation" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <ArrowLeft size={20} className="text-slate-600 dark:text-slate-300" />
           </Link>
           <div className="p-2 rounded-lg bg-[#0a3a3c]">
             <FileText size={22} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Blog Moderation</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Review and moderate blog posts</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Blog Moderation</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Review and moderate blog posts</p>
           </div>
         </div>
       </motion.div>
 
       {/* Status Filter and Bulk Actions */}
-      <motion.div variants={itemVariants} className="flex items-center justify-between gap-4 border-b pb-2 flex-wrap">
+      <motion.div variants={itemVariants} className="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-2 flex-wrap">
         <div className="flex gap-2">
           {['PENDING', 'APPROVED', 'REJECTED'].map((s) => (
             <button
@@ -212,7 +212,7 @@ const BlogModeration = () => {
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 status === s
                   ? 'bg-[#0a3a3c] text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'
               }`}
             >
               {s}
@@ -226,7 +226,7 @@ const BlogModeration = () => {
                 setIsBulkMode(!isBulkMode)
                 setSelectedBlogs(new Set())
               }}
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
             >
               {isBulkMode ? 'Cancel Bulk' : 'Bulk Actions'}
             </button>
@@ -265,10 +265,10 @@ const BlogModeration = () => {
       ) : blogs.length > 0 ? (
         <>
           {isBulkMode && (
-            <motion.div variants={itemVariants} className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <motion.div variants={itemVariants} className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
               <button
                 onClick={handleSelectAll}
-                className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-800"
+                className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200"
               >
                 {selectedBlogs.size === blogs.length ? (
                   <CheckSquare size={18} />
@@ -295,21 +295,21 @@ const BlogModeration = () => {
                       className="mt-1"
                     >
                       {selectedBlogs.has(blog._id) ? (
-                        <CheckSquare size={20} className="text-blue-500" />
+                        <CheckSquare size={20} className="text-blue-500 dark:text-blue-400" />
                       ) : (
-                        <Square size={20} className="text-slate-400" />
+                        <Square size={20} className="text-slate-400 dark:text-slate-500" />
                       )}
                     </button>
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-slate-800">{blog.title}</h3>
+                      <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{blog.title}</h3>
                       {getStatusBadge(blog.moderationStatus)}
                     </div>
                     
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">{blog.excerpt || blog.content?.substring(0, 150)}...</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 line-clamp-2">{blog.excerpt || blog.content?.substring(0, 150)}...</p>
                     
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-3">
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-3">
                       <div className="flex items-center gap-1">
                         <User size={14} />
                         <span>
@@ -335,7 +335,7 @@ const BlogModeration = () => {
                     </div>
 
                     {blog.moderationStatus === 'REJECTED' && (
-                      <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 mb-2">
+                      <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-sm text-red-700 dark:text-red-300 mb-2">
                         <strong>Status:</strong> This blog has been rejected
                         {blog.rejectionReason && (
                           <span> - {blog.rejectionReason}</span>
@@ -344,7 +344,7 @@ const BlogModeration = () => {
                     )}
 
                     {blog.moderatedBy && (
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
                         Moderated by {blog.moderatedBy?.firstName} {blog.moderatedBy?.lastName} on{' '}
                         {new Date(blog.moderatedAt).toLocaleDateString()}
                       </div>
@@ -375,7 +375,7 @@ const BlogModeration = () => {
                   {blog.moderationStatus !== 'PENDING' && (
                     <Link
                       to={`/blogs/${blog._id}`}
-                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm"
+                      className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm"
                     >
                       View Blog
                     </Link>
@@ -413,12 +413,12 @@ const BlogModeration = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl max-w-md w-full p-6 border border-slate-200"
+            className="bg-white dark:bg-[#052829] rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-[#0a3a3c]"
           >
-            <h3 className="text-lg font-bold text-slate-900 mb-4">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
               {isBulkMode ? `Reject ${selectedBlogs.size} Blog(s)` : 'Reject Blog'}
             </h3>
-            <p className="text-sm text-slate-600 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
               Please provide a reason for rejecting {isBulkMode ? 'these blogs' : 'this blog'}. The author(s) will be notified.
             </p>
             <textarea
@@ -426,7 +426,7 @@ const BlogModeration = () => {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Enter rejection reason..."
               rows={4}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className="w-full p-3 border border-slate-300 dark:border-[#0a3a3c] dark:bg-[#0a3a3c] dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             />
             <div className="flex gap-3 mt-4">
               <button
@@ -438,7 +438,7 @@ const BlogModeration = () => {
                     setSelectedBlogs(new Set())
                   }
                 }}
-                className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
               >
                 Cancel
               </button>

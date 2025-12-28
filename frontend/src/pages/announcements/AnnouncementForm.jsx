@@ -49,8 +49,8 @@ const AnnouncementForm = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement created successfully')
-        await queryClient.invalidateQueries(['announcements'])
-        await queryClient.invalidateQueries('dashboard-announcements') // Update dashboard
+        await queryClient.invalidateQueries(['announcements'], { refetchActive: true })
+        await queryClient.invalidateQueries('dashboard-announcements', { refetchActive: true }) // Update dashboard
         endCreation()
         navigate('/announcements')
       },
@@ -66,9 +66,9 @@ const AnnouncementForm = () => {
     {
       onSuccess: async () => {
         toast.success('Announcement updated successfully')
-        await queryClient.invalidateQueries(['announcements'])
-        await queryClient.invalidateQueries(['announcement', id])
-        await queryClient.invalidateQueries('dashboard-announcements') // Update dashboard
+        await queryClient.invalidateQueries(['announcements'], { refetchActive: true })
+        await queryClient.invalidateQueries(['announcement', id], { refetchActive: true })
+        await queryClient.invalidateQueries('dashboard-announcements', { refetchActive: true }) // Update dashboard
         navigate('/announcements')
       },
       onError: (error) => {

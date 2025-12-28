@@ -378,7 +378,8 @@ const getNewsDataErrorMessage = (error) => {
   const errorMsg = error.message || '';
 
   if (errorMsg.includes('API key') || errorMsg.includes('not configured')) {
-    return 'NewsData.io API key not configured. Showing sample data. Please add NEWSDATA_API_KEY to your .env file to enable live news.';
+    // Return a more user-friendly message that doesn't show as an error
+    return null; // Return null to indicate this is expected behavior, not an error
   }
   if (errorMsg.includes('Invalid')) {
     return 'Invalid NewsData.io API key. Showing sample data. Please check your NEWSDATA_API_KEY in .env file and ensure it\'s a valid key from https://newsdata.io/';
