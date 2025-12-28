@@ -442,7 +442,7 @@ const Dashboard = () => {
               ? 'bg-[#052829] border-[#0a3a3c]'
               : 'bg-white border-slate-200'
           }`}>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-[#0a3a3c]">
                   <Newspaper size={18} className="text-white" />
@@ -576,12 +576,14 @@ const Dashboard = () => {
                 })}
               </div>
             ) : (
-              <EmptyState
-                icon={Newspaper}
-                title="No news available"
-                message="Check back later for latest updates"
-                compact
-              />
+              <div className="py-2">
+                <EmptyState
+                  icon={Newspaper}
+                  title="No news available"
+                  message="Check back later for latest updates"
+                  compact
+                />
+              </div>
             )}
           </div>
         </motion.section>

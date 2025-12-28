@@ -20,23 +20,23 @@ const EmptyState = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="flex items-center justify-center min-h-[60vh] w-full"
+      className={`flex items-center justify-center w-full ${compact ? 'min-h-0 py-4' : 'min-h-[60vh]'}`}
     >
       <div className={`rounded-xl border ${
         theme === 'dark'
           ? 'bg-[#052829] border-[#0a3a3c]'
           : 'bg-white border-slate-200'
-      } p-10 py-12 w-full`}>
+      } ${compact ? 'p-6 py-8' : 'p-10 py-12'} w-full`}>
         <div className="flex flex-col items-center text-center">
           {/* Icon */}
           {Icon && (
-            <div className={`mb-4 p-3 rounded-lg ${
+            <div className={`${compact ? 'mb-2 p-2' : 'mb-4 p-3'} rounded-lg ${
               theme === 'dark'
                 ? 'bg-[#0a3a3c]'
                 : 'bg-slate-50'
             }`}>
               <Icon 
-                size={compact ? 40 : 48} 
+                size={compact ? 32 : 48} 
                 strokeWidth={1.5}
                 className={
                   theme === 'dark' 
@@ -48,7 +48,7 @@ const EmptyState = ({
           )}
           
           {/* Title */}
-          <h3 className={`text-base font-semibold mb-1.5 ${
+          <h3 className={`${compact ? 'text-sm mb-1' : 'text-base mb-1.5'} font-semibold ${
             theme === 'dark' ? 'text-slate-200' : 'text-slate-800'
           }`}>
             {title}
@@ -56,7 +56,7 @@ const EmptyState = ({
           
           {/* Message */}
           {message && (
-            <p className={`text-sm text-center max-w-md mx-auto leading-relaxed ${
+            <p className={`${compact ? 'text-xs' : 'text-sm'} text-center max-w-md mx-auto leading-relaxed ${
               theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
             }`}>
               {message}
