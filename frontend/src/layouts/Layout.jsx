@@ -32,7 +32,9 @@ import {
   Sun,
   Shield,
   UserCheck,
-  Quote
+  Quote,
+  Gift,
+  Settings
 } from 'lucide-react'
 import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
 
@@ -161,11 +163,20 @@ const Layout = () => {
         { path: '/directory', icon: UsersRound, label: 'Directory' }
       ]
     },
+    {
+      title: 'ACCOUNT',
+      items: [
+        { path: '/settings', icon: Settings, label: 'Settings' }
+      ]
+    },
     ...(isAdminOrModerator
       ? [{
         title: 'ADMIN',
         items: [
+          { path: '/moderation', icon: Shield, label: 'Moderation' },
+          { path: '/admin/analytics', icon: BarChart3, label: 'Admin Analytics' },
           { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
+          { path: '/admin/redemptions', icon: Gift, label: 'Redemptions' },
           { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
         ]
       }]
@@ -180,7 +191,7 @@ const Layout = () => {
     }
     // Initialize with default sections (admin will be added when user loads)
     const sections = {}
-    const defaultSections = ['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']
+    const defaultSections = ['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING', 'ACCOUNT']
     defaultSections.forEach(title => {
       sections[title] = true
     })
@@ -189,7 +200,7 @@ const Layout = () => {
 
   // Track which sections have been rendered before (to skip animation on first appearance)
   // Use ref to avoid re-renders and for immediate access
-  const renderedSectionsRef = useRef(new Set(['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING']))
+  const renderedSectionsRef = useRef(new Set(['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING', 'ACCOUNT']))
 
   // Update expanded sections immediately when navSections changes (e.g., admin section appears)
   // Merge saved state with new sections, defaulting new sections to expanded
@@ -648,6 +659,18 @@ const Layout = () => {
                       >
                         <User size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
                         <span className="text-sm font-medium">Profile</span>
+                      </Link>
+                      <Link
+                        to="/settings"
+                        onClick={() => setAvatarDropdownOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          sidebarTheme === 'dark'
+                            ? 'text-slate-300 hover:bg-[#052829]/50'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Settings size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                        <span className="text-sm font-medium">Settings</span>
                       </Link>
                       <button
                         onClick={handleLogout}

@@ -1,4 +1,5 @@
 const groupService = require('../services/groupService');
+const dummyDataService = require('../services/dummyDataService');
 
 // Group CRUD
 const getAllGroups = async (req, res, next) => {
@@ -42,9 +43,48 @@ const getAllGroups = async (req, res, next) => {
 const getGroupById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Check if this is a dummy group ID
+    if (id && id.startsWith('dummy-group-')) {
+      try {
+        const dummyGroup = dummyDataService.getDummyGroupById(id);
+        // Add membership info for dummy groups (default to not a member)
+        const groupWithMembership = {
+          ...dummyGroup,
+          isMember: false,
+          memberRole: null
+        };
+        return res.json({ success: true, data: groupWithMembership });
+      } catch (dummyError) {
+        // If dummy group not found, try database
+        // Fall through to database lookup
+      }
+    }
+    
     const group = await groupService.getGroupById(id, req.userId);
     res.json({ success: true, data: group });
   } catch (error) {
+    // If database lookup fails and it's a dummy ID, try dummy data
+    if (req.params.id && req.params.id.startsWith('dummy-group-')) {
+      try {
+        const dummyGroup = dummyDataService.getDummyGroupById(req.params.id);
+        const groupWithMembership = {
+          ...dummyGroup,
+          isMember: false,
+          memberRole: null
+        };
+        return res.json({ success: true, data: groupWithMembership });
+      } catch (dummyError) {
+        // If dummy also fails, return 404
+        return res.status(404).json({ success: false, message: 'Group not found' });
+      }
+    }
+    
+    // For invalid ObjectId format or not found, return 404
+    if (error.message && (error.message.includes('Group not found') || error.message.includes('Invalid'))) {
+      return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+    
     next(error);
   }
 };
@@ -103,6 +143,24 @@ const leaveGroup = async (req, res, next) => {
 const getGroupPosts = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Check if this is a dummy group ID
+    if (id && id.startsWith('dummy-group-')) {
+      // Return empty posts for dummy groups
+      return res.json({ 
+        success: true, 
+        data: { 
+          posts: [], 
+          pagination: { 
+            total: 0, 
+            page: parseInt(req.query.page) || 1, 
+            limit: parseInt(req.query.limit) || 20, 
+            pages: 0 
+          } 
+        } 
+      });
+    }
+    
     const { page, limit } = req.query;
     const result = await groupService.getGroupPosts(id, req.userId, {
       page: parseInt(page) || 1,
@@ -110,6 +168,21 @@ const getGroupPosts = async (req, res, next) => {
     });
     res.json({ success: true, data: result });
   } catch (error) {
+    // If error and it's a dummy ID, return empty posts
+    if (req.params.id && req.params.id.startsWith('dummy-group-')) {
+      return res.json({ 
+        success: true, 
+        data: { 
+          posts: [], 
+          pagination: { 
+            total: 0, 
+            page: parseInt(req.query.page) || 1, 
+            limit: parseInt(req.query.limit) || 20, 
+            pages: 0 
+          } 
+        } 
+      });
+    }
     next(error);
   }
 };

@@ -6,7 +6,13 @@ const {
   Course,
   Notification,
   User,
-  UserPoints
+  UserPoints,
+  Blog,
+  BlogComment,
+  GroupPost,
+  GroupComment,
+  Discussion,
+  DiscussionComment
 } = require('../models');
 const mongoose = require('mongoose');
 
@@ -254,14 +260,97 @@ const getRecognitionAnalytics = async () => {
  * Get blog engagement analytics
  */
 const getBlogAnalytics = async () => {
-  // This would need Blog model
-  // For now, return placeholder structure
-  return {
-    totalBlogs: 0,
-    totalViews: 0,
-    totalComments: 0,
-    averageEngagement: 0
-  };
+  try {
+    // Get total blogs count (only published)
+    const totalBlogs = await Blog.countDocuments({ isPublished: true });
+
+    // Get total views (sum of all blog views)
+    const viewsAggregation = await Blog.aggregate([
+      { $match: { isPublished: true } },
+      { $group: { _id: null, totalViews: { $sum: '$views' } } }
+    ]);
+    const totalViews = viewsAggregation.length > 0 ? viewsAggregation[0].totalViews : 0;
+
+    // Get total comments count
+    const totalComments = await BlogComment.countDocuments();
+
+    // Calculate average engagement (views + comments per blog)
+    const averageEngagement = totalBlogs > 0 
+      ? ((totalViews + totalComments) / totalBlogs).toFixed(2)
+      : 0;
+
+    // Get top blogs by views
+    const topBlogsByViews = await Blog.find({ isPublished: true })
+      .select('title views likes commentCount authorId')
+      .populate('authorId', 'firstName lastName email')
+      .sort({ views: -1 })
+      .limit(5)
+      .lean();
+
+    // Get top blogs by comments
+    const blogsWithCommentCounts = await Blog.aggregate([
+      { $match: { isPublished: true } },
+      {
+        $lookup: {
+          from: 'blogcomments',
+          localField: '_id',
+          foreignField: 'blogId',
+          as: 'comments'
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          views: 1,
+          likes: 1,
+          authorId: 1,
+          commentCount: { $size: '$comments' }
+        }
+      },
+      { $sort: { commentCount: -1 } },
+      { $limit: 5 }
+    ]);
+
+    // Populate author info for top blogs by comments
+    const topBlogsByComments = await Promise.all(
+      blogsWithCommentCounts.map(async (blog) => {
+        if (blog.authorId) {
+          const author = await User.findById(blog.authorId).select('firstName lastName email').lean();
+          blog.author = author;
+        }
+        return blog;
+      })
+    );
+
+    return {
+      totalBlogs,
+      totalViews,
+      totalComments,
+      averageEngagement: parseFloat(averageEngagement),
+      topBlogsByViews: topBlogsByViews.map(blog => ({
+        title: blog.title,
+        views: blog.views || 0,
+        likes: blog.likes || 0,
+        author: blog.authorId
+      })),
+      topBlogsByComments: topBlogsByComments.map(blog => ({
+        title: blog.title,
+        views: blog.views || 0,
+        commentCount: blog.commentCount || 0,
+        author: blog.author
+      }))
+    };
+  } catch (error) {
+    // Return placeholder on error
+    return {
+      totalBlogs: 0,
+      totalViews: 0,
+      totalComments: 0,
+      averageEngagement: 0,
+      topBlogsByViews: [],
+      topBlogsByComments: []
+    };
+  }
 };
 
 /**
@@ -301,63 +390,159 @@ const getMAU = async () => {
  * Get posts and comments count
  */
 const getPostsAndCommentsCount = async () => {
-  // This would need GroupPost, Discussion, DiscussionComment models
-  // For now, return placeholder
-  return {
-    posts: {
-      total: 0,
-      thisMonth: 0
-    },
-    comments: {
-      total: 0,
-      thisMonth: 0
-    }
-  };
+  try {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Get total posts count (GroupPost + Discussion)
+    const [totalGroupPosts, totalDiscussions, groupPostsThisMonth, discussionsThisMonth] = await Promise.all([
+      GroupPost.countDocuments(),
+      Discussion.countDocuments(),
+      GroupPost.countDocuments({ createdAt: { $gte: startOfMonth } }),
+      Discussion.countDocuments({ createdAt: { $gte: startOfMonth } })
+    ]);
+
+    const totalPosts = totalGroupPosts + totalDiscussions;
+    const postsThisMonth = groupPostsThisMonth + discussionsThisMonth;
+
+    // Get total comments count (GroupComment + DiscussionComment + BlogComment)
+    const [totalGroupComments, totalDiscussionComments, totalBlogComments, groupCommentsThisMonth, discussionCommentsThisMonth, blogCommentsThisMonth] = await Promise.all([
+      GroupComment.countDocuments(),
+      DiscussionComment.countDocuments(),
+      BlogComment.countDocuments(),
+      GroupComment.countDocuments({ createdAt: { $gte: startOfMonth } }),
+      DiscussionComment.countDocuments({ createdAt: { $gte: startOfMonth } }),
+      BlogComment.countDocuments({ createdAt: { $gte: startOfMonth } })
+    ]);
+
+    const totalComments = totalGroupComments + totalDiscussionComments + totalBlogComments;
+    const commentsThisMonth = groupCommentsThisMonth + discussionCommentsThisMonth + blogCommentsThisMonth;
+
+    return {
+      posts: {
+        total: totalPosts,
+        thisMonth: postsThisMonth,
+        groupPosts: totalGroupPosts,
+        discussions: totalDiscussions
+      },
+      comments: {
+        total: totalComments,
+        thisMonth: commentsThisMonth,
+        groupComments: totalGroupComments,
+        discussionComments: totalDiscussionComments,
+        blogComments: totalBlogComments
+      }
+    };
+  } catch (error) {
+    // Return placeholder on error
+    return {
+      posts: {
+        total: 0,
+        thisMonth: 0,
+        groupPosts: 0,
+        discussions: 0
+      },
+      comments: {
+        total: 0,
+        thisMonth: 0,
+        groupComments: 0,
+        discussionComments: 0,
+        blogComments: 0
+      }
+    };
+  }
 };
 
 /**
  * Get sentiment analysis for feedback/surveys/blogs
- * PLACEHOLDER: Structure for AI-based sentiment analysis
+ * 
+ * NOTE: This is a placeholder implementation. To enable real sentiment analysis:
+ * 1. Integrate with an AI service (Google Cloud Natural Language API, AWS Comprehend, Azure Text Analytics)
+ * 2. Or implement a custom ML model using libraries like Natural, Sentiment, or TensorFlow.js
+ * 3. Process text content from surveys, blog comments, or feedback forms
+ * 
+ * Example integration structure:
+ * - Fetch content based on contentType and date range
+ * - Send text to AI service for analysis
+ * - Aggregate results and calculate metrics
+ * - Store results for caching/performance
  */
 const getSentimentAnalysis = async (options = {}) => {
   const { contentType = 'survey', startDate, endDate } = options;
+  const logger = require('../utils/logger');
 
-  // Placeholder structure - in production, this would call an AI service
-  // like Google Cloud Natural Language API, AWS Comprehend, or custom ML model
+  try {
+    // Calculate date range
+    const periodStart = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const periodEnd = endDate ? new Date(endDate) : new Date();
 
-  return {
-    contentType,
-    period: {
-      startDate: startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      endDate: endDate || new Date()
-    },
-    overall: {
-      sentiment: 'POSITIVE', // POSITIVE, NEGATIVE, NEUTRAL, MIXED
-      score: 0.75, // -1 to 1 scale
-      confidence: 0.85 // 0 to 1 scale
-    },
-    distribution: {
-      positive: 65, // percentage
-      neutral: 25,
-      negative: 10
-    },
-    topKeywords: [
-      { word: 'great', frequency: 45, sentiment: 'positive' },
-      { word: 'helpful', frequency: 32, sentiment: 'positive' },
-      { word: 'improve', frequency: 28, sentiment: 'neutral' }
-    ],
-    trends: [
-      {
-        date: '2025-01-01',
-        positiveScore: 0.7,
-        neutralScore: 0.2,
-        negativeScore: 0.1
+    // TODO: Implement actual sentiment analysis
+    // 1. Fetch content based on contentType:
+    //    - For 'survey': Get SurveyResponse feedback/comments
+    //    - For 'blog': Get BlogComment content
+    //    - For 'discussion': Get DiscussionComment content
+    // 2. Extract text content
+    // 3. Call AI service or ML model for each text
+    // 4. Aggregate results
+
+    // Placeholder: Return structured response indicating not implemented
+    logger.warn('Sentiment analysis called but not implemented', { contentType, periodStart, periodEnd });
+
+    return {
+      contentType,
+      period: {
+        startDate: periodStart,
+        endDate: periodEnd
+      },
+      overall: {
+        sentiment: 'NEUTRAL', // POSITIVE, NEGATIVE, NEUTRAL, MIXED
+        score: 0.0, // -1 to 1 scale (0 = neutral)
+        confidence: 0.0 // 0 to 1 scale
+      },
+      distribution: {
+        positive: 0, // percentage
+        neutral: 100,
+        negative: 0
+      },
+      topKeywords: [],
+      trends: [],
+      // Implementation status
+      implementationStatus: 'NOT_IMPLEMENTED',
+      message: 'Sentiment analysis is not yet implemented. To enable: integrate with AI service (Google NLP, AWS Comprehend, Azure Text Analytics) or implement custom ML model.',
+      // Suggested implementation steps
+      implementationGuide: {
+        step1: 'Choose an AI service or ML library',
+        step2: 'Fetch text content from the specified contentType and date range',
+        step3: 'Process text through sentiment analysis service',
+        step4: 'Aggregate results and calculate metrics',
+        step5: 'Cache results for performance'
       }
-    ],
-    // Placeholder for future implementation
-    aiServiceStatus: 'NOT_IMPLEMENTED',
-    message: 'Sentiment analysis is a placeholder. Implement with AI service like Google NLP, AWS Comprehend, or custom model.'
-  };
+    };
+  } catch (error) {
+    logger.error('Error in sentiment analysis', { error: error.message, options });
+    // Return error response
+    return {
+      contentType,
+      period: {
+        startDate: startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        endDate: endDate || new Date()
+      },
+      overall: {
+        sentiment: 'NEUTRAL',
+        score: 0.0,
+        confidence: 0.0
+      },
+      distribution: {
+        positive: 0,
+        neutral: 100,
+        negative: 0
+      },
+      topKeywords: [],
+      trends: [],
+      implementationStatus: 'ERROR',
+      error: error.message
+    };
+  }
 };
 
 module.exports = {

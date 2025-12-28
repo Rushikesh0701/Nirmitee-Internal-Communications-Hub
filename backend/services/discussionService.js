@@ -3,7 +3,7 @@ const notificationService = require('./notificationService');
 const logger = require('../utils/logger');
 
 const getAllDiscussions = async (options = {}) => {
-  const { page = 1, limit = 10, category, tag, pinned } = options;
+  const { page = 1, limit = 10, category, tag, pinned, search } = options;
   const skip = (page - 1) * limit;
 
   const query = {};
@@ -12,6 +12,15 @@ const getAllDiscussions = async (options = {}) => {
     query.tags = { $in: [tag] };
   }
   if (pinned !== undefined) query.isPinned = pinned;
+  
+  // Full-text search in title and content
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), 'i');
+    query.$or = [
+      { title: { $regex: searchRegex } },
+      { content: { $regex: searchRegex } }
+    ];
+  }
 
   const [discussions, total] = await Promise.all([
     Discussion.find(query)
@@ -229,11 +238,24 @@ const addComment = async (commentData) => {
     .populate('parentCommentId', 'content authorId');
 };
 
+const getAllTags = async () => {
+  try {
+    // Get all unique tags from all discussions
+    const tags = await Discussion.distinct('tags');
+    // Filter out null/undefined/empty tags and sort
+    return tags.filter(tag => tag && tag.trim()).sort();
+  } catch (error) {
+    logger.error('Error fetching discussion tags', { error });
+    throw error;
+  }
+};
+
 module.exports = {
   getAllDiscussions,
   getDiscussionById,
   createDiscussion,
   updateDiscussion,
   deleteDiscussion,
-  addComment
+  addComment,
+  getAllTags
 };

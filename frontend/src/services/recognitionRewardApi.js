@@ -5,7 +5,7 @@ export const recognitionRewardApi = {
   sendRecognition: (data) => api.post('/recognitions/send', data),
   getRecognitionFeed: (params) => api.get('/recognitions/feed', { params }),
   getUserPoints: () => api.get('/recognitions/points'),
-  getUserRedemptions: () => api.get('/recognitions/redemptions'),
+  getUserRedemptions: (params) => api.get('/recognitions/redemptions', { params }),
 
   // Rewards endpoints
   getRewardsCatalog: (params) => api.get('/recognitions/catalog', { params }),

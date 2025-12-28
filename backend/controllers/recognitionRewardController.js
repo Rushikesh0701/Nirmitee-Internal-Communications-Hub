@@ -150,11 +150,12 @@ const getUserPoints = async (req, res, next) => {
 const getUserRedemptions = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const redemptions = await recognitionRewardService.getUserRedemptions(userId);
+    const { page = 1, limit = 20, status } = req.query;
+    const result = await recognitionRewardService.getUserRedemptions(userId, { page, limit, status });
 
     res.json({
       success: true,
-      data: redemptions
+      data: result
     });
   } catch (error) {
     next(error);

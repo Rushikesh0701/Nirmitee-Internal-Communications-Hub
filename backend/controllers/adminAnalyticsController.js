@@ -91,12 +91,45 @@ const getMAU = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /analytics/posts-comments
+ */
+const getPostsAndCommentsCount = async (req, res, next) => {
+  try {
+    const count = await adminAnalyticsService.getPostsAndCommentsCount();
+    res.json({
+      success: true,
+      data: count
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /analytics/sentiment
+ */
+const getSentimentAnalysis = async (req, res, next) => {
+  try {
+    const { contentType, startDate, endDate } = req.query;
+    const analysis = await adminAnalyticsService.getSentimentAnalysis({ contentType, startDate, endDate });
+    res.json({
+      success: true,
+      data: analysis
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getOverview,
   getEngagement,
   getSurveyAnalytics,
   getRecognitionAnalytics,
   getBlogAnalytics,
-  getMAU
+  getMAU,
+  getPostsAndCommentsCount,
+  getSentimentAnalysis
 };
 

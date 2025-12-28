@@ -3,6 +3,7 @@ const router = express.Router();
 const discussionController = require('../controllers/discussionController');
 const { authenticateToken } = require('../middleware/auth');
 
+router.get('/tags', authenticateToken, discussionController.getAllTags);
 router.get('/', authenticateToken, discussionController.getAllDiscussions);
 router.get('/:id', authenticateToken, discussionController.getDiscussionById);
 router.post('/', authenticateToken, discussionController.createDiscussion);

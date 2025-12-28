@@ -3,7 +3,8 @@ import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import api from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
-import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter } from 'lucide-react'
+import { BarChart3, TrendingUp, Users, Eye, Calendar, Filter, Download } from 'lucide-react'
+import { exportAnalyticsToCSV } from '../../utils/exportHelpers'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { GridSkeleton, DetailSkeleton } from '../../components/skeletons'
 import EmptyState from '../../components/EmptyState'
@@ -84,6 +85,14 @@ const Analytics = () => {
               <option value="365">Last year</option>
             </select>
           </div>
+          <button
+            onClick={() => exportAnalyticsToCSV({ overview: stats?.overview, combinedTimeSeries: timeSeriesData }, 'analytics-export')}
+            className="btn-secondary flex items-center gap-2 text-sm"
+            title="Export to CSV"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
         </div>
       </motion.div>
 

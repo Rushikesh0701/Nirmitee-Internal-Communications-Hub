@@ -1,17 +1,19 @@
 const discussionService = require('../services/discussionService');
+const dummyDataService = require('../services/dummyDataService');
 const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { handleDatabaseError } = require('../utils/errorHandlers');
 
 const getAllDiscussions = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, category, tag, pinned } = req.query;
+    const { page = 1, limit = 10, category, tag, pinned, search } = req.query;
     const discussions = await discussionService.getAllDiscussions({
       page: parseInt(page),
       limit: parseInt(limit),
       category,
       tag,
-      pinned: pinned === 'true'
+      pinned: pinned === 'true',
+      search
     });
     
     if (!discussions || !discussions.discussions || discussions.discussions.length === 0) {
@@ -45,9 +47,42 @@ const getAllDiscussions = async (req, res, next) => {
 const getDiscussionById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Check if this is a dummy discussion ID
+    if (id && id.startsWith('dummy-discussion-')) {
+      const dummyDiscussions = dummyDataService.getDummyDiscussions({ page: 1, limit: 10 });
+      const dummyDiscussion = dummyDiscussions.discussions.find(d => d._id === id);
+      
+      if (dummyDiscussion) {
+        // Add empty comments array for dummy discussions
+        const discussionWithComments = {
+          ...dummyDiscussion,
+          Comments: []
+        };
+        return sendSuccess(res, discussionWithComments);
+      }
+    }
+    
     const discussion = await discussionService.getDiscussionById(id, req.userId);
     return sendSuccess(res, discussion);
   } catch (error) {
+    // If discussion not found and it's a dummy ID, try to return dummy data
+    if (error.message === 'Discussion not found' && req.params.id && req.params.id.startsWith('dummy-discussion-')) {
+      try {
+        const dummyDiscussions = dummyDataService.getDummyDiscussions({ page: 1, limit: 10 });
+        const dummyDiscussion = dummyDiscussions.discussions.find(d => d._id === req.params.id);
+        
+        if (dummyDiscussion) {
+          const discussionWithComments = {
+            ...dummyDiscussion,
+            Comments: []
+          };
+          return sendSuccess(res, discussionWithComments);
+        }
+      } catch (dummyError) {
+        // Fall through to next(error)
+      }
+    }
     next(error);
   }
 };
@@ -101,12 +136,22 @@ const addComment = async (req, res, next) => {
   }
 };
 
+const getAllTags = async (req, res, next) => {
+  try {
+    const tags = await discussionService.getAllTags();
+    return sendSuccess(res, { tags });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllDiscussions,
   getDiscussionById,
   createDiscussion,
   updateDiscussion,
   deleteDiscussion,
-  addComment
+  addComment,
+  getAllTags
 };
 

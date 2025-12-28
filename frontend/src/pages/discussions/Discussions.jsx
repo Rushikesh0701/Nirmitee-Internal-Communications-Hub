@@ -34,13 +34,14 @@ const Discussions = () => {
   }, [selectedTag, searchTerm]);
 
   const { data, isLoading } = useQuery(
-    ['discussions', selectedTag, page, limit],
+    ['discussions', selectedTag, page, limit, searchTerm],
     async () => {
       const params = {
         page,
         limit
       };
       if (selectedTag) params.tag = selectedTag;
+      if (searchTerm && searchTerm.trim()) params.search = searchTerm.trim();
       const response = await discussionAPI.getAll(params);
       const apiResponse = response.data;
       const discussionsData = apiResponse.data || apiResponse;
@@ -61,17 +62,24 @@ const Discussions = () => {
   const discussions = data?.discussions || [];
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };
 
-  // Client-side search filtering
-  const filteredDiscussions = useMemo(() => discussions.filter(
-    (discussion) =>
-      !searchTerm ||
-      discussion.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      discussion.content?.toLowerCase().includes(searchTerm.toLowerCase())
-  ), [discussions, searchTerm]);
+  // Fetch all tags from API
+  const { data: tagsData } = useQuery(
+    ['discussion-tags'],
+    async () => {
+      const response = await discussionAPI.getAllTags();
+      const apiResponse = response.data;
+      const tagsResponse = apiResponse.data || apiResponse;
+      return tagsResponse;
+    },
+    {
+      staleTime: 10 * 60 * 1000, // 10 minutes - tags don't change often
+      cacheTime: 30 * 60 * 1000, // 30 minutes
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    }
+  );
 
-  // Get all tags from all discussions (for tag filter dropdown)
-  // Note: This might need to be fetched separately or from first page only
-  const allTags = useMemo(() => [...new Set(discussions.flatMap((d) => d.tags || []))].sort(), [discussions]);
+  const allTags = tagsData?.tags || [];
 
   return (
     <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
@@ -116,10 +124,10 @@ const Discussions = () => {
       {/* Discussion List */}
       {isLoading && !data ? (
         <ListSkeleton count={5} />
-      ) : filteredDiscussions.length > 0 ? (
+      ) : discussions.length > 0 ? (
         <>
           <motion.div className="space-y-4" variants={containerVariants}>
-            {filteredDiscussions.map((discussion, index) => {
+            {discussions.map((discussion, index) => {
               const discussionId = discussion._id || discussion.id;
               if (!discussionId) return null;
               return (

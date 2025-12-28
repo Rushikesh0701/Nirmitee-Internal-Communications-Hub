@@ -218,6 +218,46 @@ const getUserCertificates = async (req, res, next) => {
 };
 
 /**
+ * GET /certificates/:certificateNumber/view
+ * View certificate details (public endpoint, but certificate number acts as authentication)
+ * TODO: Implement PDF generation for actual certificate download
+ */
+const viewCertificate = async (req, res, next) => {
+  try {
+    const { certificateNumber } = req.params;
+    const certificate = await learningService.getCertificateByNumber(certificateNumber);
+
+    if (!certificate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
+      });
+    }
+
+    // Return certificate data
+    // TODO: In production, generate and return PDF certificate
+    // Options:
+    // 1. Use PDF generation library (pdfkit, puppeteer, jsPDF)
+    // 2. Use template engine (handlebars, ejs) to render certificate HTML, then convert to PDF
+    // 3. Use external service for certificate generation
+    
+    res.json({
+      success: true,
+      data: certificate,
+      note: 'PDF generation not yet implemented. Certificate data returned as JSON.'
+    });
+  } catch (error) {
+    if (error.message === 'Certificate not found') {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+    next(error);
+  }
+};
+
+/**
  * GET /courses/my/enrollments
  */
 const getUserCourses = async (req, res, next) => {
@@ -330,5 +370,6 @@ module.exports = {
   getUserCourses,
   createMentorship,
   updateMentorshipStatus,
-  getUserMentorships
+  getUserMentorships,
+  viewCertificate
 };

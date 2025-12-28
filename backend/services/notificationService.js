@@ -1,5 +1,6 @@
-const { Notification } = require('../models');
+const { Notification, User } = require('../models');
 const logger = require('../utils/logger');
+const { sendNotificationEmail, sendBulkNotificationEmails } = require('./emailService');
 
 /**
  * Create a notification
@@ -14,8 +15,17 @@ const createNotification = async (notificationData) => {
     metadata: metadata || null
   });
 
-  // TODO: Send email notification (placeholder)
-  // await sendEmailNotification(userId, type, content);
+  // Send email notification
+  try {
+    const user = await User.findById(userId).select('email');
+    if (user && user.email) {
+      const appUrl = process.env.FRONTEND_URL || '';
+      await sendNotificationEmail(user.email, type, content, metadata || {}, appUrl);
+    }
+  } catch (error) {
+    // Log error but don't fail notification creation if email fails
+    logger.error('Failed to send email notification', { userId, type, error: error.message });
+  }
 
   return notification;
 };
@@ -35,7 +45,15 @@ const createBulkNotifications = async (userIds, notificationData) => {
 
   await Notification.insertMany(notifications);
 
-  // TODO: Send email notifications
+  // Send email notifications
+  try {
+    const appUrl = process.env.FRONTEND_URL || '';
+    await sendBulkNotificationEmails(userIds, type, content, metadata || {}, appUrl);
+  } catch (error) {
+    // Log error but don't fail notification creation if email fails
+    logger.error('Failed to send bulk email notifications', { userIds: userIds.length, type, error: error.message });
+  }
+
   return { count: notifications.length };
 };
 

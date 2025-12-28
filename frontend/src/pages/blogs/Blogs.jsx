@@ -55,10 +55,9 @@ const Blogs = () => {
         params.category = categoryFilter;
       }
 
-      // Add search term if provided (client-side search for bookmarked filter)
-      if (searchTerm && filter !== 'bookmarked') {
-        // Note: Backend search would need to be implemented
-        // For now, we'll do client-side filtering for search
+      // Add search term if provided (backend search)
+      if (searchTerm && searchTerm.trim() && filter !== 'bookmarked') {
+        params.search = searchTerm.trim();
       }
       
       const response = await blogAPI.getAll(params);
@@ -83,19 +82,14 @@ const Blogs = () => {
 
   const categories = ['all', 'Frontend', 'Backend', 'Full Stack', 'DevOps', 'Other'];
 
-  // Client-side filtering for search and bookmarks (since backend doesn't support these)
+  // Client-side filtering only for bookmarks (backend handles search now)
   const blogs = data?.blogs || [];
   const filteredBlogs = blogs.filter((blog) => {
-    const matchesSearch = !searchTerm || 
-      blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      blog.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      blog.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
     // Filter by bookmarks if the bookmarked filter is selected
     const blogId = (blog._id || blog.id)?.toString();
     const matchesBookmark = filter !== 'bookmarked' || bookmarks.includes(blogId);
     
-    return matchesSearch && matchesBookmark;
+    return matchesBookmark;
   });
 
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 };

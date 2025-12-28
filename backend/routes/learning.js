@@ -18,6 +18,9 @@ router.post('/:id/certificate', authenticateToken, learningController.generateCe
 router.get('/my/certificates', authenticateToken, learningController.getUserCertificates);
 router.get('/my/enrollments', authenticateToken, learningController.getUserCourses);
 
+// Certificate viewing (public endpoint - certificate number acts as authentication)
+router.get('/certificates/:certificateNumber/view', learningController.viewCertificate);
+
 // Mentorship routes
 router.post('/mentorships', authenticateToken, learningController.createMentorship);
 router.put('/mentorships/:id', authenticateToken, learningController.updateMentorshipStatus);

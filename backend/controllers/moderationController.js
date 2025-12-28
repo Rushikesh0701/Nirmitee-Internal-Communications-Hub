@@ -1,5 +1,8 @@
 const { Blog, Announcement } = require('../models');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
+const notificationService = require('../services/notificationService');
+const { sendModerationEmail } = require('../services/emailService');
+const logger = require('../utils/logger');
 
 /**
  * GET /api/admin/moderation/blogs - Get all blogs pending moderation
@@ -66,6 +69,32 @@ const approveBlog = async (req, res, next) => {
             .populate('authorId', 'firstName lastName email avatar')
             .populate('moderatedBy', 'firstName lastName email');
 
+        // Send notification and email to author about approval
+        try {
+            if (updatedBlog.authorId && updatedBlog.authorId._id) {
+                await notificationService.createNotification({
+                    userId: updatedBlog.authorId._id,
+                    type: 'SYSTEM',
+                    content: `Your blog "${updatedBlog.title}" has been approved and published.`,
+                    metadata: { blogId: id, blogTitle: updatedBlog.title, contentType: 'blog' }
+                });
+
+                if (updatedBlog.authorId.email) {
+                    const appUrl = process.env.FRONTEND_URL || '';
+                    await sendModerationEmail(
+                        updatedBlog.authorId.email,
+                        'blog',
+                        updatedBlog.title,
+                        'APPROVED',
+                        '',
+                        appUrl
+                    );
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to send approval notification', { blogId: id, error: error.message });
+        }
+
         return sendSuccess(res, updatedBlog, 'Blog approved successfully');
     } catch (error) {
         next(error);
@@ -101,7 +130,35 @@ const rejectBlog = async (req, res, next) => {
             .populate('authorId', 'firstName lastName email avatar')
             .populate('moderatedBy', 'firstName lastName email');
 
-        // TODO: Send notification to author about rejection
+        // Send notification and email to author about rejection
+        try {
+            if (updatedBlog.authorId && updatedBlog.authorId._id) {
+                const rejectionMessage = reason 
+                    ? `Your blog "${updatedBlog.title}" has been rejected. Reason: ${reason}`
+                    : `Your blog "${updatedBlog.title}" has been rejected.`;
+
+                await notificationService.createNotification({
+                    userId: updatedBlog.authorId._id,
+                    type: 'SYSTEM',
+                    content: rejectionMessage,
+                    metadata: { blogId: id, blogTitle: updatedBlog.title, contentType: 'blog' }
+                });
+
+                if (updatedBlog.authorId.email) {
+                    const appUrl = process.env.FRONTEND_URL || '';
+                    await sendModerationEmail(
+                        updatedBlog.authorId.email,
+                        'blog',
+                        updatedBlog.title,
+                        'REJECTED',
+                        reason || 'Please review the content guidelines and resubmit.',
+                        appUrl
+                    );
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to send rejection notification', { blogId: id, error: error.message });
+        }
 
         return sendSuccess(res, updatedBlog, 'Blog rejected');
     } catch (error) {
@@ -174,6 +231,32 @@ const approveAnnouncement = async (req, res, next) => {
             .populate('createdBy', 'firstName lastName email avatar')
             .populate('moderatedBy', 'firstName lastName email');
 
+        // Send notification and email to creator about approval
+        try {
+            if (updatedAnnouncement.createdBy && updatedAnnouncement.createdBy._id) {
+                await notificationService.createNotification({
+                    userId: updatedAnnouncement.createdBy._id,
+                    type: 'SYSTEM',
+                    content: `Your announcement "${updatedAnnouncement.title}" has been approved and published.`,
+                    metadata: { announcementId: id, announcementTitle: updatedAnnouncement.title, contentType: 'announcement' }
+                });
+
+                if (updatedAnnouncement.createdBy.email) {
+                    const appUrl = process.env.FRONTEND_URL || '';
+                    await sendModerationEmail(
+                        updatedAnnouncement.createdBy.email,
+                        'announcement',
+                        updatedAnnouncement.title,
+                        'APPROVED',
+                        '',
+                        appUrl
+                    );
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to send approval notification', { announcementId: id, error: error.message });
+        }
+
         return sendSuccess(res, updatedAnnouncement, 'Announcement approved successfully');
     } catch (error) {
         next(error);
@@ -209,7 +292,35 @@ const rejectAnnouncement = async (req, res, next) => {
             .populate('createdBy', 'firstName lastName email avatar')
             .populate('moderatedBy', 'firstName lastName email');
 
-        // TODO: Send notification to creator about rejection
+        // Send notification and email to creator about rejection
+        try {
+            if (updatedAnnouncement.createdBy && updatedAnnouncement.createdBy._id) {
+                const rejectionMessage = reason 
+                    ? `Your announcement "${updatedAnnouncement.title}" has been rejected. Reason: ${reason}`
+                    : `Your announcement "${updatedAnnouncement.title}" has been rejected.`;
+
+                await notificationService.createNotification({
+                    userId: updatedAnnouncement.createdBy._id,
+                    type: 'SYSTEM',
+                    content: rejectionMessage,
+                    metadata: { announcementId: id, announcementTitle: updatedAnnouncement.title, contentType: 'announcement' }
+                });
+
+                if (updatedAnnouncement.createdBy.email) {
+                    const appUrl = process.env.FRONTEND_URL || '';
+                    await sendModerationEmail(
+                        updatedAnnouncement.createdBy.email,
+                        'announcement',
+                        updatedAnnouncement.title,
+                        'REJECTED',
+                        reason || 'Please review the content guidelines and resubmit.',
+                        appUrl
+                    );
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to send rejection notification', { announcementId: id, error: error.message });
+        }
 
         return sendSuccess(res, updatedAnnouncement, 'Announcement rejected');
     } catch (error) {

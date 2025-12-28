@@ -5,7 +5,7 @@ const { handleDatabaseError } = require('../utils/errorHandlers');
 
 const getAllBlogs = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, tag, published, authorId } = req.query;
+    const { page = 1, limit = 10, tag, published, authorId, search } = req.query;
 
     // Convert published string to boolean, but only if it's explicitly provided
     let publishedBool = undefined;
@@ -18,7 +18,8 @@ const getAllBlogs = async (req, res, next) => {
       limit: parseInt(limit),
       tag,
       published: publishedBool,
-      authorId
+      authorId,
+      search
     });
 
     return sendSuccess(res, blogs);

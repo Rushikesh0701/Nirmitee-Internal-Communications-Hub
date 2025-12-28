@@ -2,11 +2,18 @@ import axios from 'axios'
 
 // Use environment variable for API base URL, or fall back to proxy
 const getBaseURL = () => {
-  // If VITE_API_BASE_URL is set, use it directly (for dev tunnels or production)
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL
+  // For local development, always use '/api' which will be proxied by Vite to localhost:5002
+  // The Vite proxy is configured in vite.config.js
+  // If VITE_API_BASE_URL is set and is a valid URL (for production/deployed environments), use it
+  const envUrl = import.meta.env.VITE_API_BASE_URL
+  if (envUrl && typeof envUrl === 'string') {
+    const cleanUrl = envUrl.trim().replace(/['";]/g, '') // Remove quotes and semicolons
+    // Only use if it's a valid HTTP/HTTPS URL
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+      return cleanUrl
+    }
   }
-  // Otherwise, use relative path which will be proxied by Vite
+  // Default: use relative path which will be proxied by Vite to http://localhost:5002
   return '/api'
 }
 

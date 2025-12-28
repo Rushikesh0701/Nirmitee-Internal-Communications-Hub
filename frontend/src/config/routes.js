@@ -40,6 +40,22 @@ const GroupsList = lazy(() => import('../pages/groups/GroupsList'))
 const GroupDetail = lazy(() => import('../pages/groups/GroupDetail'))
 const GroupForm = lazy(() => import('../pages/groups/GroupForm'))
 const SurveyAnalytics = lazy(() => import('../pages/surveys/SurveyAnalytics'))
+const ModerationDashboard = lazy(() => import('../pages/moderation/ModerationDashboard'))
+const BlogModeration = lazy(() => import('../pages/moderation/BlogModeration'))
+const AnnouncementModeration = lazy(() => import('../pages/moderation/AnnouncementModeration'))
+const AdminAnalytics = lazy(() => import('../pages/analytics/AdminAnalytics'))
+const CertificateView = lazy(() => import('../pages/learning/CertificateView'))
+const RedemptionManagement = lazy(() => import('../pages/admin/RedemptionManagement'))
+const RedemptionHistory = lazy(() => import('../pages/recognitions/RedemptionHistory'))
+const BlogAnalytics = lazy(() => import('../pages/blogs/BlogAnalytics'))
+const DiscussionAnalytics = lazy(() => import('../pages/discussions/DiscussionAnalytics'))
+const GroupAnalytics = lazy(() => import('../pages/groups/GroupAnalytics'))
+const MyProgress = lazy(() => import('../pages/learning/MyProgress'))
+const MyCertificates = lazy(() => import('../pages/learning/MyCertificates'))
+const MentorshipDashboard = lazy(() => import('../pages/learning/MentorshipDashboard'))
+const SearchResults = lazy(() => import('../pages/search/SearchResults'))
+const ActivityFeed = lazy(() => import('../pages/activity/ActivityFeed'))
+const Settings = lazy(() => import('../pages/settings/Settings'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Register = lazy(() => import('../pages/auth/Register'))
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
@@ -64,9 +80,11 @@ export const protectedRoutes = [
   { path: '/blogs/create', component: CreateBlog },
   { path: '/blogs/new', component: CreateBlog },
   { path: '/blogs/:id', component: BlogDetail },
+  { path: '/blogs/:id/analytics', component: BlogAnalytics },
   { path: '/blogs/:id/edit', component: EditBlog },
   { path: '/discussions', component: Discussions },
   { path: '/discussions/create', component: CreateDiscussion },
+  { path: '/discussions/analytics', component: DiscussionAnalytics },
   { path: '/discussions/:id', component: DiscussionDetail },
   { path: '/discussions/:id/edit', component: DiscussionForm },
   { path: '/recognitions', component: RecognitionsFeed },
@@ -85,8 +103,15 @@ export const protectedRoutes = [
   { path: '/learning/:id/edit', component: CourseForm, admin: true },
 
   { path: '/analytics', component: Analytics, admin: true },
+  { path: '/admin/analytics', component: AdminAnalytics, admin: true },
+  { path: '/moderation', component: ModerationDashboard, admin: true },
+  { path: '/moderation/blogs', component: BlogModeration, admin: true },
+  { path: '/moderation/announcements', component: AnnouncementModeration, admin: true },
   { path: '/admin/rewards', component: AdminRewardsManagement, admin: true },
+  { path: '/admin/redemptions', component: RedemptionManagement, admin: true },
   { path: '/admin/rss', component: RssManagement, admin: true },
+  { path: '/learning/certificates/:certificateNumber', component: CertificateView },
+  { path: '/recognitions/redemptions', component: RedemptionHistory },
   { path: '/profile', component: ProfilePage },
   { path: '/profile/:id', component: ProfilePage },
   { path: '/directory', component: EmployeeDirectory },
@@ -94,6 +119,13 @@ export const protectedRoutes = [
   { path: '/groups', component: GroupsList },
   { path: '/groups/new', component: GroupForm, admin: true },
   { path: '/groups/:id', component: GroupDetail },
+  { path: '/groups/:id/analytics', component: GroupAnalytics },
   { path: '/groups/:id/edit', component: GroupForm, admin: true },
+  { path: '/learning/my-progress', component: MyProgress },
+  { path: '/learning/my-certificates', component: MyCertificates },
+  { path: '/learning/mentorships', component: MentorshipDashboard },
+  { path: '/search', component: SearchResults },
+  { path: '/activity', component: ActivityFeed },
+  { path: '/settings', component: Settings },
 ]
 

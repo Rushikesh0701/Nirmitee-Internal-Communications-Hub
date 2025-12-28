@@ -5,7 +5,7 @@ const notificationService = require('./notificationService');
 const logger = require('../utils/logger');
 
 const getAllBlogs = async (options = {}) => {
-  const { page = 1, limit = 10, tag, published, authorId } = options;
+  const { page = 1, limit = 10, tag, published, authorId, search } = options;
   const skip = (page - 1) * limit;
 
   const query = {};
@@ -20,6 +20,16 @@ const getAllBlogs = async (options = {}) => {
   }
   if (tag) {
     query.tags = { $in: [tag] };
+  }
+  
+  // Full-text search in title, content, and tags
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), 'i');
+    query.$or = [
+      { title: { $regex: searchRegex } },
+      { content: { $regex: searchRegex } },
+      { tags: { $in: [searchRegex] } }
+    ];
   }
 
   const [blogs, total] = await Promise.all([

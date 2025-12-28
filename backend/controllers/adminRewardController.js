@@ -121,8 +121,9 @@ const getAllRedemptions = async (req, res, next) => {
 
     const [redemptions, totalCount] = await Promise.all([
       Redemption.find(query)
-        .populate('user', 'id name email avatar')
-        .populate('reward', 'id title description points image')
+        .populate('userId', 'firstName lastName email avatar')
+        .populate('rewardId', 'title description points image')
+        .populate('approvedBy', 'firstName lastName email')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parseInt(limit)),
@@ -169,11 +170,13 @@ const approveRedemption = async (req, res, next) => {
     }
 
     redemption.status = 'APPROVED';
+    redemption.approvedBy = req.userId;
+    redemption.approvedAt = new Date();
     await redemption.save();
 
     const fullRedemption = await Redemption.findById(id)
-      .populate('user', 'id name email')
-      .populate('reward', 'id title points');
+      .populate('userId', 'firstName lastName email')
+      .populate('rewardId', 'title points');
 
     res.json({
       success: true,
@@ -192,7 +195,7 @@ const rejectRedemption = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const redemption = await Redemption.findById(id).populate('reward');
+    const redemption = await Redemption.findById(id).populate('rewardId');
 
     if (!redemption) {
       return res.status(404).json({
@@ -208,19 +211,23 @@ const rejectRedemption = async (req, res, next) => {
       });
     }
 
+    const { reason } = req.body;
+
     // Refund points to user
     const userPoints = await UserPoints.findOne({ userId: redemption.userId });
-    if (userPoints) {
-      userPoints.totalPoints += redemption.reward.points;
+    if (userPoints && redemption.rewardId) {
+      const pointsToRefund = redemption.pointsSpent || redemption.rewardId.points || 0;
+      userPoints.totalPoints += pointsToRefund;
       await userPoints.save();
     }
 
     redemption.status = 'REJECTED';
+    redemption.rejectionReason = reason || 'Redemption request rejected';
     await redemption.save();
 
     const fullRedemption = await Redemption.findById(id)
-      .populate('user', 'id name email')
-      .populate('reward', 'id title points');
+      .populate('userId', 'firstName lastName email')
+      .populate('rewardId', 'title points');
 
     res.json({
       success: true,

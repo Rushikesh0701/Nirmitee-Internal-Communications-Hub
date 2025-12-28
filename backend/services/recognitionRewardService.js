@@ -181,6 +181,7 @@ const redeemReward = async (userId, rewardId) => {
   const redemption = await Redemption.create({
     userId,
     rewardId,
+    pointsSpent: reward.points,
     status: 'PENDING'
   });
 
@@ -193,8 +194,8 @@ const redeemReward = async (userId, rewardId) => {
   }
 
   return await Redemption.findById(redemption._id)
-    .populate('user', 'id name email')
-    .populate('reward', 'id title description points image');
+    .populate('userId', 'firstName lastName email')
+    .populate('rewardId', 'title description points image');
 };
 
 /**
@@ -408,10 +409,33 @@ const getMonthlyRecognitionSummary = async (year, month) => {
 /**
  * Get user's redemption history
  */
-const getUserRedemptions = async (userId) => {
-  return await Redemption.find({ userId })
-    .populate('reward', 'id title description points image')
-    .sort({ createdAt: -1 });
+const getUserRedemptions = async (userId, options = {}) => {
+  const { page = 1, limit = 20, status } = options;
+  const skip = (page - 1) * limit;
+
+  const query = { userId };
+  if (status) {
+    query.status = status.toUpperCase();
+  }
+
+  const [redemptions, totalCount] = await Promise.all([
+    Redemption.find(query)
+      .populate('rewardId', 'title description points image')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Redemption.countDocuments(query)
+  ]);
+
+  return {
+    redemptions,
+    pagination: {
+      total: totalCount,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      pages: Math.ceil(totalCount / parseInt(limit))
+    }
+  };
 };
 
 module.exports = {
