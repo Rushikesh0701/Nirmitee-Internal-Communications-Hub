@@ -7,6 +7,7 @@ export const discussionAPI = {
   update: (id, data) => api.put(`/discussions/${id}`, data),
   delete: (id) => api.delete(`/discussions/${id}`),
   addComment: (id, data) => api.post(`/discussions/${id}/comments`, data),
-  getAllTags: () => api.get('/discussions/tags')
+  getAllTags: () => api.get('/discussions/tags'),
+  getAnalytics: () => api.get('/discussions/analytics').then((res) => res.data.data)
 }
 

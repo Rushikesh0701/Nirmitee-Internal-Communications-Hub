@@ -23,12 +23,15 @@ export const adminAnalyticsApi = {
   getPostsComments: () => api.get('/analytics/posts-comments').then((res) => res.data.data),
   
   // Sentiment analysis (placeholder)
-  getSentiment: () => api.get('/analytics/sentiment').then((res) => res.data.data),
+  getSentiment: (params) => api.get('/analytics/sentiment', { params }).then((res) => res.data.data),
   
   // Dashboard (basic)
   getDashboard: () => api.get('/analytics/dashboard').then((res) => res.data.data),
   
   // Content analytics
-  getContent: () => api.get('/analytics/content').then((res) => res.data.data)
+  getContent: () => api.get('/analytics/content').then((res) => res.data.data),
+
+  // User engagement analytics
+  getUserEngagement: (params) => api.get('/analytics/user-engagement', { params }).then((res) => res.data.data)
 }
 

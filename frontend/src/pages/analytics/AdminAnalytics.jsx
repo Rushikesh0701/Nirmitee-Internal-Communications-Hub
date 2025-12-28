@@ -61,12 +61,23 @@ const AdminAnalytics = () => {
     () => api.get('/analytics/mau').then((res) => res.data.data)
   )
 
+  const { data: postsComments, isLoading: postsCommentsLoading } = useQuery(
+    'admin-analytics-posts-comments',
+    () => api.get('/analytics/posts-comments').then((res) => res.data.data)
+  )
+
+  const { data: sentiment, isLoading: sentimentLoading } = useQuery(
+    'admin-analytics-sentiment',
+    () => api.get('/analytics/sentiment').then((res) => res.data.data)
+  )
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'engagement', label: 'Engagement', icon: Activity },
     { id: 'blogs', label: 'Blogs', icon: BookOpen },
     { id: 'surveys', label: 'Surveys', icon: ClipboardList },
     { id: 'recognitions', label: 'Recognitions', icon: Award },
+    { id: 'posts-comments', label: 'Posts/Comments', icon: MessageSquare },
     { id: 'users', label: 'Users', icon: Users }
   ]
 
@@ -155,6 +166,81 @@ const AdminAnalytics = () => {
                 </div>
                 <p className="text-4xl font-bold text-yellow-600">{overview?.points?.totalAwarded?.toLocaleString() || 0}</p>
               </div>
+
+              {/* Posts and Comments Analytics */}
+              {postsCommentsLoading ? (
+                <DetailSkeleton />
+              ) : postsComments ? (
+                <div className="card p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MessageSquare className="text-blue-500" size={20} />
+                    <h3 className="font-semibold text-slate-800">Posts & Comments</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-500 mb-1">Total Posts</p>
+                      <p className="text-2xl font-bold text-slate-800">{postsComments?.posts?.total || 0}</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {postsComments?.posts?.groupPosts || 0} group posts, {postsComments?.posts?.discussions || 0} discussions
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {postsComments?.posts?.thisMonth || 0} this month
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500 mb-1">Total Comments</p>
+                      <p className="text-2xl font-bold text-slate-800">{postsComments?.comments?.total || 0}</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {postsComments?.comments?.groupComments || 0} group, {postsComments?.comments?.discussionComments || 0} discussion, {postsComments?.comments?.blogComments || 0} blog
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {postsComments?.comments?.thisMonth || 0} this month
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Sentiment Analysis */}
+              {sentimentLoading ? (
+                <DetailSkeleton />
+              ) : sentiment ? (
+                <div className="card p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Target className="text-purple-500" size={20} />
+                    <h3 className="font-semibold text-slate-800">Sentiment Analysis</h3>
+                  </div>
+                  {sentiment?.implementationStatus === 'NOT_IMPLEMENTED' ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">{sentiment?.message || 'Sentiment analysis is not yet implemented.'}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Overall Sentiment</p>
+                        <p className="text-lg font-bold text-slate-800 capitalize">{sentiment?.overall?.sentiment?.toLowerCase() || 'Neutral'}</p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Score: {sentiment?.overall?.score || 0} (Confidence: {((sentiment?.overall?.confidence || 0) * 100).toFixed(0)}%)
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="text-center p-2 bg-green-50 rounded">
+                          <p className="text-lg font-bold text-green-600">{sentiment?.distribution?.positive || 0}%</p>
+                          <p className="text-xs text-slate-600">Positive</p>
+                        </div>
+                        <div className="text-center p-2 bg-gray-50 rounded">
+                          <p className="text-lg font-bold text-gray-600">{sentiment?.distribution?.neutral || 0}%</p>
+                          <p className="text-xs text-slate-600">Neutral</p>
+                        </div>
+                        <div className="text-center p-2 bg-red-50 rounded">
+                          <p className="text-lg font-bold text-red-600">{sentiment?.distribution?.negative || 0}%</p>
+                          <p className="text-xs text-slate-600">Negative</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </>
           )}
         </motion.div>
@@ -379,6 +465,66 @@ const AdminAnalytics = () => {
             </>
           ) : (
             <EmptyState icon={Award} title="No recognition analytics" message="Recognition analytics will appear here" compact />
+          )}
+        </motion.div>
+      )}
+
+      {/* Posts/Comments Tab */}
+      {activeTab === 'posts-comments' && (
+        <motion.div variants={itemVariants} className="space-y-3">
+          {postsCommentsLoading ? (
+            <GridSkeleton columns={2} rows={2} />
+          ) : postsComments ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="card p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <FileText className="text-blue-500" size={20} />
+                    <span className="text-xs text-slate-500">Total Posts</span>
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{postsComments?.totalPosts || 0}</p>
+                  <p className="text-xs text-slate-500 mt-1">Across all groups</p>
+                </div>
+                <div className="card p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <MessageSquare className="text-green-500" size={20} />
+                    <span className="text-xs text-slate-500">Total Comments</span>
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{postsComments?.totalComments || 0}</p>
+                  <p className="text-xs text-slate-500 mt-1">On all posts</p>
+                </div>
+              </div>
+              {postsComments?.timeSeries && postsComments.timeSeries.length > 0 && (
+                <div className="card p-4">
+                  <h3 className="font-semibold text-slate-800 mb-4">Posts and Comments Over Time</h3>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <AreaChart data={postsComments.timeSeries}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                      />
+                      <YAxis 
+                        stroke={theme === 'dark' ? '#64748b' : '#94a3b8'} 
+                        tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: theme === 'dark' ? '#1e293b' : 'white', 
+                          border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0'
+                        }} 
+                      />
+                      <Legend />
+                      <Area type="monotone" dataKey="posts" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} name="Posts" />
+                      <Area type="monotone" dataKey="comments" stroke="#10b981" fill="#10b981" fillOpacity={0.3} name="Comments" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </>
+          ) : (
+            <EmptyState icon={MessageSquare} title="No posts/comments data" message="Posts and comments analytics will appear here" compact />
           )}
         </motion.div>
       )}

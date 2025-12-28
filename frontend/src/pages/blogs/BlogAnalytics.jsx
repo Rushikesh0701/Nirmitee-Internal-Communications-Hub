@@ -38,42 +38,11 @@ const BlogAnalytics = () => {
   // Check if user is the author
   const isAuthor = blog?.authorId?._id === user?._id || blog?.authorId === user?._id;
 
-  // Fetch analytics data (we'll create a mock/calculated version since backend may not have specific endpoint)
+  // Fetch analytics data from backend
   const { data: analytics, isLoading: isLoadingAnalytics } = useQuery(
-    ['blog-analytics', id, dateRange],
-    async () => {
-      if (!blog) return null;
-      
-      // Calculate analytics from blog data
-      const views = blog.views || 0;
-      const likes = blog.likes?.length || 0;
-      const comments = blog.comments?.length || 0;
-      
-      // Generate time series data (mock for now - in real app, this would come from backend)
-      const days = parseInt(dateRange);
-      const timeSeries = [];
-      const today = new Date();
-      
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        timeSeries.push({
-          date: date.toISOString().split('T')[0],
-          views: Math.floor(views / days) + Math.floor(Math.random() * 5),
-          likes: Math.floor(likes / days) + Math.floor(Math.random() * 2),
-          comments: Math.floor(comments / days) + Math.floor(Math.random() * 1)
-        });
-      }
-
-      return {
-        totalViews: views,
-        totalLikes: likes,
-        totalComments: comments,
-        engagementRate: views > 0 ? ((likes + comments) / views * 100).toFixed(2) : 0,
-        timeSeries
-      };
-    },
-    { enabled: !!blog && isAuthor }
+    ['blog-analytics', id],
+    () => blogAPI.getAnalytics(id),
+    { enabled: !!id && !!blog && isAuthor }
   );
 
   if (isLoadingBlog) {
@@ -122,25 +91,25 @@ const BlogAnalytics = () => {
   const statCards = [
     { 
       label: 'Total Views', 
-      value: analytics?.totalViews || 0, 
+      value: analytics?.metrics?.views || 0, 
       icon: Eye,
       color: 'bg-blue-500'
     },
     { 
       label: 'Total Likes', 
-      value: analytics?.totalLikes || 0, 
+      value: analytics?.metrics?.likes || 0, 
       icon: Heart,
       color: 'bg-red-500'
     },
     { 
       label: 'Total Comments', 
-      value: analytics?.totalComments || 0, 
+      value: analytics?.metrics?.totalComments || 0, 
       icon: MessageCircle,
       color: 'bg-green-500'
     },
     { 
       label: 'Engagement Rate', 
-      value: `${analytics?.engagementRate || 0}%`, 
+      value: `${analytics?.metrics?.engagementRate || 0}%`, 
       icon: TrendingUp,
       color: 'bg-purple-500'
     },
@@ -214,15 +183,15 @@ const BlogAnalytics = () => {
       {/* Charts */}
       {isLoadingAnalytics ? (
         <DetailSkeleton />
-      ) : analytics?.timeSeries?.length > 0 ? (
+      ) : analytics?.engagement?.commentsOverTime?.length > 0 ? (
         <>
           {/* Engagement Over Time */}
           <div className="card">
             <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-              Engagement Over Time
+              Comments Over Time
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={analytics.timeSeries}>
+              <LineChart data={analytics.engagement.commentsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
                 <XAxis 
                   dataKey="date" 
@@ -244,47 +213,40 @@ const BlogAnalytics = () => {
                   }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} name="Views" />
-                <Line type="monotone" dataKey="likes" stroke="#ef4444" strokeWidth={2} name="Likes" />
-                <Line type="monotone" dataKey="comments" stroke="#10b981" strokeWidth={2} name="Comments" />
+                <Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} name="Comments" />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Daily Stats Bar Chart */}
-          <div className="card">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-              Daily Activity
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.timeSeries}>
-                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={formatDate}
-                  stroke={theme === 'dark' ? '#64748b' : '#94a3b8'}
-                  tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
-                />
-                <YAxis 
-                  stroke={theme === 'dark' ? '#64748b' : '#94a3b8'}
-                  tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
-                />
-                <Tooltip 
-                  labelFormatter={(label) => `Date: ${formatDate(label)}`}
-                  contentStyle={{
-                    backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
-                    border: theme === 'dark' ? '1px solid #052829' : '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    color: theme === 'dark' ? '#e2e8f0' : '#1e293b'
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="views" fill="#3b82f6" name="Views" />
-                <Bar dataKey="likes" fill="#ef4444" name="Likes" />
-                <Bar dataKey="comments" fill="#10b981" name="Comments" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Top Commenters */}
+          {analytics?.engagement?.topCommenters?.length > 0 && (
+            <div className="card">
+              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                Top Commenters
+              </h2>
+              <div className="space-y-3">
+                {analytics.engagement.topCommenters.map((commenter, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          {commenter.user?.firstName?.[0] || 'U'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800 dark:text-slate-200">
+                          {commenter.user?.firstName} {commenter.user?.lastName}
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          {commenter.commentCount || 0} comments
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <EmptyState

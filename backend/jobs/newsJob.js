@@ -13,8 +13,9 @@ const startNewsPrefetchJob = () => {
             await newsService.getAllNews({ limit: 10, page: 1 });
             const metadata = newsService.getCacheMetadata();
             logger.info('News prefetch completed successfully', {
-                articlesCount: metadata.articleCount,
-                nextPage: metadata.nextPage || 'none'
+                articlesCount: metadata?.articleCount || 0,
+                totalResults: metadata?.totalResults || 0,
+                lastUpdated: metadata?.lastUpdated || 'never'
             });
         } catch (error) {
             logger.error('Error in news prefetch cron job', { error: error.message });

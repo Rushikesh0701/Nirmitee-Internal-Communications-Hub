@@ -36,7 +36,21 @@ const DiscussionForm = () => {
   )
 
   useEffect(() => {
+    // Check if this is a dummy/sample discussion - cannot be edited (check before loading)
+    if (isEdit && id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      toast.error('Sample discussions cannot be edited. Please create a real discussion to edit.');
+      navigate(`/discussions/${id}`);
+      return;
+    }
+    
     if (discussion) {
+      // Double-check if this is a dummy/sample discussion - cannot be edited
+      if (isEdit && id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+        toast.error('Sample discussions cannot be edited. Please create a real discussion to edit.');
+        navigate(`/discussions/${id}`);
+        return;
+      }
+      
       // Check permissions for editing
       if (isEdit) {
         const discussionAuthorId = discussion.authorId?._id || discussion.authorId || discussion.authorId?.toString();
@@ -84,12 +98,23 @@ const DiscussionForm = () => {
         navigate('/discussions')
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update discussion')
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to update discussion'
+        toast.error(errorMessage)
+        // If it's a 404 or invalid ID error, redirect back to discussion list
+        if (error.response?.status === 404 || errorMessage.includes('Sample discussions') || errorMessage.includes('cannot be modified')) {
+          setTimeout(() => navigate('/discussions'), 2000)
+        }
       }
     }
   )
 
   const onSubmit = (data) => {
+    // Prevent editing dummy discussions
+    if (isEdit && id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      toast.error('Sample discussions cannot be edited. Please create a real discussion to edit.');
+      return;
+    }
+    
     const payload = {
       title: data.title,
       content: data.content,

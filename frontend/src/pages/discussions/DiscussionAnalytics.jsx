@@ -21,31 +21,11 @@ const DiscussionAnalytics = () => {
   const { theme } = useTheme();
   const [dateRange, setDateRange] = useState('30');
 
-  // Fetch all discussions for analytics
-  const { data: discussions, isLoading } = useQuery(
+  // Fetch analytics from backend
+  const { data: analytics, isLoading } = useQuery(
     ['discussions-analytics', dateRange],
-    async () => {
-      const response = await discussionAPI.getAll({ limit: 1000 });
-      return response.data?.data || response.data || [];
-    }
+    () => discussionAPI.getAnalytics()
   );
-
-  // Calculate analytics
-  const analytics = discussions ? {
-    totalDiscussions: discussions.length || 0,
-    totalViews: discussions.reduce((sum, d) => sum + (d.views || 0), 0),
-    totalLikes: discussions.reduce((sum, d) => sum + (d.likes?.length || 0), 0),
-    totalComments: discussions.reduce((sum, d) => sum + (d.comments?.length || 0), 0),
-    topDiscussions: [...(discussions || [])]
-      .sort((a, b) => (b.views || 0) - (a.views || 0))
-      .slice(0, 5)
-      .map(d => ({
-        title: d.title,
-        views: d.views || 0,
-        likes: d.likes?.length || 0,
-        comments: d.comments?.length || 0
-      }))
-  } : null;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -55,35 +35,33 @@ const DiscussionAnalytics = () => {
   const statCards = [
     { 
       label: 'Total Discussions', 
-      value: analytics?.totalDiscussions || 0, 
+      value: analytics?.overview?.totalDiscussions || 0, 
       icon: MessageSquare,
       color: 'bg-blue-500'
     },
     { 
       label: 'Total Views', 
-      value: analytics?.totalViews || 0, 
+      value: analytics?.overview?.totalViews || 0, 
       icon: Eye,
       color: 'bg-green-500'
     },
     { 
-      label: 'Total Engagement', 
-      value: (analytics?.totalLikes || 0) + (analytics?.totalComments || 0), 
-      icon: Heart,
-      color: 'bg-red-500'
+      label: 'Total Comments', 
+      value: analytics?.overview?.totalComments || 0, 
+      icon: MessageSquare,
+      color: 'bg-purple-500'
     },
     { 
       label: 'Avg. Engagement', 
-      value: analytics?.totalDiscussions > 0 
-        ? Math.round(((analytics?.totalLikes || 0) + (analytics?.totalComments || 0)) / analytics.totalDiscussions)
-        : 0, 
+      value: analytics?.overview?.averageEngagement || 0, 
       icon: TrendingUp,
-      color: 'bg-purple-500'
+      color: 'bg-orange-500'
     },
   ];
 
-  const pieData = analytics?.topDiscussions?.map(d => ({
-    name: d.title.length > 20 ? d.title.substring(0, 20) + '...' : d.title,
-    value: d.views
+  const pieData = analytics?.topDiscussions?.byViews?.slice(0, 5).map(d => ({
+    name: d.title?.length > 20 ? d.title.substring(0, 20) + '...' : d.title || 'Untitled',
+    value: d.views || 0
   })) || [];
 
   const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
@@ -150,27 +128,24 @@ const DiscussionAnalytics = () => {
           </div>
 
           {/* Top Discussions */}
-          {analytics?.topDiscussions?.length > 0 && (
+          {analytics?.topDiscussions?.byViews?.length > 0 && (
             <div className="card">
               <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
                 Top Discussions by Views
               </h2>
               <div className="space-y-3">
-                {analytics.topDiscussions.map((discussion, index) => (
+                {analytics.topDiscussions.byViews.slice(0, 5).map((discussion, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-slate-800 dark:text-slate-200">
-                        {discussion.title}
+                        {discussion.title || 'Untitled'}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-slate-600 dark:text-slate-400">
                         <span className="flex items-center gap-1">
-                          <Eye size={14} /> {discussion.views}
+                          <Eye size={14} /> {discussion.views || 0}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Heart size={14} /> {discussion.likes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageSquare size={14} /> {discussion.comments}
+                          <MessageSquare size={14} /> {discussion.commentCount || 0}
                         </span>
                       </div>
                     </div>

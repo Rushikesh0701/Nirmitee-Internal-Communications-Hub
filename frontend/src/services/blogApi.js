@@ -8,6 +8,7 @@ export const blogAPI = {
   delete: (id) => api.delete(`/blogs/${id}`),
   like: (id) => api.post(`/blogs/${id}/like`),
   addComment: (id, comment, parentCommentId) => api.post(`/blogs/${id}/comments`, { content: comment, parentCommentId }),
-  deleteComment: (id, commentId) => api.delete(`/blogs/${id}/comments/${commentId}`)
+  deleteComment: (id, commentId) => api.delete(`/blogs/${id}/comments/${commentId}`),
+  getAnalytics: (id) => api.get(`/blogs/${id}/analytics`).then((res) => res.data.data)
 }
 

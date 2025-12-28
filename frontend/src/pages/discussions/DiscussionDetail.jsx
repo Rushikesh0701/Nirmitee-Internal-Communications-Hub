@@ -11,7 +11,7 @@ import { DetailSkeleton } from '../../components/skeletons';
 import { ArrowLeft, Edit, Trash2, MessageCircle, User, Calendar, Tag, ChevronDown, ChevronUp } from 'lucide-react';
 import EmptyState from '../../components/EmptyState';
 
-const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies }) => {
+const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onReplyChange, onToggleReply, onAddReply, isAuthenticated, user, showReplyForm, replyContentState, expandedReplies, onToggleExpandReplies, isDummyDiscussion }) => {
   const commentId = comment._id || comment.id;
   const INITIAL_REPLIES_LIMIT = 3;
 
@@ -38,13 +38,13 @@ const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onRepl
         </div>
         <p className="text-slate-600 mb-3 text-sm">{comment.content}</p>
         
-        {isAuthenticated && user && (
+        {isAuthenticated && user && !isDummyDiscussion && (
           <button onClick={() => onToggleReply(commentId)} className="text-xs text-indigo-600 hover:text-indigo-700">
             {isReplying ? 'Cancel' : 'Reply'}
           </button>
         )}
 
-        {isReplying && isAuthenticated && user && (
+        {isReplying && isAuthenticated && user && !isDummyDiscussion && (
           <form onSubmit={(e) => onAddReply(commentId, e)} className="mt-3">
             <textarea value={replyContent || ''} onChange={(e) => onReplyChange(commentId, e.target.value)} placeholder="Write a reply..." required rows="2" className="textarea text-sm mb-2" />
             <div className="flex gap-2">
@@ -63,7 +63,7 @@ const CommentItem = memo(({ comment, depth = 0, isReplying, replyContent, onRepl
             return repliesToShow.map((reply) => {
               const replyId = reply._id || reply.id;
               if (!replyId) return null;
-              return <CommentItem key={`reply-${replyId}`} comment={reply} depth={depth + 1} isReplying={showReplyForm[replyId]} replyContent={replyContentState[replyId]} onReplyChange={onReplyChange} onToggleReply={onToggleReply} onAddReply={onAddReply} isAuthenticated={isAuthenticated} user={user} showReplyForm={showReplyForm} replyContentState={replyContentState} expandedReplies={expandedReplies || {}} onToggleExpandReplies={onToggleExpandReplies} />;
+              return <CommentItem key={`reply-${replyId}`} comment={reply} depth={depth + 1} isReplying={showReplyForm[replyId]} replyContent={replyContentState[replyId]} onReplyChange={onReplyChange} onToggleReply={onToggleReply} onAddReply={onAddReply} isAuthenticated={isAuthenticated} user={user} showReplyForm={showReplyForm} replyContentState={replyContentState} expandedReplies={expandedReplies || {}} onToggleExpandReplies={onToggleExpandReplies} isDummyDiscussion={isDummyDiscussion} />;
             });
           })()}
           
@@ -117,13 +117,17 @@ const DiscussionDetail = () => {
     onError: (error) => { toast.error(error.response?.data?.message || 'Failed to delete'); setIsDeleting(false); }
   });
 
+  const isDummyDiscussion = useMemo(() => {
+    return id && typeof id === 'string' && id.startsWith('dummy-discussion-');
+  }, [id]);
+
   const canEdit = useMemo(() => {
-    if (!user || !discussion) return false;
+    if (!user || !discussion || isDummyDiscussion) return false;
     const discussionAuthorId = discussion.authorId?._id || discussion.authorId;
     const userId = user._id || user.id;
     const isOwner = discussionAuthorId?.toString() === userId?.toString();
     return isOwner || isAdmin(user);
-  }, [user, discussion]);
+  }, [user, discussion, isDummyDiscussion]);
 
   const handleDelete = useCallback(() => { if (window.confirm('Delete this discussion?')) { setIsDeleting(true); deleteMutation.mutate(); } }, [deleteMutation]);
 
@@ -143,6 +147,10 @@ const DiscussionDetail = () => {
 
   const handleAddComment = async (e) => {
     e.preventDefault();
+    if (isDummyDiscussion) {
+      toast.error('Comments cannot be added to sample discussions. Please create a real discussion to enable commenting.');
+      return;
+    }
     if (isAnyCommentPosting() || !startCommentPosting('discussion')) return;
     if (!commentContent.trim()) { endCommentPosting(); return; }
     try {
@@ -154,13 +162,22 @@ const DiscussionDetail = () => {
       toast.success('Comment added!');
     } catch (error) {
       endCommentPosting();
-      toast.error(error.response?.data?.message || 'Failed to add comment');
+      const errorMessage = error.response?.data?.message || 'Failed to add comment';
+      toast.error(errorMessage);
+      if (errorMessage.includes('dummy') || errorMessage.includes('sample')) {
+        // Don't refetch if it's a dummy discussion error
+        return;
+      }
       fetchDiscussion();
     }
   };
 
   const handleAddReply = async (parentCommentId, e) => {
     e.preventDefault();
+    if (isDummyDiscussion) {
+      toast.error('Replies cannot be added to sample discussions. Please create a real discussion to enable commenting.');
+      return;
+    }
     if (isAnyCommentPosting() || !startCommentPosting('discussion')) return;
     const replyText = replyContent[parentCommentId];
     if (!replyText?.trim()) { endCommentPosting(); return; }
@@ -174,7 +191,12 @@ const DiscussionDetail = () => {
       toast.success('Reply added!');
     } catch (error) {
       endCommentPosting();
-      toast.error(error.response?.data?.message || 'Failed to add reply');
+      const errorMessage = error.response?.data?.message || 'Failed to add reply';
+      toast.error(errorMessage);
+      if (errorMessage.includes('dummy') || errorMessage.includes('sample')) {
+        // Don't refetch if it's a dummy discussion error
+        return;
+      }
       fetchDiscussion();
     }
   };
@@ -216,9 +238,16 @@ const DiscussionDetail = () => {
       </button>
 
       <motion.article className="card p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        {isDummyDiscussion && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-amber-800">
+              <strong>Sample Discussion:</strong> This is a sample discussion for demonstration purposes. You cannot add comments or edit it. Create a real discussion to enable full functionality.
+            </p>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="text-2xl font-bold text-slate-800">{discussion.title}</h1>
-          {canEdit && (
+          {canEdit && !isDummyDiscussion && (
             <div className="flex gap-2">
               <Link to={`/discussions/${id}/edit`} className="btn btn-primary text-sm py-1.5 px-3 flex items-center gap-1"><Edit size={14} /> Edit</Link>
               <button onClick={handleDelete} disabled={isDeleting} className="btn btn-danger text-sm py-1.5 px-3 flex items-center gap-1"><Trash2 size={14} /> {isDeleting ? 'Deleting...' : 'Delete'}</button>
@@ -245,16 +274,23 @@ const DiscussionDetail = () => {
           <MessageCircle size={20} /> Comments ({discussion.Comments?.length || 0})
         </h2>
 
-        {isAuthenticated && user && (
+        {isAuthenticated && user && !isDummyDiscussion && (
           <form onSubmit={handleAddComment} className="mb-6">
             <textarea value={commentContent} onChange={(e) => setCommentContent(e.target.value)} placeholder="Write your comment..." required rows="3" disabled={isAnyCommentPosting()} className="textarea mb-3" />
             <button type="submit" disabled={isAnyCommentPosting()} className="btn btn-primary">{isAnyCommentPosting() ? 'Posting...' : 'Post Comment'}</button>
           </form>
         )}
+        {isAuthenticated && user && isDummyDiscussion && (
+          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <p className="text-sm text-slate-600">
+              Comments are disabled for sample discussions. <Link to="/discussions/new" className="text-indigo-600 hover:text-indigo-700 underline">Create a real discussion</Link> to enable commenting.
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4">
           {organizedComments.map((comment) => (
-            <CommentItem key={comment._id || comment.id} comment={comment} depth={0} isReplying={showReplyForm[comment._id || comment.id]} replyContent={replyContent[comment._id || comment.id]} onReplyChange={handleReplyContentChange} onToggleReply={toggleReplyForm} onAddReply={handleAddReply} isAuthenticated={isAuthenticated} user={user} showReplyForm={showReplyForm} replyContentState={replyContent} expandedReplies={expandedReplies} onToggleExpandReplies={toggleExpandReplies} />
+            <CommentItem key={comment._id || comment.id} comment={comment} depth={0} isReplying={showReplyForm[comment._id || comment.id]} replyContent={replyContent[comment._id || comment.id]} onReplyChange={handleReplyContentChange} onToggleReply={toggleReplyForm} onAddReply={handleAddReply} isAuthenticated={isAuthenticated} user={user} showReplyForm={showReplyForm} replyContentState={replyContent} expandedReplies={expandedReplies} onToggleExpandReplies={toggleExpandReplies} isDummyDiscussion={isDummyDiscussion} />
           ))}
           
           {(!discussion.Comments || discussion.Comments.length === 0) && (

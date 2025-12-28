@@ -25,41 +25,28 @@ const GroupAnalytics = () => {
   const { user } = useAuthStore();
   const [dateRange, setDateRange] = useState('30');
 
-  // Fetch group details
-  const { data: group, isLoading: isLoadingGroup } = useQuery(
-    ['group', id],
-    () => api.get(`/groups/${id}`).then(res => res.data?.data || res.data || res),
+  // Fetch group analytics from backend
+  const { data: analyticsData, isLoading: isLoadingAnalytics } = useQuery(
+    ['group-analytics', id],
+    () => api.get(`/groups/${id}/analytics`).then(res => res.data?.data || res.data),
     { enabled: !!id }
   );
 
-  // Fetch group posts
-  const { data: posts, isLoading: isLoadingPosts } = useQuery(
-    ['group-posts', id],
-    () => api.get(`/groups/${id}/posts`).then(res => res.data?.data || res.data || []),
-    { enabled: !!id && !!group }
-  );
+  // Extract group and analytics from response
+  const group = analyticsData?.group;
+  const analytics = analyticsData?.metrics ? {
+    totalPosts: analyticsData.metrics.totalPosts || 0,
+    totalComments: analyticsData.metrics.totalComments || 0,
+    totalLikes: analyticsData.metrics.totalLikes || 0,
+    totalMembers: analyticsData.metrics.memberCount || 0,
+    engagementRate: analyticsData.metrics.engagementRate || 0,
+    topPosts: analyticsData.topPosts?.byLikes || [],
+    trends: analyticsData.trends || {}
+  } : null;
 
   // Check if user is group admin or member
-  const isGroupAdmin = group?.adminId?._id === user?._id || group?.adminId === user?._id;
-  const isMember = group?.members?.some(m => 
-    (typeof m === 'object' ? m.userId?._id || m.userId : m) === (user?._id || user?.id)
-  );
-
-  // Calculate analytics
-  const analytics = posts ? {
-    totalPosts: posts.length || 0,
-    totalComments: posts.reduce((sum, p) => sum + (p.comments?.length || 0), 0),
-    totalLikes: posts.reduce((sum, p) => sum + (p.likes?.length || 0), 0),
-    totalMembers: group?.members?.length || 0,
-    topPosts: [...(posts || [])]
-      .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
-      .slice(0, 5)
-      .map(p => ({
-        title: p.title || p.content?.substring(0, 50) || 'Untitled',
-        likes: p.likes?.length || 0,
-        comments: p.comments?.length || 0
-      }))
-  } : null;
+  const isGroupAdmin = group?.createdBy?._id === user?._id || group?.createdBy === user?._id;
+  const isMember = analyticsData?.group?.isPublic || isGroupAdmin;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -95,11 +82,11 @@ const GroupAnalytics = () => {
     },
   ];
 
-  if (isLoadingGroup) {
+  if (isLoadingAnalytics) {
     return <DetailSkeleton />;
   }
 
-  if (!group) {
+  if (!analyticsData || !group) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
         <EmptyState
@@ -174,7 +161,7 @@ const GroupAnalytics = () => {
       </div>
 
       {/* Stats Cards */}
-      {isLoadingPosts ? (
+      {isLoadingAnalytics ? (
         <DetailSkeleton />
       ) : (
         <>
@@ -203,24 +190,24 @@ const GroupAnalytics = () => {
           </div>
 
           {/* Top Posts */}
-          {analytics?.topPosts?.length > 0 && (
+          {analytics?.topPosts?.byLikes?.length > 0 && (
             <div className="card">
               <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-                Top Posts by Engagement
+                Top Posts by Likes
               </h2>
               <div className="space-y-3">
-                {analytics.topPosts.map((post, index) => (
+                {analytics.topPosts.byLikes.slice(0, 5).map((post, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-slate-800 dark:text-slate-200">
-                        {post.title}
+                        {post.content?.substring(0, 50) || 'Untitled Post'}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-slate-600 dark:text-slate-400">
                         <span className="flex items-center gap-1">
-                          <Heart size={14} /> {post.likes}
+                          <Heart size={14} /> {post.likes || 0}
                         </span>
                         <span className="flex items-center gap-1">
-                          <MessageSquare size={14} /> {post.comments}
+                          <MessageSquare size={14} /> {post.commentCount || 0}
                         </span>
                       </div>
                     </div>
@@ -231,20 +218,17 @@ const GroupAnalytics = () => {
           )}
 
           {/* Engagement Chart */}
-          {analytics?.topPosts?.length > 0 && (
+          {analytics?.trends?.postsOverTime?.length > 0 && (
             <div className="card">
               <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-                Top Posts Engagement
+                Posts Over Time
               </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={analytics.topPosts}>
+                <LineChart data={analytics.trends.postsOverTime}>
                   <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#052829' : '#e2e8f0'} />
                   <XAxis 
-                    dataKey="title" 
-                    tickFormatter={(value) => value.length > 15 ? value.substring(0, 15) + '...' : value}
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
+                    dataKey="date" 
+                    tickFormatter={formatDate}
                     stroke={theme === 'dark' ? '#64748b' : '#94a3b8'}
                     tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b' }}
                   />
@@ -261,16 +245,15 @@ const GroupAnalytics = () => {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="likes" fill="#ef4444" name="Likes" />
-                  <Bar dataKey="comments" fill="#3b82f6" name="Comments" />
-                </BarChart>
+                  <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name="Posts" />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}
         </>
       )}
 
-      {!isLoadingPosts && (!analytics || analytics.totalPosts === 0) && (
+      {!isLoadingAnalytics && (!analytics || analytics.totalPosts === 0) && (
         <EmptyState
           icon={MessageSquare}
           title="No posts yet"

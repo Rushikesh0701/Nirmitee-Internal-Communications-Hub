@@ -246,10 +246,22 @@ const getPostComments = async (req, res, next) => {
 const createComment = async (req, res, next) => {
   try {
     const { postId } = req.params;
+    
+    // Reject dummy IDs early
+    if (postId && typeof postId === 'string' && postId.startsWith('dummy-')) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cannot add comments to dummy posts. Please use a valid post.' 
+      });
+    }
+    
     const commentData = { ...req.body, postId };
     const comment = await groupService.createComment(commentData, req.userId);
     res.status(201).json({ success: true, data: comment });
   } catch (error) {
+    if (error.message.includes('dummy') || error.message.includes('Invalid postId')) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
     next(error);
   }
 };
@@ -284,6 +296,37 @@ const toggleCommentLike = async (req, res, next) => {
   }
 };
 
+const getGroupAnalytics = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Validate group ID
+    if (!id || id === 'undefined' || id === 'null') {
+      return res.status(400).json({ success: false, message: 'Invalid group ID' });
+    }
+
+    // Validate MongoDB ObjectId format
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid group ID format' });
+    }
+
+    const analytics = await groupService.getGroupAnalytics(id, req.userId);
+    res.json({ success: true, data: analytics });
+  } catch (error) {
+    if (error.message === 'Group not found' || error.message.includes('do not have access')) {
+      return res.status(error.message.includes('do not have access') ? 403 : 404).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+    if (error.message.includes('Invalid')) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getAllGroups,
   getGroupById,
@@ -301,6 +344,7 @@ module.exports = {
   createComment,
   updateComment,
   deleteComment,
-  toggleCommentLike
+  toggleCommentLike,
+  getGroupAnalytics
 };
 

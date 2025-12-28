@@ -12,6 +12,9 @@ export const recognitionRewardApi = {
   redeemReward: (rewardId) => api.post('/recognitions/redeem', { rewardId }),
 
   // Leaderboard
-  getLeaderboard: (params) => api.get('/recognitions/leaderboard', { params })
+  getLeaderboard: (params) => api.get('/recognitions/leaderboard', { params }),
+
+  // Monthly summary
+  getMonthlySummary: (params) => api.get('/recognitions/summary/monthly', { params })
 }
 
