@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { discussionAPI } from '../../services/discussionApi';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
@@ -84,8 +84,6 @@ CommentItem.displayName = 'CommentItem';
 const DiscussionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [discussion, setDiscussion] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [commentContent, setCommentContent] = useState('');
   const [replyContent, setReplyContent] = useState({});
   const [showReplyForm, setShowReplyForm] = useState({});
@@ -95,22 +93,23 @@ const DiscussionDetail = () => {
   const queryClient = useQueryClient();
   const { startCommentPosting, endCommentPosting, isAnyCommentPosting } = useCreationStore();
 
-  const fetchDiscussion = useCallback(async () => {
-    if (!id || id === 'undefined') { setLoading(false); return; }
-    try {
-      setLoading(true);
-      const response = await discussionAPI.getById(id);
-      const apiResponse = response.data;
-      setDiscussion(apiResponse.data || apiResponse);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch discussion');
-      navigate('/discussions');
-    } finally {
-      setLoading(false);
+  // Use React Query for automatic cache management and refetching
+  const { data: discussion, isLoading: loading, refetch } = useQuery(
+    ['discussion', id],
+    () => discussionAPI.getById(id).then((res) => {
+      const apiResponse = res.data;
+      return apiResponse.data || apiResponse;
+    }),
+    {
+      enabled: !!id && id !== 'undefined' && id !== 'new',
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to fetch discussion');
+        navigate('/discussions');
+      },
+      staleTime: 0, // Always refetch when invalidated
+      cacheTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     }
-  }, [id, navigate]);
-
-  useEffect(() => { fetchDiscussion(); }, [fetchDiscussion]);
+  );
 
   const deleteMutation = useMutation(() => discussionAPI.delete(id), {
     onSuccess: async () => { toast.success('Discussion deleted'); await queryClient.invalidateQueries(['discussions']); navigate('/discussions'); },
@@ -156,7 +155,11 @@ const DiscussionDetail = () => {
     try {
       const response = await discussionAPI.addComment(id, { content: commentContent });
       const newComment = response.data.data || response.data;
-      setDiscussion((prev) => ({ ...prev, Comments: [...(prev.Comments || []), newComment] }));
+      // Update the cache with the new comment
+      queryClient.setQueryData(['discussion', id], (oldData) => {
+        if (!oldData) return oldData;
+        return { ...oldData, Comments: [...(oldData.Comments || []), newComment] };
+      });
       setCommentContent('');
       endCommentPosting();
       toast.success('Comment added!');
@@ -168,7 +171,8 @@ const DiscussionDetail = () => {
         // Don't refetch if it's a dummy discussion error
         return;
       }
-      fetchDiscussion();
+      // Refetch to get latest data
+      refetch();
     }
   };
 
@@ -184,7 +188,11 @@ const DiscussionDetail = () => {
     try {
       const response = await discussionAPI.addComment(id, { content: replyText.trim(), parentCommentId: String(parentCommentId) });
       const newReply = response.data.data || response.data;
-      setDiscussion((prev) => ({ ...prev, Comments: [...(prev.Comments || []), newReply] }));
+      // Update the cache with the new reply
+      queryClient.setQueryData(['discussion', id], (oldData) => {
+        if (!oldData) return oldData;
+        return { ...oldData, Comments: [...(oldData.Comments || []), newReply] };
+      });
       setReplyContent((prev) => { const n = { ...prev }; delete n[parentCommentId]; return n; });
       setShowReplyForm((prev) => ({ ...prev, [parentCommentId]: false }));
       endCommentPosting();
@@ -197,7 +205,8 @@ const DiscussionDetail = () => {
         // Don't refetch if it's a dummy discussion error
         return;
       }
-      fetchDiscussion();
+      // Refetch to get latest data
+      refetch();
     }
   };
 

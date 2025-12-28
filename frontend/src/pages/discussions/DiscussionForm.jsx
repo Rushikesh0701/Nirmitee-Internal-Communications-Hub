@@ -15,7 +15,8 @@ const DiscussionForm = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user } = useAuthStore()
-  const isEdit = !!id
+  // Only edit mode if id exists and is not 'new'
+  const isEdit = !!id && id !== 'new' && id !== 'undefined'
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     defaultValues: {
@@ -28,11 +29,11 @@ const DiscussionForm = () => {
     }
   })
 
-  // Load existing discussion if editing
+  // Load existing discussion if editing (skip if id is 'new')
   const { data: discussion, isLoading } = useQuery(
     ['discussion', id],
     () => api.get(`/discussions/${id}`).then((res) => res.data.data),
-    { enabled: isEdit }
+    { enabled: isEdit && id !== 'new' && id !== 'undefined' }
   )
 
   useEffect(() => {
@@ -93,9 +94,11 @@ const DiscussionForm = () => {
     {
       onSuccess: async () => {
         toast.success('Discussion updated successfully')
-        await queryClient.invalidateQueries(['discussions'])
-        await queryClient.invalidateQueries(['discussion', id])
-        navigate('/discussions')
+        // Invalidate and refetch all related queries
+        await queryClient.invalidateQueries(['discussions'], { refetchActive: true })
+        await queryClient.invalidateQueries(['discussion', id], { refetchActive: true })
+        // Navigate back to the discussion detail page to see updated data
+        navigate(`/discussions/${id}`)
       },
       onError: (error) => {
         const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to update discussion'

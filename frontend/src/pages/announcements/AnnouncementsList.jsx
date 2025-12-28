@@ -188,17 +188,17 @@ const AnnouncementsList = () => {
       {isLoading && !data ? (
         <CardSkeleton count={6} />
       ) : (
-        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" variants={containerVariants}>
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch" variants={containerVariants}>
           {announcements.map((announcement, index) => (
-          <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-            <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
+          <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }} className="h-full">
+            <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden h-full flex flex-col">
               {announcement.image && (
-                <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
+                <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg flex-shrink-0">
                   <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#ff4701]/30 to-transparent" />
                 </div>
               )}
-              <div className="space-y-1.5">
+              <div className="flex flex-col flex-1 space-y-1.5">
                 {announcement.tags?.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {announcement.tags.slice(0, 3).map((tag, idx) => (
@@ -213,12 +213,12 @@ const AnnouncementsList = () => {
                 }`}>
                   {announcement.title}
                 </h3>
-                <p className={`text-sm line-clamp-2 transition-colors ${
+                <p className={`text-sm line-clamp-2 transition-colors flex-1 ${
                   theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
                 }`}>
                   {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...
                 </p>
-                <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors ${
+                <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors mt-auto ${
                   theme === 'dark'
                     ? 'text-slate-500 border-[#0a3a3c]/50'
                     : 'text-slate-400 border-slate-100'

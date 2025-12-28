@@ -49,9 +49,9 @@ const Discussions = () => {
     },
     {
       keepPreviousData: true,
-      staleTime: 3 * 60 * 1000, // 3 minutes - data stays fresh for 3 minutes
-      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
-      refetchOnMount: false,
+      staleTime: 0, // Always refetch when invalidated
+      cacheTime: 5 * 60 * 1000, // 5 minutes - keep in cache
+      refetchOnMount: true, // Refetch when component mounts
       refetchOnWindowFocus: false,
       onError: (error) => {
         toast.error(error.response?.data?.message || 'Failed to fetch discussions');
