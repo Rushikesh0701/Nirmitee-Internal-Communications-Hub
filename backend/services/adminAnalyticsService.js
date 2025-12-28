@@ -129,7 +129,21 @@ const getEngagementMetrics = async (range = 'daily') => {
     { $sort: sortStage }
   ]);
 
+  // Combine all engagement data into a single time series
+  // Merge all dates and sum counts
+  const dateMap = new Map();
+  
+  [...recognitionData, ...surveyResponseData, ...enrollmentData].forEach(item => {
+    const existing = dateMap.get(item.date) || 0;
+    dateMap.set(item.date, existing + item.count);
+  });
+  
+  const timeSeries = Array.from(dateMap.entries())
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
   return {
+    timeSeries,
     recognitions: recognitionData,
     surveyResponses: surveyResponseData,
     enrollments: enrollmentData
@@ -164,16 +178,31 @@ const getSurveyAnalytics = async () => {
   const totalResponses = await SurveyResponse.countDocuments();
   const activeSurveys = await SurveyModel.countDocuments({ status: 'ACTIVE' });
 
+  // Calculate average response rate
+  const averageResponseRate = surveys.length > 0
+    ? (totalResponses / surveys.length)
+    : 0;
+
   return {
     totalSurveys: surveys.length,
     activeSurveys,
     totalResponses,
+    averageResponseRate,
     surveys: surveys.map(s => ({
       id: s.id,
       title: s.title,
       status: s.status,
       responseCount: s.responseCount || 0
-    }))
+    })),
+    topSurveys: surveys
+      .sort((a, b) => (b.responseCount || 0) - (a.responseCount || 0))
+      .slice(0, 10)
+      .map(s => ({
+        id: s.id,
+        title: s.title,
+        status: s.status,
+        responseCount: s.responseCount || 0
+      }))
   };
 };
 
@@ -210,14 +239,18 @@ const getRecognitionAnalytics = async () => {
     { $unwind: '$receiver' },
     {
       $project: {
-        receiver: {
+        user: {
+          _id: '$receiver._id',
           id: '$receiver._id',
-          name: '$receiver.name',
+          firstName: '$receiver.firstName',
+          lastName: '$receiver.lastName',
+          name: { $concat: ['$receiver.firstName', ' ', '$receiver.lastName'] },
           email: '$receiver.email',
           avatar: '$receiver.avatar'
         },
-        count: 1,
-        totalPoints: 1
+        recognitionCount: '$count',
+        totalPoints: '$totalPoints',
+        count: 1
       }
     }
   ]);
@@ -249,8 +282,8 @@ const getRecognitionAnalytics = async () => {
     totalRecognitions,
     totalPointsAwarded,
     topReceivers: topReceivers.map(r => ({
-      user: r.receiver,
-      recognitionCount: r.count,
+      user: r.user || r.receiver,
+      recognitionCount: r.recognitionCount || r.count,
       totalPoints: r.totalPoints || 0
     })),
     badgeDistribution
@@ -380,6 +413,8 @@ const getMAU = async () => {
   });
 
   return {
+    currentMonth: mau,
+    previousMonth: previousMAU,
     current: mau,
     previous: previousMAU,
     change: mau - previousMAU,
@@ -419,7 +454,126 @@ const getPostsAndCommentsCount = async () => {
     const totalComments = totalGroupComments + totalDiscussionComments + totalBlogComments;
     const commentsThisMonth = groupCommentsThisMonth + discussionCommentsThisMonth + blogCommentsThisMonth;
 
+    // Generate time series data for posts and comments (last 30 days)
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    const [postsTimeSeries, discussionsTimeSeries, groupCommentsTimeSeries, discussionCommentsTimeSeries, blogCommentsTimeSeries] = await Promise.all([
+      GroupPost.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      Discussion.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      GroupComment.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      DiscussionComment.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      BlogComment.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ])
+    ]);
+
+    // Merge time series data
+    const dateMap = new Map();
+    
+    postsTimeSeries.forEach(item => {
+      const existing = dateMap.get(item._id) || { posts: 0, comments: 0 };
+      existing.posts = (existing.posts || 0) + item.count;
+      dateMap.set(item._id, existing);
+    });
+
+    discussionsTimeSeries.forEach(item => {
+      const existing = dateMap.get(item._id) || { posts: 0, comments: 0 };
+      existing.posts = (existing.posts || 0) + item.count;
+      dateMap.set(item._id, existing);
+    });
+
+    groupCommentsTimeSeries.forEach(item => {
+      const existing = dateMap.get(item._id) || { posts: 0, comments: 0 };
+      existing.comments = (existing.comments || 0) + item.count;
+      dateMap.set(item._id, existing);
+    });
+
+    discussionCommentsTimeSeries.forEach(item => {
+      const existing = dateMap.get(item._id) || { posts: 0, comments: 0 };
+      existing.comments = (existing.comments || 0) + item.count;
+      dateMap.set(item._id, existing);
+    });
+
+    blogCommentsTimeSeries.forEach(item => {
+      const existing = dateMap.get(item._id) || { posts: 0, comments: 0 };
+      existing.comments = (existing.comments || 0) + item.count;
+      dateMap.set(item._id, existing);
+    });
+
+    const timeSeries = Array.from(dateMap.entries())
+      .map(([date, data]) => ({ 
+        date, 
+        posts: data.posts || 0, 
+        comments: data.comments || 0 
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
     return {
+      totalPosts,
+      totalComments,
       posts: {
         total: totalPosts,
         thisMonth: postsThisMonth,
@@ -432,7 +586,8 @@ const getPostsAndCommentsCount = async () => {
         groupComments: totalGroupComments,
         discussionComments: totalDiscussionComments,
         blogComments: totalBlogComments
-      }
+      },
+      timeSeries
     };
   } catch (error) {
     // Return placeholder on error
