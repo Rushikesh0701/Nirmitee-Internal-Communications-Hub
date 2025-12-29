@@ -7,6 +7,8 @@ import { useAuthStore } from './store/authStore'
 import Layout from './layouts/Layout'
 import AuthLayout from './layouts/AuthLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
+import RootRedirect from './components/RootRedirect'
 import AdminRoute from './components/AdminRoute'
 import AnnouncementNotification from './components/AnnouncementNotification'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -71,9 +73,11 @@ function App() {
                 key={path} 
                 path={path} 
                 element={
-                  <Suspense fallback={<AuthSuspenseFallback />}>
-                    <Component />
-                  </Suspense>
+                  <PublicRoute>
+                    <Suspense fallback={<AuthSuspenseFallback />}>
+                      <Component />
+                    </Suspense>
+                  </PublicRoute>
                 } 
               />
             ))}
@@ -98,7 +102,7 @@ function App() {
             })}
           </Route>
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<RootRedirect />} />
         </Routes>
         <Toaster 
           position="top-right"
