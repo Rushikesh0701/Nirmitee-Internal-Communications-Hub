@@ -136,3 +136,4 @@ export const printAsPDF = (element, title = 'Document') => {
   printWindow.print();
 };
 
+
