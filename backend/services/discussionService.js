@@ -3,7 +3,7 @@ const notificationService = require('./notificationService');
 const logger = require('../utils/logger');
 
 const getAllDiscussions = async (options = {}) => {
-  const { page = 1, limit = 10, category, tag, pinned } = options;
+  const { page = 1, limit = 10, category, tag, pinned, search } = options;
   const skip = (page - 1) * limit;
 
   const query = {};
@@ -12,6 +12,15 @@ const getAllDiscussions = async (options = {}) => {
     query.tags = { $in: [tag] };
   }
   if (pinned !== undefined) query.isPinned = pinned;
+  
+  // Full-text search in title and content
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), 'i');
+    query.$or = [
+      { title: { $regex: searchRegex } },
+      { content: { $regex: searchRegex } }
+    ];
+  }
 
   const [discussions, total] = await Promise.all([
     Discussion.find(query)
@@ -34,6 +43,13 @@ const getAllDiscussions = async (options = {}) => {
 };
 
 const getDiscussionById = async (id, userId) => {
+  const mongoose = require('mongoose');
+  
+  // Validate ObjectId format
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error('Invalid discussion ID format');
+  }
+
   const discussion = await Discussion.findById(id)
     .populate('authorId', 'firstName lastName email avatar');
 
@@ -41,11 +57,21 @@ const getDiscussionById = async (id, userId) => {
     throw new Error('Discussion not found');
   }
 
-  // Get comments separately
-  const comments = await DiscussionComment.find({ discussionId: id })
-    .populate('authorId', 'firstName lastName email avatar')
-    .populate('parentCommentId', 'content authorId')
-    .sort({ createdAt: 1 });
+  // Get comments separately (only if id is a valid ObjectId)
+  let comments = [];
+  try {
+    comments = await DiscussionComment.find({ discussionId: id })
+      .populate('authorId', 'firstName lastName email avatar')
+      .populate('parentCommentId', 'content authorId')
+      .sort({ createdAt: 1 });
+  } catch (error) {
+    // If query fails due to invalid ID format, return empty comments array
+    if (error.name === 'CastError') {
+      comments = [];
+    } else {
+      throw error;
+    }
+  }
 
   // Convert to object and add comments
   const discussionObj = discussion.toObject();
@@ -169,6 +195,27 @@ const addComment = async (commentData) => {
     commentData.authorId = new mongoose.Types.ObjectId(commentData.authorId);
   }
 
+  // Validate discussionId is a valid MongoDB ObjectId
+  if (!commentData.discussionId) {
+    throw new Error('discussionId is required');
+  }
+
+  // Ensure discussionId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(commentData.discussionId)) {
+    throw new Error('Invalid discussionId format. Must be a valid MongoDB ObjectId.');
+  }
+
+  // Convert to ObjectId if it's a string
+  if (typeof commentData.discussionId === 'string') {
+    commentData.discussionId = new mongoose.Types.ObjectId(commentData.discussionId);
+  }
+
+  // Verify discussion exists
+  const discussion = await Discussion.findById(commentData.discussionId);
+  if (!discussion) {
+    throw new Error('Discussion not found');
+  }
+
   // Handle parentCommentId if provided (for replies)
   if (commentData.parentCommentId) {
     // Validate parentCommentId is a valid ObjectId
@@ -229,11 +276,177 @@ const addComment = async (commentData) => {
     .populate('parentCommentId', 'content authorId');
 };
 
+const getAllTags = async () => {
+  try {
+    // Get all unique tags from all discussions
+    const tags = await Discussion.distinct('tags');
+    // Filter out null/undefined/empty tags and sort
+    return tags.filter(tag => tag && tag.trim()).sort();
+  } catch (error) {
+    logger.error('Error fetching discussion tags', { error });
+    throw error;
+  }
+};
+
+/**
+ * Get analytics for all discussions
+ */
+const getDiscussionAnalytics = async () => {
+  const mongoose = require('mongoose');
+
+  // Get total discussions count
+  const totalDiscussions = await Discussion.countDocuments();
+
+  // Get total comments count
+  const totalComments = await DiscussionComment.countDocuments();
+
+  // Get total views (sum of all discussion views)
+  const viewsAggregation = await Discussion.aggregate([
+    { $group: { _id: null, totalViews: { $sum: '$views' } } }
+  ]);
+  const totalViews = viewsAggregation.length > 0 ? viewsAggregation[0].totalViews : 0;
+
+  // Calculate average engagement
+  const averageEngagement = totalDiscussions > 0
+    ? ((totalViews + totalComments) / totalDiscussions).toFixed(2)
+    : 0;
+
+  // Get discussions over time (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const discussionsOverTime = await Discussion.aggregate([
+    { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get comments over time
+  const commentsOverTime = await DiscussionComment.aggregate([
+    { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get top discussions by views
+  const topDiscussionsByViews = await Discussion.find()
+    .select('title views commentCount authorId category tags createdAt')
+    .populate('authorId', 'firstName lastName email')
+    .sort({ views: -1 })
+    .limit(5)
+    .lean();
+
+  // Get top discussions by comments
+  const topDiscussionsByComments = await Discussion.find()
+    .select('title views commentCount authorId category tags createdAt')
+    .populate('authorId', 'firstName lastName email')
+    .sort({ commentCount: -1 })
+    .limit(5)
+    .lean();
+
+  // Get category distribution
+  const categoryDistribution = await Discussion.aggregate([
+    {
+      $group: {
+        _id: '$category',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    {
+      $project: {
+        category: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get most active commenters
+  const topCommenters = await DiscussionComment.aggregate([
+    {
+      $group: {
+        _id: '$authorId',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        commentCount: '$count',
+        _id: 0
+      }
+    }
+  ]);
+
+  return {
+    overview: {
+      totalDiscussions,
+      totalComments,
+      totalViews,
+      averageEngagement: parseFloat(averageEngagement)
+    },
+    trends: {
+      discussionsOverTime,
+      commentsOverTime
+    },
+    topDiscussions: {
+      byViews: topDiscussionsByViews,
+      byComments: topDiscussionsByComments
+    },
+    categoryDistribution,
+    topCommenters
+  };
+};
+
 module.exports = {
   getAllDiscussions,
   getDiscussionById,
   createDiscussion,
   updateDiscussion,
   deleteDiscussion,
-  addComment
+  addComment,
+  getAllTags,
+  getDiscussionAnalytics
 };

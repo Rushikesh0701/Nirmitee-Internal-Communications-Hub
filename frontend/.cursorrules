@@ -1,0 +1,514 @@
+# Cursor Rules — Frontend Development (Enhanced)
+
+## 🔴 PRIMARY DIRECTIVE (NON-NEGOTIABLE)
+
+**`agent.md` is the absolute source of truth.**
+
+- Every task, decision, implementation, and review must strictly follow `agent.md`.
+- If any instruction conflicts with `agent.md`, `agent.md` always wins.
+- When uncertain, pause and re-check `agent.md` before proceeding.
+- No exceptions. No shortcuts. No interpretations.
+
+**ALWAYS and STRICTLY follow `agent.md` for every task and decision. `agent.md` overrides any other guidance.**
+
+- Prioritize instructions in `agent.md` for all code changes and reviews without exception.
+- When in doubt, refer to `agent.md` first before making any coding decisions.
+- All code must conform to the patterns and practices defined in `agent.md`.
+
+## 📋 MANDATORY FILE REFERENCES
+
+**Before starting ANY task, you MUST:**
+1. Read and understand `agent.md` (located at `frontend/agent.md`)
+2. Review this `.cursorrules` file
+3. Ensure all code follows both documents strictly
+
+**These files are located at:**
+- `frontend/agent.md` - Complete frontend coding guide
+- `frontend/.cursorrules` - This file (Cursor enforcement rules)
+- `frontend/.agent` - Agent configuration file
+
+**Cursor AI MUST reference these files for every frontend development task.**
+
+---
+
+## 🧠 Guiding Philosophy
+
+- **Consistency beats cleverness**
+- **Permanent fixes only**
+- **Thin components, strong hooks/services**
+- **Type safety over speed**
+- **Predictability over flexibility**
+- **If code is easy to guess, it's correct.**
+- **Component size limit: 300 lines maximum per file**
+
+---
+
+## 1️⃣ Core Engineering Principles
+
+### TypeScript First
+
+- All code must be written in TypeScript.
+- `strict: true` is assumed and enforced.
+- Avoid `any`. If unavoidable, document why and where.
+- No untyped objects, `any`, or implicit `unknown` — strict typing always.
+
+### Component Size Limit
+
+- ❌ **No component file exceeding 300 lines**
+- ✅ **Split large components** into smaller, focused components
+- ✅ **Extract logic** into custom hooks
+- ✅ **Move complex logic** to services or utilities
+
+### Pattern Consistency
+
+Every feature must follow the module pattern:
+
+```
+<feature>/
+ ├─ <Feature>.tsx          # Main component (max 300 lines)
+ ├─ <Feature>.types.ts     # TypeScript types
+ ├─ <Feature>.hooks.ts     # Custom hooks (if needed)
+ ├─ <Feature>.utils.ts    # Feature-specific utilities (if needed)
+ └─ components/           # Sub-components (if needed)
+    └─ <SubComponent>.tsx
+```
+
+- No deviations without explicit documentation and justification.
+- If code is easy to guess, it's correct.
+
+---
+
+## 2️⃣ Environment & Configuration
+
+### Single Source of Truth: `src/config/env.ts`
+
+**Environment variables:**
+- ✅ Validated with Zod (or manual validation)
+- ✅ Mirrored in `.env.example`
+- ❌ **Never read from `process.env` directly**
+- ✅ **Always use `env` or `appConfig`**
+
+### Env Discipline
+
+`src/config/env.ts` **must**:
+
+1. **Validate every env var** with proper error messages
+2. **Fail fast on boot** if invalid or missing (show clear error)
+3. **Export two interfaces**:
+   - `env` → raw validated values (for direct access when needed)
+   - `appConfig` → derived, runtime-safe config (preferred)
+
+```typescript
+// ❌ NEVER
+const apiUrl = process.env.REACT_APP_API_URL;
+
+// ✅ ALWAYS
+import { env, appConfig } from '../config/env';
+const apiUrl = env.REACT_APP_API_URL;
+```
+
+---
+
+## 3️⃣ Component Architecture
+
+### Component Structure (Strict)
+
+Every component **must** follow this structure:
+
+```typescript
+// 1. Imports (external → internal → types)
+import React from 'react';
+import { Box, Button } from '@mui/material';
+import { useFeatureHook } from '../hooks/useFeatureHook';
+import type { ComponentProps } from './Component.types';
+
+// 2. Types/Interfaces
+interface ComponentProps {
+  // ...
+}
+
+// 3. Component
+export const Component: React.FC<ComponentProps> = ({ prop1, prop2 }) => {
+  // 4. Hooks (in order: state → effects → callbacks → derived)
+  const [state, setState] = React.useState();
+  React.useEffect(() => {}, []);
+  const handleClick = () => {};
+  const derivedValue = useMemo(() => {}, []);
+
+  // 5. Early returns (if any)
+  if (!prop1) return null;
+
+  // 6. Render
+  return (
+    <Box>
+      {/* JSX */}
+    </Box>
+  );
+};
+
+// 7. Default props (if needed)
+Component.defaultProps = {
+  // ...
+};
+```
+
+### Component Rules
+
+**Components do**:
+- Render UI based on props and state
+- Use hooks for state management and side effects
+- Call services for data fetching
+- Handle user interactions
+
+**Components do NOT**:
+- ❌ **No business logic** — move to hooks or services
+- ❌ **No direct API calls** — use services
+- ❌ **No complex calculations** — extract to utilities or hooks
+- ❌ **No inline styles** — use Material UI `sx` prop or styled components
+- ❌ **No console.log/console.error** — use proper error handling
+- ❌ **No files over 300 lines** — split into smaller components
+
+**Component rule of thumb**: If it needs a comment explaining what it does → it's too complex.
+
+---
+
+## 4️⃣ Hooks & State Management
+
+### Custom Hooks
+
+**Location**: `src/hooks/` or feature-specific `hooks.ts`
+
+**Naming**: `use<FeatureName>` (e.g., `useAuth`, `useUserData`)
+
+**Rules**:
+- ✅ **Single responsibility** — one hook does one thing
+- ✅ **Reusable** — extract shared logic
+- ✅ **Type-safe** — explicit return types
+- ❌ **No side effects in render** — use `useEffect`
+- ❌ **No business logic in components** — move to hooks
+
+```typescript
+// ✅ CORRECT
+export const useUserData = (userId: string): { user: User | null; loading: boolean; error: Error | null } => {
+  const [user, setUser] = React.useState<User | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    userService.getUser(userId)
+      .then(setUser)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  return { user, loading, error };
+};
+
+// ❌ WRONG
+export const useUserData = (userId: any): any => {
+  // No types, implicit any
+};
+```
+
+### State Management
+
+**Prefer**:
+- ✅ **React hooks** (`useState`, `useReducer`) for local state
+- ✅ **Context API** for shared state (auth, theme, etc.)
+- ✅ **Custom hooks** for complex state logic
+
+**Avoid**:
+- ❌ **Prop drilling** — use Context for deeply nested props
+- ❌ **Global state for local concerns** — keep state local when possible
+- ❌ **Unnecessary re-renders** — use `React.memo`, `useMemo`, `useCallback` appropriately
+
+---
+
+## 5️⃣ Services & API Calls
+
+### Service Layer
+
+**Location**: `src/services/`
+
+**Pattern**:
+- One service per domain (e.g., `userService.ts`, `authService.ts`)
+- All API calls go through services
+- Services handle error transformation
+
+**Rules**:
+- ✅ **Type-safe** — explicit request/response types
+- ✅ **Error handling** — transform API errors to app errors
+- ✅ **No UI logic** — services are pure data layer
+- ❌ **No React hooks in services** — services are plain functions
+
+```typescript
+// ✅ CORRECT
+export interface GetUserResponse {
+  user: User;
+}
+
+export const userService = {
+  getUser: async (id: string): Promise<User> => {
+    const response = await api.get<GetUserResponse>(`/users/${id}`);
+    return response.data.user;
+  },
+};
+
+// ❌ WRONG
+export const userService = {
+  getUser: async (id: any) => {
+    // No types, direct fetch in component
+  },
+};
+```
+
+### API Client
+
+**Location**: `src/services/api.ts`
+
+**Must include**:
+- Base URL configuration
+- Request/response interceptors
+- Error handling
+- Authentication headers (if needed)
+
+---
+
+## 6️⃣ Routing & Navigation
+
+### Route Structure
+
+```
+/                → Home page
+/<feature>       → Feature pages
+/<feature>/:id   → Feature detail pages
+```
+
+**Rules**:
+- ✅ **Use React Router** for navigation
+- ✅ **Lazy load routes** — use `React.lazy` for code splitting
+- ✅ **Protected routes** — use route guards for auth
+- ❌ **No hardcoded URLs** — use route constants
+- ❌ **No navigation logic in components** — use hooks or utilities
+
+### Route Guards
+
+**Pattern**:
+```typescript
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  return <>{children}</>;
+};
+```
+
+---
+
+## 7️⃣ Material UI & Styling
+
+### Material UI Rules
+
+- ✅ **Use Material UI components** — don't reinvent the wheel
+- ✅ **Use `sx` prop** for styling — consistent with MUI theme
+- ✅ **Use theme** for colors, spacing, typography
+- ❌ **No inline styles** — use `sx` or styled components
+- ❌ **No custom CSS files** unless absolutely necessary
+- ❌ **No hardcoded colors** — use theme palette
+
+```typescript
+// ✅ CORRECT
+<Box sx={{ p: 2, bgcolor: 'primary.main' }}>
+  <Typography variant="h6">Title</Typography>
+</Box>
+
+// ❌ WRONG
+<div style={{ padding: '16px', backgroundColor: '#1976d2' }}>
+  <h6>Title</h6>
+</div>
+```
+
+### Theme Configuration
+
+**Location**: `src/theme/theme.ts`
+
+**Must include**:
+- Color palette
+- Typography settings
+- Spacing
+- Component overrides (if needed)
+
+---
+
+## 8️⃣ Error Handling & Loading States
+
+### Error Handling
+
+**Pattern**:
+- ✅ **Error boundaries** for component tree errors
+- ✅ **Try-catch in async operations** (services, hooks)
+- ✅ **User-friendly error messages** — never expose stack traces
+- ❌ **No silent failures** — always show error state
+- ❌ **No generic errors** — specific error messages
+
+```typescript
+// ✅ CORRECT
+const { data, error, loading } = useQuery();
+
+if (error) {
+  return <ErrorDisplay message={error.message} />;
+}
+
+// ❌ WRONG
+try {
+  // ...
+} catch (e) {
+  // Silent failure
+}
+```
+
+### Loading States
+
+**Rules**:
+- ✅ **Always show loading state** for async operations
+- ✅ **Use Material UI loading components** (CircularProgress, Skeleton)
+- ✅ **Optimistic updates** when appropriate
+- ❌ **No blank screens** during loading
+
+---
+
+## 9️⃣ Type Safety (Zero `any` Tolerance)
+
+### TypeScript Configuration
+
+- **`strict: true` always** — no exceptions
+- **No implicit `any`** — all types must be explicit
+- **No `any` types** — use `unknown` if type is truly unknown, then narrow it
+
+### Type Rules
+
+- **No implicit return types** for public functions — always explicit
+- **Shared types** → `src/types/` directory
+- **Component-specific types** → `<Component>.types.ts`
+- **If TS can't prove it** → refactor until it can
+
+### Type Patterns
+
+```typescript
+// ✅ CORRECT
+export interface UserProps {
+  id: string;
+  name: string;
+}
+
+export const User: React.FC<UserProps> = ({ id, name }) => {
+  // ...
+};
+
+// ❌ WRONG
+export const User = ({ id, name }: any) => {
+  // ...
+};
+```
+
+---
+
+## 🔟 Code Quality Standards
+
+1. **Type Safety**: All functions must have proper TypeScript types. Avoid `any` unless absolutely necessary.
+2. **Error Handling**: All errors must be properly typed and handled.
+3. **Component Size**: No component file exceeding 300 lines.
+4. **Testing**: Write tests for critical components (minimum manual testing).
+5. **Linting**: Code must pass `npm run lint` before completion.
+6. **Documentation**: Document complex logic and non-obvious decisions.
+
+---
+
+## 1️⃣1️⃣ When Making Any Change
+
+**Always follow this checklist:**
+
+1. **Re-check `agent.md`** — Ensure the change aligns with established patterns
+2. **Confirm pattern alignment** — Verify it follows component pattern
+3. **Check component size** — Ensure no file exceeds 300 lines
+4. **Run linting** — `npm run lint` must pass
+5. **Type checking** — `tsc --noEmit` must pass
+6. **Manually test** — Verify the change works as expected
+7. **Add comments for non-obvious logic** — Document complex decisions
+
+**Skipping steps is not acceptable.**
+
+---
+
+## 🚫 Prohibited Practices (Zero Tolerance)
+
+- ❌ **Direct `process.env` access** (use `env`/`appConfig` from `src/config/env.ts`)
+- ❌ **`console.log` or `console.error`** (use proper error handling)
+- ❌ **Temporary patches or workarounds** (implement permanent fixes)
+- ❌ **Component files over 300 lines** (split into smaller components)
+- ❌ **Skipping error handling or type checking**
+- ❌ **Using `any` type without justification**
+- ❌ **Bypassing established patterns without good reason**
+- ❌ **No business logic in components** — move to hooks or services
+- ❌ **No untyped objects, `any`, or implicit `unknown`** — strict typing always
+- ❌ **No silent failures, swallowed errors, or fallback defaults** — fail loudly
+- ❌ **No temporary hacks, TODOs, or "quick fixes"** — permanent solutions only
+- ❌ **No inline styles** — use Material UI `sx` prop
+- ❌ **"Just this once" solutions**
+
+**Enforcement**: If a rule is violated → PR must be rejected.
+
+---
+
+## 🛡 Enforcement & Reviews
+
+- All code reviews must verify compliance with `agent.md`
+- Any deviation from `agent.md` must be justified and documented
+- Refactor code that doesn't follow these patterns
+- Update `agent.md` if patterns need to evolve (with proper documentation)
+
+**Every PR must be validated against `agent.md`**
+
+**Non-compliant code must be refactored**
+
+**Deviations require**:
+- Clear justification
+- Explicit documentation
+
+**If patterns evolve**:
+- Update `agent.md`
+- Document the rationale
+
+---
+
+## 📋 Final Rule
+
+**If it's not aligned with `agent.md`, it doesn't ship.**
+
+---
+
+## 🔄 Code Structure Requirements
+
+### File Organization
+- `src/config/env.ts` - Environment configuration
+- `src/components/` - Reusable components
+- `src/pages/` - Page components
+- `src/services/` - API services
+- `src/hooks/` - Custom React hooks
+- `src/layouts/` - Layout components
+- `src/context/` - React context providers
+- `src/types/` - Shared TypeScript types
+- `src/utils/` - Shared utilities
+- `src/theme/` - Material UI theme configuration
+
+### Component Pattern
+Every component must:
+- Be in its own file
+- Not exceed 300 lines
+- Have explicit TypeScript types
+- Follow the component structure pattern
+- Extract complex logic to hooks or services
+

@@ -6,7 +6,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const CourseForm = () => {
   const { id } = useParams()
@@ -46,7 +46,7 @@ const CourseForm = () => {
     {
       onSuccess: async () => {
         toast.success('Course created successfully')
-        await queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries(['courses'])
         navigate('/learning')
       },
       onError: (error) => {
@@ -60,7 +60,7 @@ const CourseForm = () => {
     {
       onSuccess: async () => {
         toast.success('Course updated successfully')
-        await queryClient.invalidateQueries('courses')
+        await queryClient.invalidateQueries(['courses'])
         await queryClient.invalidateQueries(['course', id])
         navigate('/learning')
       },
@@ -87,58 +87,58 @@ const CourseForm = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Link
         to="/learning"
-        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-4"
       >
         <ArrowLeft size={18} />
-        Back to Learning
+        <span className="font-medium">Back to Learning</span>
       </Link>
 
-      <div className="card">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="card p-4">
+        <h1 className="text-h1 text-slate-800 mb-4">
           {isEdit ? 'Edit Course' : 'Create New Course'}
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               {...register('title', { required: 'Title is required' })}
-              className="input"
+              className="input text-caption py-2"
               placeholder="Enter course title"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-caption text-red-600">{errors.title.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Description
             </label>
             <textarea
               {...register('description')}
-              rows={6}
-              className="input"
+              rows={5}
+              className="input text-caption py-2 resize-y"
               placeholder="Describe the course content and objectives"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                 Difficulty
               </label>
-              <select {...register('difficulty')} className="input">
+              <select {...register('difficulty')} className="input text-caption py-2">
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
@@ -146,13 +146,13 @@ const CourseForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
                 Duration (hours)
               </label>
               <input
                 type="number"
                 {...register('duration')}
-                className="input"
+                className="input text-caption py-2"
                 placeholder="e.g., 10"
                 min="0"
               />
@@ -160,20 +160,20 @@ const CourseForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
               Thumbnail URL
             </label>
             <input
               type="url"
               {...register('thumbnail')}
-              className="input"
+              className="input text-caption py-2"
               placeholder="https://example.com/image.jpg"
             />
             {watch('thumbnail') && (
               <img
                 src={watch('thumbnail')}
                 alt="Preview"
-                className="mt-2 w-full h-48 object-cover rounded-lg border"
+                className="mt-3 w-full h-48 object-cover rounded-lg border border-slate-200"
                 onError={(e) => {
                   e.target.style.display = 'none'
                 }}
@@ -181,13 +181,13 @@ const CourseForm = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
             <button
               type="submit"
               disabled={createMutation.isLoading || updateMutation.isLoading}
               className="btn btn-primary flex items-center gap-2"
             >
-              <Save size={18} />
+              <Save size={20} />
               {createMutation.isLoading || updateMutation.isLoading
                 ? 'Saving...'
                 : isEdit

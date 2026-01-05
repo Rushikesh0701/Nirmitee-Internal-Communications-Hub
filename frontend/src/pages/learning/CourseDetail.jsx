@@ -1,9 +1,11 @@
 import { useQuery } from 'react-query'
+import { memo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ArrowLeft, GraduationCap, Users, Star, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const CourseDetail = () => {
   const { id } = useParams()
@@ -24,11 +26,17 @@ const CourseDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!course) {
-    return <div className="text-center py-12">Course not found</div>
+    return (
+      <EmptyState
+        icon={GraduationCap}
+        title="Course not found"
+        message="The course you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   return (
@@ -53,7 +61,7 @@ const CourseDetail = () => {
         <div className="space-y-4">
           <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
 
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-caption text-gray-600">
             <div className="flex items-center gap-2">
               <Users size={16} />
               <span>{course.enrollmentCount} enrolled</span>
@@ -70,7 +78,7 @@ const CourseDetail = () => {
                 <span>{course.rating.toFixed(1)} rating</span>
               </div>
             )}
-            <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800">
+            <span className="px-2 py-1 text-overline rounded bg-gray-100 text-gray-800">
               {course.level}
             </span>
           </div>
@@ -93,7 +101,7 @@ const CourseDetail = () => {
                     style={{ width: `${course.enrollment.progress}%` }}
                   />
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-caption text-gray-600 mt-1">
                   Progress: {course.enrollment.progress}%
                 </p>
               </div>
@@ -110,5 +118,5 @@ const CourseDetail = () => {
   )
 }
 
-export default CourseDetail
+export default memo(CourseDetail)
 

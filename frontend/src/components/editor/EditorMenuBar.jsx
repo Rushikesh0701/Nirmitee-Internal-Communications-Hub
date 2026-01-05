@@ -221,7 +221,7 @@ const EditorMenuBar = ({
   };
 
   return (
-    <div className="border-b border-gray-200 bg-white rounded-t-lg">
+    <div className="border-b border-gray-200 bg-white rounded-t-lg editor-toolbar">
       <div className="flex flex-wrap items-center gap-1 p-2">
         {/* Text Formatting */}
         <div className="flex items-center gap-1 border-r border-gray-200 pr-2 mr-2">
@@ -229,7 +229,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('bold') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Bold (Ctrl+B)"
           >
@@ -239,7 +239,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('italic') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Italic (Ctrl+I)"
           >
@@ -249,7 +249,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('underline') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('underline') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Underline (Ctrl+U)"
           >
@@ -259,7 +259,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('strike') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('strike') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Strikethrough"
           >
@@ -276,16 +276,16 @@ const EditorMenuBar = ({
             title="Font Size"
           >
             <Type className="w-4 h-4" />
-            <span className="text-xs">{getCurrentFontSize() || 'Size'}</span>
+            <span className="text-overline">{getCurrentFontSize() || 'Size'}</span>
           </button>
           {showFontSizePicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-2 max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 p-2 max-h-48 overflow-y-auto">
               <input
                 type="number"
                 placeholder="Enter size"
                 min="8"
                 max="200"
-                className="w-24 px-2 py-1 border border-gray-300 rounded text-sm mb-2"
+                className="w-24 px-2 py-1 border border-gray-300 rounded text-caption mb-2"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     const size = e.target.value;
@@ -306,7 +306,7 @@ const EditorMenuBar = ({
                       setShowFontSizePicker(false);
                     }}
                     className={`px-2 py-1 text-xs rounded hover:bg-gray-100 ${
-                      getCurrentFontSize() === size ? 'bg-blue-100 text-blue-600' : ''
+                      getCurrentFontSize() === size ? 'bg-slate-100 text-slate-700' : ''
                     }`}
                   >
                     {size}
@@ -326,12 +326,12 @@ const EditorMenuBar = ({
             title="Font Family"
           >
             <Type className="w-4 h-4" />
-            <span className="text-xs max-w-[60px] truncate">
+            <span className="text-overline max-w-[60px] truncate">
               {fontFamilies.find(f => f.value === getCurrentFontFamily())?.label || 'Font'}
             </span>
           </button>
           {showFontFamilyPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 min-w-[180px] max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 min-w-[180px] max-h-64 overflow-y-auto">
               {fontFamilies.map((font) => (
                 <button
                   key={font.value}
@@ -345,7 +345,7 @@ const EditorMenuBar = ({
                     setShowFontFamilyPicker(false);
                   }}
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${
-                    getCurrentFontFamily() === font.value ? 'bg-blue-100 text-blue-600' : ''
+                    getCurrentFontFamily() === font.value ? 'bg-slate-100 text-slate-700' : ''
                   }`}
                   style={font.value ? { fontFamily: font.value } : {}}
                 >
@@ -367,7 +367,7 @@ const EditorMenuBar = ({
             <Palette className="w-4 h-4" />
           </button>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-3 min-w-[200px]">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg z-50 p-3 min-w-[200px]">
               {/* Color Groups */}
               {colorGroups.map((group, groupIndex) => (
                 <div key={group.name} className={groupIndex > 0 ? 'mt-3' : ''}>
@@ -384,13 +384,13 @@ const EditorMenuBar = ({
                             }}
                             className={`w-8 h-8 rounded-lg border-2 transition-all ${
                               isSelected 
-                                ? 'border-blue-600 ring-2 ring-blue-300' 
+                                ? 'border-[#ff4701] ring-2 ring-[#ff4701]/50' 
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                             style={{ backgroundColor: color }}
                           />
                           {/* Tooltip with hex code */}
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-overline rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10">
                             {color}
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                               <div className="border-4 border-transparent border-t-gray-800"></div>
@@ -405,7 +405,7 @@ const EditorMenuBar = ({
               
               {/* Custom Color Picker */}
               <div className="mt-4 pt-3 border-t border-gray-200">
-                <div className="text-xs text-gray-500 mb-2">Custom Color</div>
+                <div className="text-overline text-gray-500 mb-2">Custom Color</div>
                 <div className="flex items-center gap-2">
                   <div 
                     className="w-10 h-10 rounded-lg border-2 border-gray-300 flex-shrink-0"
@@ -428,7 +428,7 @@ const EditorMenuBar = ({
                         editor.chain().focus().setColor(color).run();
                       }
                     }}
-                    className="w-20 px-2 py-1 text-xs border border-gray-300 rounded"
+                    className="w-20 px-2 py-1 text-overline border border-gray-300 rounded"
                     placeholder="#000000"
                   />
                 </div>
@@ -443,7 +443,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('bulletList') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Bullet List"
           >
@@ -453,7 +453,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('orderedList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('orderedList') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Numbered List"
           >
@@ -463,7 +463,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('blockquote') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Blockquote"
           >
@@ -477,7 +477,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'left' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'left' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Left"
           >
@@ -487,7 +487,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'center' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'center' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Center"
           >
@@ -497,7 +497,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('right').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'right' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'right' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Align Right"
           >
@@ -507,7 +507,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().setTextAlign('justify').run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive({ textAlign: 'justify' }) ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Justify"
           >
@@ -521,7 +521,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('code') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('code') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Inline Code"
           >
@@ -531,7 +531,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('codeBlock') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('codeBlock') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Code Block"
           >
@@ -561,7 +561,7 @@ const EditorMenuBar = ({
             type="button"
             onClick={onLinkClick}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('link') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Insert Link"
           >
@@ -578,7 +578,7 @@ const EditorMenuBar = ({
               toast.success('Table inserted');
             }}
             className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-              editor.isActive('table') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+              editor.isActive('table') ? 'bg-slate-100 text-slate-700' : 'text-gray-700'
             }`}
             title="Insert Table"
           >

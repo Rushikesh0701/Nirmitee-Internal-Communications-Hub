@@ -65,6 +65,11 @@ const getAllAnnouncements = async (options = {}) => {
 const getAnnouncementById = async (id) => {
   const mongoose = require('mongoose');
 
+  // Check if this is a dummy ID (should be handled by controller, but add safety check)
+  if (id && typeof id === 'string' && (id.startsWith('dummy-') || id === 'undefined' || id === 'null')) {
+    throw new Error('Invalid announcement ID format');
+  }
+
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid announcement ID format');

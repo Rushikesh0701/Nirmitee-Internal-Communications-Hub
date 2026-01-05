@@ -42,10 +42,18 @@ const getAllNews = async (req, res, next) => {
 
       if (result.error) {
         errorMessage = getNewsDataErrorMessage({ message: result.error });
+        // Don't show error message if API key is not configured (expected behavior)
+        if (!errorMessage) {
+          errorMessage = null;
+        }
       }
     } catch (error) {
       logger.warn('Error fetching live news', { error: error.message });
       errorMessage = getNewsDataErrorMessage(error);
+      // Don't show error message if API key is not configured (expected behavior)
+      if (!errorMessage) {
+        errorMessage = null;
+      }
       result = null;
     }
 
@@ -54,7 +62,7 @@ const getAllNews = async (req, res, next) => {
       return sendSuccess(res, result, errorMessage);
     }
 
-    // Return empty results if API failed
+    // Return empty results if API failed (don't show error message if it's just missing API key)
     return sendSuccess(res, {
       results: [],
       totalResults: 0,

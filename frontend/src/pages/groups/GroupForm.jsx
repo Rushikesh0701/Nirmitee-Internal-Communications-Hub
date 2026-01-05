@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useCreationStore } from '../../store/creationStore'
-import Loading from '../../components/Loading'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const GroupForm = () => {
   const { id } = useParams()
@@ -45,7 +45,7 @@ const GroupForm = () => {
       onSuccess: async (response) => {
         toast.success('Group created successfully')
         const groupId = response.data.data.id || response.data.data._id
-        await queryClient.invalidateQueries(['groups'])
+        await queryClient.invalidateQueries(['groups'], { refetchActive: true })
         endCreation()
         navigate(`/groups/${groupId}`)
       },
@@ -61,8 +61,8 @@ const GroupForm = () => {
     {
       onSuccess: async () => {
         toast.success('Group updated successfully')
-        await queryClient.invalidateQueries(['groups'])
-        await queryClient.invalidateQueries(['group', id])
+        await queryClient.invalidateQueries(['groups'], { refetchActive: true })
+        await queryClient.invalidateQueries(['group', id], { refetchActive: true })
         navigate(`/groups/${id}`)
       },
       onError: (error) => {
@@ -115,55 +115,55 @@ const GroupForm = () => {
   }
 
   if (isEdit && groupLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 hover:bg-gray-100 rounded-lg"
+          className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-h1 text-slate-800">
           {isEdit ? 'Edit Group' : 'Create New Group'}
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="card space-y-6">
+      <form onSubmit={handleSubmit} className="card p-4 space-y-4">
         {/* Cover Image */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image (Optional)
           </label>
           {formData.coverImage && (
             <img
               src={formData.coverImage}
               alt="Cover preview"
-              className="w-full h-48 object-cover rounded-lg mb-2"
+              className="w-full h-48 object-cover rounded-lg mb-3 border border-slate-200"
             />
           )}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input text-caption py-2"
           />
         </div>
 
         {/* Group Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Group Name *
+          <label htmlFor="name" className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
+            Group Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input text-caption py-2"
             placeholder="Enter group name"
             required
           />
@@ -171,14 +171,14 @@ const GroupForm = () => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Description
           </label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input text-caption py-2 resize-y"
             rows={4}
             placeholder="Describe what this group is about..."
           />
@@ -186,33 +186,33 @@ const GroupForm = () => {
 
         {/* Privacy */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-2">
             Privacy
           </label>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2">
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="radio"
                 checked={formData.isPublic === true}
                 onChange={() => setFormData({ ...formData, isPublic: true })}
-                className="text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 text-slate-700 focus:ring-slate-600"
               />
-              <span>Public - Anyone can join and see posts</span>
+              <span className="text-caption text-gray-700">Public - Anyone can join and see posts</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="radio"
                 checked={formData.isPublic === false}
                 onChange={() => setFormData({ ...formData, isPublic: false })}
-                className="text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 text-slate-700 focus:ring-slate-600"
               />
-              <span>Private - Only members can see posts</span>
+              <span className="text-caption text-gray-700">Private - Only members can see posts</span>
             </label>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-4 pt-4 border-t">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -225,7 +225,7 @@ const GroupForm = () => {
             disabled={createMutation.isLoading || updateMutation.isLoading || (!isEdit && isAnyCreationInProgress())}
             className="btn btn-primary flex items-center gap-2"
           >
-            <Save size={18} />
+            <Save size={20} />
             {createMutation.isLoading || updateMutation.isLoading
               ? 'Saving...'
               : isEdit

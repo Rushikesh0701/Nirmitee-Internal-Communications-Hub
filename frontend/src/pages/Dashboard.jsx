@@ -1,7 +1,10 @@
 import { useQuery } from 'react-query'
+import { useMemo, useCallback, memo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
+import { useTheme } from '../contexts/ThemeContext'
 import api from '../services/api'
+import Snowfall from 'react-snowfall'
 import {
   Newspaper,
   BookOpen,
@@ -16,24 +19,32 @@ import {
   Megaphone,
   TrendingUp,
   ArrowUpRight,
-  Zap
+  Zap,
+  Sparkles,
+  Activity
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
-import Loading from '../components/Loading'
+import EmptyState from '../components/EmptyState'
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.06 } }
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: 20 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
 }
 
 const Dashboard = () => {
   const { user } = useAuthStore()
+  const { theme } = useTheme()
   const isAdminOrModerator = ['Admin', 'Moderator'].includes(user?.Role?.name)
 
   const { data: stats, isLoading: statsLoading } = useQuery(
@@ -45,288 +56,609 @@ const Dashboard = () => {
   const { data: announcementsData, isLoading: announcementsLoading } = useQuery(
     'dashboard-announcements',
     () => api.get('/announcements?limit=3&sortBy=createdAt&sortOrder=desc').then((res) => res.data.data),
-    { staleTime: 60000 }
+    { 
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchInterval: 5 * 60 * 1000 // Background refetch every 5 minutes (silent, no loader)
+    }
   )
 
   const { data: newsData, isLoading: newsLoading } = useQuery(
     'dashboard-news',
     () => api.get('/news?limit=6&language=en').then((res) => res.data.data || res.data),
-    { staleTime: 60000 }
+    { 
+      staleTime: 2 * 60 * 1000, // 2 minutes - data stays fresh for 2 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchInterval: 5 * 60 * 1000 // Background refetch every 5 minutes (silent, no loader)
+    }
   )
 
   const announcements = announcementsData?.announcements || announcementsData || []
   const newsArticles = newsData?.results || newsData?.news || []
 
-  const quickLinks = [
-    { path: '/news', icon: Newspaper, label: 'News', gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/blogs', icon: BookOpen, label: 'Blogs', gradient: 'from-emerald-500 to-teal-500' },
-    { path: '/discussions', icon: MessageSquare, label: 'Discussions', gradient: 'from-violet-500 to-purple-500' },
-    { path: '/recognitions', icon: Award, label: 'Recognitions', gradient: 'from-amber-500 to-orange-500' },
-    { path: '/surveys', icon: ClipboardList, label: 'Surveys', gradient: 'from-rose-500 to-pink-500' },
-    { path: '/learning', icon: GraduationCap, label: 'Learning', gradient: 'from-indigo-500 to-blue-500' }
-  ]
+  const quickLinks = useMemo(() => [
+    { path: '/news', icon: Newspaper, label: 'News' },
+    { path: '/blogs', icon: BookOpen, label: 'Blogs' },
+    { path: '/discussions', icon: MessageSquare, label: 'Discussions' },
+    { path: '/recognitions', icon: Award, label: 'Recognitions' },
+    { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
+    { path: '/learning', icon: GraduationCap, label: 'Learning' }
+  ], [])
 
-  const statCards = [
-    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: Newspaper, gradient: 'from-blue-500 to-cyan-500' },
-    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: BookOpen, gradient: 'from-emerald-500 to-teal-500' },
-    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users, gradient: 'from-violet-500 to-purple-500' },
-    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: MessageSquare, gradient: 'from-indigo-500 to-blue-500' }
-  ]
+  const statCards = useMemo(() => [
+    { label: 'Total News', value: stats?.overview?.totalNews || 0, icon: Newspaper },
+    { label: 'Total Blogs', value: stats?.overview?.totalBlogs || 0, icon: BookOpen },
+    { label: 'Active Users', value: stats?.overview?.totalUsers || 0, icon: Users },
+    { label: 'Discussions', value: stats?.overview?.totalDiscussions || 0, icon: MessageSquare }
+  ], [stats])
 
-  const getGreeting = () => {
+  const [greeting, setGreeting] = useState(() => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning !!'
-    if (hour < 17) return 'Good afternoon !!'
-    return 'Good evening !!'
-  }
+    if (hour >= 5 && hour < 12) return 'Good morning !!'
+    if (hour >= 12 && hour < 17) return 'Good afternoon !!'
+    if (hour >= 17 && hour < 22) return 'Good evening !!'
+    return 'Good night !!'
+  })
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hour = new Date().getHours()
+      if (hour >= 5 && hour < 12) {
+        setGreeting('Good morning !!')
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting('Good afternoon !!')
+      } else if (hour >= 17 && hour < 22) {
+        setGreeting('Good evening !!')
+      } else {
+        setGreeting('Good night !!')
+      }
+    }
+
+    // Update immediately
+    updateGreeting()
+
+    // Update every minute to catch hour changes
+    const interval = setInterval(updateGreeting, 60000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const getUserDisplayName = useCallback(() => {
+    if (!user) return 'User'
+    
+    // Combine firstName and lastName if both exist
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`
+    }
+    
+    // Fallback to other name fields
+    return user.displayName || user.name || user.firstName || 'User'
+  }, [user])
 
   return (
-    <motion.div className="space-y-8" variants={containerVariants} initial="hidden" animate="visible">
-      {/* Welcome Header */}
-      <motion.div variants={itemVariants}>
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-1.5 rounded-lg bg-indigo-100 border border-indigo-200">
-            <Zap size={14} className="text-indigo-600" />
-          </div>
-          <span className="text-sm font-medium text-indigo-600">{getGreeting()}</span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800">
-          Welcome back, <span className="text-gradient">{user?.displayName || user?.name || user?.firstName || 'User'}</span>!
-        </h1>
-        <p className="text-slate-500 mt-2">Here&apos;s what&apos;s happening in your organization today</p>
-      </motion.div>
-
-      {/* Admin Stats Cards */}
-      {isAdminOrModerator && (
-        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statsLoading ? (
-            [...Array(4)].map((_, i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-16 bg-slate-100 rounded-xl" />
+    <div className="relative min-h-screen">
+      <motion.div className="relative space-y-3" variants={containerVariants} initial="hidden" animate="visible">
+        {/* Enhanced Welcome Header */}
+        <motion.div variants={itemVariants}>
+          <div className={`relative rounded-lg p-3 border transition-all duration-200 overflow-hidden ${
+            theme === 'dark'
+              ? 'bg-[#0a0e17] border-[#151a28]'
+              : 'bg-white border-slate-200'
+          }`}>
+            {/* Snowfall Effect */}
+            <div className="absolute inset-0 pointer-events-none">
+              <Snowfall
+                snowflakeCount={50}
+                speed={[0.5, 1.5]}
+                wind={[-0.5, 0.5]}
+                radius={[0.5, 3]}
+                color={theme === 'dark' ? '#ffffff' : '#94a3b8'}
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 1
+                }}
+              />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`p-1.5 rounded-lg border transition-all duration-200 ${
+                  theme === 'dark' 
+                    ? 'bg-[#151a28] border-[#151a28]' 
+                    : 'bg-slate-100 border-slate-200'
+                }`}>
+                  <Sparkles size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-700'} />
+                </div>
+                <span className={`text-overline transition-colors ${
+                  theme === 'dark' ? 'text-slate-500' : 'text-slate-700'
+                }`}>
+                  {greeting}
+                </span>
               </div>
-            ))
-          ) : stats ? (
-            statCards.map((stat, index) => {
-              const Icon = stat.icon
-              return (
+              
+              <h1 className={`text-lg sm:text-xl lg:text-h1 mb-1 transition-colors ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+              }`}>
+                Welcome back,{' '}
+                <span className={theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}>
+                  {getUserDisplayName()}
+                </span>
+                !
+              </h1>
+              
+              <motion.p 
+                className={`text-sm transition-colors ${
+                  theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                Here&apos;s what&apos;s happening in your organization today
+              </motion.p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Enhanced Admin Stats Cards */}
+        {isAdminOrModerator && (
+          <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {statsLoading ? (
+              [...Array(4)].map((_, i) => (
                 <motion.div
-                  key={stat.label}
-                  className="card group hover:shadow-lg"
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-                      <motion.p 
-                        className="text-3xl font-bold text-slate-800 mt-1"
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
-                      >
-                        {stat.value.toLocaleString()}
-                      </motion.p>
-                      <div className="flex items-center gap-1 mt-2">
-                        <TrendingUp size={12} className="text-emerald-500" />
-                        <span className="text-xs text-emerald-500 font-medium">Active</span>
+                  key={i}
+                  variants={cardVariants}
+                  className={`relative h-24 rounded-xl backdrop-blur-xl border animate-pulse transition-colors ${
+                    theme === 'dark' 
+                      ? 'bg-[#0a0e17]/50 border-[#151a28]/50' 
+                      : 'bg-white/60 border-slate-200/50'
+                  }`}
+                />
+              ))
+            ) : stats ? (
+              statCards.map((stat, index) => {
+                const Icon = stat.icon
+                return (
+                  <motion.div
+                    key={stat.label}
+                    variants={cardVariants}
+                    custom={index}
+                    className={`group relative h-20 rounded-lg border overflow-hidden transition-all duration-200 ${
+                      theme === 'dark'
+                        ? 'bg-[#0a0e17] border-[#151a28]'
+                        : 'bg-white border-slate-200'
+                    }`}
+                    whileHover={{ 
+                      y: -2,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
+                    <div className="h-full flex flex-col justify-between p-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className={`text-overline uppercase tracking-wider mb-1 transition-colors ${
+                            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                          }`}>
+                            {stat.label}
+                          </p>
+                          <p className={`text-h2 transition-colors ${
+                            theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+                          }`}>
+                            {stat.value.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className={`p-2 rounded-lg bg-[#1a1a1a]`}>
+                          <Icon className="text-white" size={16} />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <Activity size={10} className="text-emerald-500" />
+                        </motion.div>
+                        <span className="text-overline text-emerald-500">Live</span>
                       </div>
                     </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                      <Icon className="text-white" size={24} />
+                  </motion.div>
+                )
+              })
+            ) : null}
+          </motion.div>
+        )}
+
+        {/* Enhanced Announcement Section */}
+        <motion.section variants={itemVariants}>
+          <div className={`rounded-lg p-3 border transition-all duration-200 ${
+            theme === 'dark'
+              ? 'bg-[#0a0e17] border-[#151a28]'
+              : 'bg-white border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-[#151a28]">
+                  <Megaphone size={18} className="text-white" />
+                </div>
+                <div>
+                  <h2 className={`text-lg sm:text-h1 transition-colors ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+                  }`}>
+                    Announcements
+                  </h2>
+                  <p className={`text-xs mt-0.5 transition-colors ${
+                    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                  }`}>
+                    Latest updates from your organization
+                  </p>
+                </div>
+              </div>
+              <Link 
+                to="/announcements" 
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-xs group transition-all duration-200 ${
+                  theme === 'dark' 
+                    ? 'text-slate-500 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]' 
+                    : 'text-slate-700 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]'
+                }`}
+              >
+                View All 
+                <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </Link>
+            </div>
+            
+            <div className="min-h-[120px]">
+              {announcementsLoading ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`p-3 rounded-lg border animate-pulse ${
+                        theme === 'dark'
+                          ? 'bg-[#0a0e17] border-[#151a28]'
+                          : 'bg-white border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className={`h-4 w-3/4 rounded ${
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                          }`} />
+                          <div className={`h-3 w-full rounded ${
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                          }`} />
+                          <div className={`h-3 w-2/3 rounded ${
+                            theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                          }`} />
+                          <div className="flex items-center gap-3 mt-2">
+                            <div className={`h-3 w-20 rounded ${
+                              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                            }`} />
+                            <div className={`h-3 w-24 rounded ${
+                              theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                            }`} />
+                          </div>
+                        </div>
+                        <div className={`w-4 h-4 rounded flex-shrink-0 ${
+                          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                        }`} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : announcements.length > 0 ? (
+                <div className="space-y-2">
+                  {announcements.slice(0, 3).map((announcement, index) => (
+                    <motion.div
+                      key={announcement._id || announcement.id || index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                    >
+                      <Link
+                        to={`/announcements/${announcement._id || announcement.id}`}
+                        className={`group relative block p-3 rounded-lg border transition-all duration-200 ${
+                          theme === 'dark'
+                            ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
+                            : 'bg-white border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        
+                        <div className="relative z-10 flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className={`text-sm font-bold truncate transition-colors ${
+                                theme === 'dark'
+                                  ? 'text-slate-100 group-hover:text-slate-500'
+                                  : 'text-slate-900 group-hover:text-slate-700'
+                              }`}>
+                                {announcement.title}
+                              </h3>
+                              {announcement.isPriority && (
+                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ff4701] text-white">
+                                  Priority
+                                </span>
+                              )}
+                            </div>
+                            <p className={`text-xs line-clamp-2 mb-2 transition-colors ${
+                              theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                            }`}>
+                              {announcement.content?.replace(/<[^>]*>/g, '') || '---'}
+                            </p>
+                            <div className={`flex items-center gap-3 text-[10px] transition-colors ${
+                              theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+                            }`}>
+                              {announcement.createdAt && (
+                                <span className="flex items-center gap-1">
+                                  <Clock size={10} />
+                                  {format(new Date(announcement.createdAt), 'MMM d, yyyy')}
+                                </span>
+                              )}
+                              {announcement.Author && (
+                                <span className="flex items-center gap-1">
+                                  <User size={10} />
+                                  {announcement.Author.firstName} {announcement.Author.lastName}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <motion.div
+                            className="flex-shrink-0"
+                            whileHover={{ x: 5 }}
+                            transition={{ type: "spring", stiffness: 400 }}
+                          >
+                            <ChevronRight size={16} className={`transition-colors ${
+                              theme === 'dark'
+                                ? 'text-slate-600 group-hover:text-slate-700'
+                                : 'text-slate-300 group-hover:text-slate-500'
+                            }`} />
+                          </motion.div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={Megaphone}
+                  title="No announcements available"
+                  message="Check back later for updates"
+                  compact
+                />
+              )}
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Enhanced News Section */}
+        <motion.section variants={itemVariants}>
+          <div className={`rounded-lg p-3 border transition-all duration-200 ${
+            theme === 'dark'
+              ? 'bg-[#0a0e17] border-[#151a28]'
+              : 'bg-white border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-[#151a28]">
+                  <Newspaper size={18} className="text-white" />
+                </div>
+                <div>
+                  <h2 className={`text-lg sm:text-h1 transition-colors ${
+                    theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+                  }`}>
+                    Latest News
+                  </h2>
+                  <p className={`text-xs mt-0.5 transition-colors ${
+                    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                  }`}>
+                    Stay updated with trending stories
+                  </p>
+                </div>
+              </div>
+              <Link 
+                to="/news" 
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs group transition-all duration-300 ${
+                  theme === 'dark' 
+                    ? 'text-slate-500 hover:text-white hover:bg-slate-600/20 border border-slate-600/30' 
+                    : 'text-slate-700 hover:text-white hover:bg-[#ff4701] border border-[#ff4701]'
+                }`}
+              >
+                View All 
+                <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </Link>
+            </div>
+            
+            {newsLoading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`relative rounded-lg overflow-hidden border animate-pulse ${
+                      theme === 'dark'
+                        ? 'bg-[#0a0e17] border-[#151a28]'
+                        : 'bg-white border-slate-200'
+                    } h-full flex flex-col`}
+                  >
+                    <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
+                      theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                    }`} />
+                    <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px] space-y-2">
+                      <div className={`h-3 w-full rounded ${
+                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                      }`} />
+                      <div className={`h-3 w-4/5 rounded ${
+                        theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                      }`} />
+                      <div className="mt-auto">
+                        <div className={`h-2 w-16 rounded ${
+                          theme === 'dark' ? 'bg-[#151a28]' : 'bg-slate-200'
+                        }`} />
+                      </div>
                     </div>
                   </div>
-                </motion.div>
-              )
-            })
-          ) : null}
-        </motion.div>
-      )}
+                ))}
+              </div>
+            ) : newsArticles.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-stretch">
+                {newsArticles.slice(0, 6).map((article, index) => {
+                  const title = article.title
+                  const imageUrl = article.imageUrl || article.image_url
+                  const date = article.publishedAt || article.pubDate || article.createdAt
+                  const link = article.sourceUrl || article.link
 
-      {/* Announcement Section */}
-      <motion.section variants={itemVariants} className="card">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-              <Megaphone size={20} className="text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-800">Announcements</h2>
+                  return (
+                    <motion.div
+                      key={article._id || article.article_id || `news-${index}`}
+                      className="group cursor-pointer h-full"
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                    >
+                      <div 
+                        className={`relative rounded-lg overflow-hidden border transition-all duration-200 h-full flex flex-col ${
+                          theme === 'dark'
+                            ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
+                            : 'bg-white border-slate-200 hover:border-slate-300'
+                        }`}
+                        onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
+                      >
+                        
+                        <div className={`aspect-[4/3] relative overflow-hidden flex-shrink-0 ${
+                          theme === 'dark' ? 'bg-[#0a0e17]/50' : 'bg-slate-100'
+                        }`}>
+                          {imageUrl ? (
+                            <motion.img 
+                              src={imageUrl} 
+                              alt={title} 
+                              className="w-full h-full object-cover" 
+                              loading="lazy"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                                if (placeholder) placeholder.classList.remove('hidden');
+                              }}
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center bg-slate-100 news-placeholder ${imageUrl ? 'hidden' : ''}`}>
+                            <Newspaper size={20} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
+                          </div>
+                        </div>
+                        <div className="relative z-10 p-2 flex flex-col flex-1 min-h-[60px]">
+                          <h3 className={`text-xs font-bold line-clamp-2 mb-1 transition-colors flex-shrink-0 ${
+                            theme === 'dark'
+                              ? 'text-slate-100 group-hover:text-slate-500'
+                              : 'text-slate-900 group-hover:text-slate-700'
+                          }`}>
+                            {title}
+                          </h3>
+                          <div className="mt-auto">
+                            {date && (
+                              <p className={`text-[10px] flex items-center gap-1 transition-colors ${
+                                theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+                              }`}>
+                                <Clock size={9} />
+                                {format(new Date(date), 'MMM d')}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="py-2">
+                <EmptyState
+                  icon={Newspaper}
+                  title="No news available"
+                  message="Check back later for latest updates"
+                  compact
+                />
+              </div>
+            )}
           </div>
-          <Link to="/announcements" className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium text-sm group">
-            View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
-        </div>
-        
-        <div className="min-h-[200px]">
-          {announcementsLoading ? (
-            <div className="flex items-center justify-center h-full min-h-[150px]">
-              <Loading size="md" />
-            </div>
-          ) : announcements.length > 0 ? (
-            <div className="space-y-3">
-              {announcements.slice(0, 3).map((announcement, index) => (
+        </motion.section>
+
+        {/* Enhanced Quick Access Links */}
+        <motion.div variants={itemVariants}>
+          <div className="mb-3">
+            <h2 className={`text-lg sm:text-h1 mb-1 transition-colors ${
+              theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+            }`}>
+              Quick Access
+            </h2>
+            <p className={`text-xs transition-colors ${
+              theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+            }`}>
+              Navigate to your favorite sections instantly
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {quickLinks.map((link, index) => {
+              const Icon = link.icon
+              return (
                 <motion.div
-                  key={announcement._id || announcement.id || index}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  key={link.path}
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.3 + index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <Link
-                    to={`/announcements/${announcement._id || announcement.id}`}
-                    className={`block p-4 rounded-xl transition-all border group
-                      ${index === 0 
-                        ? 'border-indigo-200 bg-indigo-50 hover:bg-indigo-100' 
-                        : 'border-slate-100 hover:border-indigo-200 hover:bg-slate-50'
-                      }`}
+                    to={link.path}
+                    className={`group flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                      theme === 'dark'
+                        ? 'bg-[#0a0e17] border-[#151a28] hover:border-[#ff4701]'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <h3 className="text-base font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
-                            {announcement.title}
-                          </h3>
-                          {announcement.isPriority && (
-                            <span className="badge badge-warning">Priority</span>
-                          )}
-                        </div>
-                        <p className="text-slate-500 text-sm line-clamp-2">
-                          {announcement.content?.replace(/<[^>]*>/g, '') || '---'}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2.5 text-xs text-slate-400">
-                          {announcement.createdAt && (
-                            <span className="flex items-center gap-1">
-                              <Clock size={12} />
-                              {format(new Date(announcement.createdAt), 'MMM d, yyyy')}
-                            </span>
-                          )}
-                          {announcement.Author && (
-                            <span className="flex items-center gap-1">
-                              <User size={12} />
-                              {announcement.Author.firstName} {announcement.Author.lastName}
-                            </span>
-                          )}
-                        </div>
+                    <div className="bg-[#151a28] p-2 rounded-lg">
+                      <Icon className="text-white" size={18} />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-bold text-sm mb-0.5 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-slate-100'
+                          : 'text-slate-900'
+                      }`}>
+                        {link.label}
+                      </h3>
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[10px] font-medium transition-colors ${
+                          theme === 'dark'
+                            ? 'text-slate-400'
+                            : 'text-slate-500'
+                        }`}>
+                          Explore
+                        </span>
+                        <ArrowUpRight 
+                          size={10} 
+                          className={`transition-colors ${
+                            theme === 'dark'
+                              ? 'text-slate-400'
+                              : 'text-slate-500'
+                          }`} 
+                        />
                       </div>
-                      <ChevronRight size={18} className="text-slate-300 flex-shrink-0 mt-1 group-hover:text-indigo-500 transition-colors" />
                     </div>
                   </Link>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full min-h-[150px] text-slate-400">
-              <Megaphone size={32} className="mb-2 opacity-50" />
-              <p>No announcements available</p>
-            </div>
-          )}
-        </div>
-      </motion.section>
-
-      {/* News Section */}
-      <motion.section variants={itemVariants} className="card">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
-              <Newspaper size={20} className="text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-800">Latest News</h2>
-          </div>
-          <Link to="/news" className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm group">
-            View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
-        </div>
-        
-        {newsLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loading size="md" />
-          </div>
-        ) : newsArticles.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {newsArticles.slice(0, 6).map((article, index) => {
-              const title = article.title
-              const imageUrl = article.imageUrl || article.image_url
-              const date = article.publishedAt || article.pubDate || article.createdAt
-              const link = article.sourceUrl || article.link
-
-              return (
-                <motion.div
-                  key={article._id || article.article_id || `news-${index}`}
-                  className="group cursor-pointer"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -4 }}
-                  onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
-                >
-                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all">
-                    <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
-                      {imageUrl ? (
-                        <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.style.display = 'none' }} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Newspaper size={24} className="text-slate-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h3 className="text-sm font-medium text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors">{title}</h3>
-                      {date && (
-                        <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-                          <Clock size={10} />
-                          {format(new Date(date), 'MMM d')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
                 </motion.div>
               )
             })}
           </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-xl overflow-hidden border border-slate-200 bg-white">
-                <div className="aspect-[4/3] bg-slate-100" />
-                <div className="p-3">
-                  <div className="h-4 bg-slate-100 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-slate-50 rounded w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </motion.section>
-
-      {/* Quick Access Links */}
-      <motion.div variants={itemVariants}>
-        <h2 className="text-xl font-bold text-slate-800 mb-4">Quick Access</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quickLinks.map((link, index) => {
-            const Icon = link.icon
-            return (
-              <motion.div
-                key={link.path}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.05 }}
-              >
-                <Link
-                  to={link.path}
-                  className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md transition-all group"
-                >
-                  <div className={`bg-gradient-to-br ${link.gradient} p-3.5 rounded-xl shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Icon className="text-white" size={22} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">{link.label}</h3>
-                    <p className="text-sm text-slate-400">View all →</p>
-                  </div>
-                </Link>
-              </motion.div>
-            )
-          })}
-        </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
 
-export default Dashboard
+export default memo(Dashboard)

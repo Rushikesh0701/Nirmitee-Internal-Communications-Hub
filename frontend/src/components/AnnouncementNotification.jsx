@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { playNotificationSound } from '../hooks/useNotificationEffects'
+import { useTheme } from '../contexts/ThemeContext'
 import { Bell, X } from 'lucide-react'
 
 // Development-only debug logger
@@ -25,6 +26,7 @@ const debugLog = (...args) => {
  */
 const AnnouncementNotification = () => {
   const { isAuthenticated, user } = useAuthStore()
+  const { theme } = useTheme()
   const navigate = useNavigate()
   const [dismissedIds, setDismissedIds] = useState(() => {
     const stored = localStorage.getItem('dismissedAnnouncements')
@@ -136,19 +138,35 @@ const AnnouncementNotification = () => {
         <div
           key={announcement._id || announcement.id}
           onClick={() => handleReadMore(announcement)}
-          className="bg-white rounded-lg shadow-lg border-l-4 border-primary-600 p-4 flex items-start gap-3 animate-slide-in cursor-pointer hover:shadow-xl transition-shadow"
+          className={`rounded-lg border-l-4 p-4 flex items-start gap-3 animate-slide-in cursor-pointer ${
+            theme === 'dark'
+              ? 'bg-[#0a0e17]/90 border-indigo-500'
+              : 'bg-white border-primary-600'
+          }`}
         >
-          <div className="p-2 bg-primary-100 rounded-full">
-            <Bell size={20} className="text-primary-600" />
+          <div className={`p-2 rounded-full ${
+            theme === 'dark' 
+              ? 'bg-indigo-500/20' 
+              : 'bg-primary-100'
+          }`}>
+            <Bell size={20} className={theme === 'dark' ? 'text-indigo-400' : 'text-primary-600'} />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+            <h4 className={`font-semibold mb-1 line-clamp-1 ${
+              theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
+            }`}>
               {announcement.title}
             </h4>
-            <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+            <p className={`text-sm line-clamp-2 mb-2 ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
             </p>
-            <span className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+            <span className={`text-button ${
+              theme === 'dark'
+                ? 'text-indigo-400 hover:text-indigo-300'
+                : 'text-primary-600 hover:text-primary-700'
+            }`}>
               Read more →
             </span>
           </div>
@@ -157,7 +175,11 @@ const AnnouncementNotification = () => {
               e.stopPropagation() // Prevent card click from triggering
               handleDismiss(announcement._id || announcement.id)
             }}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className={`transition-colors ${
+              theme === 'dark'
+                ? 'text-slate-500 hover:text-slate-300'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
             aria-label="Dismiss notification"
           >
             <X size={18} />

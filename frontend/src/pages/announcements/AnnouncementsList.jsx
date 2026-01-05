@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -6,8 +6,10 @@ import api from '../../services/api'
 import { Plus, Calendar, User, Tag, Filter, Megaphone, X, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuthStore } from '../../store/authStore'
+import { useTheme } from '../../contexts/ThemeContext'
 import { isAdmin } from '../../utils/userHelpers'
-import Loading from '../../components/Loading'
+import { CardSkeleton } from '../../components/skeletons'
+import EmptyState from '../../components/EmptyState'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -21,6 +23,7 @@ const itemVariants = {
 
 const AnnouncementsList = () => {
   const { user } = useAuthStore()
+  const { theme } = useTheme()
   const userIsAdmin = isAdmin(user)
   
   const [page, setPage] = useState(1)
@@ -38,49 +41,57 @@ const AnnouncementsList = () => {
   const { data, isLoading } = useQuery(
     ['announcements', page, filters],
     () => api.get(`/announcements?${queryParams}`).then((res) => res.data.data),
-    { keepPreviousData: true, refetchOnMount: 'always' }
+    { 
+      keepPreviousData: true,
+      staleTime: 0, // Always refetch when invalidated
+      cacheTime: 5 * 60 * 1000, // 5 minutes - keep in cache
+      refetchOnMount: true, // Refetch when component mounts
+      refetchOnWindowFocus: false
+    }
   )
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = useCallback((key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
     setPage(1)
-  }
+  }, [])
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({ tags: '', scheduled: '', published: '' })
     setPage(1)
-  }
-
-  if (isLoading && !data) return <Loading fullScreen />
+  }, [])
 
   const announcements = data?.announcements || []
   const pagination = data?.pagination || { total: 0, page: 1, limit: 12, pages: 1 }
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="space-y-3" variants={containerVariants} initial="hidden" animate="visible">
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
-            <Megaphone size={22} className="text-white" />
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-[#151a28]">
+            <Megaphone size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Company Announcements</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Stay updated with company news and updates</p>
+            <h1 className={`text-h1 transition-colors ${
+              theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+            }`}>Company Announcements</h1>
+            <p className={`text-xs mt-0.5 transition-colors ${
+              theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+            }`}>Stay updated with company news and updates</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <motion.button
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn ${showFilters ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+            className={`btn-filter ${showFilters ? 'btn-filter-active' : ''}`}
             whileTap={{ scale: 0.98 }}
           >
-            {showFilters ? <X size={18} /> : <Filter size={18} />}
+            {showFilters ? <X size={16} /> : <Filter size={16} />}
             Filters
           </motion.button>
           {userIsAdmin && (
-            <Link to="/announcements/new" className="btn btn-primary flex items-center gap-2">
-              <Plus size={18} /> Create
+            <Link to="/announcements/new" className="btn-add">
+              <Plus size={16} /> Create
             </Link>
           )}
         </div>
@@ -90,45 +101,77 @@ const AnnouncementsList = () => {
       <AnimatePresence>
         {showFilters && (
           <motion.div 
-            className="card space-y-4"
+            className="card space-y-2 p-3"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-slate-800">Filters</h3>
-              <button onClick={clearFilters} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+              <h3 className={`text-caption transition-colors ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+              }`}>Filters</h3>
+              <button onClick={clearFilters} className={`text-xs px-2 py-1 rounded border transition-colors ${
+                theme === 'dark' 
+                  ? 'border-slate-600 text-slate-300 hover:bg-slate-700' 
+                  : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+              }`}>
                 Clear all
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
-                <label className="form-label">Tags</label>
+                <label className={`block text-overline mb-1 transition-colors ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                }`}>Tags</label>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                   <input
                     type="text"
                     placeholder="Filter by tags"
                     value={filters.tags}
                     onChange={(e) => handleFilterChange('tags', e.target.value)}
-                    className="input pl-11"
+                    className={`w-full px-2.5 pl-8 py-1.5 text-sm rounded-lg border transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-[#151a28] border-[#151a28] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500'
+                        : 'bg-white border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-primary-500'
+                    } focus:outline-none focus:ring-1 focus:ring-primary-500`}
                   />
                 </div>
               </div>
               {userIsAdmin && (
                 <>
                   <div>
-                    <label className="form-label">Scheduled</label>
-                    <select value={filters.scheduled} onChange={(e) => handleFilterChange('scheduled', e.target.value)} className="input-select">
+                    <label className={`block text-overline mb-1 transition-colors ${
+                      theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                    }`}>Scheduled</label>
+                    <select 
+                      value={filters.scheduled} 
+                      onChange={(e) => handleFilterChange('scheduled', e.target.value)} 
+                      className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-[#151a28] border-[#151a28] text-slate-200 focus:border-indigo-500'
+                          : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
+                      } focus:outline-none focus:ring-1 focus:ring-primary-500`}
+                    >
                       <option value="">All</option>
                       <option value="true">Scheduled</option>
                       <option value="false">Not Scheduled</option>
                     </select>
                   </div>
                   <div>
-                    <label className="form-label">Published</label>
-                    <select value={filters.published} onChange={(e) => handleFilterChange('published', e.target.value)} className="input-select">
+                    <label className={`block text-overline mb-1 transition-colors ${
+                      theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                    }`}>Published</label>
+                    <select 
+                      value={filters.published} 
+                      onChange={(e) => handleFilterChange('published', e.target.value)} 
+                      className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-[#151a28] border-[#151a28] text-slate-200 focus:border-indigo-500'
+                          : 'bg-white border-slate-200 text-slate-700 focus:border-primary-500'
+                      } focus:outline-none focus:ring-1 focus:ring-primary-500`}
+                    >
                       <option value="">All</option>
                       <option value="true">Published</option>
                       <option value="false">Unpublished</option>
@@ -142,17 +185,20 @@ const AnnouncementsList = () => {
       </AnimatePresence>
 
       {/* Announcements Grid */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
-        {announcements.map((announcement, index) => (
-          <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-            <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden">
+      {isLoading && !data ? (
+        <CardSkeleton count={6} />
+      ) : (
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch" variants={containerVariants}>
+          {announcements.map((announcement, index) => (
+          <motion.div key={announcement._id || announcement.id} variants={itemVariants} custom={index} whileHover={{ y: -4, transition: { duration: 0.2 } }} className="h-full">
+            <Link to={`/announcements/${announcement._id || announcement.id}`} className="card-hover block group overflow-hidden h-full flex flex-col">
               {announcement.image && (
-                <div className="relative -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-2xl">
-                  <img src={announcement.image} alt={announcement.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                <div className="relative -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg flex-shrink-0">
+                  <img src={announcement.image} alt={announcement.title} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#ff4701]/30 to-transparent" />
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="flex flex-col flex-1 space-y-1.5">
                 {announcement.tags?.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {announcement.tags.slice(0, 3).map((tag, idx) => (
@@ -160,13 +206,23 @@ const AnnouncementsList = () => {
                     ))}
                   </div>
                 )}
-                <h3 className="text-lg font-semibold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                <h3 className={`text-h2 line-clamp-2 transition-colors ${
+                  theme === 'dark'
+                    ? 'text-slate-200 group-hover:text-slate-500'
+                    : 'text-slate-800 group-hover:text-slate-700'
+                }`}>
                   {announcement.title}
                 </h3>
-                <p className="text-slate-500 text-sm line-clamp-2">
+                <p className={`text-sm line-clamp-2 transition-colors flex-1 ${
+                  theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                }`}>
                   {announcement.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...
                 </p>
-                <div className="flex items-center gap-4 text-xs text-slate-400 pt-3 border-t border-slate-100">
+                <div className={`flex items-center gap-4 text-xs pt-3 border-t transition-colors mt-auto ${
+                  theme === 'dark'
+                    ? 'text-slate-500 border-[#151a28]/50'
+                    : 'text-slate-400 border-slate-100'
+                }`}>
                   <div className="flex items-center gap-1.5">
                     <User size={14} />
                     <span>{announcement.createdBy?.firstName} {announcement.createdBy?.lastName}</span>
@@ -183,15 +239,16 @@ const AnnouncementsList = () => {
             </Link>
           </motion.div>
         ))}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Empty State */}
-      {announcements.length === 0 && (
-        <motion.div variants={itemVariants} className="empty-state">
-          <Megaphone size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">No announcements yet</h3>
-          <p className="empty-state-text">Check back later for updates</p>
-        </motion.div>
+      {!isLoading && announcements.length === 0 && (
+        <EmptyState
+          icon={Megaphone}
+          title="No announcements yet"
+          message="Check back later for updates"
+        />
       )}
 
       {/* Pagination */}
@@ -219,4 +276,4 @@ const AnnouncementsList = () => {
   )
 }
 
-export default AnnouncementsList
+export default memo(AnnouncementsList)

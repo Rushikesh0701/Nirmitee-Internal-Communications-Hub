@@ -2,10 +2,12 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
-import RoleBadge from '../components/RoleBadge'
 import { getUserRole } from '../utils/userHelpers'
 import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
+import { useTheme } from '../contexts/ThemeContext'
+import { getThoughtOfTheDay } from '../utils/thoughtsOfTheDay'
 import Logo from '../assets/Logo.png'
+import CollapsedLogo from '../assets/Untitled_design-removebg-preview.png'
 import {
   LayoutDashboard,
   Newspaper,
@@ -22,67 +24,254 @@ import {
   Megaphone,
   Users,
   UsersRound,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
+  Moon,
+  Sun,
+  Shield,
+  UserCheck,
+  Quote,
+  Gift,
+  Settings
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
+
+// Helper functions for sidebar state persistence
+const getSidebarCollapsedState = () => {
+  try {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    return saved ? JSON.parse(saved) : false
+  } catch {
+    return false
+  }
+}
+
+const setSidebarCollapsedState = (collapsed) => {
+  try {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(collapsed))
+  } catch (error) {
+    console.error('Failed to save sidebar collapsed state:', error)
+  }
+}
+
+const getExpandedSectionsState = () => {
+  try {
+    const saved = localStorage.getItem('sidebarExpandedSections')
+    return saved ? JSON.parse(saved) : null
+  } catch {
+    return null
+  }
+}
+
+const setExpandedSectionsState = (sections) => {
+  try {
+    localStorage.setItem('sidebarExpandedSections', JSON.stringify(sections))
+  } catch (error) {
+    console.error('Failed to save expanded sections state:', error)
+  }
+}
 
 const Layout = () => {
-  const { user, logout } = useAuthStore()
+  const { user, logout, isLoggingOut } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const { theme: sidebarTheme, toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
+  const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [thoughtOfTheDay] = useState(() => getThoughtOfTheDay())
+
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = useCallback(() => {
+    setAvatarDropdownOpen(false)
+    setShowLogoutModal(true)
+  }, [])
+
+  const confirmLogout = useCallback(async () => {
+    setShowLogoutModal(false)
+    await logout()
     navigate('/login')
-  }
+  }, [logout, navigate])
+
+  const cancelLogout = useCallback(() => {
+    setShowLogoutModal(false)
+  }, [])
+
+  // Close avatar dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (avatarDropdownOpen && !event.target.closest('.avatar-dropdown-container')) {
+        setAvatarDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [avatarDropdownOpen])
 
   const userRole = getUserRole(user)
-  const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) || 
-                             ['ADMIN', 'MODERATOR'].includes(user?.role)
+  const isAdminOrModerator = ['Admin', 'Moderator'].includes(userRole) ||
+    ['ADMIN', 'MODERATOR'].includes(user?.role)
 
-  const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/announcements', icon: Megaphone, label: 'Announcements' },
-    { path: '/news', icon: Newspaper, label: 'News' },
-    { path: '/blogs', icon: BookOpen, label: 'Blogs' },
-    { path: '/discussions', icon: MessageSquare, label: 'Discussions' },
-    { path: '/groups', icon: Users, label: 'Groups' },
-    { path: '/recognitions', icon: Award, label: 'Recognitions' },
-    { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
-    { path: '/learning', icon: GraduationCap, label: 'Learning' },
-    { path: '/directory', icon: UsersRound, label: 'Directory' },
-    ...(isAdminOrModerator
-      ? [
-        { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-        { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
-        { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
+  // Get role icon for glowy display
+  const getRoleIcon = (roleName) => {
+    switch (roleName) {
+      case 'Admin':
+        return Shield
+      case 'Moderator':
+        return UserCheck
+      default:
+        return Users
+    }
+  }
+
+  // Organize navigation into sections - use useMemo to prevent unnecessary recalculations
+  const navSections = useMemo(() => [
+    {
+      title: 'ANALYTICS',
+      items: [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        ...(isAdminOrModerator ? [{ path: '/analytics', icon: BarChart3, label: 'Analytics' }] : [])
       ]
-      : [])
-  ]
+    },
+    {
+      title: 'COMMUNICATION',
+      items: [
+        { path: '/announcements', icon: Megaphone, label: 'Announcements' },
+        { path: '/news', icon: Newspaper, label: 'News' },
+        { path: '/blogs', icon: BookOpen, label: 'Blogs' },
+        { path: '/discussions', icon: MessageSquare, label: 'Discussions' }
+      ]
+    },
+    {
+      title: 'COLLABORATION',
+      items: [
+        { path: '/groups', icon: Users, label: 'Groups' },
+        { path: '/recognitions', icon: Award, label: 'Recognitions' },
+        { path: '/surveys', icon: ClipboardList, label: 'Surveys' }
+      ]
+    },
+    {
+      title: 'LEARNING',
+      items: [
+        { path: '/learning', icon: GraduationCap, label: 'Learning' },
+        { path: '/directory', icon: UsersRound, label: 'Directory' }
+      ]
+    },
+    ...(isAdminOrModerator
+      ? [{
+        title: 'ADMIN',
+        items: [
+          { path: '/moderation', icon: Shield, label: 'Moderation' },
+          { path: '/admin/analytics', icon: BarChart3, label: 'Admin Analytics' },
+          { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
+          { path: '/admin/redemptions', icon: Gift, label: 'Redemptions' },
+          { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
+        ]
+      }]
+      : []),
+    {
+      title: 'ACCOUNT',
+      items: [
+        { path: '/settings', icon: Settings, label: 'Settings' }
+      ]
+    }
+  ], [isAdminOrModerator])
 
-  const isActivePath = (path) => {
+  // State to track expanded sections - load from localStorage or initialize all as expanded
+  const [expandedSections, setExpandedSections] = useState(() => {
+    const savedSections = getExpandedSectionsState()
+    if (savedSections) {
+      return savedSections
+    }
+    // Initialize with default sections (admin will be added when user loads)
+    const sections = {}
+    const defaultSections = ['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING', 'ACCOUNT']
+    defaultSections.forEach(title => {
+      sections[title] = true
+    })
+    return sections
+  })
+
+  // Track which sections have been rendered before (to skip animation on first appearance)
+  // Use ref to avoid re-renders and for immediate access
+  const renderedSectionsRef = useRef(new Set(['ANALYTICS', 'COMMUNICATION', 'COLLABORATION', 'LEARNING', 'ACCOUNT']))
+
+  // Update expanded sections immediately when navSections changes (e.g., admin section appears)
+  // Merge saved state with new sections, defaulting new sections to expanded
+  useEffect(() => {
+    setExpandedSections(prev => {
+      const updated = { ...prev }
+      let hasChanges = false
+      navSections.forEach(section => {
+        // If section is new (wasn't in previous state), add it as expanded
+        if (updated[section.title] === undefined) {
+          updated[section.title] = true
+          hasChanges = true
+        }
+      })
+      // Only update if there are actual changes to prevent unnecessary re-renders
+      return hasChanges ? updated : prev
+    })
+
+    // Track newly added sections in ref (updates synchronously, no re-render)
+    navSections.forEach(section => {
+      renderedSectionsRef.current.add(section.title)
+    })
+  }, [navSections])
+
+  // Save sidebar collapsed state to localStorage whenever it changes
+  useEffect(() => {
+    setSidebarCollapsedState(sidebarCollapsed)
+  }, [sidebarCollapsed])
+
+  // Save expanded sections to localStorage whenever they change
+  useEffect(() => {
+    setExpandedSectionsState(expandedSections)
+  }, [expandedSections])
+
+  const toggleSection = (sectionTitle) => {
+    setExpandedSections(prev => {
+      const updated = {
+        ...prev,
+        [sectionTitle]: !prev[sectionTitle]
+      }
+      return updated
+    })
+  }
+
+  const handleSidebarCollapseToggle = (collapsed) => {
+    setSidebarCollapsed(collapsed)
+  }
+
+  const isActivePath = useCallback((path) => {
     if (path === '/dashboard') {
       return location.pathname === '/dashboard' || location.pathname === '/'
     }
     return location.pathname.startsWith(path)
-  }
+  }, [location.pathname])
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#ebf3ff' }}>
+    <div className={`min-h-screen transition-colors duration-200 ${sidebarTheme === 'dark' ? 'bg-[#0a0e17]' : 'bg-slate-50'}`}>
       {/* Mobile header */}
-      <motion.div 
-        className="lg:hidden bg-white/80 backdrop-blur-xl border-b border-slate-200 fixed top-0 left-0 right-0 z-30 shadow-sm"
+      <motion.div
+        className={`lg:hidden backdrop-blur-xl border-b fixed top-0 left-0 right-0 z-30 transition-colors duration-200 ${
+          sidebarTheme === 'dark'
+            ? 'bg-[#0a0e17]/80 border-[#151a28]'
+            : 'bg-white/80 border-slate-200'
+        }`}
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-3">
           <Link to="/dashboard">
-            <img src={Logo} alt="Nirmitee.io" className="h-8 cursor-pointer hover:opacity-80 transition-opacity" />
+            <img src={Logo} alt="Nirmitee.io" className="h-7 cursor-pointer hover:opacity-80 transition-opacity" />
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
@@ -94,11 +283,11 @@ const Layout = () => {
               <AnimatePresence mode="wait">
                 {sidebarOpen ? (
                   <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                    <X size={24} />
+                    <X size={20} />
                   </motion.div>
                 ) : (
                   <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                    <Menu size={24} />
+                    <Menu size={20} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -108,96 +297,287 @@ const Layout = () => {
       </motion.div>
 
       <div className="flex min-h-screen">
-        {/* Light Sidebar */}
+        {/* Modern Sidebar */}
         <aside
           className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-72
-             transition-transform duration-300 ease-in-out bg-white border-r border-slate-200 shadow-lg`}
+            } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
+             transition-all duration-300 ease-in-out 
+             ${sidebarTheme === 'dark'
+              ? 'bg-[#0a0e17] border-r border-[#151a28]'
+              : 'bg-white border-r border-slate-200'
+            }`}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className="p-6 border-b border-slate-100">
-              <Link to="/dashboard" className="block">
-                <motion.div whileHover={{ scale: 1.02 }}>
-                  <img src={Logo} alt="Nirmitee.io" className="h-10" />
-                </motion.div>
-              </Link>
-              <p className="text-xs text-slate-500 tracking-wide font-medium mt-3">Internal Communications Hub</p>
+            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#151a28] bg-[#0a0e17]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+              {sidebarCollapsed ? (
+                <button
+                  onClick={() => handleSidebarCollapseToggle(false)}
+                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
+                >
+                  <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
+                </button>
+              ) : (
+                <>
+                  <Link to="/dashboard" className="flex flex-col items-start justify-center gap-0.5 group">
+                    <img src={Logo} alt="Nirmitee.io" className="h-5 group-hover:opacity-80 transition-opacity" />
+                    <p className={`text-[9px] tracking-wide font-medium leading-tight transition-colors ${sidebarTheme === 'dark' ? 'text-slate-400 group-hover:text-slate-300' : 'text-slate-500 group-hover:text-slate-700'}`}>Internal Communications Hub</p>
+                  </Link>
+                  <button
+                    onClick={() => handleSidebarCollapseToggle(true)}
+                    className={`p-1.5 rounded-lg transition-all duration-200 ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
+                    title="Collapse sidebar"
+                  >
+                    <ChevronsLeft size={16} className={sidebarTheme === 'dark' ? 'text-slate-400 hover:text-slate-300 transition-colors' : 'text-slate-500 hover:text-slate-700 transition-colors'} />
+                  </button>
+                </>
+              )}
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-              {navItems.map((item, index) => {
-                const Icon = item.icon
-                const isActive = isActivePath(item.path)
-                return (
-                  <motion.div
-                    key={item.path}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.03, duration: 0.3 }}
-                  >
-                    <Link
-                      to={item.path}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 group
-                        ${isActive 
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25' 
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                        }`}
-                    >
-                      <Icon size={20} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'} />
-                      <span className="flex-1">{item.label}</span>
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500 }}
-                        >
-                          <ChevronRight size={16} />
-                        </motion.div>
-                      )}
-                    </Link>
-                  </motion.div>
-                )
-              })}
+            {/* Navigation with Sections */}
+            <nav className={`flex-1 overflow-y-auto p-2 scrollbar-hide ${sidebarTheme === 'dark' ? 'sidebar-scrollbar-dark' : 'sidebar-scrollbar-light'}`}>
+              {sidebarCollapsed ? (
+                // Collapsed view - show only icons
+                <div className="space-y-1">
+                  {navSections.flatMap(section => section.items).map((item) => {
+                    const Icon = item.icon
+                    const isActive = isActivePath(item.path)
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group relative
+                          ${isActive
+                            ? 'bg-[#ff4701] text-white'
+                            : sidebarTheme === 'dark'
+                              ? 'text-slate-300 hover:text-slate-500 hover:bg-[#151a28]'
+                              : 'text-slate-600 hover:text-slate-700 hover:bg-slate-100'
+                          }`}
+                        title={item.label}
+                      >
+                        <Icon
+                          size={18}
+                          className={`transition-all duration-200 ${isActive
+                              ? 'text-white'
+                              : sidebarTheme === 'dark'
+                                ? 'text-slate-400 group-hover:text-indigo-400 group-hover:scale-110'
+                                : 'text-slate-400 group-hover:text-indigo-600 group-hover:scale-110'
+                            }`}
+                        />
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : (
+                // Expanded view - show full navigation
+                navSections.map((section) => {
+                  const isExpanded = expandedSections[section.title] !== false
+                  return (
+                    <div key={section.title} className="mb-1.5">
+                      {/* Section Header - Clickable */}
+                      <button
+                        onClick={() => toggleSection(section.title)}
+                          className={`w-full flex items-center justify-between px-3 py-1 mb-1 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
+                      >
+                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${sidebarTheme === 'dark' ? 'text-slate-400 group-hover:text-slate-300' : 'text-slate-600 group-hover:text-slate-800'}`}>
+                          {section.title}
+                        </p>
+                        <ChevronDown
+                          size={12}
+                          className={`transition-all duration-200 ${isExpanded ? 'rotate-180' : ''} ${sidebarTheme === 'dark' ? 'text-slate-500 group-hover:text-slate-300' : 'text-slate-400 group-hover:text-slate-600'}`}
+                        />
+                      </button>
+
+                      {/* Section Items - With smooth animation */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            className="space-y-0"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                          >
+                            {section.items.map((item, itemIndex) => {
+                              const Icon = item.icon
+                              const isActive = isActivePath(item.path)
+                              // Skip animation delay for sections that just appeared (like admin section on first load)
+                              const isNewSection = !renderedSectionsRef.current.has(section.title)
+                              return (
+                                <motion.div
+                                  key={item.path}
+                                  initial={isNewSection ? false : { opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: -10 }}
+                                  transition={isNewSection ? { duration: 0 } : {
+                                    duration: 0.25,
+                                    delay: itemIndex * 0.04,
+                                    ease: "easeOut"
+                                  }}
+                                >
+                                  <Link
+                                    to={item.path}
+                                    onClick={() => setSidebarOpen(false)}
+                                    className={`flex items-center gap-3 px-3 py-1.5 rounded-lg font-medium transition-all duration-200 group relative
+                                      ${isActive
+                                        ? 'bg-[#ff4701] text-white'
+                                        : sidebarTheme === 'dark'
+                                          ? 'text-slate-300 hover:text-white hover:bg-[#151a28]'
+                                          : 'text-slate-700 hover:text-slate-700 hover:bg-slate-100'
+                                      }`}
+                                  >
+                                    <Icon
+                                      size={18}
+                                      className={`transition-all duration-200 ${isActive
+                                          ? 'text-white'
+                                          : sidebarTheme === 'dark'
+                                            ? 'text-slate-400 group-hover:text-indigo-400 group-hover:scale-110'
+                                            : 'text-slate-500 group-hover:text-slate-700'
+                                        }`}
+                                    />
+                                    <span className={`flex-1 text-xs transition-all duration-200 ${isActive ? 'font-semibold' : 'group-hover:font-medium'
+                                      }`}>{item.label}</span>
+                                  </Link>
+                                </motion.div>
+                              )
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                })
+              )}
             </nav>
 
-            {/* User Profile Section */}
-            <div className="p-4 border-t border-slate-100">
-              <Link
-                to="/profile"
-                onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
-              >
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-md">
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <User size={20} className="text-white" />
-                    )}
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">
-                    {user?.name || user?.displayName || 'User'}
-                  </p>
-                  <div className="mt-0.5">
-                    <RoleBadge role={userRole || 'Employee'} size="sm" />
-                  </div>
-                </div>
-              </Link>
-              
-              <motion.button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 mt-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all"
-                whileHover={{ x: 4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <LogOut size={18} />
-                <span className="font-medium">Logout</span>
-              </motion.button>
+            {/* Enhanced Logout Section with User Profile */}
+            <div className={`py-1 px-2 border-t ${sidebarTheme === 'dark' ? 'border-[#151a28] bg-[#0a0e17]' : 'border-slate-200 bg-white'}`}>
+              {sidebarCollapsed ? (
+                <motion.button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center p-2 rounded-lg transition-all duration-200 font-medium group relative overflow-hidden"
+                  style={{
+                    background: sidebarTheme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.15) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.1) 100%)'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Logout"
+                >
+                  <LogOut 
+                    size={18} 
+                    className={`transition-all duration-200 ${
+                      sidebarTheme === 'dark'
+                        ? 'text-red-400 group-hover:text-red-300 group-hover:rotate-12'
+                        : 'text-red-600 group-hover:text-red-700 group-hover:rotate-12'
+                    }`}
+                  />
+                </motion.button>
+              ) : (
+                <motion.div
+                  className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-200 group ${
+                    sidebarTheme === 'dark'
+                      ? 'bg-[#151a28] hover:bg-[#1a1f2e]'
+                      : 'bg-slate-50 hover:bg-slate-100'
+                  }`}
+                  whileHover={{ x: 2 }}
+                >
+                  {/* User Avatar */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-7 h-7 bg-[#0a0e17] rounded-lg flex items-center justify-center">
+                      {user?.avatar ? (
+                        <img 
+                          src={user.avatar} 
+                          alt={user?.name || 'User'} 
+                          className="w-full h-full rounded-lg object-cover" 
+                        />
+                      ) : (
+                        <User size={14} className="text-white" />
+                      )}
+                    </div>
+                  </Link>
+                  
+                  {/* User Info */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex-1 min-w-0 flex flex-col gap-0"
+                  >
+                    <p className={`text-[11px] font-semibold leading-none transition-colors break-words line-clamp-1 ${sidebarTheme === 'dark' ? 'text-slate-200 group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900'}`}>
+                      {user?.firstName && user?.lastName
+                        ? `${user.firstName} ${user.lastName}`.trim()
+                        : user?.displayName || user?.name || 'User'}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      {(() => {
+                        const RoleIcon = getRoleIcon(userRole || 'Employee')
+                        const isAdmin = userRole === 'Admin'
+                        const isModerator = userRole === 'Moderator'
+                        return (
+                          <>
+                            <RoleIcon 
+                              size={12} 
+                              className={sidebarTheme === 'dark' 
+                                ? isAdmin 
+                                  ? 'text-slate-500' 
+                                  : isModerator
+                                  ? 'text-slate-500'
+                                  : 'text-slate-400'
+                                : isAdmin
+                                  ? 'text-slate-700'
+                                  : isModerator
+                                  ? 'text-slate-700'
+                                  : 'text-slate-600'
+                              }
+                            />
+                            <span 
+                              className={`text-[10px] font-semibold ${sidebarTheme === 'dark' 
+                                ? isAdmin 
+                                  ? 'text-slate-500' 
+                                  : isModerator
+                                  ? 'text-slate-500'
+                                  : 'text-slate-400'
+                                : isAdmin
+                                  ? 'text-slate-700'
+                                  : isModerator
+                                  ? 'text-slate-700'
+                                  : 'text-slate-600'
+                              }`}
+                            >
+                              {userRole || 'Employee'}
+                            </span>
+                          </>
+                        )
+                      })()}
+                    </div>
+                  </Link>
+                  
+                  {/* Logout Button */}
+                  <motion.button
+                    onClick={handleLogout}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all duration-200 font-medium flex-shrink-0 ${
+                      sidebarTheme === 'dark'
+                        ? 'text-red-400 hover:text-white hover:bg-red-600/20 active:bg-red-600/30'
+                        : 'text-red-600 hover:text-white hover:bg-red-600 active:bg-red-700'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    title="Logout"
+                  >
+                    <LogOut 
+                      size={14} 
+                      className="transition-all duration-200 group-hover:rotate-12"
+                    />
+                    <span className="text-[10px] font-semibold">Logout</span>
+                  </motion.button>
+                </motion.div>
+              )}
             </div>
           </div>
         </aside>
@@ -206,7 +586,7 @@ const Layout = () => {
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
-              className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+              className="lg:hidden fixed inset-0 bg-[#ff4701]/30 backdrop-blur-sm z-40"
               onClick={() => setSidebarOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -216,39 +596,251 @@ const Layout = () => {
         </AnimatePresence>
 
         {/* Main content */}
-        <main className="flex-1 lg:ml-72 min-h-screen flex flex-col pt-16 lg:pt-0 relative">
+        <main className={`flex-1 min-h-screen flex flex-col pt-14 lg:pt-0 relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'} ${
+          sidebarTheme === 'dark' ? 'bg-[#0a0e17]' : 'bg-slate-50'
+        }`}>
           {/* Top bar */}
-          <motion.div 
-            className="hidden lg:flex bg-white/80 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-8 py-4 items-center justify-between sticky top-0 lg:top-0 z-20 shadow-sm"
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+          <div
+            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-colors duration-200 ${
+              sidebarTheme === 'dark'
+                ? 'bg-[#0a0e17] border-[#151a28]'
+                : 'bg-white border-slate-200'
+            }`}
           >
             <div className="hidden lg:flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100">
-                <span className="text-sm text-slate-600">Welcome back,</span>
-                <span className="text-sm font-semibold text-indigo-600">{user?.displayName || user?.name || user?.firstName || 'User'}</span>
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center gap-3 max-w-lg"
+              >
+                {/* Content */}
+                <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                      sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                    }`}>
+                      Thought of the Day
+                    </span>
+                    <Quote size={10} className={`${
+                      sidebarTheme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+                    }`} />
+                  </div>
+                  <p className={`text-button italic leading-tight truncate ${
+                    sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+                  }`}>
+                    {"\u201C"}{thoughtOfTheDay}{"\u201D"}
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
+                sidebarTheme === 'dark'
+                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#151a28]/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+                title={sidebarTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {sidebarTheme === 'dark' ? (
+                  <Sun size={18} className="transition-colors" />
+                ) : (
+                  <Moon size={18} className="transition-colors" />
+                )}
+              </button>
+              <NotificationBell />
+              
+              {/* Avatar Dropdown */}
+              <div className="relative avatar-dropdown-container">
+                <button
+                  onClick={() => setAvatarDropdownOpen(!avatarDropdownOpen)}
+                  className={`p-1.5 rounded-lg transition-all duration-200 ${
+                    sidebarTheme === 'dark'
+                      ? 'hover:bg-[#151a28]/50'
+                      : 'hover:bg-slate-100'
+                  }`}
+                  title="User menu"
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    sidebarTheme === 'dark'
+                      ? 'bg-[#ff4701]'
+                      : 'bg-[#0a0e17]'
+                  }`}>
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
+                    ) : (
+                      <User size={16} className="text-white" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {avatarDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors ${
+                        sidebarTheme === 'dark'
+                          ? 'bg-[#151a28] border-[#151a28]'
+                          : 'bg-white border-slate-200'
+                      }`}
+                    >
+                      <Link
+                        to="/profile"
+                        onClick={() => setAvatarDropdownOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          sidebarTheme === 'dark'
+                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <User size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                        <span className="text-button">Profile</span>
+                      </Link>
+                      <Link
+                        to="/settings"
+                        onClick={() => setAvatarDropdownOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          sidebarTheme === 'dark'
+                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Settings size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                        <span className="text-button">Settings</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          sidebarTheme === 'dark'
+                            ? 'text-rose-400 hover:bg-[#0a0e17]/50'
+                            : 'text-rose-600 hover:bg-rose-50'
+                        }`}
+                      >
+                        <LogOut size={18} className={sidebarTheme === 'dark' ? 'text-rose-400' : 'text-rose-500'} />
+                        <span className="text-button">Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <NotificationBell />
-            </div>
-          </motion.div>
+          </div>
 
           {/* Page content */}
-          <motion.div 
-            className="flex-1 p-4 lg:p-8"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            key={location.pathname}
-          >
+          <div className="flex-1 p-2 lg:p-3">
             <Outlet />
-          </motion.div>
+          </div>
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-[100] p-4"
+              onClick={cancelLogout}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className={`bg-white rounded-lg p-6 max-w-md w-full ${
+                  sidebarTheme === 'dark' ? 'bg-[#0a0e17] border border-[#151a28]' : 'bg-white border border-slate-200'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-full bg-red-100">
+                    <LogOut size={24} className="text-red-600" />
+                  </div>
+                  <h2 className={`text-h1 ${
+                    sidebarTheme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+                  }`}>
+                    Confirm Logout
+                  </h2>
+                </div>
+                
+                <p className={`mb-6 ${
+                  sidebarTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+                }`}>
+                  Are you sure you want to logout? You'll need to sign in again to access your account.
+                </p>
+
+                <div className="flex items-center gap-3 justify-end">
+                  <button
+                    onClick={cancelLogout}
+                    disabled={isLoggingOut}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      sidebarTheme === 'dark'
+                        ? 'bg-[#151a28] text-slate-200 hover:bg-[#1a1f2e]'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    disabled={isLoggingOut}
+                    className={`px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors ${
+                      isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Logout Loading Overlay */}
+      <AnimatePresence>
+        {isLoggingOut && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-[200]"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <motion.div
+                className={`w-10 h-10 rounded-full border-2 ${
+                  sidebarTheme === 'dark' 
+                    ? 'border-[#0a0e17] border-t-[#ff4701]' 
+                    : 'border-slate-200 border-t-[#ff4701]'
+                }`}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <p className={`text-button ${
+                sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+              }`}>
+                Logging out...
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-export default Layout
+// Memoize Layout to prevent unnecessary re-renders - Layout must stay mounted
+export default memo(Layout)

@@ -1,4 +1,5 @@
 const announcementService = require('../services/announcementService');
+const dummyDataService = require('../services/dummyDataService');
 const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { handleDatabaseError } = require('../utils/errorHandlers');
@@ -49,9 +50,37 @@ const getAllAnnouncements = async (req, res, next) => {
 const getAnnouncementById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Check if it's a dummy ID (starts with 'dummy-')
+    if (id && id.startsWith('dummy-')) {
+      try {
+        const dummyAnnouncement = dummyDataService.getDummyAnnouncementById(id);
+        return sendSuccess(res, dummyAnnouncement);
+      } catch (dummyError) {
+        // If dummy announcement not found, try database
+        // Fall through to database lookup
+      }
+    }
+    
     const announcement = await announcementService.getAnnouncementById(id);
     return sendSuccess(res, announcement);
   } catch (error) {
+    // If database lookup fails and it's a dummy ID, try dummy data
+    if (req.params.id && req.params.id.startsWith('dummy-')) {
+      try {
+        const dummyAnnouncement = dummyDataService.getDummyAnnouncementById(req.params.id);
+        return sendSuccess(res, dummyAnnouncement);
+      } catch (dummyError) {
+        // If dummy also fails, return original error
+        return sendError(res, error.message || 'Announcement not found', 404);
+      }
+    }
+    
+    // For invalid ObjectId format, return 404 instead of 500
+    if (error.message && error.message.includes('Invalid announcement ID format')) {
+      return sendError(res, 'Announcement not found', 404);
+    }
+    
     next(error);
   }
 };
@@ -97,4 +126,3 @@ module.exports = {
   updateAnnouncement,
   deleteAnnouncement
 };
-

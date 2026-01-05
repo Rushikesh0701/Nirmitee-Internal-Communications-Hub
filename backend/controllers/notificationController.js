@@ -1,4 +1,5 @@
 const notificationService = require('../services/notificationService');
+const dummyDataService = require('../services/dummyDataService');
 
 /**
  * GET /notifications

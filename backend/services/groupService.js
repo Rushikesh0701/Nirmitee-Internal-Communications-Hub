@@ -149,6 +149,17 @@ const getAllGroups = async (userId, options = {}) => {
  * Get group by ID with membership check
  */
 const getGroupById = async (groupId, userId) => {
+  // Check if this is a dummy ID (should be handled by controller, but add safety check)
+  if (groupId && typeof groupId === 'string' && groupId.startsWith('dummy-group-')) {
+    throw new Error('Group not found');
+  }
+
+  const mongoose = require('mongoose');
+  // Validate ObjectId format
+  if (!mongoose.Types.ObjectId.isValid(groupId)) {
+    throw new Error('Invalid group ID format');
+  }
+
   const group = await Group.findById(groupId)
     .populate('createdBy', 'firstName lastName email avatar')
     .populate('moderators', 'firstName lastName email avatar');
@@ -562,7 +573,23 @@ const getPostComments = async (postId, options = {}) => {
  * Create a comment
  */
 const createComment = async (commentData, userId) => {
+  const mongoose = require('mongoose');
   const { postId, content, parentCommentId } = commentData;
+
+  // Validate postId is a valid MongoDB ObjectId
+  if (!postId) {
+    throw new Error('postId is required');
+  }
+
+  // Check if it's a dummy ID
+  if (typeof postId === 'string' && postId.startsWith('dummy-')) {
+    throw new Error('Cannot add comments to dummy posts. Please use a valid post.');
+  }
+
+  // Ensure postId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    throw new Error('Invalid postId format. Must be a valid MongoDB ObjectId.');
+  }
 
   // Verify post exists
   const post = await GroupPost.findById(postId);
@@ -680,6 +707,213 @@ const toggleCommentLike = async (commentId, userId) => {
   return { isLiked: !isLiked, likes: comment.likes };
 };
 
+/**
+ * Get analytics for a specific group
+ */
+const getGroupAnalytics = async (groupId, userId) => {
+  const mongoose = require('mongoose');
+
+  // Validate MongoDB ObjectId format
+  if (!groupId || !mongoose.Types.ObjectId.isValid(groupId)) {
+    throw new Error('Invalid group ID format');
+  }
+
+  const group = await Group.findById(groupId)
+    .populate('createdBy', 'firstName lastName email avatar')
+    .lean();
+
+  if (!group) {
+    throw new Error('Group not found');
+  }
+
+  // Get member count
+  const memberCount = await GroupMember.countDocuments({ groupId });
+
+  // Get post statistics
+  const [totalPosts, postsThisMonth] = await Promise.all([
+    GroupPost.countDocuments({ groupId }),
+    GroupPost.countDocuments({
+      groupId,
+      createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+    })
+  ]);
+
+  // Get comment statistics
+  const groupPostIds = await GroupPost.find({ groupId }).select('_id').lean();
+  const postIds = groupPostIds.map(p => p._id);
+
+  const [totalComments, commentsThisMonth] = await Promise.all([
+    GroupComment.countDocuments({ postId: { $in: postIds } }),
+    GroupComment.countDocuments({
+      postId: { $in: postIds },
+      createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+    })
+  ]);
+
+  // Get posts over time (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const postsOverTime = await GroupPost.aggregate([
+    { $match: { groupId: new mongoose.Types.ObjectId(groupId), createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get comments over time
+  const commentsOverTime = await GroupComment.aggregate([
+    { $match: { postId: { $in: postIds }, createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get top posts by likes
+  const topPostsByLikes = await GroupPost.find({ groupId })
+    .select('content likes commentCount authorId createdAt')
+    .populate('authorId', 'firstName lastName email')
+    .sort({ likes: -1 })
+    .limit(5)
+    .lean();
+
+  // Get top posts by comments
+  const topPostsByComments = await GroupPost.find({ groupId })
+    .select('content likes commentCount authorId createdAt')
+    .populate('authorId', 'firstName lastName email')
+    .sort({ commentCount: -1 })
+    .limit(5)
+    .lean();
+
+  // Get most active members (by posts)
+  const topPosters = await GroupPost.aggregate([
+    { $match: { groupId: new mongoose.Types.ObjectId(groupId) } },
+    {
+      $group: {
+        _id: '$authorId',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        postCount: '$count',
+        _id: 0
+      }
+    }
+  ]);
+
+  // Get most active commenters
+  const topCommenters = await GroupComment.aggregate([
+    { $match: { postId: { $in: postIds } } },
+    {
+      $group: {
+        _id: '$authorId',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        commentCount: '$count',
+        _id: 0
+      }
+    }
+  ]);
+
+  // Calculate engagement metrics
+  const averagePostsPerMember = memberCount > 0 ? (totalPosts / memberCount).toFixed(2) : 0;
+  const averageCommentsPerPost = totalPosts > 0 ? (totalComments / totalPosts).toFixed(2) : 0;
+
+  return {
+    group: {
+      id: group._id,
+      name: group.name,
+      description: group.description,
+      createdBy: group.createdBy,
+      createdAt: group.createdAt,
+      isPublic: group.isPublic
+    },
+    metrics: {
+      memberCount,
+      totalPosts,
+      postsThisMonth,
+      totalComments,
+      commentsThisMonth,
+      averagePostsPerMember: parseFloat(averagePostsPerMember),
+      averageCommentsPerPost: parseFloat(averageCommentsPerPost)
+    },
+    trends: {
+      postsOverTime,
+      commentsOverTime
+    },
+    topContent: {
+      postsByLikes: topPostsByLikes,
+      postsByComments: topPostsByComments
+    },
+    topMembers: {
+      topPosters,
+      topCommenters
+    }
+  };
+};
+
 module.exports = {
   getAllGroups,
   getGroupById,
@@ -697,6 +931,7 @@ module.exports = {
   createComment,
   updateComment,
   deleteComment,
-  toggleCommentLike
+  toggleCommentLike,
+  getGroupAnalytics
 };
 

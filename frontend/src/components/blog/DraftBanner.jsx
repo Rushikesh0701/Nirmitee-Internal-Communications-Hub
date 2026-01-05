@@ -15,14 +15,14 @@ const DraftBanner = ({ onPublish, isPublishing }) => {
           <p className="text-yellow-800 font-semibold mb-1">
             📝 This blog is saved as a draft
           </p>
-          <p className="text-yellow-700 text-sm">
+          <p className="text-yellow-700 text-caption">
             It&apos;s only visible to you. Publish it to make it visible to everyone.
           </p>
         </div>
         <button
           onClick={onPublish}
           disabled={isPublishing}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-md whitespace-nowrap"
+          className="btn btn-success disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           aria-label="Publish blog"
         >
           {isPublishing ? 'Publishing...' : '📢 Publish Now'}

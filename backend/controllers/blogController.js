@@ -5,7 +5,7 @@ const { handleDatabaseError } = require('../utils/errorHandlers');
 
 const getAllBlogs = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, tag, published, authorId } = req.query;
+    const { page = 1, limit = 10, tag, published, authorId, search } = req.query;
 
     // Convert published string to boolean, but only if it's explicitly provided
     let publishedBool = undefined;
@@ -18,7 +18,8 @@ const getAllBlogs = async (req, res, next) => {
       limit: parseInt(limit),
       tag,
       published: publishedBool,
-      authorId
+      authorId,
+      search
     });
 
     return sendSuccess(res, blogs);
@@ -247,6 +248,43 @@ const deleteComment = async (req, res, next) => {
   }
 };
 
+const getBlogAnalytics = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = await getMongoUserIdSafe(req.userId);
+
+    // Validate blog ID
+    if (!id || id === 'undefined' || id === 'null') {
+      return sendError(res, 'Invalid blog ID', 400);
+    }
+
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return sendError(res, 'Invalid blog ID format', 400);
+    }
+
+    // Get blog to check ownership
+    const blog = await blogService.getBlogById(id, userId);
+    
+    // Check if user is the author
+    const blogAuthorId = blog.authorId?._id || blog.authorId;
+    if (blogAuthorId?.toString() !== userId?.toString()) {
+      return sendError(res, 'You can only view analytics for your own blogs', 403);
+    }
+
+    const analytics = await blogService.getBlogAnalytics(id);
+    return sendSuccess(res, analytics);
+  } catch (error) {
+    if (error.message === 'Blog not found') {
+      return sendError(res, error.message, 404);
+    }
+    if (error.message.includes('Invalid') || error.message.includes('can only view')) {
+      return sendError(res, error.message, error.message.includes('can only view') ? 403 : 400);
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getAllBlogs,
   getBlogById,
@@ -255,6 +293,7 @@ module.exports = {
   deleteBlog,
   likeBlog,
   addComment,
-  deleteComment
+  deleteComment,
+  getBlogAnalytics
 };
 

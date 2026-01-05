@@ -1,10 +1,16 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, X, Calendar, Globe, User, TrendingUp, Clock, ChevronDown, ChevronUp, Newspaper } from 'lucide-react';
 import NewsUpdateToast from '../../components/NewsUpdateToast';
+import Loading from '../../components/Loading';
+import { useTheme } from '../../contexts/ThemeContext';
+import EmptyState from '../../components/EmptyState';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function NewsList() {
+  const { theme } = useTheme();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [articles, setArticles] = useState([]);
@@ -138,6 +144,12 @@ function NewsList() {
 
   // Fetch news with enhanced filters
   const fetchNews = async (isNewSearch = false, targetPage = null) => {
+    // Prevent duplicate calls (especially in React StrictMode)
+    if (fetchingRef.current) {
+      return;
+    }
+    
+    fetchingRef.current = true;
     const currentQuery = buildSearchQuery();
     const pageToLoad = targetPage !== null ? targetPage : currentPage;
 
@@ -240,6 +252,7 @@ function NewsList() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      fetchingRef.current = false;
     }
   };
 
@@ -350,6 +363,9 @@ function NewsList() {
 
   // Track if this is the initial mount
   const [isInitialMount, setIsInitialMount] = useState(true);
+
+  // Prevent duplicate API calls (especially in React StrictMode)
+  const fetchingRef = useRef(false);
 
   // News update polling state
   const pollingIntervalRef = useRef(null);
@@ -489,31 +505,45 @@ function NewsList() {
 
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Tech News Feed</h1>
-        <p className="text-gray-600">Search and filter technology news with advanced options</p>
+    <div className="space-y-3">
+      <div>
+        <h1 className={`text-h1 mb-0.5 ${
+          theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
+        }`}>Tech News Feed</h1>
+        <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
+          Search and filter technology news with advanced options
+        </p>
       </div>
 
 
 
       {/* Main Search Bar */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className={`rounded-lg border p-2.5 ${
+        theme === 'dark'
+          ? 'bg-[#0a0e17]/50 border-[#151a28]/50'
+          : 'bg-white border-gray-200'
+      }`}>
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+              theme === 'dark' ? 'text-slate-500' : 'text-gray-400'
+            }`} size={20} />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search news by keywords, phrases, or topics..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent ${
+                theme === 'dark'
+                  ? 'border-[#ff4701] bg-[#0a0e17]/50 text-slate-200 placeholder-slate-500'
+                  : 'border-gray-300 bg-white text-gray-900'
+              }`}
             />
           </div>
           <button
             type="submit"
             disabled={loading || loadingMore}
-            className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="btn btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Search size={18} />
             {loading && !loadingMore ? 'Searching...' : 'Search'}
@@ -521,7 +551,9 @@ function NewsList() {
         </form>
 
         {/* Quick Search Tips */}
-        <div className="mt-3 text-xs text-gray-500 flex flex-wrap gap-2">
+        <div className={`mt-3 text-xs flex flex-wrap gap-2 ${
+          theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+        }`}>
           <span className="flex items-center gap-1">
             <span className="font-semibold">Tip:</span> Use quotes for exact phrases
           </span>
@@ -533,13 +565,23 @@ function NewsList() {
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-        <div className="flex items-center justify-between mb-4">
+      <div className={`rounded-lg border p-2.5 ${
+        theme === 'dark'
+          ? 'bg-[#0a0e17]/50 border-[#151a28]/50'
+          : 'bg-white border-gray-200'
+      }`}>
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Filter size={18} className="text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <Filter size={16} className={theme === 'dark' ? 'text-slate-400' : 'text-gray-600'} />
+            <h2 className={`text-base font-semibold ${
+              theme === 'dark' ? 'text-slate-200' : 'text-gray-900'
+            }`}>Filters</h2>
             {activeFiltersCount > 0 && (
-              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+              <span className={`px-2 py-0.5 text-overline rounded-full ${
+                theme === 'dark'
+                  ? 'bg-indigo-500/20 text-indigo-400'
+                  : 'bg-slate-100 text-slate-700'
+              }`}>
                 {activeFiltersCount} active
               </span>
             )}
@@ -548,7 +590,7 @@ function NewsList() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+                className="btn-filter"
               >
                 <X size={14} />
                 Clear All
@@ -556,25 +598,27 @@ function NewsList() {
             )}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              className="btn-filter"
             >
-              {showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showAdvancedFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               {showAdvancedFilters ? 'Hide' : 'Show'} Advanced
             </button>
           </div>
         </div>
 
         {/* Basic Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-button mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <TrendingUp size={14} className="inline mr-1" />
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select w-full"
             >
               {techCategories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -585,14 +629,16 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-button mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <Clock size={14} className="inline mr-1" />
               Date Range
             </label>
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select w-full"
             >
               {dateRanges.map((range) => (
                 <option key={range.value} value={range.value}>
@@ -603,14 +649,16 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-button mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <TrendingUp size={14} className="inline mr-1" />
               Sort By
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select w-full"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -621,14 +669,16 @@ function NewsList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={`block text-button mb-1 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+            }`}>
               <Globe size={14} className="inline mr-1" />
               Language
             </label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select w-full"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -642,16 +692,16 @@ function NewsList() {
         {/* Advanced Filters */}
         {showAdvancedFilters && (
           <div className="border-t border-gray-200 pt-4 mt-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Advanced Search Options</h3>
+            <h3 className="text-caption text-gray-700 mb-3">Advanced Search Options</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-button text-gray-700 mb-1">
                   Search In
                 </label>
                 <select
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="filter-select w-full"
                 >
                   <option value="all">All Fields</option>
                   <option value="title">Title Only</option>
@@ -661,14 +711,14 @@ function NewsList() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-button text-gray-700 mb-1">
                   <User size={14} className="inline mr-1" />
                   Source
                 </label>
                 <select
                   value={sourceFilter}
                   onChange={(e) => setSourceFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="filter-select w-full"
                 >
                   <option value="">All Sources</option>
                   {availableSources.map((source) => (
@@ -685,9 +735,9 @@ function NewsList() {
                     type="checkbox"
                     checked={exactPhrase}
                     onChange={(e) => setExactPhrase(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
                   />
-                  <span className="text-sm text-gray-700">Exact phrase match</span>
+                  <span className="text-caption text-gray-700">Exact phrase match</span>
                 </label>
               </div>
             </div>
@@ -696,7 +746,7 @@ function NewsList() {
             {dateRange === 'custom' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     <Calendar size={14} className="inline mr-1" />
                     From Date
                   </label>
@@ -704,11 +754,11 @@ function NewsList() {
                     type="date"
                     value={minDate}
                     onChange={(e) => setMinDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-button text-gray-700 mb-1">
                     <Calendar size={14} className="inline mr-1" />
                     To Date
                   </label>
@@ -716,7 +766,7 @@ function NewsList() {
                     type="date"
                     value={maxDate}
                     onChange={(e) => setMaxDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
                   />
                 </div>
               </div>
@@ -727,38 +777,74 @@ function NewsList() {
 
       {/* Loading State */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Searching for news...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className={`flex flex-col rounded-lg overflow-hidden ${
+                theme === 'dark'
+                  ? 'border border-[#151a28]/50 bg-[#0a0e17]/50'
+                  : 'border border-gray-200 bg-white'
+              }`}
+            >
+              <Skeleton
+                height={80}
+                baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'}
+                highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
+                className="w-full"
+              />
+              <div className="p-2 space-y-2">
+                <Skeleton
+                  height={14}
+                  count={2}
+                  baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'}
+                  highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
+                />
+                <Skeleton
+                  height={12}
+                  width="60%"
+                  baseColor={theme === 'dark' ? '#151a28' : '#e2e8f0'}
+                  highlightColor={theme === 'dark' ? '#0a0e17' : '#f1f5f9'}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-          <p className="text-red-700 text-center">{error}</p>
+        <div className={`border rounded-lg p-3 ${
+          theme === 'dark'
+            ? 'bg-red-900/20 border-red-800/50'
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <p className={`text-center text-sm ${
+            theme === 'dark' ? 'text-red-400' : 'text-red-700'
+          }`}>{error}</p>
         </div>
       )}
 
       {/* No Results State */}
       {!loading && !error && articles.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600 text-lg font-medium">No articles found</p>
-          <p className="text-gray-500 text-sm mt-2">
-            Try adjusting your search criteria or filters
-          </p>
-        </div>
+        <EmptyState
+          icon={Newspaper}
+          title="No articles found"
+          message="Try adjusting your search criteria or filters"
+        />
       )}
 
       {/* Articles List */}
       {!loading && articles.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-600">
+          <div className="flex items-center justify-between mb-2">
+            <p className={`text-xs ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               Found <span className="font-semibold">{articles.length}</span> articles
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
             {articles.map((article, index) => {
               // Map fields to handle news structure
               const title = article.title;
@@ -777,7 +863,11 @@ function NewsList() {
               return (
                 <div
                   key={uniqueKey}
-                  className="flex flex-col border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden cursor-pointer group"
+                  className={`flex flex-col rounded-lg overflow-hidden cursor-pointer group ${
+                    theme === 'dark'
+                      ? 'border border-[#151a28]/50 bg-[#0a0e17]/50'
+                      : 'border border-gray-200 bg-white'
+                  }`}
                   onClick={() => {
                     if (link) {
                       // Open the link - backend should have extracted the actual URL
@@ -786,40 +876,64 @@ function NewsList() {
                     }
                   }}
                 >
-                  {imageUrl && (
-                    <div className="relative w-full h-32 overflow-hidden bg-gray-100">
+                  <div className={`relative w-full h-20 overflow-hidden ${
+                    theme === 'dark' ? 'bg-[#0a0e17]/50' : 'bg-gray-100'
+                  }`}>
+                    {imageUrl ? (
                       <img
                         src={imageUrl}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        loading="lazy"
                         onError={(e) => {
                           e.target.style.display = 'none';
+                          const placeholder = e.target.parentElement?.querySelector('.news-placeholder');
+                          if (placeholder) placeholder.classList.remove('hidden');
                         }}
                       />
+                    ) : null}
+                    <div className={`w-full h-full flex items-center justify-center bg-slate-100 ${imageUrl ? 'hidden' : ''} news-placeholder`}>
+                      <Newspaper size={24} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
                     </div>
-                  )}
-                  <div className="p-3 flex flex-col flex-1">
-                    <div className="mb-2">
-                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
+                  </div>
+                  <div className="p-2 flex flex-col flex-1">
+                    <div className="mb-1">
+                      <h3 className={`text-overline line-clamp-2 mb-0.5 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-slate-200 group-hover:text-indigo-400'
+                          : 'text-gray-900 group-hover:text-slate-700'
+                      }`}>
                         {title}
                       </h3>
                       {date && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <Clock size={10} />
+                        <span className={`text-[10px] flex items-center gap-0.5 ${
+                          theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+                        }`}>
+                          <Clock size={8} />
                           {new Date(date).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 line-clamp-2 flex-1">
+                    <p className={`text-[10px] mb-2 line-clamp-2 flex-1 ${
+                      theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+                    }`}>
                       {description.replace(/<[^>]*>/g, '')}
                     </p>
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                      <span className="text-xs text-gray-500 truncate flex-1 mr-2 flex items-center gap-1">
-                        <User size={12} />
+                    <div className={`flex items-center justify-between mt-auto pt-1.5 border-t ${
+                      theme === 'dark' ? 'border-[#151a28]/50' : 'border-gray-100'
+                    }`}>
+                      <span className={`text-[10px] truncate flex-1 mr-1 flex items-center gap-0.5 ${
+                        theme === 'dark' ? 'text-slate-500' : 'text-gray-500'
+                      }`}>
+                        <User size={10} />
                         {source}
                       </span>
                       {article.category && (
-                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs whitespace-nowrap">
+                        <span className={`px-1 py-0.5 rounded text-[10px] whitespace-nowrap ${
+                          theme === 'dark'
+                            ? 'bg-[#0a0e17]/50 text-slate-300'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
                           {article.category}
                         </span>
                       )}
@@ -834,15 +948,25 @@ function NewsList() {
 
       {/* Pagination Controls */}
       {!loading && articles.length > 0 && (
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className={`mt-3 rounded-lg border p-2 ${
+          theme === 'dark'
+            ? 'bg-[#0a0e17]/50 border-[#151a28]/50'
+            : 'bg-white border-gray-200'
+        }`}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             {/* Left: Records per page selector */}
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span>Records per page:</span>
+            <div className={`flex items-center gap-1.5 text-xs ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
+              <span>Per page:</span>
               <select
                 value={recordsPerPage}
                 onChange={handleRecordsPerPageChange}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-medium bg-white cursor-pointer"
+                className={`px-2 py-1 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-slate-600 font-medium cursor-pointer ${
+                  theme === 'dark'
+                    ? 'border-[#ff4701] bg-[#0a0e17]/50 text-slate-200'
+                    : 'border-gray-300 text-gray-700 bg-white'
+                }`}
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -852,7 +976,9 @@ function NewsList() {
             </div>
 
             {/* Center: Page range info */}
-            <div className="text-sm text-gray-600">
+            <div className={`text-xs ${
+              theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+            }`}>
               {(() => {
                 // Pagination formula:
                 // startIndex = (currentPage - 1) * pageSize
@@ -865,7 +991,7 @@ function NewsList() {
                     <span className="font-semibold">
                       {startIndex}-{endIndex}
                     </span>
-                    <span className="mx-1">of</span>
+                    <span className="mx-0.5">of</span>
                     <span className="font-semibold">{totalResults > 0 ? totalResults : articles.length}</span>
                   </>
                 );
@@ -873,15 +999,19 @@ function NewsList() {
             </div>
 
             {/* Right: Navigation Controls */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {/* First Page Button */}
               <button
                 onClick={handleFirstPage}
                 disabled={currentPage === 1 || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-[#0a0e17]/50 border-[#151a28] text-slate-300 hover:bg-[#151a28] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title="First page"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="11 17 6 12 11 7"></polyline>
                   <polyline points="18 17 13 12 18 7"></polyline>
                 </svg>
@@ -891,14 +1021,22 @@ function NewsList() {
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1 || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-[#0a0e17]/50 border-[#151a28] text-slate-300 hover:bg-[#151a28] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title="Previous page"
               >
-                <ChevronDown className="rotate-90" size={18} />
+                <ChevronDown className="rotate-90" size={14} />
               </button>
 
               {/* Page Number Display */}
-              <div className="hidden sm:flex items-center px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 font-semibold rounded-lg min-w-[60px] justify-center">
+              <div className={`hidden sm:flex items-center px-2.5 py-1 border font-semibold rounded text-xs min-w-[44px] justify-center ${
+                theme === 'dark'
+                  ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400'
+                  : 'bg-slate-50 border-slate-300 text-slate-700'
+              }`}>
                 {currentPage}
               </div>
 
@@ -906,13 +1044,17 @@ function NewsList() {
               <button
                 onClick={handleNextPage}
                 disabled={!hasMorePages || loadingMore}
-                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+                className={`p-1.5 rounded transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-[#0a0e17]/50 disabled:text-slate-500'
+                    : 'bg-[#ff4701] text-white hover:bg-[#ff5500] disabled:bg-gray-300 disabled:text-gray-500'
+                }`}
                 title={hasMorePages ? "Next page" : "No more pages"}
               >
                 {loadingMore ? (
-                  <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                 ) : (
-                  <ChevronDown className="rotate-[-90deg]" size={18} />
+                  <ChevronDown className="rotate-[-90deg]" size={14} />
                 )}
               </button>
 
@@ -920,10 +1062,14 @@ function NewsList() {
               <button
                 onClick={handleLastPage}
                 disabled={totalResults === 0 || currentPage === Math.ceil(totalResults / recordsPerPage) || loadingMore}
-                className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className={`p-1.5 border rounded transition-colors disabled:cursor-not-allowed ${
+                  theme === 'dark'
+                    ? 'bg-[#0a0e17]/50 border-[#151a28] text-slate-300 hover:bg-[#151a28] disabled:bg-[#0a0e17]/50 disabled:text-slate-600'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
                 title={`Last page (${Math.ceil(totalResults / recordsPerPage)})`}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="13 17 18 12 13 7"></polyline>
                   <polyline points="6 17 11 12 6 7"></polyline>
                 </svg>
@@ -936,4 +1082,4 @@ function NewsList() {
   );
 }
 
-export default NewsList;
+export default memo(NewsList);

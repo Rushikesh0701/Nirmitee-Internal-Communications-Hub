@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 import { recognitionRewardApi } from '../../services/recognitionRewardApi'
 import { Trophy, Medal, Award, Star } from 'lucide-react'
 import Loading from '../../components/Loading'
+import EmptyState from '../../components/EmptyState'
 
 export default function Leaderboard() {
   const { data, isLoading } = useQuery('leaderboard', () =>
@@ -18,22 +19,22 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Leaderboard</h1>
-        <p className="text-gray-600 mt-1">Top performers by recognition points</p>
+        <h1 className="text-h1 text-gray-900">Leaderboard</h1>
+        <p className="text-caption text-gray-600 mt-0.5">Top performers by recognition points</p>
       </div>
 
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg overflow-hidden">
           <div className="divide-y">
             {leaderboard.map((entry) => (
               <div
                 key={entry.userId}
-                className={`p-6 flex items-center gap-4 ${
-                  entry.rank <= 3 ? 'bg-gradient-to-r from-yellow-50 to-transparent' : ''
+                className={`p-3 flex items-center gap-3 ${
+                  entry.rank <= 3 ? 'bg-slate-50' : ''
                 }`}
               >
                 <div className="flex-shrink-0 w-12 flex items-center justify-center">
@@ -47,20 +48,20 @@ export default function Leaderboard() {
                       className="w-12 h-12 rounded-full"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                      <span className="text-slate-700 font-semibold">
                         {entry.user?.name?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{entry.user?.name}</h3>
-                    <p className="text-sm text-gray-500">{entry.user?.email}</p>
+                    <p className="text-caption text-gray-500">{entry.user?.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="text-yellow-500" size={20} />
-                    <span className="text-xl font-bold text-gray-900">{entry.points}</span>
-                    <span className="text-sm text-gray-500">points</span>
+                    <span className="text-h1 text-gray-900">{entry.points}</span>
+                    <span className="text-caption text-gray-500">points</span>
                   </div>
                 </div>
               </div>
@@ -70,7 +71,11 @@ export default function Leaderboard() {
       )}
 
       {!isLoading && leaderboard.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No leaderboard data yet</div>
+        <EmptyState
+          icon={Trophy}
+          title="No leaderboard data yet"
+          message="Start recognizing colleagues to see the leaderboard"
+        />
       )}
     </div>
   )

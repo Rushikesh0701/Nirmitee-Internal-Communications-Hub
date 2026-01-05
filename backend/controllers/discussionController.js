@@ -1,53 +1,47 @@
 const discussionService = require('../services/discussionService');
 const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
-const { handleDatabaseError } = require('../utils/errorHandlers');
 
 const getAllDiscussions = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, category, tag, pinned } = req.query;
+    const { page = 1, limit = 10, category, tag, pinned, search } = req.query;
     const discussions = await discussionService.getAllDiscussions({
       page: parseInt(page),
       limit: parseInt(limit),
       category,
       tag,
-      pinned: pinned === 'true'
+      pinned: pinned === 'true',
+      search
     });
-    
-    if (!discussions || !discussions.discussions || discussions.discussions.length === 0) {
-      const dummyDiscussions = dummyDataService.getDummyDiscussions({
-        page: parseInt(page),
-        limit: parseInt(limit),
-        category
-      });
-      return sendSuccess(res, dummyDiscussions);
-    }
     
     return sendSuccess(res, discussions);
   } catch (error) {
-    try {
-      const dummyDiscussions = handleDatabaseError(
-        error,
-        (params) => dummyDataService.getDummyDiscussions({
-          page: parseInt(params.page) || 1,
-          limit: parseInt(params.limit) || 10,
-          category: params.category
-        }),
-        req.query
-      );
-      return sendSuccess(res, dummyDiscussions);
-    } catch {
-      next(error);
-    }
+    next(error);
   }
 };
 
 const getDiscussionById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Validate ID format - reject dummy IDs
+    if (id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      return sendError(res, 'Discussion not found', 404);
+    }
+    
     const discussion = await discussionService.getDiscussionById(id, req.userId);
     return sendSuccess(res, discussion);
   } catch (error) {
+    // Handle service errors
+    if (error.message === 'Discussion not found' || error.message === 'Invalid discussion ID format') {
+      return sendError(res, error.message, 404);
+    }
+    
+    // Handle CastError for invalid IDs
+    if (error.name === 'CastError' || error.message.includes('Cast to ObjectId')) {
+      return sendError(res, 'Invalid discussion ID format', 400);
+    }
+    
     next(error);
   }
 };
@@ -69,9 +63,22 @@ const createDiscussion = async (req, res, next) => {
 const updateDiscussion = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Validate ID format - reject dummy IDs
+    if (id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      return sendError(res, 'Discussion not found', 404);
+    }
+    
     const discussion = await discussionService.updateDiscussion(id, req.body, req.userId, req.user);
     return sendSuccess(res, discussion);
   } catch (error) {
+    // Handle CastError for invalid discussion IDs
+    if (error.name === 'CastError' || error.message.includes('Cast to ObjectId')) {
+      return sendError(res, 'Invalid discussion ID format', 400);
+    }
+    if (error.message === 'Discussion not found') {
+      return sendError(res, error.message, 404);
+    }
     next(error);
   }
 };
@@ -79,9 +86,22 @@ const updateDiscussion = async (req, res, next) => {
 const deleteDiscussion = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Validate ID format - reject dummy IDs
+    if (id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      return sendError(res, 'Discussion not found', 404);
+    }
+    
     await discussionService.deleteDiscussion(id, req.userId, req.user);
     return sendSuccess(res, null, 'Discussion deleted successfully');
   } catch (error) {
+    // Handle CastError for invalid discussion IDs
+    if (error.name === 'CastError' || error.message.includes('Cast to ObjectId')) {
+      return sendError(res, 'Invalid discussion ID format', 400);
+    }
+    if (error.message === 'Discussion not found') {
+      return sendError(res, error.message, 404);
+    }
     next(error);
   }
 };
@@ -89,6 +109,12 @@ const deleteDiscussion = async (req, res, next) => {
 const addComment = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Validate ID format - reject dummy IDs
+    if (id && typeof id === 'string' && id.startsWith('dummy-discussion-')) {
+      return sendError(res, 'Discussion not found', 404);
+    }
+    
     const authorId = await getMongoUserIdSafe(req.userId);
     const commentData = { ...req.body, discussionId: id, authorId };
     const comment = await discussionService.addComment(commentData);
@@ -97,6 +123,31 @@ const addComment = async (req, res, next) => {
     if (error.message.includes('authentication') || error.message.includes('login')) {
       return sendError(res, error.message, 401);
     }
+    // Handle CastError for invalid discussion IDs
+    if (error.name === 'CastError' || error.message.includes('Cast to ObjectId')) {
+      return sendError(res, 'Invalid discussion ID format', 400);
+    }
+    if (error.message === 'Discussion not found' || error.message === 'Parent comment not found') {
+      return sendError(res, error.message, 404);
+    }
+    next(error);
+  }
+};
+
+const getAllTags = async (req, res, next) => {
+  try {
+    const tags = await discussionService.getAllTags();
+    return sendSuccess(res, { tags });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getDiscussionAnalytics = async (req, res, next) => {
+  try {
+    const analytics = await discussionService.getDiscussionAnalytics();
+    return sendSuccess(res, analytics);
+  } catch (error) {
     next(error);
   }
 };
@@ -107,6 +158,8 @@ module.exports = {
   createDiscussion,
   updateDiscussion,
   deleteDiscussion,
-  addComment
+  addComment,
+  getAllTags,
+  getDiscussionAnalytics
 };
 

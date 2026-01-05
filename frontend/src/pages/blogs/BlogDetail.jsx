@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from 'react-query';
 import toast from 'react-hot-toast';
@@ -13,8 +14,9 @@ import DraftBanner from '../../components/blog/DraftBanner';
 import { isValidBlogId, checkIfLiked, checkIsOwner, checkCanEdit, isDraft as checkIsDraft, formatDate, getAuthorName, extractId } from '../../utils/blogHelpers';
 import { sanitizeHtml } from '../../utils/sanitize';
 import '../../styles/blog-content.css';
-import Loading from '../../components/Loading';
+import { DetailSkeleton } from '../../components/skeletons';
 import { ArrowLeft, BookOpen, Calendar, Heart, MessageCircle, Tag } from 'lucide-react';
+import EmptyState from '../../components/EmptyState';
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -41,12 +43,16 @@ const BlogDetail = () => {
   if (!isValidBlogId(id)) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="empty-state">
-          <BookOpen size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">Invalid Blog ID</h3>
-          <p className="empty-state-text mb-4">The blog ID is missing or invalid.</p>
-          <Link to="/blogs" className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 justify-center"><ArrowLeft size={18} /> Back to Blogs</Link>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Invalid Blog ID"
+          message="The blog ID is missing or invalid"
+          action={
+            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-button">
+              <ArrowLeft size={16} /> Back to Blogs
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -59,17 +65,21 @@ const BlogDetail = () => {
   const handleUnpublish = () => { if (blog?.isPublished) publishMutation.mutate(false); };
   const handleDeleteBlog = () => { if (window.confirm('Are you sure you want to delete this blog?')) { deleteBlogMutation.mutate(undefined, { onSuccess: () => { toast.success('Blog deleted!'); navigate('/blogs'); } }); } };
 
-  if (isLoading) return <Loading fullScreen size="lg" text="Loading blog..." />;
+  if (isLoading) return <DetailSkeleton />;
 
   if (error || !blog) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="empty-state">
-          <BookOpen size={56} className="empty-state-icon" />
-          <h3 className="empty-state-title">Blog not found</h3>
-          <p className="empty-state-text mb-4">The blog you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <Link to="/blogs" className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 justify-center"><ArrowLeft size={18} /> Back to Blogs</Link>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Blog not found"
+          message="The blog you're looking for doesn't exist or has been removed"
+          action={
+            <Link to="/blogs" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-button">
+              <ArrowLeft size={16} /> Back to Blogs
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -85,13 +95,13 @@ const BlogDetail = () => {
       {isAuthenticated && isDraft && isOwner && <DraftBanner onPublish={handlePublish} isPublishing={publishMutation.isLoading} />}
 
       <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card p-8">
-        <div className="flex items-center gap-4 mb-4 text-sm text-slate-500">
+        <div className="flex items-center gap-4 mb-4 text-caption text-slate-500">
           <span className="badge badge-primary">{blog.category || 'Uncategorized'}</span>
           <span className="flex items-center gap-1"><Calendar size={14} /> {formatDate(blog.createdAt)}</span>
           {isDraft && <span className="badge badge-warning">Draft</span>}
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 leading-tight">{blog.title}</h1>
+        <h1 className="text-3xl md:text-display text-slate-800 mb-4 leading-tight">{blog.title}</h1>
 
         <div className="flex items-center gap-4 mb-6 text-slate-500">
           <span className="font-medium text-slate-700">{authorName}</span>
@@ -117,4 +127,4 @@ const BlogDetail = () => {
   );
 };
 
-export default BlogDetail;
+export default memo(BlogDetail);

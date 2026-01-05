@@ -21,6 +21,7 @@ router.post('/posts/:postId/like', authenticateToken, groupController.togglePost
 
 // Group-specific routes
 router.get('/:id', optionalAuth, groupController.getGroupById);
+router.get('/:id/analytics', authenticateToken, groupController.getGroupAnalytics);
 router.get('/:id/posts', authenticateToken, groupController.getGroupPosts);
 router.post('/:id/posts', authenticateToken, groupController.createGroupPost);
 router.post('/:id/join', authenticateToken, groupController.joinGroup);

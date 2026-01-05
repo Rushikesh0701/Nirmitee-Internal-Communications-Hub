@@ -6,10 +6,30 @@ const logger = require('../utils/logger');
  */
 exports.getAllRssSources = async (req, res) => {
     try {
-        const sources = await RssSource.find().sort({ createdAt: -1 });
+        const { page = 1, limit = 10 } = req.query;
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        const total = await RssSource.countDocuments();
+        const sources = await RssSource.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum);
+
+        const totalPages = Math.ceil(total / limitNum);
+
         res.json({
             success: true,
-            data: sources
+            data: {
+                sources,
+                pagination: {
+                    page: pageNum,
+                    limit: limitNum,
+                    total,
+                    pages: totalPages
+                }
+            }
         });
     } catch (error) {
         logger.error('Error fetching RSS sources:', error);

@@ -5,7 +5,7 @@ const notificationService = require('./notificationService');
 const logger = require('../utils/logger');
 
 const getAllBlogs = async (options = {}) => {
-  const { page = 1, limit = 10, tag, published, authorId } = options;
+  const { page = 1, limit = 10, tag, published, authorId, search } = options;
   const skip = (page - 1) * limit;
 
   const query = {};
@@ -20,6 +20,16 @@ const getAllBlogs = async (options = {}) => {
   }
   if (tag) {
     query.tags = { $in: [tag] };
+  }
+  
+  // Full-text search in title, content, and tags
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), 'i');
+    query.$or = [
+      { title: { $regex: searchRegex } },
+      { content: { $regex: searchRegex } },
+      { tags: { $in: [searchRegex] } }
+    ];
   }
 
   const [blogs, total] = await Promise.all([
@@ -477,6 +487,138 @@ const deleteComment = async (commentId, userId, user) => {
   await BlogComment.findByIdAndDelete(commentId);
 };
 
+/**
+ * Get analytics for a specific blog
+ */
+const getBlogAnalytics = async (blogId) => {
+  // Validate MongoDB ObjectId format
+  if (!blogId || !mongoose.Types.ObjectId.isValid(blogId)) {
+    throw new Error('Invalid blog ID format');
+  }
+
+  const blog = await Blog.findById(blogId)
+    .populate('authorId', 'firstName lastName email avatar')
+    .lean();
+
+  if (!blog) {
+    throw new Error('Blog not found');
+  }
+
+  // Get comment statistics
+  const [totalComments, topLevelComments, replies] = await Promise.all([
+    BlogComment.countDocuments({ blogId }),
+    BlogComment.countDocuments({ blogId, parentCommentId: null }),
+    BlogComment.countDocuments({ blogId, parentCommentId: { $ne: null } })
+  ]);
+
+  // Get engagement metrics over time (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const viewsOverTime = await Blog.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(blogId) } },
+    {
+      $project: {
+        views: 1,
+        createdAt: 1
+      }
+    }
+  ]);
+
+  // Get comments over time
+  const commentsOverTime = await BlogComment.aggregate([
+    { $match: { blogId: new mongoose.Types.ObjectId(blogId), createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: '$_id',
+        count: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Calculate engagement rate (likes + comments / views)
+  const engagementRate = blog.views > 0
+    ? ((blog.likes + totalComments) / blog.views * 100).toFixed(2)
+    : 0;
+
+  // Get top commenters
+  const topCommenters = await BlogComment.aggregate([
+    { $match: { blogId: new mongoose.Types.ObjectId(blogId) } },
+    {
+      $group: {
+        _id: '$authorId',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user: {
+          id: '$user._id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          email: '$user.email',
+          avatar: '$user.avatar'
+        },
+        commentCount: '$count',
+        _id: 0
+      }
+    }
+  ]);
+
+  return {
+    blog: {
+      id: blog._id,
+      title: blog.title,
+      author: blog.authorId,
+      createdAt: blog.createdAt,
+      publishedAt: blog.publishedAt,
+      isPublished: blog.isPublished
+    },
+    metrics: {
+      views: blog.views || 0,
+      likes: blog.likes || 0,
+      totalComments,
+      topLevelComments,
+      replies,
+      engagementRate: parseFloat(engagementRate)
+    },
+    engagement: {
+      commentsOverTime,
+      topCommenters
+    },
+    summary: {
+      averageCommentsPerDay: commentsOverTime.length > 0
+        ? (totalComments / 30).toFixed(2)
+        : 0,
+      likesToViewsRatio: blog.views > 0
+        ? ((blog.likes || 0) / blog.views * 100).toFixed(2)
+        : 0,
+      commentsToViewsRatio: blog.views > 0
+        ? (totalComments / blog.views * 100).toFixed(2)
+        : 0
+    }
+  };
+};
+
 module.exports = {
   getAllBlogs,
   getBlogById,
@@ -485,5 +627,6 @@ module.exports = {
   deleteBlog,
   likeBlog,
   addComment,
-  deleteComment
+  deleteComment,
+  getBlogAnalytics
 };

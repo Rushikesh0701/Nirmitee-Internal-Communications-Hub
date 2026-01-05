@@ -18,6 +18,8 @@ router.get('/surveys', authenticateToken, isModerator, adminAnalyticsController.
 router.get('/recognitions', authenticateToken, isModerator, adminAnalyticsController.getRecognitionAnalytics);
 router.get('/blogs', authenticateToken, isModerator, adminAnalyticsController.getBlogAnalytics);
 router.get('/mau', authenticateToken, isModerator, adminAnalyticsController.getMAU);
+router.get('/posts-comments', authenticateToken, isModerator, adminAnalyticsController.getPostsAndCommentsCount);
+router.get('/sentiment', authenticateToken, isModerator, adminAnalyticsController.getSentimentAnalysis);
 
 module.exports = router;
 

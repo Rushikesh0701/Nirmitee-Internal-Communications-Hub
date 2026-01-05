@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
@@ -7,6 +7,8 @@ import { isAdminOrModerator } from '../../utils/userHelpers'
 import api from '../../services/api'
 import { ArrowLeft, ClipboardList, Send, BarChart3 } from 'lucide-react'
 import Loading from '../../components/Loading'
+import EmptyState from '../../components/EmptyState'
+import { DetailSkeleton } from '../../components/skeletons'
 
 const SurveyDetail = () => {
   const { id } = useParams()
@@ -27,7 +29,7 @@ const SurveyDetail = () => {
       onSuccess: () => {
         toast.success('Survey response submitted successfully!')
         queryClient.invalidateQueries(['survey', id])
-        queryClient.invalidateQueries('surveys')
+        queryClient.invalidateQueries(['surveys'])
         navigate('/surveys')
       },
       onError: (error) => {
@@ -74,11 +76,17 @@ const SurveyDetail = () => {
   }
 
   if (isLoading) {
-    return <Loading fullScreen />
+    return <DetailSkeleton />
   }
 
   if (!survey) {
-    return <div className="text-center py-12">Survey not found</div>
+    return (
+      <EmptyState
+        icon={ClipboardList}
+        title="Survey not found"
+        message="The survey you're looking for doesn't exist or has been removed"
+      />
+    )
   }
 
   const isActive = survey.status === 'ACTIVE'
@@ -119,7 +127,7 @@ const SurveyDetail = () => {
               <p className="text-gray-600">{survey.description}</p>
             )}
             {!isActive && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
+              <p className="mt-2 text-caption text-red-600 font-medium">
                 This survey is {survey.status.toLowerCase()}
               </p>
             )}
@@ -147,7 +155,7 @@ const SurveyDetail = () => {
 
                 return (
                   <div key={questionId} className="border-b pb-6 last:border-b-0">
-                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                    <label className="block text-h2 text-gray-900 mb-3">
                       {index + 1}. {question.questionText}
                       {question.required && (
                         <span className="text-red-500 ml-1">*</span>
@@ -203,7 +211,7 @@ const SurveyDetail = () => {
                               className="sr-only"
                               required={question.required}
                             />
-                            <span className={`text-lg font-semibold ${
+                            <span className={`text-h2 ${
                               currentResponse === rating.toString()
                                 ? 'text-primary-600'
                                 : 'text-gray-400'
@@ -212,7 +220,7 @@ const SurveyDetail = () => {
                             </span>
                           </label>
                         ))}
-                        <span className="ml-4 text-sm text-gray-500">
+                        <span className="ml-4 text-caption text-gray-500">
                           {currentResponse ? `${currentResponse}/5` : 'Select rating'}
                         </span>
                       </div>
@@ -221,9 +229,12 @@ const SurveyDetail = () => {
                 )
               })
             ) : (
-              <p className="text-gray-500 text-center py-8">
-                No questions available for this survey.
-              </p>
+              <EmptyState
+                icon={ClipboardList}
+                title="No questions available"
+                message="This survey doesn't have any questions yet"
+                compact
+              />
             )}
 
             <div className="flex items-center justify-end gap-4 pt-4 border-t">
@@ -250,5 +261,5 @@ const SurveyDetail = () => {
   )
 }
 
-export default SurveyDetail
+export default memo(SurveyDetail)
 

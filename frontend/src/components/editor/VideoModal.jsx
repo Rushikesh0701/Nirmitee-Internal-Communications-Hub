@@ -124,20 +124,20 @@ const VideoModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">Insert Video</h3>
+      <div className="fixed inset-0 bg-[#ff4701] bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 className="text-h2 mb-4 text-gray-800">Insert Video</h3>
           
           {/* File Upload Option */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-button text-gray-700 mb-2">
               Upload from Device
             </label>
             <button
               type="button"
               onClick={triggerVideoInput}
               disabled={uploadingVideo}
-              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-slate-600 transition-colors flex items-center justify-center gap-2 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploadingVideo ? (
                 <>
@@ -154,7 +154,7 @@ const VideoModal = ({
                 </>
               )}
             </button>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-overline text-gray-500 mt-2 text-center">
               Supports MP4, WebM, MOV (max 50MB)
             </p>
           </div>
@@ -164,14 +164,14 @@ const VideoModal = ({
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-caption">
               <span className="px-2 bg-white text-gray-500">OR</span>
             </div>
           </div>
 
           {/* URL Input Option */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-button text-gray-700 mb-2">
               Enter Video URL
             </label>
             <input
@@ -179,10 +179,10 @@ const VideoModal = ({
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="YouTube URL or direct video link"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900"
               onKeyPress={(e) => e.key === 'Enter' && handleVideoInsert()}
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-overline text-gray-500 mt-2">
               Supports YouTube URLs and direct video links
             </p>
           </div>
@@ -193,7 +193,7 @@ const VideoModal = ({
               type="button"
               onClick={handleVideoInsert}
               disabled={!videoUrl.trim()}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Insert URL
             </button>

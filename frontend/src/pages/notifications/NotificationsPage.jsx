@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import { notificationApi } from '../../services/notificationApi'
 import { Bell, Check, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import Loading from '../../components/Loading'
+import Pagination from '../../components/Pagination'
+import EmptyState from '../../components/EmptyState'
 
 /**
  * Get navigation link based on notification type and metadata
@@ -63,10 +65,21 @@ export default function NotificationsPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all') // all, unread, read
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(20)
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setPage(1)
+  }, [filter])
 
   const { data, isLoading } = useQuery(
-    ['notifications', filter],
-    () => notificationApi.getNotifications({ isRead: filter === 'all' ? undefined : filter === 'read' })
+    ['notifications', filter, page, limit],
+    () => notificationApi.getNotifications({ 
+      isRead: filter === 'all' ? undefined : filter === 'read',
+      page,
+      limit
+    })
   )
 
   const markAsReadMutation = useMutation(notificationApi.markAsRead, {
@@ -91,6 +104,7 @@ export default function NotificationsPage() {
   })
 
   const notifications = data?.data?.data?.notifications || []
+  const pagination = data?.data?.data?.pagination || { total: 0, page: 1, limit: 20, pages: 1 }
 
   const handleNotificationClick = async (notification) => {
     // Mark as read first
@@ -115,14 +129,14 @@ export default function NotificationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+          <h1 className="text-h1 text-gray-900">Notifications</h1>
           <p className="text-gray-600 mt-1">Stay updated with all activities</p>
         </div>
         <div className="flex items-center gap-3">
           {notifications.some((n) => !n.isRead) && (
             <button
               onClick={() => markAllAsReadMutation.mutate()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              className="px-4 py-2 bg-[#ff4701] text-white rounded-lg hover:bg-[#ff5500] flex items-center gap-2"
             >
               <Check size={18} />
               Mark all as read
@@ -141,28 +155,22 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 border-b">
+      <div className="flex gap-2 border-b pb-2">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'all' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'all' ? 'btn-filter-active' : ''}`}
         >
           All
         </button>
         <button
           onClick={() => setFilter('unread')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'unread' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'unread' ? 'btn-filter-active' : ''}`}
         >
           Unread
         </button>
         <button
           onClick={() => setFilter('read')}
-          className={`px-4 py-2 border-b-2 ${
-            filter === 'read' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'
-          }`}
+          className={`btn-filter ${filter === 'read' ? 'btn-filter-active' : ''}`}
         >
           Read
         </button>
@@ -171,44 +179,65 @@ export default function NotificationsPage() {
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              onClick={() => handleNotificationClick(notification)}
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow ${
-                !notification.isRead ? 'border-l-4 border-blue-600' : ''
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Bell className="text-blue-600" size={20} />
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-900">{notification.content}</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
-                  </p>
-                </div>
-                {!notification.isRead && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      markAsReadMutation.mutate(notification.id)
-                    }}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+        <>
+          {notifications.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`bg-white rounded-lg p-6 cursor-pointer ${
+                      !notification.isRead ? 'border-l-4 border-[#ff4701]' : ''
+                    }`}
                   >
-                    Mark read
-                  </button>
-                )}
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-slate-100 rounded-lg">
+                        <Bell className="text-slate-700" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-900">{notification.content}</p>
+                        <p className="text-caption text-gray-500 mt-2">
+                          {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
+                        </p>
+                      </div>
+                      {!notification.isRead && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            markAsReadMutation.mutate(notification.id)
+                          }}
+                          className="px-3 py-1 text-caption bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && notifications.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No notifications found</div>
+              {pagination.pages > 1 && (
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                  limit={limit}
+                  onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                  }}
+                  showLimitSelector={true}
+                />
+              )}
+            </>
+          ) : (
+            <EmptyState
+              icon={Bell}
+              title="No notifications found"
+              message="You're all caught up!"
+            />
+          )}
+        </>
       )}
     </div>
   )

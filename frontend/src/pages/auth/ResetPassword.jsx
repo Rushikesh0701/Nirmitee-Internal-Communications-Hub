@@ -82,11 +82,11 @@ const ResetPassword = () => {
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         >
-          <Check className="text-green-600" size={32} />
+          <Check className="text-green-600" size={24} />
         </motion.div>
 
         <motion.h2 
-          className="text-3xl font-bold text-slate-800 mb-3"
+          className="text-h1 text-slate-800 mb-2"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -104,13 +104,13 @@ const ResetPassword = () => {
         </motion.p>
 
         <motion.div
-          className="flex items-center justify-center gap-2 text-indigo-600"
+          className="flex items-center justify-center gap-2 text-slate-700"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
           <motion.div
-            className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full"
+            className="w-4 h-4 border-2 border-[#0a0e17]/30 border-t-[#ff4701] rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
@@ -127,18 +127,18 @@ const ResetPassword = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <motion.div
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-4"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 mb-3"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <span className="text-xs font-medium text-indigo-600">Reset Password</span>
+          <span className="text-overline text-slate-600">Reset Password</span>
         </motion.div>
 
         <motion.h2 
-          className="text-3xl font-bold text-slate-800 mb-2"
+          className="text-h1 text-slate-800 mb-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -158,41 +158,41 @@ const ResetPassword = () => {
 
       {!token && (
         <motion.div
-          className="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6 flex items-start gap-3"
+          className="bg-rose-50 border border-rose-200 rounded-lg p-3 mb-4 flex items-start gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <AlertCircle className="text-rose-600 flex-shrink-0 mt-0.5" size={20} />
           <div>
-            <p className="text-sm text-rose-800 font-medium">Invalid Reset Link</p>
-            <p className="text-xs text-rose-600 mt-1">
+            <p className="text-caption text-rose-800 font-medium">Invalid Reset Link</p>
+            <p className="text-overline text-rose-600 mt-1">
               This password reset link is invalid. Please request a new one.
             </p>
           </div>
         </motion.div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-button text-slate-700 mb-2">
             New Password
           </label>
           <div className="relative group">
-            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
               type={showPassword ? 'text' : 'password'}
               {...register('password', { 
                 required: 'Password is required',
                 minLength: { value: 6, message: 'Password must be at least 6 characters' }
               })}
-              className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+              className="w-full pl-10 pr-10 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                         focus:outline-none transition-all duration-300"
+                         focus:bg-white focus:border-slate-600 focus:ring-2 focus:ring-slate-300 
+                         focus:outline-none transition-all duration-200"
               placeholder="••••••••"
             />
             <button
@@ -203,7 +203,7 @@ const ResetPassword = () => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.password && <p className="text-rose-500 text-xs mt-1.5">{errors.password.message}</p>}
+          {errors.password && <p className="text-rose-500 text-overline mt-1.5">{errors.password.message}</p>}
         </motion.div>
 
         <motion.div 
@@ -211,21 +211,21 @@ const ResetPassword = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-button text-slate-700 mb-2">
             Confirm New Password
           </label>
           <div className="relative group">
-            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" size={16} />
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               {...register('confirmPassword', { 
                 required: 'Please confirm your password',
                 validate: (value) => value === password || 'Passwords do not match'
               })}
-              className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl 
+              className="w-full pl-10 pr-10 py-2 bg-white border border-slate-300 rounded-lg 
                          text-slate-800 placeholder-slate-400
-                         focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 
-                         focus:outline-none transition-all duration-300"
+                         focus:bg-white focus:border-slate-600 focus:ring-2 focus:ring-slate-300 
+                         focus:outline-none transition-all duration-200"
               placeholder="••••••••"
             />
             <button
@@ -236,18 +236,17 @@ const ResetPassword = () => {
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.confirmPassword && <p className="text-rose-500 text-xs mt-1.5">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="text-rose-500 text-overline mt-1.5">{errors.confirmPassword.message}</p>}
         </motion.div>
 
         <motion.button
           type="submit"
           disabled={loading || !token}
-          className="w-full py-4 rounded-xl font-semibold text-white relative overflow-hidden group disabled:opacity-70"
-          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+          className="w-full py-2.5 rounded-lg font-medium text-white bg-[#ff4701] hover:bg-[#ff5500] relative overflow-hidden group disabled:opacity-70"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          whileHover={{ scale: 1.02, boxShadow: '0 10px 30px -5px rgba(99, 102, 241, 0.4)' }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <span className="relative z-10 flex items-center justify-center gap-2">
@@ -271,7 +270,7 @@ const ResetPassword = () => {
       </form>
 
       <motion.div 
-        className="mt-8 text-center"
+        className="mt-4 text-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}

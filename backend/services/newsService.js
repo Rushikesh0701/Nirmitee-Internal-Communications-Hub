@@ -488,6 +488,17 @@ const checkNewsUpdates = async (lastCheckTime) => {
 };
 
 
+/**
+ * Get cache metadata
+ */
+const getCacheMetadata = () => {
+  return {
+    ...cacheMetadata,
+    articleCount: cachedArticles.length,
+    lastUpdated: cacheTimestamp ? new Date(cacheTimestamp) : null
+  };
+};
+
 module.exports = {
   getAllNews,
   getNewsById,
@@ -498,5 +509,6 @@ module.exports = {
   fetchNewsFromNewsData,
   fetchNewsFromRSSFeed,
   fetchAllRSSFeeds,
-  checkNewsUpdates
+  checkNewsUpdates,
+  getCacheMetadata
 };

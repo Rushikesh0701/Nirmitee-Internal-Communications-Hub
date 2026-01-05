@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import Editor from '../../components/blog/Editor';
 import Loading from '../../components/Loading';
+import EmptyState from '../../components/EmptyState';
+import { BookOpen } from 'lucide-react';
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -67,8 +69,8 @@ const EditBlog = () => {
     {
       onSuccess: async () => {
         toast.success('Blog updated successfully!');
-        await queryClient.invalidateQueries('blogs');
-        await queryClient.invalidateQueries(['blog', id]);
+        await queryClient.invalidateQueries(['blogs'], { refetchActive: true });
+        await queryClient.invalidateQueries(['blog', id], { refetchActive: true });
         navigate(`/blogs/${id}`);
       },
       onError: (error) => {
@@ -82,16 +84,19 @@ const EditBlog = () => {
   if (!id || id === 'undefined' || id === 'null') {
     return (
       <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Blog ID</h2>
-          <p className="text-gray-600 mb-4">The blog ID is missing or invalid.</p>
-          <button
-            onClick={() => navigate('/blogs')}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
-          >
-            ← Back to Blogs
-          </button>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Invalid Blog ID"
+          message="The blog ID is missing or invalid"
+          action={
+            <button
+              onClick={() => navigate('/blogs')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff5500] transition-colors text-button"
+            >
+              ← Back to Blogs
+            </button>
+          }
+        />
       </div>
     );
   }
@@ -201,11 +206,11 @@ const EditBlog = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="w-full space-y-3">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-h1 text-slate-800 mb-3"
       >
         Edit Blog
       </motion.h1>
@@ -214,10 +219,10 @@ const EditBlog = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-lg p-8"
+        className="card p-4 space-y-4"
       >
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -226,12 +231,12 @@ const EditBlog = () => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-caption py-2"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Cover Image
           </label>
           <div className="space-y-3">
@@ -240,14 +245,14 @@ const EditBlog = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleCoverImageChange}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 text-sm"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 bg-white text-gray-900 text-caption"
               />
             </div>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
+              <div className="relative flex justify-center text-caption">
                 <span className="px-2 bg-white text-gray-500">OR</span>
               </div>
             </div>
@@ -256,7 +261,7 @@ const EditBlog = () => {
               value={formData.coverImage}
               onChange={handleCoverImageUrlChange}
               placeholder="Enter image URL"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="input text-caption py-2"
             />
             {coverImagePreview && (
               <div className="relative mt-3">
@@ -276,13 +281,13 @@ const EditBlog = () => {
               </div>
             )}
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-caption text-gray-500 mt-1">
             Upload an image or enter a URL for your blog cover image (optional)
           </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Excerpt <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -292,12 +297,12 @@ const EditBlog = () => {
             placeholder="Brief description of your blog..."
             rows="3"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-caption py-2 resize-y"
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Content <span className="text-red-500">*</span>
           </label>
           <Editor
@@ -307,8 +312,8 @@ const EditBlog = () => {
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -318,14 +323,14 @@ const EditBlog = () => {
             onChange={handleChange}
             placeholder="e.g., Frontend, Backend, AI/ML, DevOps..."
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+            className="input text-caption py-2"
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-overline text-slate-500 mt-1">
             Enter a custom category for your blog post
           </p>
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
+        <div>
+          <label className="block text-overline uppercase tracking-wide text-slate-700 mb-1.5">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
@@ -335,7 +340,7 @@ const EditBlog = () => {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               placeholder="Add a tag"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="input flex-1 text-caption py-2"
             />
             <button
               type="button"
@@ -349,7 +354,7 @@ const EditBlog = () => {
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-blue-100 text-blue-800 rounded flex items-center gap-2"
+                className="px-3 py-1 bg-slate-100 text-slate-800 rounded flex items-center gap-2"
               >
                 {tag}
                 <button
@@ -364,38 +369,38 @@ const EditBlog = () => {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               name="isPublished"
               checked={formData.isPublished}
               onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-slate-700 border-gray-300 rounded focus:ring-slate-600"
             />
-            <span className="text-gray-700">
+            <span className="text-button text-slate-700">
               Publish this blog
             </span>
           </label>
-          <p className="text-sm text-gray-500 mt-1 ml-6">
+          <p className="text-overline text-slate-500 mt-1 ml-6">
             {formData.isPublished 
               ? 'This blog is published and visible to everyone.' 
               : 'This blog is saved as a draft and only visible to you.'}
           </p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3 pt-3 border-t border-slate-200 dark:border-[#151a28]">
           <button
             type="submit"
             disabled={updateMutation.isLoading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updateMutation.isLoading ? 'Updating...' : 'Update Blog'}
           </button>
           <button
             type="button"
             onClick={() => navigate(`/blogs/${id}`)}
-            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

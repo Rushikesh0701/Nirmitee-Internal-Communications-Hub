@@ -20,7 +20,7 @@ const LottieEmptyState = ({ message = 'No items found', subMessage = '' }) => {
         {message}
       </h3>
       {subMessage && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-caption text-gray-500 dark:text-gray-400">
           {subMessage}
         </p>
       )}

@@ -29,7 +29,7 @@ const CommentItem = ({
           {showReplyButton && (
             <button
               onClick={onReply}
-              className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
+              className="text-slate-700 hover:text-slate-700 text-caption flex items-center gap-1"
             >
               <MessageCircle size={14} /> Reply
             </button>

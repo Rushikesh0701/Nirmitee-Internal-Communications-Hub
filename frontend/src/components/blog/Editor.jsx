@@ -19,6 +19,7 @@ import ImageModal from '../editor/ImageModal';
 import VideoModal from '../editor/VideoModal';
 import LinkModal from '../editor/LinkModal';
 import EditorContextMenu from '../editor/EditorContextMenu';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Editor = ({ 
   content = '', 
@@ -27,6 +28,7 @@ const Editor = ({
   placeholder = 'Start writing your blog post...',
   editable = true,
 }) => {
+  const { theme } = useTheme();
   const [showPreview, setShowPreview] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -93,7 +95,7 @@ const Editor = ({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-blue-600 underline',
+          class: 'text-slate-700 underline',
         },
       }),
       Placeholder.configure({
@@ -403,7 +405,11 @@ const Editor = ({
       
       {/* Editor Content */}
       {!showPreview && (
-        <div className="border border-t-0 border-gray-200 bg-white rounded-b-lg min-h-[400px]">
+        <div className={`border border-t-0 rounded-b-lg min-h-[400px] ${
+          theme === 'dark'
+            ? 'border-[#151a28]/50 bg-[#0a0e17]/50'
+            : 'border-gray-200 bg-white'
+        }`}>
           <div className="tiptap-editor">
             <EditorContent editor={editor} />
           </div>
@@ -412,7 +418,11 @@ const Editor = ({
 
       {/* Preview */}
       {showPreview && (
-        <div className="border border-t-0 border-gray-200 bg-white rounded-b-lg p-4 min-h-[400px] text-gray-800">
+        <div className={`border border-t-0 rounded-b-lg p-4 min-h-[400px] ${
+          theme === 'dark'
+            ? 'border-[#151a28]/50 bg-[#0a0e17]/50 text-slate-200'
+            : 'border-gray-200 bg-white text-gray-800'
+        }`}>
           <div 
             className="tiptap-editor max-w-none"
             dangerouslySetInnerHTML={{ __html: editor.getHTML() }} 

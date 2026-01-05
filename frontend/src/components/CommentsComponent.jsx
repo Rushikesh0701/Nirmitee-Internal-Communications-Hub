@@ -64,11 +64,11 @@ const CommentsComponent = ({ postId }) => {
 
   return (
     <div className="space-y-4 border-t border-slate-200 pt-4 mt-4">
-      <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2"><MessageSquare size={18} /> Comments ({comments.length})</h3>
+      <h3 className="text-base text-h3 text-slate-800 flex items-center gap-2"><MessageSquare size={18} /> Comments ({comments.length})</h3>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <MentionInput name="content" placeholder="Write a comment..." className="resize-none" disabled={isAnyCommentPosting()} />
-        <button type="submit" disabled={isAnyCommentPosting()} className="btn btn-primary text-sm py-1.5 px-4">{isAnyCommentPosting() ? 'Posting...' : 'Post Comment'}</button>
+        <button type="submit" disabled={isAnyCommentPosting()} className="btn btn-primary text-caption py-1.5 px-4">{isAnyCommentPosting() ? 'Posting...' : 'Post Comment'}</button>
       </form>
 
       <div className="space-y-3">
@@ -82,10 +82,14 @@ const CommentsComponent = ({ postId }) => {
             <div key={commentId} className="p-3 bg-slate-50 rounded-lg border border-slate-100">
               <div className="flex items-start gap-3">
                 {comment.authorId?.avatar ? (
-                  <img src={comment.authorId.avatar} alt="" className="w-9 h-9 rounded-full" />
+                  <img src={comment.authorId.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <span className="text-indigo-600 font-semibold text-sm">{comment.authorId?.firstName?.[0]}</span>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff4701] to-[#ff5500] flex items-center justify-center ring-2 ring-slate-200">
+                    <span className="text-white font-bold text-overline">
+                      {comment.authorId?.firstName && comment.authorId?.lastName
+                        ? `${comment.authorId.firstName.charAt(0)}${comment.authorId.lastName.charAt(0)}`.toUpperCase()
+                        : (comment.authorId?.firstName?.charAt(0) || comment.authorId?.name?.charAt(0) || 'U').toUpperCase()}
+                    </span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -93,19 +97,19 @@ const CommentsComponent = ({ postId }) => {
                     <div className="space-y-2">
                       <MentionInput value={editContent} onChange={(e) => setEditContent(e.target.value)} />
                       <div className="flex gap-2">
-                        <button onClick={() => handleUpdate(commentId)} className="btn btn-primary text-xs py-1 px-3">Save</button>
-                        <button onClick={() => { setEditingId(null); setEditContent(''); }} className="btn btn-secondary text-xs py-1 px-3">Cancel</button>
+                        <button onClick={() => handleUpdate(commentId)} className="btn btn-primary text-overline py-1 px-3">Save</button>
+                        <button onClick={() => { setEditingId(null); setEditContent(''); }} className="btn btn-secondary text-overline py-1 px-3">Cancel</button>
                       </div>
                     </div>
                   ) : (
                     <>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-slate-800 text-sm">{comment.authorId?.firstName} {comment.authorId?.lastName}</span>
-                        <span className="text-xs text-slate-400">{format(new Date(comment.createdAt), 'MMM d, HH:mm')}</span>
-                        {comment.isEdited && <span className="text-xs text-slate-400">(edited)</span>}
+                        <span className="text-h3 text-slate-800 text-caption">{comment.authorId?.firstName} {comment.authorId?.lastName}</span>
+                        <span className="text-overline text-slate-400">{format(new Date(comment.createdAt), 'MMM d, HH:mm')}</span>
+                        {comment.isEdited && <span className="text-overline text-slate-400">(edited)</span>}
                       </div>
-                      <p className="text-slate-600 text-sm whitespace-pre-wrap mb-2">{renderContentWithMentions(comment.content)}</p>
-                      <div className="flex items-center gap-4 text-xs">
+                      <p className="text-slate-600 text-caption whitespace-pre-wrap mb-2">{renderContentWithMentions(comment.content)}</p>
+                      <div className="flex items-center gap-4 text-overline">
                         <button onClick={() => toggleLikeMutation.mutate(commentId)} className={`flex items-center gap-1 ${isLiked ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'}`}><Heart size={14} fill={isLiked ? 'currentColor' : 'none'} /> {comment.likes || 0}</button>
                         {isAuthor && (
                           <div className="flex gap-3">
@@ -121,7 +125,7 @@ const CommentsComponent = ({ postId }) => {
             </div>
           )
         })}
-        {comments.length === 0 && <p className="text-slate-400 text-center py-6 text-sm">No comments yet</p>}
+        {comments.length === 0 && <p className="text-slate-400 text-center py-6 text-caption">No comments yet</p>}
       </div>
     </div>
   )
