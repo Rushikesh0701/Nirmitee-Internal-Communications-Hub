@@ -26,6 +26,7 @@ const recognitionRewardRoutes = require('./routes/recognitionRewards');
 const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
 const moderationRoutes = require('./routes/moderation');
+const settingsRoutes = require('./routes/settings');
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -121,6 +122,7 @@ app.use('/api/recognitions', recognitionRewardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/moderation', moderationRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

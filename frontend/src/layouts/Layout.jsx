@@ -77,12 +77,33 @@ const Layout = () => {
   const { user, logout, isLoggingOut } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const { theme: sidebarTheme, toggleTheme } = useTheme()
+  const { theme: sidebarTheme, toggleTheme, branding } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(getSidebarCollapsedState)
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [thoughtOfTheDay] = useState(() => getThoughtOfTheDay())
+
+  // Get themed colors from branding
+  const getThemedColor = useCallback((section, key) => {
+    const isDark = sidebarTheme === 'dark'
+    const darkKey = `${key}Dark`
+    if (branding?.[section]) {
+      return isDark && branding[section][darkKey] 
+        ? branding[section][darkKey] 
+        : branding[section][key] || null
+    }
+    return null
+  }, [branding, sidebarTheme])
+
+  // Sidebar colors from branding (fallback to defaults)
+  const sidebarColors = useMemo(() => ({
+    bg: getThemedColor('sidebar', 'background') || (sidebarTheme === 'dark' ? '#0a0e17' : '#ffffff'),
+    text: getThemedColor('sidebar', 'text') || (sidebarTheme === 'dark' ? '#B0B7D0' : '#475569'),
+    active: getThemedColor('sidebar', 'active') || '#ff4701',
+    hover: getThemedColor('sidebar', 'hover') || (sidebarTheme === 'dark' ? '#151a28' : '#f1f5f9'),
+    border: sidebarTheme === 'dark' ? '#151a28' : '#e2e8f0'
+  }), [getThemedColor, sidebarTheme])
 
   useDocumentTitle('Nirmitee Hub')
   useNotificationSound()
@@ -301,19 +322,26 @@ const Layout = () => {
         <aside
           className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${sidebarCollapsed ? 'w-16' : 'w-56'}
-             transition-all duration-300 ease-in-out 
-             ${sidebarTheme === 'dark'
-              ? 'bg-[#0a0e17] border-r border-[#151a28]'
-              : 'bg-white border-r border-slate-200'
-            }`}
+             transition-all duration-300 ease-in-out border-r`}
+          style={{ 
+            backgroundColor: sidebarColors.bg,
+            borderColor: sidebarColors.border
+          }}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b ${sidebarTheme === 'dark' ? 'border-[#151a28] bg-[#0a0e17]' : 'border-slate-200 bg-white'} flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div 
+              className={`${sidebarCollapsed ? 'px-3' : 'px-4'} h-[56px] border-b flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}
+              style={{ 
+                backgroundColor: sidebarColors.bg,
+                borderColor: sidebarColors.border
+              }}
+            >
               {sidebarCollapsed ? (
                 <button
                   onClick={() => handleSidebarCollapseToggle(false)}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
+                  className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 group`}
+                  style={{ ':hover': { backgroundColor: sidebarColors.hover } }}
                 >
                   <img src={CollapsedLogo} alt="Nirmitee.io" className="h-8 w-8 object-contain group-hover:scale-105 transition-transform duration-200" />
                 </button>
@@ -349,10 +377,8 @@ const Layout = () => {
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group relative
                           ${isActive
-                            ? 'bg-[#ff4701] text-white'
-                            : sidebarTheme === 'dark'
-                              ? 'text-slate-300 hover:text-slate-500 hover:bg-[#151a28]'
-                              : 'text-slate-600 hover:text-slate-700 hover:bg-slate-100'
+                            ? 'bg-[var(--sidebar-active)] text-white'
+                            : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover)]'
                           }`}
                         title={item.label}
                       >
@@ -378,14 +404,14 @@ const Layout = () => {
                       {/* Section Header - Clickable */}
                       <button
                         onClick={() => toggleSection(section.title)}
-                          className={`w-full flex items-center justify-between px-3 py-1 mb-1 rounded-lg transition-all duration-200 group ${sidebarTheme === 'dark' ? 'hover:bg-[#151a28]' : 'hover:bg-slate-100'}`}
+                          className={`w-full flex items-center justify-between px-3 py-1 mb-1 rounded-lg transition-all duration-200 group hover:bg-[var(--sidebar-hover)]`}
                       >
-                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${sidebarTheme === 'dark' ? 'text-slate-400 group-hover:text-slate-300' : 'text-slate-600 group-hover:text-slate-800'}`}>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors text-[var(--sidebar-text)] opacity-80 group-hover:opacity-100`}>
                           {section.title}
                         </p>
                         <ChevronDown
                           size={12}
-                          className={`transition-all duration-200 ${isExpanded ? 'rotate-180' : ''} ${sidebarTheme === 'dark' ? 'text-slate-500 group-hover:text-slate-300' : 'text-slate-400 group-hover:text-slate-600'}`}
+                          className={`transition-all duration-200 ${isExpanded ? 'rotate-180' : ''} text-[var(--sidebar-text)] opacity-60 group-hover:opacity-100`}
                         />
                       </button>
 
@@ -421,10 +447,8 @@ const Layout = () => {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-3 px-3 py-1.5 rounded-lg font-medium transition-all duration-200 group relative
                                       ${isActive
-                                        ? 'bg-[#ff4701] text-white'
-                                        : sidebarTheme === 'dark'
-                                          ? 'text-slate-300 hover:text-white hover:bg-[#151a28]'
-                                          : 'text-slate-700 hover:text-slate-700 hover:bg-slate-100'
+                                        ? 'bg-[var(--sidebar-active)] text-white'
+                                        : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover)] hover:text-white'
                                       }`}
                                   >
                                     <Icon
@@ -601,11 +625,12 @@ const Layout = () => {
         }`}>
           {/* Top bar */}
           <div
-            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-colors duration-200 ${
-              sidebarTheme === 'dark'
-                ? 'bg-[#0a0e17] border-[#151a28]'
-                : 'bg-white border-slate-200'
-            }`}
+            className={`hidden lg:flex backdrop-blur-xl border-b px-4 lg:px-6 h-[56px] items-center justify-between sticky top-0 z-20 transition-all duration-200`}
+            style={{ 
+              backgroundColor: 'var(--header-bg)', 
+              borderColor: sidebarTheme === 'dark' ? '#151a28' : '#e2e8f0',
+              color: 'var(--header-text)'
+            }}
           >
             <div className="hidden lg:flex items-center gap-3">
               <motion.div 
@@ -626,9 +651,7 @@ const Layout = () => {
                       sidebarTheme === 'dark' ? 'text-slate-500' : 'text-slate-400'
                     }`} />
                   </div>
-                  <p className={`text-button italic leading-tight truncate ${
-                    sidebarTheme === 'dark' ? 'text-slate-200' : 'text-slate-700'
-                  }`}>
+                  <p className={`text-button italic leading-tight truncate text-[var(--header-text)] opacity-90`}>
                     {"\u201C"}{thoughtOfTheDay}{"\u201D"}
                   </p>
                 </div>
@@ -638,11 +661,7 @@ const Layout = () => {
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
-                sidebarTheme === 'dark'
-                  ? 'text-slate-400 hover:text-slate-200 hover:bg-[#151a28]/50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
+                className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-[var(--header-text)] opacity-70 hover:opacity-100 hover:bg-[var(--header-text)] hover:bg-opacity-5`}
                 title={sidebarTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
               >
                 {sidebarTheme === 'dark' ? (
@@ -664,11 +683,7 @@ const Layout = () => {
                   }`}
                   title="User menu"
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    sidebarTheme === 'dark'
-                      ? 'bg-[#ff4701]'
-                      : 'bg-[#0a0e17]'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--primary-color)]`}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full rounded-lg object-cover" />
                     ) : (
@@ -685,46 +700,34 @@ const Layout = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors ${
-                        sidebarTheme === 'dark'
-                          ? 'bg-[#151a28] border-[#151a28]'
-                          : 'bg-white border-slate-200'
-                      }`}
+                      className={`absolute right-0 mt-2 w-48 rounded-lg border py-1 z-50 transition-colors shadow-lg shadow-slate-200/50 dark:shadow-none`}
+                      style={{ 
+                        backgroundColor: 'var(--header-bg)', 
+                        borderColor: sidebarTheme === 'dark' ? '#151a28' : '#e2e8f0'
+                      }}
                     >
                       <Link
                         to="/profile"
                         onClick={() => setAvatarDropdownOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors text-[var(--header-text)] opacity-80 hover:opacity-100 hover:bg-[var(--header-text)] hover:bg-opacity-5`}
                       >
-                        <User size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                        <User size={18} className="opacity-70" />
                         <span className="text-button">Profile</span>
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setAvatarDropdownOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          sidebarTheme === 'dark'
-                            ? 'text-slate-300 hover:bg-[#0a0e17]/50'
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors text-[var(--header-text)] opacity-80 hover:opacity-100 hover:bg-[var(--header-text)] hover:bg-opacity-5`}
                       >
-                        <Settings size={18} className={sidebarTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                        <Settings size={18} className="opacity-70" />
                         <span className="text-button">Settings</span>
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          sidebarTheme === 'dark'
-                            ? 'text-rose-400 hover:bg-[#0a0e17]/50'
-                            : 'text-rose-600 hover:bg-rose-50'
-                        }`}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-rose-500 hover:bg-rose-500 hover:bg-opacity-10`}
                       >
-                        <LogOut size={18} className={sidebarTheme === 'dark' ? 'text-rose-400' : 'text-rose-500'} />
-                        <span className="text-button">Logout</span>
+                        <LogOut size={18} />
+                        <span className="text-button font-medium">Logout</span>
                       </button>
                     </motion.div>
                   )}
