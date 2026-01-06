@@ -24,5 +24,6 @@ module.exports = {
   Redemption: require('./Redemption'),
   Mentorship: require('./Mentorship'),
   Notification: require('./Notification'),
-  RssSource: require('./RssSource')
+  RssSource: require('./RssSource'),
+  RssCategory: require('./RssCategory')
 };

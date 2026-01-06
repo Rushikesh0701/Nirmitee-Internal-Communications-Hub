@@ -176,13 +176,18 @@ const applyFilters = (articles, filters) => {
     });
   }
 
-  // Filter by category
+  // Filter by category (supports multiple comma-separated categories)
   if (category && category.trim()) {
-    const cat = category.toLowerCase().trim();
-    filtered = filtered.filter(article => {
-      const articleCategory = (article.category || '').toLowerCase();
-      return articleCategory.includes(cat) || cat.includes(articleCategory);
-    });
+    const categoryList = category.split(',').map(c => c.toLowerCase().trim()).filter(c => c);
+    if (categoryList.length > 0) {
+      filtered = filtered.filter(article => {
+        const articleCategory = (article.category || '').toLowerCase();
+        // Check if article category matches ANY of the provided categories
+        return categoryList.some(cat =>
+          articleCategory.includes(cat) || cat.includes(articleCategory)
+        );
+      });
+    }
   }
 
   // Filter by source

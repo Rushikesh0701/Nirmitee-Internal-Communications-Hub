@@ -2,8 +2,15 @@ const express = require('express');
 const router = express.Router();
 const adminRewardController = require('../controllers/adminRewardController');
 const rssController = require('../controllers/rssController');
+const rssCategoryController = require('../controllers/rssCategoryController');
 const { authenticateToken } = require('../middleware/auth');
 const { isModerator } = require('../middleware/rbac');
+
+// RSS Categories management
+router.get('/rss-categories', authenticateToken, isModerator, rssCategoryController.getAllCategories);
+router.post('/rss-categories', authenticateToken, isModerator, rssCategoryController.createCategory);
+router.put('/rss-categories/:id', authenticateToken, isModerator, rssCategoryController.updateCategory);
+router.delete('/rss-categories/:id', authenticateToken, isModerator, rssCategoryController.deleteCategory);
 
 // RSS Sources management
 router.get('/rss', authenticateToken, isModerator, rssController.getAllRssSources);

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical, Rss } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save, X, ToggleLeft, ToggleRight, Link as LinkIcon, Tag, Globe, MoreVertical, Rss, Settings } from 'lucide-react'
 import { CardSkeleton } from '../../components/skeletons'
 import Pagination from '../../components/Pagination'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -25,15 +25,120 @@ const RssManagement = () => {
   // State for mobile menu/actions
   const [activeMenuId, setActiveMenuId] = useState(null);
 
-  const techCategories = [
-    { value: 'AI', label: 'AI & Machine Learning' },
-    { value: 'Cloud', label: 'Cloud Computing' },
-    { value: 'DevOps', label: 'DevOps' },
-    { value: 'Programming', label: 'Programming' },
-    { value: 'Cybersecurity', label: 'Cybersecurity' },
-    { value: 'HealthcareIT', label: 'Healthcare IT' },
-    { value: 'Technology', label: 'General Tech' }
+  // Category management state
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [categoryFormData, setCategoryFormData] = useState({ name: '', value: '' });
+
+  // Default categories (fallback if no categories in DB)
+  const defaultCategories = [
+    { value: 'AI', name: 'AI & Machine Learning' },
+    { value: 'Cloud', name: 'Cloud Computing' },
+    { value: 'DevOps', name: 'DevOps' },
+    { value: 'Programming', name: 'Programming' },
+    { value: 'Cybersecurity', name: 'Cybersecurity' },
+    { value: 'HealthcareIT', name: 'Healthcare IT' },
+    { value: 'Technology', name: 'General Tech' }
   ];
+
+  // Fetch categories from API
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery(
+    ['rssCategories'],
+    async () => {
+      const response = await api.get('/admin/rss-categories')
+      return response.data?.data || []
+    },
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (err) => {
+        console.error('Error fetching categories:', err)
+      }
+    }
+  )
+
+  // Use fetched categories or defaults
+  const techCategories = (categoriesData && categoriesData.length > 0)
+    ? categoriesData.map(cat => ({ value: cat.value, label: cat.name, _id: cat._id, isActive: cat.isActive }))
+    : defaultCategories.map(cat => ({ value: cat.value, label: cat.name }));
+
+  // Category mutations
+  const createCategoryMutation = useMutation(
+    (data) => api.post('/admin/rss-categories', data),
+    {
+      onSuccess: () => {
+        toast.success('Category added successfully')
+        queryClient.invalidateQueries(['rssCategories'])
+        setIsCreatingCategory(false)
+        setCategoryFormData({ name: '', value: '' })
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to add category')
+      }
+    }
+  )
+
+  const updateCategoryMutation = useMutation(
+    ({ id, data }) => api.put(`/admin/rss-categories/${id}`, data),
+    {
+      onSuccess: () => {
+        toast.success('Category updated successfully')
+        queryClient.invalidateQueries(['rssCategories'])
+        queryClient.invalidateQueries(['adminRssSources'])
+        setEditingCategoryId(null)
+        setCategoryFormData({ name: '', value: '' })
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to update category')
+      }
+    }
+  )
+
+  const deleteCategoryMutation = useMutation(
+    (id) => api.delete(`/admin/rss-categories/${id}`),
+    {
+      onSuccess: () => {
+        toast.success('Category deleted successfully')
+        queryClient.invalidateQueries(['rssCategories'])
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to delete category')
+      }
+    }
+  )
+
+  const handleCreateCategory = () => {
+    if (!categoryFormData.name || !categoryFormData.value) {
+      toast.error('Name and value are required')
+      return
+    }
+    createCategoryMutation.mutate(categoryFormData)
+  }
+
+  const handleUpdateCategory = (id) => {
+    if (!categoryFormData.name || !categoryFormData.value) {
+      toast.error('Name and value are required')
+      return
+    }
+    updateCategoryMutation.mutate({ id, data: categoryFormData })
+  }
+
+  const handleEditCategory = (category) => {
+    setEditingCategoryId(category._id)
+    setCategoryFormData({ name: category.label || category.name, value: category.value })
+  }
+
+  const handleDeleteCategory = (id) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      deleteCategoryMutation.mutate(id)
+    }
+  }
+
+  const handleCancelCategoryEdit = () => {
+    setIsCreatingCategory(false)
+    setEditingCategoryId(null)
+    setCategoryFormData({ name: '', value: '' })
+  }
 
   const { data, isLoading, error } = useQuery(
     ['adminRssSources', page, limit],
@@ -279,13 +384,26 @@ const RssManagement = () => {
           }`}>Manage external news feeds</p>
         </div>
         {!isCreating && !editingId && (
-          <button
-            onClick={() => setIsCreating(true)}
-            className="btn-add"
-          >
-            <Plus size={16} />
-            Add RSS Source
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${
+                theme === 'dark'
+                  ? 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <Settings size={16} />
+              Manage Categories
+            </button>
+            <button
+              onClick={() => setIsCreating(true)}
+              className="btn-add"
+            >
+              <Plus size={16} />
+              Add RSS Source
+            </button>
+          </div>
         )}
       </div>
 
@@ -836,6 +954,237 @@ const RssManagement = () => {
             showLimitSelector={true}
           />
         </div>
+      )}
+
+      {/* Category Management Modal */}
+      {showCategoryModal && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => {
+              setShowCategoryModal(false)
+              handleCancelCategoryEdit()
+            }}
+          />
+          <div className={`fixed inset-x-4 top-1/2 -translate-y-1/2 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[500px] max-h-[80vh] overflow-hidden rounded-2xl z-50 ${
+            theme === 'dark' ? 'bg-[#0a0e17]' : 'bg-white'
+          }`}>
+            <div className={`flex justify-between items-center p-5 border-b ${
+              theme === 'dark' ? 'border-[#151a28]' : 'border-slate-200'
+            }`}>
+              <h2 className={`text-xl font-bold ${
+                theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
+              }`}>Manage Categories</h2>
+              <button 
+                onClick={() => {
+                  setShowCategoryModal(false)
+                  handleCancelCategoryEdit()
+                }}
+                className={`p-2 rounded-lg transition-colors ${
+                  theme === 'dark' ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
+                }`}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-5 max-h-[calc(80vh-140px)] overflow-y-auto">
+              {/* Add New Category */}
+              {!isCreatingCategory && !editingCategoryId && (
+                <button
+                  onClick={() => setIsCreatingCategory(true)}
+                  className={`w-full flex items-center justify-center gap-2 py-3 mb-4 border-2 border-dashed rounded-xl font-medium transition-all ${
+                    theme === 'dark'
+                      ? 'border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-400'
+                      : 'border-slate-200 text-slate-500 hover:border-indigo-500 hover:text-indigo-600'
+                  }`}
+                >
+                  <Plus size={18} />
+                  Add New Category
+                </button>
+              )}
+
+              {/* Create Category Form */}
+              {isCreatingCategory && (
+                <div className={`p-4 mb-4 rounded-xl border ${
+                  theme === 'dark' ? 'bg-slate-900/50 border-indigo-500' : 'bg-slate-50 border-indigo-500'
+                }`}>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className={`text-xs font-medium mb-1 block ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                      }`}>Display Name</label>
+                      <input
+                        type="text"
+                        value={categoryFormData.name}
+                        onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none ${
+                          theme === 'dark'
+                            ? 'bg-[#0a0e17] border-slate-700 text-slate-200'
+                            : 'bg-white border-slate-200'
+                        }`}
+                        placeholder="AI & Machine Learning"
+                      />
+                    </div>
+                    <div>
+                      <label className={`text-xs font-medium mb-1 block ${
+                        theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+                      }`}>Value (ID)</label>
+                      <input
+                        type="text"
+                        value={categoryFormData.value}
+                        onChange={(e) => setCategoryFormData({ ...categoryFormData, value: e.target.value })}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none ${
+                          theme === 'dark'
+                            ? 'bg-[#0a0e17] border-slate-700 text-slate-200'
+                            : 'bg-white border-slate-200'
+                        }`}
+                        placeholder="AI"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCreateCategory}
+                      disabled={createCategoryMutation.isLoading}
+                      className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    >
+                      {createCategoryMutation.isLoading ? 'Adding...' : 'Add Category'}
+                    </button>
+                    <button
+                      onClick={handleCancelCategoryEdit}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Categories List */}
+              <div className="space-y-2">
+                {categoriesLoading ? (
+                  <div className={`text-center py-8 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Loading categories...
+                  </div>
+                ) : techCategories.length === 0 ? (
+                  <div className={`text-center py-8 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                    No categories yet. Add your first category above.
+                  </div>
+                ) : (
+                  techCategories.map((category) => (
+                    <div 
+                      key={category._id || category.value}
+                      className={`p-3 rounded-xl border transition-colors ${
+                        editingCategoryId === category._id
+                          ? 'border-indigo-500 ring-1 ring-indigo-500'
+                          : theme === 'dark'
+                            ? 'border-slate-800 hover:border-slate-700'
+                            : 'border-slate-100 hover:border-slate-200'
+                      } ${theme === 'dark' ? 'bg-slate-900/30' : 'bg-slate-50/50'}`}
+                    >
+                      {editingCategoryId === category._id ? (
+                        <div>
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            <input
+                              type="text"
+                              value={categoryFormData.name}
+                              onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                              className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none ${
+                                theme === 'dark'
+                                  ? 'bg-[#0a0e17] border-slate-700 text-slate-200'
+                                  : 'bg-white border-slate-200'
+                              }`}
+                            />
+                            <input
+                              type="text"
+                              value={categoryFormData.value}
+                              onChange={(e) => setCategoryFormData({ ...categoryFormData, value: e.target.value })}
+                              className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none ${
+                                theme === 'dark'
+                                  ? 'bg-[#0a0e17] border-slate-700 text-slate-200'
+                                  : 'bg-white border-slate-200'
+                              }`}
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleUpdateCategory(category._id)}
+                              disabled={updateCategoryMutation.isLoading}
+                              className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                            >
+                              {updateCategoryMutation.isLoading ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              onClick={handleCancelCategoryEdit}
+                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                theme === 'dark'
+                                  ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                              }`}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className={`font-medium ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>
+                              {category.label}
+                            </span>
+                            <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
+                              theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-200 text-slate-500'
+                            }`}>
+                              {category.value}
+                            </span>
+                          </div>
+                          {category._id && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleEditCategory(category)}
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  theme === 'dark'
+                                    ? 'text-slate-400 hover:text-indigo-400 hover:bg-slate-800'
+                                    : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+                                }`}
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCategory(category._id)}
+                                disabled={deleteCategoryMutation.isLoading}
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  theme === 'dark'
+                                    ? 'text-slate-400 hover:text-rose-400 hover:bg-slate-800'
+                                    : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                                }`}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className={`p-4 border-t ${
+              theme === 'dark' ? 'border-[#151a28]' : 'border-slate-200'
+            }`}>
+              <p className={`text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                Categories without IDs are defaults and cannot be edited. Add custom categories to manage them.
+              </p>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

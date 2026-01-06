@@ -106,6 +106,21 @@ const userSchema = new mongoose.Schema({
   deletedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  // News preferences for personalized feed
+  newsPreferences: {
+    categories: {
+      type: [String],
+      default: [] // Empty means show all categories
+    },
+    language: {
+      type: String,
+      default: 'en'
+    },
+    onboardingComplete: {
+      type: Boolean,
+      default: false
+    }
   }
 }, {
   timestamps: true
