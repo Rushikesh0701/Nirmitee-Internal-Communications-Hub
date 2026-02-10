@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
+import { useAuthStore } from '../store/authStore'
 import { notificationApi } from '../services/notificationApi'
 import notificationSound from '../assets/Sound.mp3'
 
@@ -91,12 +92,14 @@ export const showBrowserNotification = (title, body, onClick) => {
  * Hook to update document title with unread notification count
  */
 export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
+    const { isAuthenticated } = useAuthStore()
     const { data: unreadData } = useQuery(
         'unreadCount',
         () => notificationApi.getUnreadCount(),
         {
             refetchInterval: 30000,
-            staleTime: 20000
+            staleTime: 20000,
+            enabled: !!isAuthenticated
         }
     )
 
@@ -125,6 +128,7 @@ export const useDocumentTitle = (baseTitle = 'Nirmitee Hub') => {
  * - Prevents duplicate sounds and notifications
  */
 export const useNotificationSound = () => {
+    const { isAuthenticated } = useAuthStore()
     const seenIds = useRef(new Set())
     const soundPlayedIds = useRef(new Set())
     const isFirstLoad = useRef(true)
@@ -140,7 +144,8 @@ export const useNotificationSound = () => {
         () => notificationApi.getNotifications({ limit: 20 }),
         {
             refetchInterval: 10000,
-            staleTime: 5000
+            staleTime: 5000,
+            enabled: !!isAuthenticated
         }
     )
 

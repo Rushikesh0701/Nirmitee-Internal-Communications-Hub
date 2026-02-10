@@ -2,6 +2,23 @@ const { User } = require('../models'); // MongoDB User model
 const { Role } = require('../models');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const fs = require('fs');
+const path = require('path');
+
+const DEBUG_LOG_PATH = path.join(__dirname, '../debug_sso.txt');
+
+const writeDebugLog = (message, data = {}) => {
+  try {
+    const timestamp = new Date().toISOString();
+    const logLine = `[${timestamp}] ${message} ${JSON.stringify(data)}\n`;
+    fs.appendFileSync(DEBUG_LOG_PATH, logLine);
+  } catch (e) {
+    console.error('Failed to write debug log', e);
+  }
+};
+
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = '24h';
@@ -142,10 +159,12 @@ const login = async (email, password, metadata = {}) => {
 const oauthLogin = async (oauthData) => {
   const { email, name, avatar, provider, oauthId } = oauthData;
 
-  // Validate domain
+  /* 
+  // Temporarily disable for debugging Clerk SSO
   if (!email.toLowerCase().endsWith('@nirmitee.io')) {
     throw new Error('Only @nirmitee.io email addresses are allowed');
   }
+  */
 
   // Find or create user
   let user = await User.findOne({
@@ -223,12 +242,161 @@ const logoutAll = async (userId) => {
   return;
 };
 
+/**
+ * Synchronize a user from Clerk data
+ * This is called automatically when a Clerk token is verified
+ */
+const syncClerkUser = async (clerkData) => {
+  const { email, clerkId, name, avatar } = clerkData;
+
+  // ENFORCE @nirmitee.io email domain restriction
+  if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
+    logger.warn('Clerk SSO attempt from unauthorized domain:', { email });
+    throw new Error('Only @nirmitee.io email addresses are allowed');
+  }
+
+  // Find or create user
+  let user = await User.findOne({
+    $or: [
+      { email: email.toLowerCase() },
+      { oauthId: clerkId, oauthProvider: 'clerk' }
+    ]
+  }).populate('roleId', 'name description');
+
+  if (!user) {
+    // Get or create Employee role
+    let role = await Role.findOne({ name: 'Employee' });
+    if (!role) {
+      role = await Role.create({
+        name: 'Employee',
+        description: 'Default employee role'
+      });
+    }
+
+    // Parse name if needed
+    const nameParts = (name || email.split('@')[0]).trim().split(' ');
+    const firstName = nameParts[0] || 'User';
+    const lastName = nameParts.slice(1).join(' ') || 'User';
+
+    // Create new user from Clerk data
+    user = await User.create({
+      email: email.toLowerCase(),
+      firstName,
+      lastName,
+      displayName: name || `${firstName} ${lastName}`,
+      avatar,
+      oauthProvider: 'clerk',
+      oauthId: clerkId,
+      roleId: role._id,
+      isActive: true
+    });
+
+    logger.info('New user provisioned via Clerk:', { email, clerkId });
+
+    // Re-fetch to get populated role
+    user = await User.findById(user._id).populate('roleId', 'name description');
+  } else {
+    // Update info if it's their first time with Clerk but they existed before
+    let needsSave = false;
+    if (!user.oauthProvider || user.oauthProvider !== 'clerk') {
+      user.oauthProvider = 'clerk';
+      user.oauthId = clerkId;
+      needsSave = true;
+    }
+
+    if (avatar && user.avatar !== avatar) {
+      user.avatar = avatar;
+      needsSave = true;
+    }
+
+    if (needsSave) {
+      await user.save();
+    }
+
+    user.lastLogin = new Date();
+    await user.save();
+  }
+
+  return user;
+};
+
+/**
+ * Verify Clerk session token and return synchronized user
+ */
+const verifyClerkToken = async (sessionToken) => {
+  const logId = Math.random().toString(36).substring(7);
+  writeDebugLog(`[${logId}] Starting Clerk token verification`, { tokenLength: sessionToken?.length });
+
+  try {
+    let session;
+    try {
+      // Verify the session token using Clerk SDK
+      session = await clerk.verifyToken(sessionToken);
+    } catch (tokenError) {
+      writeDebugLog(`[${logId}] Token verification failed`, { error: tokenError.message });
+      return { success: false, error: 'Invalid Clerk token', isTerminal: false };
+    }
+
+    if (!session) {
+      writeDebugLog(`[${logId}] No session returned`);
+      return { success: false, error: 'Invalid Clerk token', isTerminal: false };
+    }
+
+    writeDebugLog(`[${logId}] Token verified`, { sub: session.sub });
+
+    // Get full user profile from Clerk
+    const clerkUser = await clerk.users.getUser(session.sub);
+
+    const email = clerkUser.emailAddresses[0]?.emailAddress;
+    writeDebugLog(`[${logId}] Fetched Clerk user`, { email });
+
+    const clerkData = {
+      clerkId: clerkUser.id,
+      email: email,
+      name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim(),
+      avatar: clerkUser.imageUrl
+    };
+
+    // Synchronize user to our database
+    try {
+      const user = await syncClerkUser(clerkData);
+      writeDebugLog(`[${logId}] User synced successfully`, { userId: user._id });
+
+      return {
+        success: true,
+        user
+      };
+    } catch (syncError) {
+      writeDebugLog(`[${logId}] Sync failed (TERMINAL)`, { error: syncError.message });
+      // Return as terminal error so middleware doesn't fall back to JWT
+      return {
+        success: false,
+        error: syncError.message,
+        isTerminal: true
+      };
+    }
+
+  } catch (error) {
+    writeDebugLog(`[${logId}] Unexpected error`, { error: error.message, stack: error.stack });
+    logger.error('Clerk token verification failed deep dive:', {
+      error: error.message,
+      stack: error.stack,
+      tokenPresent: !!sessionToken
+    });
+    return {
+      success: false,
+      error: error.message || 'Token verification failed'
+    };
+  }
+};
+
 module.exports = {
   register,
   login,
   oauthLogin,
+  syncClerkUser,
+  verifyClerkToken,
   logout,
   logoutAll,
   generateTokens
 };
-

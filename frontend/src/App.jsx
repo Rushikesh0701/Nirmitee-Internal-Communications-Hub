@@ -1,8 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { useEffect, useCallback, Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useAuthStore } from './store/authStore'
+import { useAuth } from '@clerk/clerk-react'
+import api from './services/api'
 
 import Layout from './layouts/Layout'
 import AuthLayout from './layouts/AuthLayout'
@@ -14,6 +16,7 @@ import AnnouncementNotification from './components/AnnouncementNotification'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { publicRoutes, protectedRoutes } from './config/routes'
 import { PageSkeleton } from './components/skeletons'
+import SSOCallback from './pages/auth/SSOCallback'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,16 +48,57 @@ const AuthSuspenseFallback = () => (
 )
 
 function App() {
-  const { initialize } = useAuthStore()
+  const { initialize, setAnonymous } = useAuthStore()
+  const { getToken, isLoaded: isClerkLoaded, isSignedIn } = useAuth()
   
-  // Memoize initialize to prevent unnecessary re-renders
-  const handleInitialize = useCallback(() => {
-    initialize()
-  }, [initialize])
-  
+  // EFFECT: Set up automatic Clerk token injection for all API requests
   useEffect(() => {
-    handleInitialize()
-  }, [handleInitialize])
+    const requestInterceptor = api.interceptors.request.use(
+      async (config) => {
+        try {
+          const manualToken = localStorage.getItem('accessToken');
+          if (manualToken) {
+            config.headers.Authorization = `Bearer ${manualToken}`;
+            return config;
+          }
+
+          if (isClerkLoaded) {
+            const clerkToken = await getToken();
+            if (clerkToken) {
+              config.headers.Authorization = `Bearer ${clerkToken}`;
+            }
+          }
+        } catch (error) {
+          console.error('Error in auth interceptor:', error);
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    return () => {
+      api.interceptors.request.eject(requestInterceptor);
+    }
+  }, [getToken, isClerkLoaded])
+
+  // EFFECT: Controlled initialization
+  useEffect(() => {
+    const manualToken = localStorage.getItem('accessToken')
+    
+    if (isClerkLoaded) {
+      if (isSignedIn) {
+        // Clerk is signed in - verify with backend
+        initialize(true)
+      } else if (manualToken) {
+        // Not signed in to Clerk, but have manual token - verify
+        initialize()
+      } else {
+        // Not signed in, no token - set anonymous state immediately
+        // faster and avoids 401 error in console
+        setAnonymous()
+      }
+    }
+  }, [initialize, isClerkLoaded, isSignedIn, setAnonymous])
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -67,6 +111,9 @@ function App() {
         >
           <AnnouncementNotification />
         <Routes>
+          {/* SSO callback route - must be outside AuthLayout to avoid PublicRoute redirect */}
+          <Route path="/sso-callback" element={<SSOCallback />} />
+
           <Route element={<AuthLayout />}>
             {publicRoutes.map(({ path, component: Component }) => (
               <Route 

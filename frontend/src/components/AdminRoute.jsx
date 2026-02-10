@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useAuth } from '@clerk/clerk-react'
 import Loading from './Loading'
 import { isAdminOrModerator } from '../utils/userHelpers'
 
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, user, isLoading, _initialized, initialize } = useAuthStore()
+  const { isSignedIn, isLoaded: isClerkLoaded } = useAuth()
   const location = useLocation()
   const [isChecking, setIsChecking] = useState(true)
-  
-  // Strict check: token exists in localStorage
-  const hasToken = () => {
-    const token = localStorage.getItem('accessToken')
-    return !!token && token.trim() !== ''
-  }
   
   useEffect(() => {
     // STRICT: Always initialize auth check for admin routes
@@ -26,13 +22,19 @@ const AdminRoute = ({ children }) => {
     }
   }, [_initialized, isLoading, initialize])
   
-  // STRICT: Wait for authentication check to complete
-  if (isChecking || isLoading || !_initialized) {
+  // Wait for Clerk and backend auth check
+  if (isChecking || isLoading || !_initialized || !isClerkLoaded) {
     return <Loading fullScreen={true} text="Checking permissions..." />
   }
   
-  // STRICT: Must be authenticated to access admin routes
-  if (!isAuthenticated || !hasToken()) {
+  // If Clerk is signed in but backend is not authenticated yet, we are still "syncing"
+  if (isSignedIn && !isAuthenticated) {
+    return <Loading fullScreen={true} text="Verifying admin session..." />
+  }
+
+  // STRICT: Must be authenticated via backend to access admin routes
+  // (Since we need the user role data from the backend)
+  if (!isAuthenticated) {
     return (
       <Navigate 
         to="/login" 
@@ -48,7 +50,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/dashboard" replace />
   }
   
-  // Authenticated, has token, and has admin/moderator role - allow access
+  // Authenticated and has admin/moderator role - allow access
   return children
 }
 

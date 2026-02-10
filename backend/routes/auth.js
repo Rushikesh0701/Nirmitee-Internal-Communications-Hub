@@ -43,6 +43,7 @@ const resetPasswordValidation = validate([
 // Routes
 router.post('/register', registerValidation, authController.register);
 router.post('/login', loginLimiter, loginValidation, authController.login);
+router.post('/oauth/clerk', authController.clerkLogin);
 router.post('/forgot-password', forgotPasswordLimiter, forgotPasswordValidation, authController.forgotPassword);
 router.post('/reset-password/:token', resetPasswordValidation, authController.resetPassword);
 router.post('/refresh', authController.refresh);

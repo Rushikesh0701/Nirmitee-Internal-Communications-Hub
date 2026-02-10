@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient, useMutation } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/authStore'
 import { notificationApi } from '../services/notificationApi'
 import { playNotificationSound } from '../hooks/useNotificationEffects'
 import { Bell, Trash2 } from 'lucide-react'
@@ -65,12 +66,20 @@ export default function NotificationBell() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const { data: notificationsData } = useQuery('notifications', () =>
-    notificationApi.getNotifications({ limit: 5 })
+  const { isAuthenticated } = useAuthStore()
+  
+  const { data: notificationsData } = useQuery('notifications', 
+    () => notificationApi.getNotifications({ limit: 5 }),
+    { enabled: !!isAuthenticated }
   )
-  const { data: unreadData } = useQuery('unreadCount', () => notificationApi.getUnreadCount(), {
-    refetchInterval: 30000
-  })
+  
+  const { data: unreadData } = useQuery('unreadCount', 
+    () => notificationApi.getUnreadCount(), 
+    {
+      refetchInterval: 30000,
+      enabled: !!isAuthenticated
+    }
+  )
 
   const notifications = notificationsData?.data?.data?.notifications || []
   const unreadCount = unreadData?.data?.data?.unreadCount || 0

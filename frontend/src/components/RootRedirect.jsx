@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useAuth } from '@clerk/clerk-react'
 import Loading from './Loading'
 
 const RootRedirect = () => {
   const { isAuthenticated, isLoading, _initialized, initialize } = useAuthStore()
+  const { isSignedIn, isLoaded: isClerkLoaded } = useAuth()
   const [isChecking, setIsChecking] = useState(true)
   
   // Strict check: token exists in localStorage
@@ -21,19 +23,19 @@ const RootRedirect = () => {
       })
     } else if (_initialized) {
       setIsChecking(false)
-    } else if (!hasToken()) {
-      // No token, can redirect immediately
+    } else if (!hasToken() && isClerkLoaded) {
+      // No token and Clerk check done
       setIsChecking(false)
     }
-  }, [_initialized, isLoading, initialize])
+  }, [_initialized, isLoading, initialize, isClerkLoaded])
   
   // Wait for authentication check
-  if (isChecking || (hasToken() && (isLoading || !_initialized))) {
+  if (isChecking || (hasToken() && (isLoading || !_initialized)) || !isClerkLoaded) {
     return <Loading fullScreen={true} text="Loading..." />
   }
   
-  // STRICT: Redirect based on authentication status
-  if (isAuthenticated && hasToken()) {
+  // Redirect based on authentication status (either backend or Clerk)
+  if (isAuthenticated || isSignedIn) {
     return <Navigate to="/dashboard" replace />
   }
   

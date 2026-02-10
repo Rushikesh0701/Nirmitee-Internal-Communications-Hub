@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useAuth } from '@clerk/clerk-react'
 import Loading from './Loading'
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, isLoading, _initialized, initialize } = useAuthStore()
+  const { isSignedIn, isLoaded: isClerkLoaded } = useAuth()
   const location = useLocation()
   const [isChecking, setIsChecking] = useState(true)
   
@@ -26,36 +28,25 @@ const PublicRoute = ({ children }) => {
         setIsChecking(false)
       }
     } else {
-      // No token, allow access immediately
-      setIsChecking(false)
+      // No token, check if we should wait for Clerk
+      if (isClerkLoaded) {
+        setIsChecking(false)
+      }
     }
-  }, [_initialized, isLoading, initialize])
+  }, [_initialized, isLoading, initialize, isClerkLoaded])
   
-  // Strict check: If we have a token, we MUST verify before allowing access
-  if (hasToken()) {
-    // Wait for authentication check to complete
-    if (isChecking || isLoading || !_initialized) {
-      return <Loading fullScreen={true} text="Verifying authentication..." />
-    }
-    
-    // STRICT: If authenticated, immediately redirect to dashboard
-    // This prevents authenticated users from accessing login/signup/forgot-password
-    if (isAuthenticated) {
-      // Preserve intended destination if coming from a redirect
-      const from = location.state?.from?.pathname || '/dashboard'
-      return <Navigate to={from} replace />
-    }
-    
-    // Token exists but authentication failed (expired/invalid)
-    // Clear invalid token and allow access to auth pages
-    if (!isAuthenticated && _initialized) {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      localStorage.removeItem('userRole')
-    }
+  // Wait for Clerk and backend auth check
+  if (isChecking || isLoading || !isClerkLoaded) {
+    return <Loading fullScreen={true} text="Checking session..." />
   }
   
-  // No token or token cleared - allow access to auth pages
+  // If already authenticated (backend) or signed in (clerk), redirect away from login/register
+  if (isAuthenticated || isSignedIn) {
+    const from = location.state?.from?.pathname || '/dashboard'
+    return <Navigate to={from} replace />
+  }
+  
+  // No session - allow access to auth pages
   return children
 }
 

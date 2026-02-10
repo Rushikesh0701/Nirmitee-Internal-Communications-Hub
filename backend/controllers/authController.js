@@ -92,6 +92,50 @@ const oauthOutlook = async (req, res, next) => {
   }
 };
 
+const clerkLogin = async (req, res, next) => {
+  try {
+    console.log('--- CLERK LOGIN REQUEST ---');
+    const { token, email, firstName, lastName, avatar } = req.body;
+    console.log('Payload:', { email, firstName, lastName, token: token ? 'PRESENT' : 'MISSING' });
+
+    if (!token) {
+      console.warn('Sync failed: No token provided');
+      return sendError(res, 'Clerk token is required', 400);
+    }
+
+    // Verify token with Clerk
+    const verification = await authService.verifyClerkToken(token);
+
+    if (!verification.success) {
+      return sendError(res, verification.error || 'Clerk verification failed', 401);
+    }
+
+    // Provision user in our database
+    const result = await authService.oauthLogin({
+      email: email || verification.email,
+      name: `${firstName || ''} ${lastName || ''}`.trim() || verification.name,
+      avatar: avatar || verification.avatar,
+      provider: 'clerk',
+      oauthId: verification.clerkId
+    });
+
+    // Generate backend JWT tokens (bridging Clerk and backend)
+    const userId = result.user._id || result.user.id;
+    const tokens = setAuthTokens(userId);
+
+    // Also set cookie for backward compatibility
+    setAuthCookie(res, userId);
+
+    return sendSuccess(res, { user: result.user, ...tokens }, 'Clerk synchronization successful');
+  } catch (error) {
+    // Check for domain restriction error specifically
+    if (error.message && error.message.includes('@nirmitee.io')) {
+      return sendError(res, error.message, 403);
+    }
+    next(error);
+  }
+};
+
 const refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -269,6 +313,7 @@ const resetPassword = async (req, res, next) => {
 module.exports = {
   login,
   oauthOutlook,
+  clerkLogin,
   refresh,
   logout,
   getMe,

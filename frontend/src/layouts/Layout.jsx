@@ -36,6 +36,7 @@ import {
   Gift,
   Settings
 } from 'lucide-react'
+import { useClerk } from '@clerk/clerk-react'
 import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
 
 // Helper functions for sidebar state persistence
@@ -75,6 +76,7 @@ const setExpandedSectionsState = (sections) => {
 
 const Layout = () => {
   const { user, logout, isLoggingOut } = useAuthStore()
+  const { signOut } = useClerk()
   const navigate = useNavigate()
   const location = useLocation()
   const { theme: sidebarTheme, toggleTheme, branding } = useTheme()
@@ -115,9 +117,10 @@ const Layout = () => {
 
   const confirmLogout = useCallback(async () => {
     setShowLogoutModal(false)
-    await logout()
+    await signOut() // Sign out from Clerk
+    await logout()   // Sign out from existing backend/store
     navigate('/login')
-  }, [logout, navigate])
+  }, [logout, navigate, signOut])
 
   const cancelLogout = useCallback(() => {
     setShowLogoutModal(false)
