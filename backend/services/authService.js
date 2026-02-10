@@ -3,20 +3,8 @@ const { Role } = require('../models');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
-const fs = require('fs');
-const path = require('path');
 
-const DEBUG_LOG_PATH = path.join(__dirname, '../debug_sso.txt');
 
-const writeDebugLog = (message, data = {}) => {
-  try {
-    const timestamp = new Date().toISOString();
-    const logLine = `[${timestamp}] ${message} ${JSON.stringify(data)}\n`;
-    fs.appendFileSync(DEBUG_LOG_PATH, logLine);
-  } catch (e) {
-    console.error('Failed to write debug log', e);
-  }
-};
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
@@ -324,8 +312,6 @@ const syncClerkUser = async (clerkData) => {
  * Verify Clerk session token and return synchronized user
  */
 const verifyClerkToken = async (sessionToken) => {
-  const logId = Math.random().toString(36).substring(7);
-  writeDebugLog(`[${logId}] Starting Clerk token verification`, { tokenLength: sessionToken?.length });
 
   try {
     let session;
@@ -333,22 +319,16 @@ const verifyClerkToken = async (sessionToken) => {
       // Verify the session token using Clerk SDK
       session = await clerk.verifyToken(sessionToken);
     } catch (tokenError) {
-      writeDebugLog(`[${logId}] Token verification failed`, { error: tokenError.message });
       return { success: false, error: 'Invalid Clerk token', isTerminal: false };
     }
 
     if (!session) {
-      writeDebugLog(`[${logId}] No session returned`);
       return { success: false, error: 'Invalid Clerk token', isTerminal: false };
     }
-
-    writeDebugLog(`[${logId}] Token verified`, { sub: session.sub });
-
     // Get full user profile from Clerk
     const clerkUser = await clerk.users.getUser(session.sub);
 
     const email = clerkUser.emailAddresses[0]?.emailAddress;
-    writeDebugLog(`[${logId}] Fetched Clerk user`, { email });
 
     const clerkData = {
       clerkId: clerkUser.id,
@@ -360,14 +340,11 @@ const verifyClerkToken = async (sessionToken) => {
     // Synchronize user to our database
     try {
       const user = await syncClerkUser(clerkData);
-      writeDebugLog(`[${logId}] User synced successfully`, { userId: user._id });
-
       return {
         success: true,
         user
       };
     } catch (syncError) {
-      writeDebugLog(`[${logId}] Sync failed (TERMINAL)`, { error: syncError.message });
       // Return as terminal error so middleware doesn't fall back to JWT
       return {
         success: false,
@@ -375,9 +352,7 @@ const verifyClerkToken = async (sessionToken) => {
         isTerminal: true
       };
     }
-
   } catch (error) {
-    writeDebugLog(`[${logId}] Unexpected error`, { error: error.message, stack: error.stack });
     logger.error('Clerk token verification failed deep dive:', {
       error: error.message,
       stack: error.stack,
