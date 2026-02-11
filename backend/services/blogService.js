@@ -21,7 +21,7 @@ const getAllBlogs = async (options = {}) => {
   if (tag) {
     query.tags = { $in: [tag] };
   }
-  
+
   // Full-text search in title, content, and tags
   if (search && search.trim()) {
     const searchRegex = new RegExp(search.trim(), 'i');
@@ -34,7 +34,7 @@ const getAllBlogs = async (options = {}) => {
 
   const [blogs, total] = await Promise.all([
     Blog.find(query)
-      .populate('authorId', 'firstName lastName email avatar')
+      .populate('authorId', 'firstName lastName displayName email avatar')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip),
@@ -80,8 +80,8 @@ const getBlogById = async (id, userId) => {
   }
 
   const blog = await Blog.findById(id)
-    .populate('authorId', 'firstName lastName email avatar')
-    .populate('likedBy', 'firstName lastName');
+    .populate('authorId', 'firstName lastName displayName email avatar')
+    .populate('likedBy', 'firstName lastName displayName');
 
   if (!blog) {
     throw new Error('Blog not found');
@@ -95,7 +95,7 @@ const getBlogById = async (id, userId) => {
     blogId: id,
     parentCommentId: null // Only top-level comments
   })
-    .populate('authorId', 'firstName lastName email avatar')
+    .populate('authorId', 'firstName lastName displayName email avatar')
     .sort({ createdAt: -1 });
 
   // Fetch replies for each comment
@@ -103,7 +103,7 @@ const getBlogById = async (id, userId) => {
     comments.map(async (comment) => {
       const commentObj = comment.toObject();
       const replies = await BlogComment.find({ parentCommentId: comment._id })
-        .populate('authorId', 'firstName lastName email avatar')
+        .populate('authorId', 'firstName lastName displayName email avatar')
         .sort({ createdAt: 1 }); // Oldest first for replies
       commentObj.replies = replies || [];
       return commentObj;
@@ -206,7 +206,7 @@ const createBlog = async (blogData) => {
   }
 
   return await Blog.findById(blog._id)
-    .populate('authorId', 'firstName lastName email avatar');
+    .populate('authorId', 'firstName lastName displayName email avatar');
 };
 
 const updateBlog = async (id, updateData, userId, user) => {
@@ -280,7 +280,7 @@ const updateBlog = async (id, updateData, userId, user) => {
   });
 
   return await Blog.findById(blog._id)
-    .populate('authorId', 'firstName lastName email avatar');
+    .populate('authorId', 'firstName lastName displayName email avatar');
 };
 
 const deleteBlog = async (id, userId, user) => {
@@ -334,8 +334,8 @@ const likeBlog = async (id, userId) => {
         $inc: { likes: -1 }
       },
       { new: true }
-    ).populate('authorId', 'firstName lastName email avatar')
-      .populate('likedBy', 'firstName lastName');
+    ).populate('authorId', 'firstName lastName displayName email avatar')
+      .populate('likedBy', 'firstName lastName displayName');
   } else {
     // Like: add user to likedBy array and increment likes
     updatedBlog = await Blog.findByIdAndUpdate(
@@ -345,8 +345,8 @@ const likeBlog = async (id, userId) => {
         $inc: { likes: 1 }
       },
       { new: true }
-    ).populate('authorId', 'firstName lastName email avatar')
-      .populate('likedBy', 'firstName lastName');
+    ).populate('authorId', 'firstName lastName displayName email avatar')
+      .populate('likedBy', 'firstName lastName displayName');
   }
 
   // Ensure likedBy is an array
@@ -438,7 +438,7 @@ const addComment = async (blogId, userId, content, parentCommentId = null) => {
   const comment = await BlogComment.create(commentData);
 
   // Populate author information
-  await comment.populate('authorId', 'firstName lastName email avatar');
+  await comment.populate('authorId', 'firstName lastName displayName email avatar');
 
   // Send notification to blog author (if commenter is not the author)
   const blogAuthorId = blog.authorId?._id || blog.authorId;
@@ -497,7 +497,7 @@ const getBlogAnalytics = async (blogId) => {
   }
 
   const blog = await Blog.findById(blogId)
-    .populate('authorId', 'firstName lastName email avatar')
+    .populate('authorId', 'firstName lastName displayName email avatar')
     .lean();
 
   if (!blog) {

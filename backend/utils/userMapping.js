@@ -11,13 +11,7 @@ const logger = require('./logger');
  */
 const getMongoUserId = async (userId) => {
   try {
-    // Handle dummy user IDs in development mode
-    if (!userId || userId === 'dummy-user-id-123') {
-      if (process.env.NODE_ENV === 'development') {
-        logger.warn('Using dummy user ID in development mode');
-        // Return a valid ObjectId for dummy user
-        return new mongoose.Types.ObjectId();
-      }
+    if (!userId) {
       throw new Error('Invalid user ID');
     }
 

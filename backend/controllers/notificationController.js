@@ -1,12 +1,11 @@
 const notificationService = require('../services/notificationService');
-const dummyDataService = require('../services/dummyDataService');
 
 /**
  * GET /notifications
  */
 const getNotifications = async (req, res, next) => {
   try {
-    const userId = req.userId || 'dummy-user-id-123';
+    const userId = req.userId;
     const { page, limit, isRead } = req.query;
 
     const result = await notificationService.getUserNotifications(userId, {
@@ -20,20 +19,6 @@ const getNotifications = async (req, res, next) => {
       data: result
     });
   } catch (error) {
-    // If database error, return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
-      const userId = req.userId || 'dummy-user-id-123';
-      const result = dummyDataService.getDummyNotifications(userId, {
-        page: req.query.page,
-        limit: req.query.limit,
-        isRead: req.query.isRead
-      });
-      return res.json({
-        success: true,
-        data: result
-      });
-    }
     next(error);
   }
 };
@@ -43,7 +28,7 @@ const getNotifications = async (req, res, next) => {
  */
 const markAsRead = async (req, res, next) => {
   try {
-    const userId = req.userId || 'dummy-user-id-123';
+    const userId = req.userId;
     const { notificationId } = req.body;
 
     if (notificationId) {
@@ -61,14 +46,6 @@ const markAsRead = async (req, res, next) => {
       });
     }
   } catch (error) {
-    // If database error, return dummy success
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
-      return res.json({
-        success: true,
-        message: 'All notifications marked as read (dummy mode)'
-      });
-    }
     if (error.message === 'Notification not found') {
       return res.status(404).json({
         success: false,
@@ -84,7 +61,7 @@ const markAsRead = async (req, res, next) => {
  */
 const getUnreadCount = async (req, res, next) => {
   try {
-    const userId = req.userId || 'dummy-user-id-123';
+    const userId = req.userId;
     const result = await notificationService.getUnreadCount(userId);
 
     res.json({
@@ -92,16 +69,6 @@ const getUnreadCount = async (req, res, next) => {
       data: result
     });
   } catch (error) {
-    // If database error, return dummy data
-    if (error.name === 'SequelizeConnectionRefusedError' ||
-      error.name === 'SequelizeConnectionError') {
-      const userId = req.userId || 'dummy-user-id-123';
-      const result = dummyDataService.getDummyUnreadCount(userId);
-      return res.json({
-        success: true,
-        data: result
-      });
-    }
     next(error);
   }
 };
@@ -111,7 +78,7 @@ const getUnreadCount = async (req, res, next) => {
  */
 const deleteNotification = async (req, res, next) => {
   try {
-    const userId = req.userId || 'dummy-user-id-123';
+    const userId = req.userId;
     const { id } = req.params;
 
     await notificationService.deleteNotification(id, userId);
@@ -136,7 +103,7 @@ const deleteNotification = async (req, res, next) => {
  */
 const deleteAllNotifications = async (req, res, next) => {
   try {
-    const userId = req.userId || 'dummy-user-id-123';
+    const userId = req.userId;
 
     await notificationService.deleteAllNotifications(userId);
 

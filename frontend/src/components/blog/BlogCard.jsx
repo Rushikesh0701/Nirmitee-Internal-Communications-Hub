@@ -2,11 +2,13 @@ import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
+import { formatDate, getAuthorName } from '../../utils/blogHelpers';
 
 const BlogCard = ({ blog }) => {
   const { theme } = useTheme();
   const blogId = blog._id || blog.id;
   const [imageError, setImageError] = useState(false);
+  const authorName = getAuthorName(blog);
 
   if (!blogId) {
     return null;
@@ -95,7 +97,7 @@ const BlogCard = ({ blog }) => {
               <span className="flex items-center gap-1 truncate max-w-[60%]">
                 <span className="text-base">👤</span>
                 <span className="truncate">
-                  {blog.Author ? `${blog.Author.firstName} ${blog.Author.lastName}` : blog.author || 'Unknown'}
+                  {authorName}
                 </span>
               </span>
               <div className="flex items-center gap-3">

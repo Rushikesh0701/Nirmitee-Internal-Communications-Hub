@@ -16,35 +16,30 @@ export const extractId = (entity) => {
 export const compareIds = (id1, id2) => {
   const extractedId1 = extractId(id1);
   const extractedId2 = extractId(id2);
-  
+
   if (!extractedId1 || !extractedId2) return false;
-  
+
   return extractedId1.toString() === extractedId2.toString();
 };
 
 /**
  * Extract author name from various author formats
  */
-export const getAuthorName = (author) => {
-  if (!author) return 'Unknown';
-  
-  // Direct firstName/lastName on object
-  if (author.firstName && author.lastName) {
-    return `${author.firstName} ${author.lastName}`;
+export const getAuthorName = (blog) => {
+  if (!blog) return 'Unknown';
+
+  // If blog is actually a user object (e.g. from comment.authorId)
+  const user = blog.authorId || blog.Author || blog;
+
+  if (user.displayName) return user.displayName;
+
+  if (user.firstName && user.lastName) {
+    return `${user.firstName} ${user.lastName}`;
   }
-  
-  // Nested Author object
-  if (author.Author?.firstName && author.Author?.lastName) {
-    return `${author.Author.firstName} ${author.Author.lastName}`;
-  }
-  
-  // authorId object
-  if (author.authorId?.firstName && author.authorId?.lastName) {
-    return `${author.authorId.firstName} ${author.authorId.lastName}`;
-  }
-  
-  // Fallback to author string
-  return author.author || author.name || 'Unknown';
+
+  if (user.firstName) return user.firstName;
+
+  return blog.author || blog.name || 'Unknown';
 };
 
 /**
@@ -52,7 +47,7 @@ export const getAuthorName = (author) => {
  */
 export const checkIfLiked = (blog, user) => {
   if (!blog || !user || !blog.likedBy) return false;
-  
+
   const userId = extractId(user);
   return blog.likedBy.some((likedUserId) => {
     const likedId = extractId(likedUserId);
@@ -65,10 +60,10 @@ export const checkIfLiked = (blog, user) => {
  */
 export const checkIsOwner = (blog, user) => {
   if (!blog || !user) return false;
-  
+
   const blogAuthorId = extractId(blog.authorId);
   const userId = extractId(user);
-  
+
   return compareIds(blogAuthorId, userId);
 };
 
@@ -77,10 +72,10 @@ export const checkIsOwner = (blog, user) => {
  */
 export const checkCanEdit = (blog, user) => {
   if (!user) return false;
-  
+
   const isOwner = checkIsOwner(blog, user);
   const isAdmin = user.roleId?.name === 'Admin' || user.role === 'ADMIN';
-  
+
   return isOwner || isAdmin;
 };
 
@@ -89,12 +84,12 @@ export const checkCanEdit = (blog, user) => {
  */
 export const checkCanDeleteComment = (comment, user) => {
   if (!comment || !user) return false;
-  
+
   const commentAuthorId = extractId(comment.authorId);
   const userId = extractId(user);
   const isCommentAuthor = compareIds(commentAuthorId, userId);
   const isAdmin = user.roleId?.name === 'Admin' || user.role === 'ADMIN';
-  
+
   return isCommentAuthor || isAdmin;
 };
 

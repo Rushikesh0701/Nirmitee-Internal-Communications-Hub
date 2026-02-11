@@ -33,30 +33,12 @@ const errorHandler = (err, req, res, next) => {
     };
   }
 
-  // Sequelize database connection errors - return dummy data instead of crashing
-  if (err.name === 'SequelizeConnectionRefusedError' || 
-      err.name === 'SequelizeConnectionError' ||
-      err.message?.includes('ECONNREFUSED') ||
-      err.message?.includes('Connection refused')) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('⚠️ Database connection error (using dummy mode):', err.message);
-      // Return dummy user data for auth endpoints
-      if (err.config?.url?.includes('/auth/me')) {
-        return res.status(200).json({
-          success: true,
-          message: 'Database unavailable - using dummy data',
-          data: {
-            user: {
-              id: 'dummy-user-id-123',
-              email: 'dummy@test.com',
-              name: 'Dummy User',
-              role: 'EMPLOYEE',
-              isActive: true
-            }
-          }
-        });
-      }
-    }
+  // Database connection errors
+  if (err.name === 'SequelizeConnectionRefusedError' ||
+    err.name === 'SequelizeConnectionError' ||
+    err.message?.includes('ECONNREFUSED') ||
+    err.message?.includes('Connection refused')) {
+    console.error('Database connection error:', err.message);
   }
 
   res.status(error.statusCode || 500).json({

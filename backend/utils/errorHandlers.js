@@ -17,19 +17,7 @@ const isDatabaseError = (error) => {
   );
 };
 
-/**
- * Handle database errors with fallback to dummy data
- */
-const handleDatabaseError = (error, dummyDataFn, queryParams) => {
-  if (isDatabaseError(error)) {
-    logger.warn('Database error, using dummy data', { error: error.message });
-    return dummyDataFn(queryParams);
-  }
-  throw error;
-};
-
 module.exports = {
-  isDatabaseError,
-  handleDatabaseError
+  isDatabaseError
 };
 

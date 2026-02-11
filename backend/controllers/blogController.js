@@ -1,7 +1,6 @@
 const blogService = require('../services/blogService');
 const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
-const { handleDatabaseError } = require('../utils/errorHandlers');
 
 const getAllBlogs = async (req, res, next) => {
   try {
@@ -265,7 +264,7 @@ const getBlogAnalytics = async (req, res, next) => {
 
     // Get blog to check ownership
     const blog = await blogService.getBlogById(id, userId);
-    
+
     // Check if user is the author
     const blogAuthorId = blog.authorId?._id || blog.authorId;
     if (blogAuthorId?.toString() !== userId?.toString()) {

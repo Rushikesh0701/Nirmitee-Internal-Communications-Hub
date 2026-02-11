@@ -149,11 +149,6 @@ const getAllGroups = async (userId, options = {}) => {
  * Get group by ID with membership check
  */
 const getGroupById = async (groupId, userId) => {
-  // Check if this is a dummy ID (should be handled by controller, but add safety check)
-  if (groupId && typeof groupId === 'string' && groupId.startsWith('dummy-group-')) {
-    throw new Error('Group not found');
-  }
-
   const mongoose = require('mongoose');
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(groupId)) {
@@ -582,7 +577,7 @@ const createComment = async (commentData, userId) => {
   }
 
   // Check if it's a dummy ID
-  if (typeof postId === 'string' && postId.startsWith('dummy-')) {
+  if (typeof postId === 'string' && postId === 'undefined') {
     throw new Error('Cannot add comments to dummy posts. Please use a valid post.');
   }
 
