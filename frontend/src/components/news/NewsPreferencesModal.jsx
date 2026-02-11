@@ -37,7 +37,7 @@ export default function NewsPreferencesModal({ isOpen, onClose, preferences, onS
     ['rssCategories'],
     async () => {
       try {
-        const response = await api.get('/admin/rss-categories?activeOnly=true');
+        const response = await api.get('/news/categories?activeOnly=true');
         return response.data?.data || [];
       } catch (err) {
         console.error('Error fetching categories:', err);
