@@ -52,12 +52,7 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm({
-    defaultValues: {
-      email: 'admin@nirmitee.io',
-      password: 'admin123'
-    }
-  })
+  } = useForm()
 
   // Redirect to dashboard if already authenticated
   // App.jsx handles the actual initialization and token injection
