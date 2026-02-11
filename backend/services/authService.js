@@ -337,6 +337,48 @@ const verifyClerkToken = async (sessionToken) => {
       avatar: clerkUser.imageUrl
     };
 
+    // Force single session: Revoke all other active sessions for this user
+    try {
+      const sessionId = session.sid;
+      const sessions = await clerk.sessions.getSessionList({ userId: clerkUser.id, status: 'active' });
+
+      for (const s of sessions) {
+        if (s.id !== sessionId) {
+          await clerk.sessions.revokeSession(s.id);
+          logger.info(`Revoked old session ${s.id} for user ${clerkUser.id}`);
+        }
+      }
+    } catch (sessionError) {
+      logger.error('Failed to revoke other sessions:', sessionError.message);
+      // Not a terminal error, continue with login
+    }
+
+    // Ensure user belongs to the default organization
+    try {
+      const DEFAULT_ORG_ID = 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
+      logger.info(`[OrgCheck] Checking memberships for user ${clerkUser.id}`);
+      const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+
+      const isMember = memberships.some(m => m.organization.id === DEFAULT_ORG_ID);
+      logger.info(`[OrgCheck] User ${clerkUser.id} isMember: ${isMember}`);
+
+      if (!isMember) {
+        logger.info(`[OrgCheck] Adding user ${clerkUser.id} to organization ${DEFAULT_ORG_ID}...`);
+        await clerk.organizations.createOrganizationMembership({
+          organizationId: DEFAULT_ORG_ID,
+          userId: clerkUser.id,
+          role: 'basic_member',
+        });
+        logger.info(`[OrgCheck] Successfully added user ${clerkUser.id} to organization ${DEFAULT_ORG_ID}`);
+      }
+    } catch (orgError) {
+      logger.error(`[OrgCheck] Proactive organization assignment failed: ${orgError.message}`, {
+        userId: clerkUser.id,
+        stack: orgError.stack
+      });
+      // Continue login even if this fails to avoid blocking the user
+    }
+
     // Synchronize user to our database
     try {
       const user = await syncClerkUser(clerkData);
@@ -373,5 +415,17 @@ module.exports = {
   verifyClerkToken,
   logout,
   logoutAll,
+  revokeOtherSessions: async (userId, currentSessionId) => {
+    try {
+      const sessions = await clerk.sessions.getSessionList({ userId, status: 'active' });
+      for (const s of sessions) {
+        if (s.id !== currentSessionId) {
+          await clerk.sessions.revokeSession(s.id);
+        }
+      }
+    } catch (err) {
+      logger.error('Session revocation error:', err.message);
+    }
+  },
   generateTokens
 };

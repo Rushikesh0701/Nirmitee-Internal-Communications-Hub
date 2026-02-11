@@ -95,7 +95,7 @@ const useAuthStore = create((set, get) => {
     lastError: null, // Track the last error message from initialization
 
     // Initialize auth state from server
-    initialize: async (force = false) => {
+    initialize: async (force = false, explicitToken = null) => {
       // Prevent multiple simultaneous initialization calls
       if (get()._initializing) {
         return { success: false, pending: true }
@@ -111,7 +111,12 @@ const useAuthStore = create((set, get) => {
 
       try {
         set({ isLoading: true, _initializing: true })
-        const response = await api.get('/auth/me')
+
+        const config = explicitToken
+          ? { headers: { Authorization: `Bearer ${explicitToken}` } }
+          : {}
+
+        const response = await api.get('/auth/me', config)
         const user = response.data.data.user
         setUserRoleInStorage(user) // Store role in localStorage
         set({

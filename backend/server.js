@@ -27,6 +27,8 @@ const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
 const moderationRoutes = require('./routes/moderation');
 const settingsRoutes = require('./routes/settings');
+const webhookRoutes = require('./routes/webhook');
+
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -88,7 +90,11 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
+// 1. Clerk Webhooks - MUST be before express.json() to handle raw body
+app.use('/api/webhooks', webhookRoutes);
+
 // Body parsing middleware
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());

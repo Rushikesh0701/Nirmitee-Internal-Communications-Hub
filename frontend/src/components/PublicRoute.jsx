@@ -41,9 +41,14 @@ const PublicRoute = ({ children }) => {
   }
   
   // If already authenticated (backend) or signed in (clerk), redirect away from login/register
-  if (isAuthenticated || isSignedIn) {
+  if (isClerkLoaded && isSignedIn) {
     const from = location.state?.from?.pathname || '/dashboard'
-    return <Navigate to={from} replace />
+    return <Navigate to={from} replace={true} />
+  }
+
+  if (isAuthenticated) {
+    const from = location.state?.from?.pathname || '/dashboard'
+    return <Navigate to={from} replace={true} />
   }
   
   // No session - allow access to auth pages

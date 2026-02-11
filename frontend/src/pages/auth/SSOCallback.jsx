@@ -6,7 +6,12 @@ import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
  * redirecting to the final destination (e.g., /dashboard).
  */
 const SSOCallback = () => {
-  return <AuthenticateWithRedirectCallback />
+  return (
+    <AuthenticateWithRedirectCallback 
+      signInForceRedirectUrl="/dashboard"
+      signUpForceRedirectUrl="/dashboard"
+    />
+  )
 }
 
 export default SSOCallback

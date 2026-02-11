@@ -12,7 +12,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         // Use localhost for local development
-        target: 'http://localhost:5002',
+        // target: 'http://localhost:5002',
+        target: 'https://nirmitee-internal-communications-hub.onrender.com/api',
         changeOrigin: true,
         secure: false,
       }

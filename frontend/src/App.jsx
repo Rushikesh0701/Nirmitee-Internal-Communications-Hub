@@ -64,8 +64,11 @@ function App() {
 
           if (isClerkLoaded) {
             const clerkToken = await getToken();
+            console.log('[AuthInterceptor] Clerk Token found:', !!clerkToken);
             if (clerkToken) {
               config.headers.Authorization = `Bearer ${clerkToken}`;
+            } else {
+              console.warn('[AuthInterceptor] Clerk signed in but no token returned');
             }
           }
         } catch (error) {
@@ -83,22 +86,28 @@ function App() {
 
   // EFFECT: Controlled initialization
   useEffect(() => {
-    const manualToken = localStorage.getItem('accessToken')
-    
-    if (isClerkLoaded) {
-      if (isSignedIn) {
-        // Clerk is signed in - verify with backend
-        initialize(true)
-      } else if (manualToken) {
-        // Not signed in to Clerk, but have manual token - verify
-        initialize()
-      } else {
-        // Not signed in, no token - set anonymous state immediately
-        // faster and avoids 401 error in console
-        setAnonymous()
+    const performInit = async () => {
+      const manualToken = localStorage.getItem('accessToken')
+      
+      if (isClerkLoaded) {
+        if (isSignedIn) {
+          // Clerk is signed in - verify with backend
+          // Fetch token explicitly to ensure we have it for the initial hit
+          console.log('[App] Clerk signed in, fetching token for init...');
+          const token = await getToken();
+          await initialize(true, token)
+        } else if (manualToken) {
+          // Not signed in to Clerk, but have manual token - verify
+          await initialize()
+        } else {
+          // Not signed in, no token - set anonymous state
+          setAnonymous()
+        }
       }
     }
-  }, [initialize, isClerkLoaded, isSignedIn, setAnonymous])
+
+    performInit()
+  }, [initialize, isClerkLoaded, isSignedIn, setAnonymous, getToken])
   
   return (
     <QueryClientProvider client={queryClient}>
