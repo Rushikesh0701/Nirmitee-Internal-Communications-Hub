@@ -510,9 +510,8 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Admin-only Theme Customization */}
-              {isAdmin && (
-                <div className="card space-y-4">
+              {/* Theme Customization - Available to all users */}
+              <div className="card space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-h2 text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -768,16 +767,6 @@ const Settings = () => {
                     </button>
                   </div>
                 </div>
-              )}
-
-              {/* Non-admin message */}
-              {!isAdmin && (
-                <div className="card">
-                  <p className="text-caption text-slate-600 dark:text-slate-300">
-                    Theme customization is only available to administrators.
-                  </p>
-                </div>
-              )}
             </div>
           )}
       </motion.div>
