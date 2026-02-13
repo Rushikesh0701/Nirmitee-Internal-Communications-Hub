@@ -49,7 +49,7 @@ const AuthSuspenseFallback = () => (
 
 function App() {
   const { initialize, setAnonymous } = useAuthStore()
-  const { getToken, isLoaded: isClerkLoaded, isSignedIn } = useAuth()
+  const { getToken, isLoaded: isClerkLoaded, isSignedIn, signOut } = useAuth()
   
   // EFFECT: Set up automatic Clerk token injection for all API requests
   useEffect(() => {
@@ -95,7 +95,14 @@ function App() {
           // Fetch token explicitly to ensure we have it for the initial hit
           console.log('[App] Clerk signed in, fetching token for init...');
           const token = await getToken();
-          await initialize(true, token)
+          const result = await initialize(true, token)
+
+          // If backend rejected the Clerk session (e.g. domain restriction),
+          // we must sign out of Clerk so the user isn't stuck in a "signed in but unauthorized" state
+          if (result && !result.success) {
+            console.error('[App] Backend rejected Clerk session:', result.error);
+            await signOut();
+          }
         } else if (manualToken) {
           // Not signed in to Clerk, but have manual token - verify
           await initialize()
@@ -107,7 +114,7 @@ function App() {
     }
 
     performInit()
-  }, [initialize, isClerkLoaded, isSignedIn, setAnonymous, getToken])
+  }, [initialize, isClerkLoaded, isSignedIn, setAnonymous, getToken, signOut])
   
   return (
     <QueryClientProvider client={queryClient}>

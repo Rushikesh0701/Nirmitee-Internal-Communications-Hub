@@ -147,12 +147,11 @@ const login = async (email, password, metadata = {}) => {
 const oauthLogin = async (oauthData) => {
   const { email, name, avatar, provider, oauthId } = oauthData;
 
-  /* 
-  // Temporarily disable for debugging Clerk SSO
-  if (!email.toLowerCase().endsWith('@nirmitee.io')) {
+  // ENFORCE @nirmitee.io email domain restriction
+  if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
+    logger.warn('OAuth login attempt from unauthorized domain:', { email });
     throw new Error('Only @nirmitee.io email addresses are allowed');
   }
-  */
 
   // Find or create user
   let user = await User.findOne({
@@ -355,7 +354,7 @@ const verifyClerkToken = async (sessionToken) => {
 
     // Ensure user belongs to the default organization
     try {
-      const DEFAULT_ORG_ID = 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
+      const DEFAULT_ORG_ID = process.env.CLERK_ORGANIZATION_ID || 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
       logger.info(`[OrgCheck] Checking memberships for user ${clerkUser.id}`);
       const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
 

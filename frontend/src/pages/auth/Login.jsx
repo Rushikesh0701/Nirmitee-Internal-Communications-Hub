@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -10,9 +10,21 @@ import { useSignIn, useAuth } from '@clerk/clerk-react'
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { signIn, isLoaded } = useSignIn()
   const { signOut, isSignedIn } = useAuth()
   const { login, initialize, isAuthenticated } = useAuthStore()
+
+  // EFFECT: Check for error messages in URL (e.g., from domain restriction redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const errorParam = params.get('error')
+    if (errorParam) {
+      toast.error(decodeURIComponent(errorParam))
+      // Clean up URL to prevent toast showing again on refresh
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [location])
 
   const signInWith = (strategy) => {
     if (!isLoaded) return

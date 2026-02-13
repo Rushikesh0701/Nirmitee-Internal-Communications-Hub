@@ -32,7 +32,7 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // If we are on public pages, just let it fail
+      // ... (existing 401 logic)
       const isOnAuthPage = window.location.pathname === '/login' ||
         window.location.pathname === '/register'
 
@@ -56,6 +56,16 @@ api.interceptors.response.use(
           localStorage.removeItem('refreshToken')
           window.location.href = '/login'
         }
+      }
+    }
+
+    if (error.response?.status === 403) {
+      // Forbidden - likely domain restriction or role issue
+      const errorMessage = error.response.data?.message || 'Access denied'
+
+      // If we're not already on the login page, redirect there
+      if (window.location.pathname !== '/login') {
+        window.location.href = `/login?error=${encodeURIComponent(errorMessage)}`
       }
     }
 

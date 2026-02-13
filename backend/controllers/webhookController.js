@@ -3,7 +3,7 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const logger = require('../utils/logger');
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-const DEFAULT_ORG_ID = 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
+const DEFAULT_ORG_ID = process.env.CLERK_ORGANIZATION_ID || 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
 
 /**
  * Handle Clerk Webhooks
@@ -56,20 +56,30 @@ const handleClerkWebhook = async (req, res) => {
     try {
         if (type === 'user.created') {
             const userId = data.id;
-            logger.info(`New user created: ${userId}. Attaching to default organization ${DEFAULT_ORG_ID}`);
+            const email = data.email_addresses?.[0]?.email_address;
+
+            logger.info(`New user created: ${userId} (${email || 'no email'}). Attaching to default organization ${DEFAULT_ORG_ID}`);
+
+            // ENFORCE @nirmitee.io domain check
+            if (email && !email.toLowerCase().endsWith('@nirmitee.io')) {
+                logger.warn(`[Webhook] User ${userId} has unauthorized domain ${email}. Skipping organization assignment.`);
+                return res.status(200).json({ success: true, message: 'Unauthorized domain, skipped organization assignment' });
+            }
 
             // Auto-assign to organization
             try {
                 await clerkClient.organizations.createOrganizationMembership({
                     organizationId: DEFAULT_ORG_ID,
                     userId: userId,
-                    role: 'basic_member',
+                    role: 'org:member',
                 });
-                logger.info(`Successfully added user ${userId} to organization ${DEFAULT_ORG_ID}`);
+                logger.info(`[Webhook] Successfully added user ${userId} to organization ${DEFAULT_ORG_ID}`);
             } catch (orgError) {
-                logger.error(`Failed to add user to organization: ${orgError.message}`);
+                logger.error(`[Webhook] Failed to add user ${userId} to organization ${DEFAULT_ORG_ID}:`, {
+                    error: orgError.message,
+                    clerkDetails: orgError.clerkError || orgError.response?.data
+                });
                 // We don't return 500 here to avoid Clerk retrying indefinitely 
-                // if it's a configuration issue with the Org ID.
             }
         }
 
