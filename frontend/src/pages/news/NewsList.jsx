@@ -72,7 +72,6 @@ function NewsList() {
   
   // Refs
   const fetchingRef = useRef(false);
-  const observerRef = useRef(null);
   const loadMoreRef = useRef(null);
 
   // Determine which categories to filter by
@@ -160,31 +159,12 @@ function NewsList() {
     });
   };
 
-  // Infinite scroll observer
-  useEffect(() => {
-    if (loading || loadingMore || !hasMorePages) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMorePages && !loadingMore) {
-          fetchNews(false, nextPage);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+  // Handle Load More
+  const handleLoadMore = () => {
+    if (hasMorePages && !loadingMore && !loading) {
+      fetchNews(false, nextPage);
     }
-
-    observerRef.current = observer;
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [loading, loadingMore, hasMorePages, nextPage, fetchNews]);
+  };
 
   // Initial load and filter changes
   useEffect(() => {
@@ -430,28 +410,30 @@ function NewsList() {
           </div>
         )}
 
-        {/* Load More Trigger */}
+        {/* Load More Button */}
         {hasMorePages && !loading && (
-          <div 
-            ref={loadMoreRef}
-            className={`flex items-center justify-center py-8 ${
-              loadingMore ? '' : 'opacity-50'
-            }`}
-          >
-            {loadingMore ? (
-              <div className={`flex items-center gap-2 ${
-                theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
-              }`}>
-                <Loader2 size={20} className="animate-spin" />
-                <span>Loading more articles...</span>
-              </div>
-            ) : (
-              <span className={`text-sm ${
-                theme === 'dark' ? 'text-slate-500' : 'text-gray-400'
-              }`}>
-                Scroll for more
-              </span>
-            )}
+          <div className="flex items-center justify-center py-8">
+            <button
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className={`flex items-center gap-2 px-8 py-3 rounded-xl font-medium transition-all ${
+                theme === 'dark'
+                  ? 'bg-slate-800 text-white hover:bg-slate-700 border border-slate-700'
+                  : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-200 shadow-sm'
+              } disabled:opacity-50`}
+            >
+              {loadingMore ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <Newspaper size={18} />
+                  <span>Load More Articles</span>
+                </>
+              )}
+            </button>
           </div>
         )}
 

@@ -63,8 +63,9 @@ const buildNewsDataParams = (options, apiKey) => {
   if (category) params.append('category', mapCategoryToNewsData(category));
   if (q?.trim()) params.append('q', q.trim());
   // Note: from_date and to_date require paid plan - skipping
-  if (nextPage && typeof nextPage === 'string') params.append('page', nextPage);
-  if (limit && limit > 0) params.append('size', Math.min(limit, 50));
+  if (nextPage && typeof nextPage === 'string' && !nextPage.includes(':')) params.append('page', nextPage);
+  // Limit to 10 for free tier compatibility to avoid 422 errors
+  params.append('size', '10');
 
   return params;
 };
@@ -260,10 +261,24 @@ const getAllNews = async (options = {}) => {
   let rssArticles = [];
   let newsDataNextPage = null;
   let newsDataError = null;
+  // Handle composite nextPage token (e.g. "nd:token:p:2" or "p:2")
+  let newsDataToken = nextPage;
+  let currentPage = parseInt(page) || 1;
+
+  if (nextPage && typeof nextPage === 'string' && nextPage.includes(':')) {
+    const parts = nextPage.split(':');
+    if (nextPage.startsWith('nd:')) {
+      newsDataToken = parts[1] === 'null' ? null : parts[1];
+      currentPage = parseInt(parts[3]) || 1;
+    } else if (nextPage.startsWith('p:')) {
+      currentPage = parseInt(parts[1]) || 1;
+      newsDataToken = null;
+    }
+  }
 
   // Fetch from NewsData.io API
   try {
-    logger.info('Fetching from NewsData.io', { nextPage });
+    logger.info('Fetching from NewsData.io', { newsDataToken });
     const newsData = await fetchNewsFromNewsData({
       q: q || undefined,
       category: category || undefined,
@@ -272,8 +287,8 @@ const getAllNews = async (options = {}) => {
       language,
       source: source || undefined,
       sort: sort || undefined,
-      limit: parseInt(limit) || 10,
-      nextPage: nextPage || undefined // Pass nextPage for pagination
+      limit: 10, // Consistent with buildNewsDataParams
+      nextPage: newsDataToken || undefined
     });
 
     if (newsData.results && newsData.results.length > 0) {
@@ -288,76 +303,79 @@ const getAllNews = async (options = {}) => {
     newsDataError = error;
   }
 
-  // Only fetch RSS feeds on the first page to avoid pagination conflicts
-  // On subsequent pages, we want fresh NewsData.io articles
-  if (!nextPage && (parseInt(page) === 1)) {
+  // Always use cached RSS articles if available, refresh if empty or on page 1
+  const isCacheExpired = Date.now() - cacheTimestamp > CACHE_TTL;
+  if (cachedArticles.length === 0 || isCacheExpired || currentPage === 1) {
     try {
-      logger.info('Fetching RSS feeds');
+      logger.info('Refreshing articles cache (RSS + NewsData)');
       rssArticles = await fetchAllRSSFeeds();
       logger.info('RSS articles fetched', { count: rssArticles.length });
     } catch (error) {
       logger.warn('RSS feeds error', { error: error.message });
     }
   } else {
-    logger.info('Skipping RSS feeds', { nextPage, page });
+    // Filter out NewsData articles from cache to avoid duplicates with the fresh fetch
+    rssArticles = cachedArticles.filter(a => a.source_id === 'rss');
+    logger.info('Using cached RSS articles', { count: rssArticles.length });
   }
 
-  // Merge all articles
+  // Merge current fetch with RSS articles
   let allArticles = [...newsDataArticles, ...rssArticles];
-  logger.info('Articles merged', { total: allArticles.length });
 
   // Deduplicate
   allArticles = deduplicateArticles(allArticles);
-  logger.info('After deduplication', { total: allArticles.length });
 
-  // Apply filters (only if no nextPage - NewsData.io already filtered)
-  if (!nextPage) {
-    allArticles = applyFilters(allArticles, { q, category, source, from, to });
-    logger.info('After filtering', { total: allArticles.length });
-  }
+  // Apply filters
+  allArticles = applyFilters(allArticles, { q, category, source, from, to });
 
-  // Sort based on sort option (date, relevance, popularity)
+  // Sort
   allArticles = sortArticles(allArticles, sort || 'date', q);
 
-  // Apply pagination limit to the final results
-  // This ensures we return only the requested number of articles per page
-  const startIndex = 0; // Always start at 0 since we're using nextPage tokens, not offset-based pagination
-  const paginatedArticles = allArticles.slice(startIndex, parseInt(limit));
+  // Calculate pagination for the MERGED list
+  const requestedLimit = parseInt(limit) || 20;
+  const startIndex = (currentPage - 1) * requestedLimit;
+  const paginatedArticles = allArticles.slice(startIndex, startIndex + requestedLimit);
 
-  // Update cache for getNewsById (store all articles for lookup, but only return paginated results)
-  if (!nextPage) {
-    cachedArticles = allArticles; // Cache all for future lookups
+  // Update cache
+  if (currentPage === 1) {
+    cachedArticles = allArticles;
   } else {
-    cachedArticles = [...cachedArticles, ...allArticles];
+    // Merge new articles into cache for future ID lookups
+    const existingIds = new Set(cachedArticles.map(a => a.article_id));
+    const newArticles = allArticles.filter(a => !existingIds.has(a.article_id));
+    cachedArticles = [...cachedArticles, ...newArticles];
   }
 
-  // Check if cache is stale BEFORE updating timestamp
-  const isCacheStale = Date.now() - cacheTimestamp > CACHE_TTL;
   cacheTimestamp = Date.now();
 
-  // Only update totalResults if cache is empty or stale
-  const shouldUpdateTotal = !cacheMetadata.totalResults || isCacheStale;
+  // Update total results count
+  if (currentPage === 1 || !cacheMetadata.totalResults) {
+    cacheMetadata.totalResults = allArticles.length;
+  }
 
-  // Update cache metadata
-  cacheMetadata = {
-    lastUpdated: new Date().toISOString(),
-    articleCount: cachedArticles.length,
-    sources: [...new Set(cachedArticles.map(a => a.source).filter(Boolean))],
-    totalResults: shouldUpdateTotal ? allArticles.length : cacheMetadata.totalResults
-  };
+  // Generate composite nextPage token
+  let compositeNextPage = null;
+  const hasMoreLocal = allArticles.length > startIndex + requestedLimit;
+
+  if (newsDataNextPage || hasMoreLocal) {
+    if (newsDataNextPage) {
+      compositeNextPage = `nd:${newsDataNextPage}:p:${currentPage + 1}`;
+    } else {
+      compositeNextPage = `p:${currentPage + 1}`;
+    }
+  }
 
   logger.info('Returning results', {
     count: paginatedArticles.length,
     totalAvailable: allArticles.length,
-    cachedTotal: cacheMetadata.totalResults,
-    shouldUpdateTotal,
-    nextPage: newsDataNextPage
+    currentIndex: startIndex,
+    nextPage: compositeNextPage
   });
 
   return {
-    results: paginatedArticles, // Return only the paginated subset
-    totalResults: cacheMetadata.totalResults, // Use cached total for consistency
-    nextPage: newsDataNextPage, // Return NewsData.io's nextPage token
+    results: paginatedArticles,
+    totalResults: cacheMetadata.totalResults,
+    nextPage: compositeNextPage,
     status: 'success',
     error: newsDataError ? newsDataError.message : null
   };

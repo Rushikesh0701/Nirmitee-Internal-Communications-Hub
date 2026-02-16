@@ -3,6 +3,8 @@
  * Frontend categories: AI, Cloud, DevOps, Programming, Cybersecurity, HealthcareIT, Technology
  */
 const mapCategoryToNewsData = (category) => {
+  if (!category) return 'technology';
+
   const categoryMap = {
     AI: 'technology',
     Cloud: 'technology',
@@ -11,7 +13,6 @@ const mapCategoryToNewsData = (category) => {
     Cybersecurity: 'technology',
     HealthcareIT: 'health',
     Technology: 'technology',
-    // Aliases for flexibility
     'Machine Learning': 'technology',
     'Artificial Intelligence': 'technology',
     'Software': 'technology',
@@ -19,9 +20,15 @@ const mapCategoryToNewsData = (category) => {
     'Health': 'health',
     'Healthcare': 'health'
   };
-  // Case-insensitive lookup
-  const normalizedCategory = category?.trim();
-  return categoryMap[normalizedCategory] || categoryMap[normalizedCategory?.toLowerCase()] || 'technology';
+
+  // Handle multiple categories
+  const categories = category.split(',').map(c => c.trim());
+  const mappedCategories = categories.map(c =>
+    categoryMap[c] || categoryMap[c.toLowerCase()] || 'technology'
+  );
+
+  // Return unique mapped categories joined by comma
+  return [...new Set(mappedCategories)].join(',');
 };
 
 /**
