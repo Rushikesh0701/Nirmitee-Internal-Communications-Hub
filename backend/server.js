@@ -105,13 +105,16 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     message: 'Nirmitee Internal Communications Hub API',
     timestamp: new Date().toISOString()
   });
 });
+
+// Alias for generic health check
+app.get('/health', (req, res) => res.redirect('/api/health'));
 
 // API Routes
 app.use('/api/auth', authRoutes);

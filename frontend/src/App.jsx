@@ -79,10 +79,26 @@ function App() {
       (error) => Promise.reject(error)
     );
 
-    return () => {
-      api.interceptors.request.eject(requestInterceptor);
-    }
   }, [getToken, isClerkLoaded])
+ 
+  // EFFECT: Wake up the server on app mount (Render free tier keep-alive)
+  useEffect(() => {
+    const wakeUpServer = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+        // Remove /api from end if it exists since health is at /api/health
+        const healthUrl = baseUrl.endsWith('/api') 
+          ? `${baseUrl}/health` 
+          : `${baseUrl}/api/health`;
+          
+        await fetch(healthUrl);
+        console.log('[App] Waking up server...');
+      } catch (err) {
+        console.error('[App] Wake up failed', err);
+      }
+    };
+    wakeUpServer();
+  }, []);
 
   // EFFECT: Controlled initialization
   useEffect(() => {
