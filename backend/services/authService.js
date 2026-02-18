@@ -1,10 +1,7 @@
-const { User } = require('../models'); // MongoDB User model
-const { Role } = require('../models');
+const { User, Role } = require('../models');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
-
-
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
@@ -12,6 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const JWT_EXPIRES_IN = '24h';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
+/**
+ * Helper: Generate access and refresh tokens
+ */
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   const refreshToken = jwt.sign({ userId }, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
@@ -19,93 +19,129 @@ const generateTokens = (userId) => {
 };
 
 /**
- * Register a new user (using MongoDB)
+ * Helper: Get or create a role by name
+ */
+const getOrCreateRole = async (name, description = '') => {
+  let role = await Role.findOne({ name });
+  if (!role) {
+    role = await Role.create({
+      name,
+      description: description || `Default ${name} role`
+    });
+  }
+  return role;
+};
+
+/**
+ * Helper: Map Clerk user data (metadata/orgs) to application role
+ */
+const mapClerkUserToAppRole = async (clerkUser) => {
+  // 1. Check Public Metadata (Highest priority)
+  const metadataRole = clerkUser.publicMetadata?.role;
+  if (metadataRole) {
+    const normalized = metadataRole.toString().toLowerCase();
+    if (normalized === 'admin') return 'Admin';
+    if (normalized === 'moderator') return 'Moderator';
+  }
+
+  // 2. Check Organization Memberships (Fallback)
+  try {
+    const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+    if (memberships.some(m => ['org:admin', 'admin'].includes(m.role))) return 'Admin';
+    if (memberships.some(m => ['org:moderator', 'moderator'].includes(m.role))) return 'Moderator';
+  } catch (err) {
+    logger.warn(`Failed to fetch memberships for user ${clerkUser.id}: ${err.message}`);
+  }
+
+  return 'Employee';
+};
+
+/**
+ * Helper: Ensure user is in the default organization
+ */
+const ensureDefaultOrganization = async (clerkUser, email) => {
+  try {
+    const DEFAULT_ORG_ID = process.env.CLERK_ORGANIZATION_ID || 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
+    if (!email.toLowerCase().endsWith('@nirmitee.io')) return;
+
+    const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+    const isMember = memberships.some(m => m.organization.id === DEFAULT_ORG_ID);
+
+    if (!isMember) {
+      logger.info(`Adding user ${clerkUser.id} to default organization ${DEFAULT_ORG_ID}`);
+      await clerk.organizations.createOrganizationMembership({
+        organizationId: DEFAULT_ORG_ID,
+        userId: clerkUser.id,
+        role: 'basic_member',
+      });
+    }
+  } catch (err) {
+    logger.warn(`Organization check/assignment failed for ${clerkUser.id}: ${err.message}`);
+  }
+};
+
+/**
+ * Helper: Revoke all other active sessions for a user
+ */
+const revokeOtherSessions = async (userId, currentSessionId) => {
+  try {
+    const sessions = await clerk.sessions.getSessionList({ userId, status: 'active' });
+    for (const s of sessions) {
+      if (s.id !== currentSessionId) {
+        await clerk.sessions.revokeSession(s.id);
+        logger.info(`Revoked old session ${s.id} for user ${userId}`);
+      }
+    }
+  } catch (err) {
+    logger.error('Session revocation error:', err.message);
+  }
+};
+
+/**
+ * Register a new user
  */
 const register = async (userData) => {
   const { email, password, firstName, lastName, name } = userData;
 
-  // ENFORCE @nirmitee.io email domain restriction
   if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
     throw new Error('Only @nirmitee.io email addresses are allowed');
   }
 
-  // Check if user exists
   const existingUser = await User.findOne({ email: email.toLowerCase() });
-  if (existingUser) {
-    throw new Error('User with this email already exists');
-  }
+  if (existingUser) throw new Error('User with this email already exists');
 
-  // Get or create Employee role
-  let role = await Role.findOne({ name: 'Employee' });
-  if (!role) {
-    role = await Role.create({
-      name: 'Employee',
-      description: 'Default employee role'
-    });
-  }
+  const role = await getOrCreateRole('Employee');
 
-  // Use provided firstName and lastName, or parse from name field as fallback
-  let userFirstName = firstName;
-  let userLastName = lastName;
+  const nameParts = (name || email.split('@')[0]).trim().split(' ');
+  const userFirstName = firstName || nameParts[0] || 'User';
+  const userLastName = lastName || nameParts.slice(1).join(' ') || 'User';
 
-  if (!userFirstName || !userLastName) {
-    // Fallback: parse from 'name' field or email
-    const nameParts = (name || email.split('@')[0]).trim().split(' ');
-    userFirstName = userFirstName || nameParts[0] || 'User';
-    userLastName = userLastName || nameParts.slice(1).join(' ') || 'User';
-  }
-
-  // Create user in MongoDB
   const user = await User.create({
     email: email.toLowerCase(),
     password,
     firstName: userFirstName,
     lastName: userLastName,
-    displayName: `${userFirstName} ${userLastName}`,  // Always use firstName + lastName
+    displayName: `${userFirstName} ${userLastName}`,
     roleId: role._id,
     isActive: true
   });
 
-  // Verify user was actually saved to database
-  if (!user || !user._id) {
-    throw new Error('Failed to create user in database - user object has no ID');
-  }
-
-  // Double-check by querying the database
-  const verifyUser = await User.findById(user._id);
-  if (!verifyUser) {
-    throw new Error('User was created but cannot be found in database - transaction may have failed');
-  }
-
-  logger.info('User created and verified in MongoDB', {
-    id: user._id,
-    email: user.email,
-    name: user.displayName,
-    firstName: user.firstName,
-    lastName: user.lastName
-  });
-
-  // Return user without password
   return user.toJSON();
 };
 
 /**
- * Login user with email and password (using MongoDB)
+ * Login user with email and password
  */
 const login = async (email, password, metadata = {}) => {
   const user = await User.findOne({ email: email.toLowerCase() })
     .populate('roleId', 'name description');
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
-  // Check if account is locked
   if (user.isLocked) {
-    // Record the lock attempt
     await user.incrementLoginAttempts('account_locked', metadata);
-    const lockTimeRemaining = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60); // minutes
-    throw new Error(`Account is locked due to too many failed login attempts. Please try again in ${lockTimeRemaining} minute(s).`);
+    const lockTimeRemaining = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60);
+    throw new Error(`Account locked. Try again in ${lockTimeRemaining} minute(s).`);
   }
 
   if (!user.isActive) {
@@ -113,70 +149,48 @@ const login = async (email, password, metadata = {}) => {
     throw new Error('Account is inactive');
   }
 
-  // Check password (skip for OAuth users)
   if (user.password) {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      // Increment login attempts on failed password
       await user.incrementLoginAttempts('invalid_password', metadata);
       return null;
     }
   } else {
-    // OAuth user trying to login with password
     await user.incrementLoginAttempts('oauth_required', metadata);
     throw new Error('Please use OAuth login');
   }
 
-  // Reset login attempts on successful login
   if (user.loginAttempts > 0 || user.lockUntil) {
     await user.resetLoginAttempts();
   }
 
-  // Update last login
   user.lastLogin = new Date();
   await user.save();
 
-  return {
-    user: user.toJSON()
-  };
+  return { user: user.toJSON() };
 };
 
 /**
- * OAuth login placeholder (Outlook Workspace) - using MongoDB
+ * OAuth login placeholder
  */
 const oauthLogin = async (oauthData) => {
   const { email, name, avatar, provider, oauthId } = oauthData;
 
-  // ENFORCE @nirmitee.io email domain restriction
   if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
     logger.warn('OAuth login attempt from unauthorized domain:', { email });
     throw new Error('Only @nirmitee.io email addresses are allowed');
   }
 
-  // Find or create user
   let user = await User.findOne({
-    $or: [
-      { email: email.toLowerCase() },
-      { oauthId, oauthProvider: provider }
-    ]
+    $or: [{ email: email.toLowerCase() }, { oauthId, oauthProvider: provider }]
   }).populate('roleId', 'name description');
 
   if (!user) {
-    // Get or create Employee role
-    let role = await Role.findOne({ name: 'Employee' });
-    if (!role) {
-      role = await Role.create({
-        name: 'Employee',
-        description: 'Default employee role'
-      });
-    }
-
-    // Parse name
+    const role = await getOrCreateRole('Employee');
     const nameParts = (name || email.split('@')[0]).trim().split(' ');
     const firstName = nameParts[0] || 'User';
     const lastName = nameParts.slice(1).join(' ') || 'User';
 
-    // Create new OAuth user
     user = await User.create({
       email: email.toLowerCase(),
       firstName,
@@ -189,83 +203,42 @@ const oauthLogin = async (oauthData) => {
       isActive: true
     });
   } else {
-    // Update OAuth info if needed
     if (!user.oauthProvider) {
       user.oauthProvider = provider;
       user.oauthId = oauthId;
       if (avatar) user.avatar = avatar;
-      await user.save();
     }
     user.lastLogin = new Date();
     await user.save();
   }
 
-  if (!user.isActive) {
-    throw new Error('Account is inactive');
-  }
+  if (!user.isActive) throw new Error('Account is inactive');
 
-  // Update last login
-  user.lastLogin = new Date();
-  await user.save();
-
-  return {
-    user: user.toJSON()
-  };
-};
-
-/**
- * Logout user
- */
-const logout = async () => {
-  // No token cleanup needed
-  return;
-};
-
-/**
- * Logout user from all devices
- */
-const logoutAll = async (userId) => {
-  // No token cleanup needed
-  return;
+  return { user: user.toJSON() };
 };
 
 /**
  * Synchronize a user from Clerk data
- * This is called automatically when a Clerk token is verified
  */
 const syncClerkUser = async (clerkData) => {
-  const { email, clerkId, name, avatar } = clerkData;
+  const { email, clerkId, name, avatar, roleName } = clerkData;
 
-  // ENFORCE @nirmitee.io email domain restriction
   if (!email || !email.toLowerCase().endsWith('@nirmitee.io')) {
     logger.warn('Clerk SSO attempt from unauthorized domain:', { email });
     throw new Error('Only @nirmitee.io email addresses are allowed');
   }
 
-  // Find or create user
+  const targetRole = await getOrCreateRole(roleName || 'Employee');
+
   let user = await User.findOne({
-    $or: [
-      { email: email.toLowerCase() },
-      { oauthId: clerkId, oauthProvider: 'clerk' }
-    ]
+    $or: [{ email: email.toLowerCase() }, { oauthId: clerkId, oauthProvider: 'clerk' }]
   }).populate('roleId', 'name description');
 
   if (!user) {
-    // Get or create Employee role
-    let role = await Role.findOne({ name: 'Employee' });
-    if (!role) {
-      role = await Role.create({
-        name: 'Employee',
-        description: 'Default employee role'
-      });
-    }
-
-    // Parse name if needed
     const nameParts = (name || email.split('@')[0]).trim().split(' ');
     const firstName = nameParts[0] || 'User';
     const lastName = nameParts.slice(1).join(' ') || 'User';
 
-    // Create new user from Clerk data
     user = await User.create({
       email: email.toLowerCase(),
       firstName,
@@ -274,30 +247,33 @@ const syncClerkUser = async (clerkData) => {
       avatar,
       oauthProvider: 'clerk',
       oauthId: clerkId,
-      roleId: role._id,
+      roleId: targetRole._id,
       isActive: true
     });
-
     logger.info('New user provisioned via Clerk:', { email, clerkId });
-
-    // Re-fetch to get populated role
     user = await User.findById(user._id).populate('roleId', 'name description');
   } else {
-    // Update info if it's their first time with Clerk but they existed before
     let needsSave = false;
-    if (!user.oauthProvider || user.oauthProvider !== 'clerk') {
+    if (user.oauthProvider !== 'clerk') {
       user.oauthProvider = 'clerk';
       user.oauthId = clerkId;
       needsSave = true;
     }
-
     if (avatar && user.avatar !== avatar) {
       user.avatar = avatar;
       needsSave = true;
     }
 
+    if (targetRole && user.roleId?._id.toString() !== targetRole._id.toString()) {
+      const oldRole = user.roleId?.name || 'none';
+      user.roleId = targetRole._id;
+      needsSave = true;
+      logger.info(`Synchronized user role for ${email}: ${oldRole} -> ${targetRole.name}`);
+    }
+
     if (needsSave) {
       await user.save();
+      user = await User.findById(user._id).populate('roleId', 'name description');
     }
 
     user.lastLogin = new Date();
@@ -311,100 +287,41 @@ const syncClerkUser = async (clerkData) => {
  * Verify Clerk session token and return synchronized user
  */
 const verifyClerkToken = async (sessionToken) => {
-
   try {
     let session;
     try {
-      // Verify the session token using Clerk SDK
       session = await clerk.verifyToken(sessionToken);
-    } catch (tokenError) {
+    } catch (err) {
       return { success: false, error: 'Invalid Clerk token', isTerminal: false };
     }
 
-    if (!session) {
-      return { success: false, error: 'Invalid Clerk token', isTerminal: false };
-    }
-    // Get full user profile from Clerk
+    if (!session) return { success: false, error: 'Invalid Clerk token', isTerminal: false };
+
     const clerkUser = await clerk.users.getUser(session.sub);
-
     const email = clerkUser.emailAddresses[0]?.emailAddress;
 
-    const clerkData = {
+    // Delegate role mapping and organization management
+    const appRole = await mapClerkUserToAppRole(clerkUser);
+    await ensureDefaultOrganization(clerkUser, email);
+    await revokeOtherSessions(clerkUser.id, session.sid);
+
+    const user = await syncClerkUser({
       clerkId: clerkUser.id,
-      email: email,
+      email,
       name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim(),
-      avatar: clerkUser.imageUrl
-    };
-
-    // Force single session: Revoke all other active sessions for this user
-    try {
-      const sessionId = session.sid;
-      const sessions = await clerk.sessions.getSessionList({ userId: clerkUser.id, status: 'active' });
-
-      for (const s of sessions) {
-        if (s.id !== sessionId) {
-          await clerk.sessions.revokeSession(s.id);
-          logger.info(`Revoked old session ${s.id} for user ${clerkUser.id}`);
-        }
-      }
-    } catch (sessionError) {
-      logger.error('Failed to revoke other sessions:', sessionError.message);
-      // Not a terminal error, continue with login
-    }
-
-    // Ensure user belongs to the default organization
-    try {
-      const DEFAULT_ORG_ID = process.env.CLERK_ORGANIZATION_ID || 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
-      logger.info(`[OrgCheck] Checking memberships for user ${clerkUser.id}`);
-      const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
-
-      const isMember = memberships.some(m => m.organization.id === DEFAULT_ORG_ID);
-      logger.info(`[OrgCheck] User ${clerkUser.id} isMember: ${isMember}`);
-
-      if (!isMember) {
-        logger.info(`[OrgCheck] Adding user ${clerkUser.id} to organization ${DEFAULT_ORG_ID}...`);
-        await clerk.organizations.createOrganizationMembership({
-          organizationId: DEFAULT_ORG_ID,
-          userId: clerkUser.id,
-          role: 'basic_member',
-        });
-        logger.info(`[OrgCheck] Successfully added user ${clerkUser.id} to organization ${DEFAULT_ORG_ID}`);
-      }
-    } catch (orgError) {
-      logger.error(`[OrgCheck] Proactive organization assignment failed: ${orgError.message}`, {
-        userId: clerkUser.id,
-        stack: orgError.stack
-      });
-      // Continue login even if this fails to avoid blocking the user
-    }
-
-    // Synchronize user to our database
-    try {
-      const user = await syncClerkUser(clerkData);
-      return {
-        success: true,
-        user
-      };
-    } catch (syncError) {
-      // Return as terminal error so middleware doesn't fall back to JWT
-      return {
-        success: false,
-        error: syncError.message,
-        isTerminal: true
-      };
-    }
-  } catch (error) {
-    logger.error('Clerk token verification failed deep dive:', {
-      error: error.message,
-      stack: error.stack,
-      tokenPresent: !!sessionToken
+      avatar: clerkUser.imageUrl,
+      roleName: appRole
     });
-    return {
-      success: false,
-      error: error.message || 'Token verification failed'
-    };
+
+    return { success: true, user };
+  } catch (error) {
+    logger.error('Clerk verification failed:', error);
+    return { success: false, error: error.message, isTerminal: error.message.includes('allowed') };
   }
 };
+
+const logout = async () => { };
+const logoutAll = async () => { };
 
 module.exports = {
   register,
@@ -414,17 +331,6 @@ module.exports = {
   verifyClerkToken,
   logout,
   logoutAll,
-  revokeOtherSessions: async (userId, currentSessionId) => {
-    try {
-      const sessions = await clerk.sessions.getSessionList({ userId, status: 'active' });
-      for (const s of sessions) {
-        if (s.id !== currentSessionId) {
-          await clerk.sessions.revokeSession(s.id);
-        }
-      }
-    } catch (err) {
-      logger.error('Session revocation error:', err.message);
-    }
-  },
+  revokeOtherSessions,
   generateTokens
 };
