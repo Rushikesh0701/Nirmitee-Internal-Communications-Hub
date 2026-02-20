@@ -41,7 +41,7 @@ backend/
 │   ├── rbac.js                  # Role-based access control
 │   ├── rateLimiter.js           # Express rate limiting
 │   └── errorHandler.js          # Global error handler
-├── models/                      # 28 Mongoose schemas (see Data Models below)
+├── models/                      # 27 Mongoose schemas (see Data Models below)
 ├── routes/                      # 16 route groups (see API Reference below)
 ├── scripts/                     # Utility & seed scripts (see Scripts below)
 ├── services/                    # 16 business-logic modules

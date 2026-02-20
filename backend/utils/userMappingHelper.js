@@ -2,18 +2,18 @@
  * Helper wrapper for user mapping with consistent error handling
  */
 
-const { getMongoUserId, getSequelizeUserId } = require('./userMapping');
+const { getMongoUserId } = require('./userMapping');
 const logger = require('./logger');
 
 /**
- * Get MongoDB user ID from Sequelize user ID with consistent error handling
- * @param {string} sequelizeUserId - Sequelize user UUID
+ * Get MongoDB user ID with consistent error handling
+ * @param {string} userId - User ID string
  * @returns {Promise<string>} MongoDB ObjectId
  * @throws {Error} If user mapping fails
  */
-const getMongoUserIdSafe = async (sequelizeUserId) => {
+const getMongoUserIdSafe = async (userId) => {
   try {
-    return await getMongoUserId(sequelizeUserId);
+    return await getMongoUserId(userId);
   } catch (error) {
     throw new Error(
       error.message || 'Valid authentication required. Please login.'
@@ -21,23 +21,6 @@ const getMongoUserIdSafe = async (sequelizeUserId) => {
   }
 };
 
-/**
- * Get Sequelize user ID from MongoDB user ID with consistent error handling
- * @param {string} mongoUserId - MongoDB ObjectId
- * @returns {Promise<string>} Sequelize user UUID
- * @throws {Error} If user mapping fails
- */
-const getSequelizeUserIdSafe = async (mongoUserId) => {
-  try {
-    return await getSequelizeUserId(mongoUserId);
-  } catch (error) {
-    logger.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize:`, error.message);
-    return null; // Return null instead of throwing to allow graceful degradation
-  }
-};
-
 module.exports = {
-  getMongoUserIdSafe,
-  getSequelizeUserIdSafe
+  getMongoUserIdSafe
 };
-

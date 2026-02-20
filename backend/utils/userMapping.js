@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const logger = require('./logger');
 
 /**
- * SIMPLIFIED USER MAPPING - MongoDB Only
- * Since we're now using MongoDB exclusively, this file is simplified
+ * User Mapping Utilities - MongoDB Only
  */
 
 /**
@@ -27,15 +26,6 @@ const getMongoUserId = async (userId) => {
   }
 };
 
-/**
- * Alias for backward compatibility
- */
-const getSequelizeUserId = async (mongoUserId) => {
-  // Since we're MongoDB only now, just return the MongoDB ID
-  return getMongoUserId(mongoUserId);
-};
-
 module.exports = {
-  getMongoUserId,
-  getSequelizeUserId // Kept for backward compatibility
+  getMongoUserId
 };

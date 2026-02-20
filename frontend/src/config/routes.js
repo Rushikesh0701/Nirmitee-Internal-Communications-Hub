@@ -60,6 +60,10 @@ const Login = lazy(() => import('../pages/auth/Login'))
 const Register = lazy(() => import('../pages/auth/Register'))
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('../pages/auth/ResetPassword'))
+const PollsList = lazy(() => import('../pages/polls/PollsList'))
+const PollForm = lazy(() => import('../pages/polls/PollForm'))
+const FeedbackSubmit = lazy(() => import('../pages/feedback/FeedbackSubmit'))
+const FeedbackDashboard = lazy(() => import('../pages/feedback/FeedbackDashboard'))
 
 export const publicRoutes = [
   { path: '/login', component: Login },
@@ -127,5 +131,9 @@ export const protectedRoutes = [
   { path: '/search', component: SearchResults },
   { path: '/activity', component: ActivityFeed },
   { path: '/settings', component: Settings },
+  { path: '/polls', component: PollsList },
+  { path: '/polls/create', component: PollForm },
+  { path: '/feedback', component: FeedbackSubmit },
+  { path: '/admin/feedback', component: FeedbackDashboard, admin: true },
 ]
 

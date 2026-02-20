@@ -25,5 +25,9 @@ module.exports = {
   Mentorship: require('./Mentorship'),
   Notification: require('./Notification'),
   RssSource: require('./RssSource'),
-  RssCategory: require('./RssCategory')
+  RssCategory: require('./RssCategory'),
+  Poll: require('./Poll'),
+  PollVote: require('./PollVote'),
+  Feedback: require('./Feedback'),
+  OrganizationThemeConfig: require('./OrganizationThemeConfig')
 };

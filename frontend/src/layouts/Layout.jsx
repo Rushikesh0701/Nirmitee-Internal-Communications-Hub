@@ -34,7 +34,9 @@ import {
   UserCheck,
   Quote,
   Gift,
-  Settings
+  Settings,
+  Vote,
+  MessageSquarePlus
 } from 'lucide-react'
 import { useClerk } from '@clerk/clerk-react'
 import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
@@ -177,7 +179,9 @@ const Layout = () => {
       items: [
         { path: '/groups', icon: Users, label: 'Groups' },
         { path: '/recognitions', icon: Award, label: 'Recognitions' },
-        { path: '/surveys', icon: ClipboardList, label: 'Surveys' }
+        { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
+        { path: '/polls', icon: Vote, label: 'Polls' },
+        { path: '/feedback', icon: MessageSquarePlus, label: 'Feedback' }
       ]
     },
     {
@@ -195,7 +199,8 @@ const Layout = () => {
           { path: '/admin/analytics', icon: BarChart3, label: 'Admin Analytics' },
           { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
           { path: '/admin/redemptions', icon: Gift, label: 'Redemptions' },
-          { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' }
+          { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' },
+          { path: '/admin/feedback', icon: MessageSquarePlus, label: 'Feedback' }
         ]
       }]
       : []),

@@ -1,6 +1,6 @@
 const { Group, GroupMember, GroupPost, GroupComment, User } = require('../models');
 const notificationService = require('./notificationService');
-const { getSequelizeUserIdSafe } = require('../utils/userMappingHelper');
+const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const logger = require('../utils/logger');
 
 /**
@@ -44,23 +44,23 @@ const createMentionNotifications = async (mentionedUserIds, postId, authorId, ty
 
     const authorName = author.displayName || `${author.firstName} ${author.lastName}`;
 
-    // Convert MongoDB user IDs to Sequelize user IDs for notifications
-    const sequelizeUserIds = [];
+    // Convert mentioned user IDs for notifications
+    const validUserIds = [];
     for (const mongoUserId of mentionedUserIds) {
       try {
-        const seqUserId = await getSequelizeUserIdSafe(mongoUserId.toString());
-        if (seqUserId) {
-          sequelizeUserIds.push(seqUserId);
+        const validId = await getMongoUserIdSafe(mongoUserId.toString());
+        if (validId) {
+          validUserIds.push(validId);
         }
       } catch (error) {
-        logger.warn(`Could not map MongoDB user ${mongoUserId} to Sequelize`, { error: error.message });
+        logger.warn(`Could not validate user ${mongoUserId}`, { error: error.message });
       }
     }
 
     // Create notifications for mentioned users
-    if (sequelizeUserIds.length > 0) {
+    if (validUserIds.length > 0) {
       await notificationService.notifyMention(
-        sequelizeUserIds,
+        validUserIds,
         postId.toString(),
         authorName,
         type

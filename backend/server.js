@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
@@ -28,6 +30,8 @@ const adminRoutes = require('./routes/admin');
 const moderationRoutes = require('./routes/moderation');
 const settingsRoutes = require('./routes/settings');
 const webhookRoutes = require('./routes/webhook');
+const pollRoutes = require('./routes/polls');
+const feedbackRoutes = require('./routes/feedback');
 
 
 const app = express();
@@ -39,8 +43,30 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.clerk.com", "https://*.clerk.accounts.dev", process.env.FRONTEND_URL].filter(Boolean),
+    }
+  }
 }));
+
+// Compression for all responses
+app.use(compression());
+
+// Global rate limiter — 100 requests per minute per IP
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+app.use('/api/', globalLimiter);
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -60,15 +86,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // In production, allow Render frontend domains
-      if (process.env.NODE_ENV === 'production') {
-        // Allow any Render frontend URL
-        if (origin.includes('onrender.com') || origin.includes('netlify.app')) {
-          return callback(null, true);
-        }
-      }
       // Log the blocked origin for debugging
-      console.warn('CORS blocked origin:', origin);
+      logger.warn('CORS blocked origin', { origin });
       callback(new Error("Not allowed by CORS: " + origin));
     }
   },
@@ -132,6 +151,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/moderation', moderationRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/polls', pollRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

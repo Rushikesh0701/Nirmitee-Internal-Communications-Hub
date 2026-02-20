@@ -55,7 +55,7 @@ Nirmitee Internal Project/
 │   ├── controllers/            # 21 route handlers
 │   ├── jobs/                   # Cron jobs (news, announcements)
 │   ├── middleware/             # Auth, RBAC, rate limiter, error handler
-│   ├── models/                 # 28 Mongoose models
+│   ├── models/                 # 27 Mongoose models
 │   ├── routes/                 # 16 API route groups
 │   ├── scripts/                # Utility & seed scripts
 │   ├── services/               # 16 business-logic services

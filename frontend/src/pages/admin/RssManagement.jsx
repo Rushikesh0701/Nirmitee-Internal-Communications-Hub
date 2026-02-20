@@ -149,15 +149,12 @@ const RssManagement = () => {
         params.append('limit', limit.toString())
         const response = await api.get(`/admin/rss?${params.toString()}`)
         
-        // Debug: Log the response structure
-        console.log('RSS API Response:', response.data)
         
         // Handle different response structures
         const responseData = response.data?.data || response.data
         
         // If data is an array, backend returned all items - need frontend pagination
         if (Array.isArray(responseData)) {
-          console.log('Response data is an array, applying frontend pagination. Count:', responseData.length)
           const currentLimit = limit || 15
           const startIndex = (page - 1) * currentLimit
           const endIndex = startIndex + currentLimit
@@ -176,11 +173,9 @@ const RssManagement = () => {
         
         // If data has sources and pagination, check if backend paginated correctly
         if (responseData?.sources && responseData?.pagination) {
-          console.log('Response data has sources and pagination. Sources count:', responseData.sources.length, 'Limit:', responseData.pagination.limit)
           // If backend returned more items than the limit, it didn't paginate - do frontend pagination
           const expectedLimit = limit || 15
           if (responseData.sources.length > expectedLimit) {
-            console.log('Backend returned more items than limit, applying frontend pagination')
             const startIndex = (page - 1) * expectedLimit
             const endIndex = startIndex + expectedLimit
             return {
@@ -192,7 +187,6 @@ const RssManagement = () => {
         }
         
         // Fallback: treat data as sources array
-        console.log('Using fallback structure')
         const currentLimit = limit || 15
         return {
           sources: Array.isArray(responseData) ? responseData : [],

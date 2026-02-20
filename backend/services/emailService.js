@@ -94,11 +94,7 @@ Nirmitee Internal Communications Hub
                 resetUrl,
                 token: resetToken
             });
-            console.log('\n=== PASSWORD RESET EMAIL (DEV MODE) ===');
-            console.log('To:', email);
-            console.log('Reset URL:', resetUrl);
-            console.log('Token:', resetToken);
-            console.log('=======================================\n');
+            logger.debug('Password reset email (DEV MODE)', { to: email, resetUrl, token: resetToken });
             return { success: true, dev: true };
         }
     } catch (error) {
@@ -228,12 +224,7 @@ Nirmitee Internal Communications Hub
                 content,
                 actionUrl
             });
-            console.log('\n=== NOTIFICATION EMAIL (DEV MODE) ===');
-            console.log('To:', email);
-            console.log('Type:', type);
-            console.log('Content:', content);
-            console.log('Action URL:', actionUrl);
-            console.log('=======================================\n');
+            logger.debug('Notification email (DEV MODE)', { to: email, type, content, actionUrl });
             return { success: true, dev: true };
         }
     } catch (error) {
@@ -376,13 +367,7 @@ Nirmitee Internal Communications Hub
                 status,
                 reason
             });
-            console.log('\n=== MODERATION EMAIL (DEV MODE) ===');
-            console.log('To:', email);
-            console.log('Content Type:', contentType);
-            console.log('Title:', contentTitle);
-            console.log('Status:', status);
-            if (reason) console.log('Reason:', reason);
-            console.log('=======================================\n');
+            logger.debug('Moderation email (DEV MODE)', { to: email, contentType, contentTitle, status, reason: reason || undefined });
             return { success: true, dev: true };
         }
     } catch (error) {

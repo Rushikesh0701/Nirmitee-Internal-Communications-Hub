@@ -8,8 +8,6 @@ const logger = require('./logger');
  */
 const isDatabaseError = (error) => {
   return (
-    error.name === 'SequelizeConnectionRefusedError' ||
-    error.name === 'SequelizeConnectionError' ||
     error.name === 'MongoServerError' ||
     error.name === 'MongooseError' ||
     error.message?.includes('ECONNREFUSED') ||

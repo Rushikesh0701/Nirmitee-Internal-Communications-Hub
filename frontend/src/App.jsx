@@ -64,7 +64,7 @@ function App() {
 
           if (isClerkLoaded) {
             const clerkToken = await getToken();
-            console.log('[AuthInterceptor] Clerk Token found:', !!clerkToken);
+            if (import.meta.env.DEV) console.log('[AuthInterceptor] Clerk Token found:', !!clerkToken);
             if (clerkToken) {
               config.headers.Authorization = `Bearer ${clerkToken}`;
             } else {
@@ -92,7 +92,7 @@ function App() {
           : `${baseUrl}/api/health`;
           
         await fetch(healthUrl);
-        console.log('[App] Waking up server...');
+        if (import.meta.env.DEV) console.log('[App] Waking up server...');
       } catch (err) {
         console.error('[App] Wake up failed', err);
       }
@@ -109,7 +109,7 @@ function App() {
         if (isSignedIn) {
           // Clerk is signed in - verify with backend
           // Fetch token explicitly to ensure we have it for the initial hit
-          console.log('[App] Clerk signed in, fetching token for init...');
+          if (import.meta.env.DEV) console.log('[App] Clerk signed in, fetching token for init...');
           const token = await getToken();
           const result = await initialize(true, token)
 

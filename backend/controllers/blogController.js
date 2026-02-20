@@ -1,6 +1,7 @@
 const blogService = require('../services/blogService');
 const { getMongoUserIdSafe } = require('../utils/userMappingHelper');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
+const logger = require('../utils/logger');
 
 const getAllBlogs = async (req, res, next) => {
   try {
@@ -70,7 +71,7 @@ const createBlog = async (req, res, next) => {
       return sendError(res, 'Please login to create a blog. Authentication required.', 401);
     }
     // Log error for debugging
-    console.error('Error creating blog:', error.message);
+    logger.error('Error creating blog', { error: error.message });
     next(error);
   }
 };
@@ -96,7 +97,7 @@ const updateBlog = async (req, res, next) => {
     if (error.message.includes('authentication') || error.message.includes('User')) {
       return sendError(res, error.message, 401);
     }
-    console.error('Error updating blog:', error.message);
+    logger.error('Error updating blog', { error: error.message });
     next(error);
   }
 };
@@ -144,7 +145,7 @@ const likeBlog = async (req, res, next) => {
     if (error.message.includes('authentication') || error.message.includes('User')) {
       return sendError(res, error.message, 401);
     }
-    console.error('Error liking blog:', error.message);
+    logger.error('Error liking blog', { error: error.message });
     next(error);
   }
 };
@@ -193,7 +194,7 @@ const addComment = async (req, res, next) => {
     if (error.message.includes('authentication') || error.message.includes('User')) {
       return sendError(res, error.message, 401);
     }
-    console.error('Error adding comment:', error.message);
+    logger.error('Error adding comment', { error: error.message });
     next(error);
   }
 };
@@ -242,7 +243,7 @@ const deleteComment = async (req, res, next) => {
     if (error.message.includes('authentication') || error.message.includes('User')) {
       return sendError(res, error.message, 401);
     }
-    console.error('Error deleting comment:', error.message);
+    logger.error('Error deleting comment', { error: error.message });
     next(error);
   }
 };

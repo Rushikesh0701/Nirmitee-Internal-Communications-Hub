@@ -94,12 +94,11 @@ const oauthOutlook = async (req, res, next) => {
 
 const clerkLogin = async (req, res, next) => {
   try {
-    console.log('--- CLERK LOGIN REQUEST ---');
     const { token, email, firstName, lastName, avatar } = req.body;
-    console.log('Payload:', { email, firstName, lastName, token: token ? 'PRESENT' : 'MISSING' });
+    logger.debug('Clerk login request', { email, firstName, lastName, hasToken: !!token });
 
     if (!token) {
-      console.warn('Sync failed: No token provided');
+      logger.warn('Clerk sync failed: No token provided');
       return sendError(res, 'Clerk token is required', 400);
     }
 
@@ -223,19 +222,16 @@ const register = async (req, res, next) => {
       });
     } catch (dbError) {
       // Database unavailable - FAIL LOUDLY, NO DUMMY MODE
-      if (dbError.name === 'SequelizeConnectionError' ||
-        dbError.name === 'SequelizeConnectionRefusedError' ||
-        dbError.name === 'SequelizeDatabaseError' ||
-        dbError.message?.includes('ECONNREFUSED') ||
+      if (dbError.message?.includes('ECONNREFUSED') ||
         dbError.message?.includes('connection') ||
         dbError.message?.includes('database')) {
-        logger.error('❌ Database connection failed during registration', {
+        logger.error('Database connection failed during registration', {
           error: dbError.message,
           email,
           errorName: dbError.name
         });
         return sendError(res,
-          'Database connection required. Please ensure PostgreSQL is running. User was NOT saved to database.',
+          'Database connection required. Please ensure MongoDB is running.',
           503
         );
       }
