@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import NotificationBell from '../components/NotificationBell'
+import PWAInstallButton from '../components/pwa/PWAInstallButton'
 import { getUserRole } from '../utils/userHelpers'
 import { useDocumentTitle, useNotificationSound } from '../hooks/useNotificationEffects'
 import { useTheme } from '../contexts/ThemeContext'
@@ -661,6 +662,8 @@ const Layout = () => {
               </motion.div>
             </div>
             <div className="flex items-center gap-2">
+              {/* PWA Install Button - Desktop */}
+              <PWAInstallButton variant="navbar" />
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
@@ -742,6 +745,11 @@ const Layout = () => {
           {/* Page content */}
           <div className="flex-1 p-2 lg:p-3">
             <Outlet />
+          </div>
+
+          {/* PWA Install Banner - Mobile/Tablet only */}
+          <div className="lg:hidden">
+            <PWAInstallButton variant="footer" />
           </div>
         </main>
       </div>
