@@ -60,6 +60,18 @@ const Login = () => {
     </svg>
   )
 
+  const GitlabIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M23.953 4.57a1.062 1.062 0 0 0-.348-.795L12 0l-11.605 3.775a1.06 1.06 0 0 0-.348.795c0 .3.142.583.385.763L12 14.281l11.568-8.948a1.065 1.065 0 0 0 .385-.763zM12 24l4.576-14.719L12 14.12 7.424 9.281 12 24z" fill="#FC6D26"/>
+    </svg>
+  )
+
+  const SlackIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.263 0a2.527 2.527 0 0 1 2.522-2.52 2.528 2.528 0 0 1 2.52 2.52v6.313A2.528 2.528 0 0 1 8.827 24a2.528 2.528 0 0 1-2.522-2.522v-6.313zM8.827 5.042a2.528 2.528 0 0 1-2.522-2.52A2.528 2.528 0 0 1 8.827 0a2.528 2.528 0 0 1 2.52 2.522v2.52H8.827zm0 1.263a2.528 2.528 0 0 1 2.52 2.522 2.528 2.528 0 0 1-2.52 2.52h-6.313A2.528 2.528 0 0 1 0 8.827a2.528 2.528 0 0 1 2.522-2.522h6.313zM18.958 8.827a2.528 2.528 0 0 1 2.522-2.522A2.528 2.528 0 0 1 24 8.827a2.528 2.528 0 0 1-2.52 2.52h-2.522V8.827zm-1.263 0a2.528 2.528 0 0 1-2.52 2.52 2.528 2.528 0 0 1-2.522-2.52V2.522A2.528 2.528 0 0 1 15.174 0a2.528 2.528 0 0 1 2.52 2.522v6.305zm-2.521 10.125a2.528 2.528 0 0 1 2.52-2.522A2.528 2.528 0 0 1 24 18.958a2.528 2.528 0 0 1-2.522 2.522h-2.52v-2.522zm0-1.263a2.528 2.528 0 0 1-2.52-2.52 2.528 2.528 0 0 1 2.52-2.52h6.315A2.528 2.528 0 0 1 24 15.173a2.528 2.528 0 0 1-2.522 2.522h-6.305z"/>
+    </svg>
+  )
+
   const {
     register,
     handleSubmit,
@@ -230,6 +242,26 @@ const Login = () => {
           >
             <GithubIcon />
             <span>GitHub</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_gitlab')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <GitlabIcon />
+            <span>GitLab</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_slack')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <SlackIcon />
+            <span>Slack</span>
           </motion.button>
         </div>
       </div>

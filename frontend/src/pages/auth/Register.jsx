@@ -1,15 +1,65 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 import { UserPlus, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { useSignIn, useAuth } from '@clerk/clerk-react'
 
 const Register = () => {
   const navigate = useNavigate()
-  const { register: registerUser, isLoading } = useAuthStore()
+  const { register: registerUser, isLoading, isAuthenticated } = useAuthStore()
+  const { signIn, isLoaded } = useSignIn()
   const [showPassword, setShowPassword] = useState(false)
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard')
+    }
+  }, [isAuthenticated, navigate])
+
+  const signInWith = (strategy) => {
+    if (!isLoaded) return
+    
+    const origin = window.location.origin
+    
+    signIn.authenticateWithRedirect({
+      strategy,
+      redirectUrl: `${origin}/sso-callback`,
+      redirectUrlComplete: import.meta.env.VITE_CLERK_REDIRECT_URL || `${origin}/dashboard`,
+    })
+  }
+
+  // Custom icons for SSO
+  const GoogleIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+    </svg>
+  )
+
+  const GithubIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+    </svg>
+  )
+
+  const GitlabIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M23.953 4.57a1.062 1.062 0 0 0-.348-.795L12 0l-11.605 3.775a1.06 1.06 0 0 0-.348.795c0 .3.142.583.385.763L12 14.281l11.568-8.948a1.065 1.065 0 0 0 .385-.763zM12 24l4.576-14.719L12 14.12 7.424 9.281 12 24z" fill="#FC6D26"/>
+    </svg>
+  )
+
+  const SlackIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.263 0a2.527 2.527 0 0 1 2.522-2.52 2.528 2.528 0 0 1 2.52 2.52v6.313A2.528 2.528 0 0 1 8.827 24a2.528 2.528 0 0 1-2.522-2.522v-6.313zM8.827 5.042a2.528 2.528 0 0 1-2.522-2.52A2.528 2.528 0 0 1 8.827 0a2.528 2.528 0 0 1 2.52 2.522v2.52H8.827zm0 1.263a2.528 2.528 0 0 1 2.52 2.522 2.528 2.528 0 0 1-2.52 2.52h-6.313A2.528 2.528 0 0 1 0 8.827a2.528 2.528 0 0 1 2.522-2.522h6.313zM18.958 8.827a2.528 2.528 0 0 1 2.522-2.522A2.528 2.528 0 0 1 24 8.827a2.528 2.528 0 0 1-2.52 2.52h-2.522V8.827zm-1.263 0a2.528 2.528 0 0 1-2.52 2.52 2.528 2.528 0 0 1-2.522-2.52V2.522A2.528 2.528 0 0 1 15.174 0a2.528 2.528 0 0 1 2.52 2.522v6.305zm-2.521 10.125a2.528 2.528 0 0 1 2.52-2.522A2.528 2.528 0 0 1 24 18.958a2.528 2.528 0 0 1-2.522 2.522h-2.52v-2.522zm0-1.263a2.528 2.528 0 0 1-2.52-2.52 2.528 2.528 0 0 1 2.52-2.52h6.315A2.528 2.528 0 0 1 24 15.173a2.528 2.528 0 0 1-2.522 2.522h-6.305z"/>
+    </svg>
+  )
+
   const {
     register,
     handleSubmit,
@@ -172,6 +222,59 @@ const Register = () => {
           </span>
         </motion.button>
       </form>
+
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200"></div>
+          </div>
+          <div className="relative flex justify-center text-caption uppercase">
+            <span className="bg-white px-2 text-slate-500">Or sign up with</span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_google')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <GoogleIcon />
+            <span>Google</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_github')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <GithubIcon />
+            <span>GitHub</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_gitlab')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <GitlabIcon />
+            <span>GitLab</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => signInWith('oauth_slack')}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-button font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            <SlackIcon />
+            <span>Slack</span>
+          </motion.button>
+        </div>
+      </div>
 
       <motion.div 
         className="mt-8 text-center"
