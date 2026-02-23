@@ -85,11 +85,10 @@ function App() {
   useEffect(() => {
     const wakeUpServer = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-        // Remove /api from end if it exists since health is at /api/health
-        const healthUrl = baseUrl.endsWith('/api') 
-          ? `${baseUrl}/health` 
-          : `${baseUrl}/api/health`;
+        const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+        // Normalize: strip any trailing /api so we always build /api/health correctly
+        const origin = baseUrl.replace(/\/api\/?$/, '');
+        const healthUrl = `${origin}/api/health`;
           
         await fetch(healthUrl);
         console.log('[App] Waking up server...');

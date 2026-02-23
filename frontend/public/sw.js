@@ -3,7 +3,7 @@
 // Cache-First for static assets, Network-First for API
 // ============================================
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const STATIC_CACHE = `nirmitee-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `nirmitee-dynamic-${CACHE_VERSION}`;
 const API_CACHE = `nirmitee-api-${CACHE_VERSION}`;
@@ -22,7 +22,8 @@ const CACHEABLE_EXTENSIONS = [
 ];
 
 // Network timeout before falling back to cache (ms)
-const NETWORK_TIMEOUT = 3000;
+const NETWORK_TIMEOUT = 10000; // 10s - generous for production cold starts
+const API_NETWORK_TIMEOUT = 15000; // Longer timeout for API calls (external APIs can be slow)
 
 // ============================================
 // INSTALL — Pre-cache app shell
@@ -84,15 +85,19 @@ self.addEventListener('fetch', (event) => {
     // Skip Clerk auth requests (must always be fresh)
     if (url.hostname.includes('clerk') || url.hostname.includes('accounts')) return;
 
+    // Skip cross-origin requests entirely (e.g., API calls to Render backend)
+    // The SW can't reliably cache these and timeouts cause false 503 errors
+    if (url.origin !== self.location.origin) return;
+
     // Route: API requests → Network-First
     if (url.pathname.startsWith('/api/')) {
-        event.respondWith(networkFirst(request, API_CACHE));
+        event.respondWith(networkFirst(request, API_CACHE, API_NETWORK_TIMEOUT));
         return;
     }
 
     // Route: Navigation requests → Network-First (always try fresh HTML)
     if (request.mode === 'navigate') {
-        event.respondWith(networkFirst(request, DYNAMIC_CACHE));
+        event.respondWith(networkFirst(request, DYNAMIC_CACHE, NETWORK_TIMEOUT));
         return;
     }
 
@@ -112,7 +117,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Default: Network-First for everything else
-    event.respondWith(networkFirst(request, DYNAMIC_CACHE));
+    event.respondWith(networkFirst(request, DYNAMIC_CACHE, NETWORK_TIMEOUT));
 });
 
 // ============================================
@@ -134,26 +139,23 @@ async function cacheFirst(request, cacheName) {
             const cache = await caches.open(cacheName);
             cache.put(request, networkResponse.clone());
         }
+        // Always return the actual server response (even errors)
         return networkResponse;
     } catch (error) {
-        // If both cache and network fail, return a basic offline response
-        return new Response('Offline', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: { 'Content-Type': 'text/plain' },
-        });
+        // True network failure (offline, DNS failure, etc.)
+        return offlineResponse();
     }
 }
 
 /**
  * Network-First: Try network with timeout, fallback to cache
  */
-async function networkFirst(request, cacheName) {
+async function networkFirst(request, cacheName, timeout = NETWORK_TIMEOUT) {
     try {
         const networkResponse = await Promise.race([
             fetch(request),
             new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Network timeout')), NETWORK_TIMEOUT)
+                setTimeout(() => reject(new Error('Network timeout')), timeout)
             ),
         ]);
 
@@ -161,10 +163,16 @@ async function networkFirst(request, cacheName) {
             const cache = await caches.open(cacheName);
             cache.put(request, networkResponse.clone());
         }
+        // Return actual server response even if not ok (e.g. real 500s)
+        // This prevents the SW from masking real errors with a synthetic 503
         return networkResponse;
     } catch (error) {
+        // Only reach here on true network failure or timeout
+        console.warn('[SW] Network failed for:', request.url, error.message);
+
         const cached = await caches.match(request);
         if (cached) {
+            console.log('[SW] Serving from cache:', request.url);
             return cached;
         }
 
@@ -174,11 +182,7 @@ async function networkFirst(request, cacheName) {
             if (fallback) return fallback;
         }
 
-        return new Response('Offline', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: { 'Content-Type': 'text/plain' },
-        });
+        return offlineResponse();
     }
 }
 
@@ -188,6 +192,46 @@ async function networkFirst(request, cacheName) {
 
 function isStaticAsset(pathname) {
     return CACHEABLE_EXTENSIONS.some((ext) => pathname.endsWith(ext));
+}
+
+/**
+ * Generate a user-friendly offline response instead of a bare 503
+ */
+function offlineResponse() {
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline — Nirmitee Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               display: flex; align-items: center; justify-content: center;
+               min-height: 100vh; background: #0f172a; color: #e2e8f0; text-align: center; padding: 2rem; }
+        .container { max-width: 420px; }
+        .icon { font-size: 4rem; margin-bottom: 1rem; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #f8fafc; }
+        p { color: #94a3b8; line-height: 1.6; margin-bottom: 1.5rem; }
+        button { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 2rem;
+                 border-radius: 0.5rem; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>It looks like your connection is down or the server is waking up. Please check your internet and try again.</p>
+        <button onclick="location.reload()">Retry</button>
+    </div>
+</body>
+</html>`;
+    return new Response(html, {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'text/html' },
+    });
 }
 
 // Listen for messages from the app (e.g., skip waiting on update)
