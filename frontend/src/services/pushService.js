@@ -196,8 +196,28 @@ const setupForegroundListener = (msg, swRegistration) => {
             }
         };
 
+        // Try to play sound
+        try {
+            const audio = new Audio('/sounds/notification.mp3');
+            audio.play().catch(e => console.warn('Could not play notification sound:', e));
+        } catch (e) {
+            // Ignore audio errors
+        }
+
         // Show via Service Worker (consistent foreground/background behavior)
-        swRegistration.showNotification(title, options);
+        if (swRegistration && swRegistration.showNotification) {
+            swRegistration.showNotification(title, options);
+        } else if (Notification.permission === 'granted') {
+            // Fallback to standard Notification API if SW registration is somehow unavailable
+            const notification = new Notification(title, options);
+            notification.onclick = () => {
+                window.focus();
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+                notification.close();
+            };
+        }
     });
 };
 
