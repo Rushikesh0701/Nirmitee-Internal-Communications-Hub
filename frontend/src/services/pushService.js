@@ -6,15 +6,15 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import api from './api';
 
-// Firebase config (matches firebase-messaging-sw.js)
+// Firebase config — loaded from environment variables
 const firebaseConfig = {
-    apiKey: 'AIzaSyB1SPXyffgBW0mYmgF7R7ffo8QSrKcjcAM',
-    authDomain: 'nirmitee-internal-hub.firebaseapp.com',
-    projectId: 'nirmitee-internal-hub',
-    storageBucket: 'nirmitee-internal-hub.firebasestorage.app',
-    messagingSenderId: '376607892263',
-    appId: '1:376607892263:web:58f366b57be86e2c7c3f02',
-    measurementId: 'G-EEHQ4XTB4G'
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // ============================================
