@@ -1,9 +1,11 @@
+const logger = require('../utils/logger');
+
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
   // Log error
-  console.error(err);
+  logger.error('Unhandled error', { message: err.message, stack: err.stack, path: req.path });
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
@@ -33,12 +35,11 @@ const errorHandler = (err, req, res, next) => {
     };
   }
 
-  // Database connection errors
-  if (err.name === 'SequelizeConnectionRefusedError' ||
-    err.name === 'SequelizeConnectionError' ||
+  // MongoDB connection errors
+  if (err.name === 'MongoServerError' ||
     err.message?.includes('ECONNREFUSED') ||
     err.message?.includes('Connection refused')) {
-    console.error('Database connection error:', err.message);
+    logger.error('Database connection error', { message: err.message });
   }
 
   res.status(error.statusCode || 500).json({
@@ -49,3 +50,4 @@ const errorHandler = (err, req, res, next) => {
 };
 
 module.exports = errorHandler;
+

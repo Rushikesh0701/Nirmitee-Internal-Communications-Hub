@@ -1,7 +1,12 @@
 const { User } = require('../models'); // MongoDB User model
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set. Exiting.');
+  process.exit(1);
+}
 
 /**
  * Authenticate user with JWT token
@@ -13,10 +18,10 @@ const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    console.log('[Middleware] Auth Check:', {
+    logger.debug('Auth Check', {
       path: req.path,
       method: req.method,
-      hasAuthIndex: !!authHeader,
+      hasAuthHeader: !!authHeader,
       tokenLength: token ? token.length : 0,
       clerkKeyPresent: !!process.env.CLERK_SECRET_KEY
     });
@@ -98,7 +103,7 @@ const authenticateToken = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('Middleware Auth Error:', error);
+    logger.error('Middleware Auth Error', { error: error.message, stack: error.stack });
     return res.status(500).json({
       success: false,
       message: 'Server authentication error'
