@@ -26,33 +26,7 @@ const forgotPasswordLimiter = rateLimit({
     skipSuccessfulRequests: false,
 });
 
-/**
- * Push notification token registration rate limiter
- * Limits: 30 requests per minute per IP
- */
-const pushTokenLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 30,
-    message: 'Too many token registration attempts, please try again later',
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-/**
- * Push notification send rate limiter
- * Limits: 10 requests per minute per IP
- */
-const pushSendLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 10,
-    message: 'Too many push notification requests, please try again later',
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
 module.exports = {
     loginLimiter,
-    forgotPasswordLimiter,
-    pushTokenLimiter,
-    pushSendLimiter
+    forgotPasswordLimiter
 };

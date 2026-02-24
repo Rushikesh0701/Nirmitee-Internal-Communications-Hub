@@ -25,7 +25,5 @@ module.exports = {
   Mentorship: require('./Mentorship'),
   Notification: require('./Notification'),
   RssSource: require('./RssSource'),
-  RssCategory: require('./RssCategory'),
-  DeviceToken: require('./DeviceToken'),
-  NotificationLog: require('./NotificationLog')
+  RssCategory: require('./RssCategory')
 };
