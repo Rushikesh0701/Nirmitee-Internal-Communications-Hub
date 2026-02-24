@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   base: '/',  // Use absolute paths for SPA routing
   plugins: [react()],
   publicDir: 'public',  // Copy files from public folder to dist
+
+  // Force all packages to use the same React instance
+  resolve: {
+    alias: {
+      react: path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom'),
+    },
+    dedupe: ['react', 'react-dom']
+  },
 
   // Local dev settings only
   server: {

@@ -28,6 +28,7 @@ const adminRoutes = require('./routes/admin');
 const moderationRoutes = require('./routes/moderation');
 const settingsRoutes = require('./routes/settings');
 const webhookRoutes = require('./routes/webhook');
+const pushNotificationRoutes = require('./routes/pushNotifications');
 
 
 const app = express();
@@ -132,6 +133,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/moderation', moderationRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/push-notifications', pushNotificationRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
@@ -165,6 +167,17 @@ const startServer = async () => {
       }
     });
     logger.info('Scheduled announcements cron job activated (every minute)');
+
+    // Scheduled push notifications cron job (every minute)
+    const { processScheduledNotifications } = require('./services/pushService');
+    cron.schedule('* * * * *', async () => {
+      try {
+        await processScheduledNotifications();
+      } catch (error) {
+        logger.error('Error in scheduled push notifications cron job', { error: error.message });
+      }
+    });
+    logger.info('Scheduled push notifications cron job activated (every minute)');
 
     // News prefetch cron job (every 15 minutes)
     const { startNewsPrefetchJob } = require('./jobs/newsJob');

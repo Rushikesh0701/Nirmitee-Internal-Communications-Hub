@@ -2,6 +2,33 @@ const { Notification, User } = require('../models');
 const logger = require('../utils/logger');
 const { sendNotificationEmail, sendBulkNotificationEmails } = require('./emailService');
 
+// Lazy-load pushService to avoid circular dependency on startup
+let _pushService = null;
+const getPushService = () => {
+  if (!_pushService) {
+    try {
+      _pushService = require('./pushService');
+    } catch (err) {
+      logger.warn('Push service not available', { error: err.message });
+    }
+  }
+  return _pushService;
+};
+
+/**
+ * Helper: fire push notification (non-blocking, never throws)
+ */
+const firePush = async (payload, userIds) => {
+  try {
+    const push = getPushService();
+    if (push && userIds && userIds.length > 0) {
+      await push.sendPushNotification(payload, userIds);
+    }
+  } catch (error) {
+    logger.error('Push notification failed (non-blocking)', { error: error.message, module: payload.module });
+  }
+};
+
 /**
  * Create a notification
  */
@@ -152,6 +179,15 @@ const notifyMention = async (mentionedUserIds, postId, mentionedBy, postType) =>
     content,
     metadata: { postId, postType }
   });
+
+  // Push notification
+  firePush({
+    title: 'You were mentioned',
+    body: content,
+    url: `/${postType}s/${postId}`,
+    module: postType === 'discussion' ? 'discussions' : 'activity',
+    type: 'MENTION'
+  }, mentionedUserIds);
 };
 
 /**
@@ -166,6 +202,14 @@ const notifyRecognition = async (receiverId, senderName, points) => {
     content,
     metadata: { points }
   });
+
+  firePush({
+    title: 'You\'ve been recognized! 🎉',
+    body: content,
+    url: '/recognitions',
+    module: 'recognition',
+    type: 'RECOGNITION'
+  }, [receiverId]);
 };
 
 /**
@@ -181,6 +225,14 @@ const notifyGroupPost = async (groupMemberIds, groupName, postId) => {
     content,
     metadata: { groupName, postId }
   });
+
+  firePush({
+    title: `New post in ${groupName}`,
+    body: content,
+    url: `/groups`,
+    module: 'groups',
+    type: 'GROUP_POST'
+  }, groupMemberIds);
 };
 
 /**
@@ -196,6 +248,14 @@ const notifySurveyPublished = async (userIds, surveyTitle, surveyId) => {
     content,
     metadata: { surveyId, surveyTitle }
   });
+
+  firePush({
+    title: 'New Survey Available 📋',
+    body: content,
+    url: `/surveys/${surveyId}`,
+    module: 'surveys',
+    type: 'SURVEY_PUBLISHED'
+  }, userIds);
 };
 
 /**
@@ -215,6 +275,15 @@ const notifyAnnouncement = async (userIds, announcementTitle, announcementId) =>
     content,
     metadata: { announcementId, announcementTitle }
   });
+
+  firePush({
+    title: 'New Announcement 📢',
+    body: content,
+    url: `/announcements`,
+    module: 'announcements',
+    type: 'ANNOUNCEMENT',
+    priority: 'high'
+  }, userIds);
 };
 
 /**
@@ -261,6 +330,14 @@ const notifyBlogPublished = async (userIds, blogTitle, blogId, authorId) => {
     content,
     metadata: { blogId, blogTitle, contentType: 'blog' }
   });
+
+  firePush({
+    title: 'New Blog Post ✍️',
+    body: content,
+    url: `/blogs/${blogId}`,
+    module: 'blogs',
+    type: 'BLOG_PUBLISHED'
+  }, filteredUserIds);
 };
 
 /**
@@ -280,6 +357,14 @@ const notifyDiscussionCreated = async (userIds, discussionTitle, discussionId, a
     content,
     metadata: { discussionId, discussionTitle, contentType: 'discussion' }
   });
+
+  firePush({
+    title: 'New Discussion 💬',
+    body: content,
+    url: `/discussions/${discussionId}`,
+    module: 'discussions',
+    type: 'DISCUSSION_CREATED'
+  }, filteredUserIds);
 };
 
 /**
@@ -299,6 +384,14 @@ const notifyGroupCreated = async (userIds, groupName, groupId, creatorId) => {
     content,
     metadata: { groupId, groupName, contentType: 'group' }
   });
+
+  firePush({
+    title: 'New Group Created 👥',
+    body: content,
+    url: `/groups`,
+    module: 'groups',
+    type: 'GROUP_CREATED'
+  }, filteredUserIds);
 };
 
 /**
@@ -318,6 +411,14 @@ const notifyNewGroupPost = async (memberIds, groupName, postId, authorId) => {
     content,
     metadata: { groupName, postId }
   });
+
+  firePush({
+    title: `New post in ${groupName}`,
+    body: content,
+    url: `/groups`,
+    module: 'groups',
+    type: 'GROUP_POST'
+  }, filteredMemberIds);
 };
 
 /**
@@ -334,6 +435,14 @@ const notifyBlogComment = async (blogAuthorId, commenterName, blogTitle, blogId,
     content,
     metadata: { blogId, blogTitle, commentId, contentType: 'blog' }
   });
+
+  firePush({
+    title: 'New Comment on Your Blog 💬',
+    body: content,
+    url: `/blogs/${blogId}`,
+    module: 'blogs',
+    type: 'COMMENT'
+  }, [blogAuthorId]);
 };
 
 /**
@@ -350,6 +459,14 @@ const notifyDiscussionComment = async (discussionAuthorId, commenterName, discus
     content,
     metadata: { discussionId, discussionTitle, commentId, contentType: 'discussion' }
   });
+
+  firePush({
+    title: 'New Comment on Your Discussion 💬',
+    body: content,
+    url: `/discussions/${discussionId}`,
+    module: 'discussions',
+    type: 'COMMENT'
+  }, [discussionAuthorId]);
 };
 
 /**
@@ -366,6 +483,14 @@ const notifyLike = async (contentAuthorId, likerName, contentTitle, contentId, c
     content,
     metadata: { contentId, contentTitle, contentType }
   });
+
+  firePush({
+    title: `${likerName} liked your ${contentType} ❤️`,
+    body: content,
+    url: `/${contentType}s/${contentId}`,
+    module: 'activity',
+    type: 'LIKE'
+  }, [contentAuthorId]);
 };
 
 module.exports = {

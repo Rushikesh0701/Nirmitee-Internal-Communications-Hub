@@ -130,6 +130,17 @@ function App() {
 
     performInit()
   }, [initialize, isClerkLoaded, isSignedIn, setAnonymous, getToken, signOut])
+
+  // EFFECT: Initialize push notifications when user is signed in
+  useEffect(() => {
+    if (isClerkLoaded && isSignedIn) {
+      import('./services/pushService').then(({ initializePush }) => {
+        initializePush().catch((err) => {
+          console.error('[App] Push notification init failed:', err);
+        });
+      });
+    }
+  }, [isClerkLoaded, isSignedIn]);
   
   return (
     <QueryClientProvider client={queryClient}>
