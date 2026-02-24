@@ -13,7 +13,7 @@ import PublicRoute from './components/PublicRoute'
 import RootRedirect from './components/RootRedirect'
 import AdminRoute from './components/AdminRoute'
 import AnnouncementNotification from './components/AnnouncementNotification'
-import { ThemeProvider } from './contexts/ThemeContext'
+// ThemeProvider is already applied in main.jsx
 import { publicRoutes, protectedRoutes } from './config/routes'
 import { PageSkeleton } from './components/skeletons'
 import SSOCallback from './pages/auth/SSOCallback'
@@ -130,17 +130,27 @@ function App() {
 
     performInit()
   }, [initialize, isClerkLoaded, isSignedIn, setAnonymous, getToken, signOut])
+
+  // EFFECT: Initialize push notifications when user is signed in
+  useEffect(() => {
+    if (isClerkLoaded && isSignedIn) {
+      import('./services/pushService').then(({ initializePush }) => {
+        initializePush().catch((err) => {
+          console.error('[App] Push notification init failed:', err);
+        });
+      });
+    }
+  }, [isClerkLoaded, isSignedIn]);
   
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Router
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <AnnouncementNotification />
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <AnnouncementNotification />
         <Routes>
           {/* SSO callback route - must be outside AuthLayout to avoid PublicRoute redirect */}
           <Route path="/sso-callback" element={<SSOCallback />} />
@@ -206,8 +216,7 @@ function App() {
             },
           }}
         />
-        </Router>
-      </ThemeProvider>
+      </Router>
     </QueryClientProvider>
   )
 }
