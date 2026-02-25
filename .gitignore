@@ -36,6 +36,9 @@ debug_*.txt
 # Docker
 *.dockerignore
 
+# Firebase
+backend/config/firebase-service-account.json
+
 # Misc
 .eslintcache
 .cache/
