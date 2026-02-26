@@ -1,4 +1,5 @@
 const recognitionRewardService = require('../services/recognitionRewardService');
+const activityPointsService = require('../services/activityPointsService');
 
 /**
  * POST /recognitions/send
@@ -182,6 +183,47 @@ const getMonthlyRecognitionSummary = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /recognitions/activity-summary
+ */
+const getActivitySummary = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const summary = await activityPointsService.getUserActivitySummary(userId);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /recognitions/admin/activity-dashboard
+ * Admin only: Get all users' activity data
+ */
+const getAdminActivityDashboard = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, search = '', sortBy = 'totalPoints', sortOrder = 'desc' } = req.query;
+    const data = await activityPointsService.getAllUsersActivitySummary({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    });
+
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   sendRecognition,
   getRecognitionFeed,
@@ -190,5 +232,7 @@ module.exports = {
   getLeaderboard,
   getUserPoints,
   getUserRedemptions,
-  getMonthlyRecognitionSummary
+  getMonthlyRecognitionSummary,
+  getActivitySummary,
+  getAdminActivityDashboard
 };

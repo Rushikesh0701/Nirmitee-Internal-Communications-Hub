@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { blogAPI } from '../../services/blogApi';
 import { useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
+import { Sparkles } from 'lucide-react';
 import Editor from '../../components/blog/Editor';
 import { useCreationStore } from '../../store/creationStore';
 
@@ -29,7 +30,12 @@ const CreateBlog = () => {
       onSuccess: async (response) => {
         const blogData = response.data?.data || response.data || response;
         const blogId = blogData._id || blogData.id;
-        toast.success('Blog created successfully!');
+        toast.success(
+          <span>
+            Blog created successfully! <b>+15 Points earned 🚀</b>
+          </span>,
+          { duration: 5000 }
+        );
         await queryClient.invalidateQueries(['blogs'], { refetchActive: true });
         await queryClient.invalidateQueries('dashboard-stats', { refetchActive: true }); // Update dashboard stats if shown
         endCreation();
@@ -365,9 +371,18 @@ const CreateBlog = () => {
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}
-            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group transition-all"
           >
-            {createMutation.isLoading ? 'Creating...' : 'Create Blog'}
+            {createMutation.isLoading ? 'Creating...' : (
+              <>
+                Create Blog
+                {formData.isPublished && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold animate-pulse">
+                    <Sparkles size={10} /> +15 PTS
+                  </span>
+                )}
+              </>
+            )}
           </button>
           <button
             type="button"

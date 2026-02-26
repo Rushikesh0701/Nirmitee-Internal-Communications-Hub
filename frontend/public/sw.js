@@ -3,7 +3,7 @@
 // Cache-First for static assets, Network-First for API
 // ============================================
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v5';
 const STATIC_CACHE = `nirmitee-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `nirmitee-dynamic-${CACHE_VERSION}`;
 const API_CACHE = `nirmitee-api-${CACHE_VERSION}`;

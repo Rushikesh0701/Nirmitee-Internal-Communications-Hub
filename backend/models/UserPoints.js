@@ -24,7 +24,13 @@ const userPointsSchema = new mongoose.Schema({
         },
         source: {
             type: String,
-            enum: ['RECOGNITION', 'REDEMPTION', 'REFUND', 'ADMIN_ADJUSTMENT'],
+            enum: [
+                'RECOGNITION', 'REDEMPTION', 'REFUND', 'ADMIN_ADJUSTMENT',
+                'BLOG_POST', 'BLOG_COMMENT', 'BLOG_LIKE',
+                'DISCUSSION_CREATE', 'DISCUSSION_REPLY',
+                'POLL_VOTE', 'POLL_CREATE',
+                'COURSE_COMPLETE', 'DAILY_LOGIN', 'STREAK_BONUS'
+            ],
             required: true
         },
         referenceId: {
@@ -35,7 +41,19 @@ const userPointsSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    currentStreak: {
+        type: Number,
+        default: 0
+    },
+    lastActiveDate: {
+        type: Date,
+        default: null
+    },
+    level: {
+        type: Number,
+        default: 1
+    }
 }, {
     timestamps: true
 });

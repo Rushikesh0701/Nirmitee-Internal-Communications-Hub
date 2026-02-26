@@ -1,6 +1,7 @@
 const { User, Role } = require('../models');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
+const activityPointsService = require('./activityPointsService');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
@@ -167,6 +168,11 @@ const login = async (email, password, metadata = {}) => {
   user.lastLogin = new Date();
   await user.save();
 
+  // Check daily login streak (fire-and-forget)
+  activityPointsService.checkAndAwardStreak(user._id.toString()).catch(err =>
+    logger.error('Error checking login streak', { error: err })
+  );
+
   return { user: user.toJSON() };
 };
 
@@ -312,6 +318,13 @@ const verifyClerkToken = async (sessionToken) => {
       avatar: clerkUser.imageUrl,
       roleName: appRole
     });
+
+    // Check daily login streak (fire-and-forget)
+    if (user?._id) {
+      activityPointsService.checkAndAwardStreak(user._id.toString()).catch(err =>
+        logger.error('Error checking Clerk login streak', { error: err })
+      );
+    }
 
     return { success: true, user };
   } catch (error) {

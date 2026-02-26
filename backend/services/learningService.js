@@ -1,4 +1,6 @@
 const { Course, Module, UserCourse, Certificate, Mentorship, User } = require('../models');
+const activityPointsService = require('./activityPointsService');
+const logger = require('../utils/logger');
 
 /**
  * Create a new course
@@ -128,6 +130,13 @@ const updateCourseProgress = async (userId, courseId, progressPercentage) => {
   // Update status based on progress
   if (userCourse.progressPercentage === 100) {
     userCourse.status = 'COMPLETED';
+
+    // Award activity points for completing a course
+    try {
+      await activityPointsService.awardActivityPoints(userId.toString(), 'COURSE_COMPLETE', courseId.toString());
+    } catch (error) {
+      logger.error('Error awarding course completion points', { error });
+    }
   } else if (userCourse.progressPercentage > 0) {
     userCourse.status = 'IN_PROGRESS';
   }
@@ -206,7 +215,7 @@ const generateCertificate = async (userId, courseId) => {
   const baseUrl = process.env.FRONTEND_URL || process.env.API_URL || '';
   const apiBaseUrl = process.env.API_URL || baseUrl || '';
   const certificateUrl = `${apiBaseUrl}/api/learning/certificates/${certificate.certificateNumber}/view`;
-  
+
   // Update certificate with the URL
   certificate.certificateUrl = certificateUrl;
   await certificate.save();

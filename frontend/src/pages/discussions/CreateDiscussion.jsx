@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useMutation, useQueryClient } from 'react-query';
 import { discussionAPI } from '../../services/discussionApi';
 import toast from 'react-hot-toast';
+import { Sparkles } from 'lucide-react';
 import { useCreationStore } from '../../store/creationStore';
 
 const CreateDiscussion = () => {
@@ -47,7 +48,12 @@ const CreateDiscussion = () => {
       onSuccess: async (response) => {
         const discussionData = response.data?.data || response.data || response;
         const discussionId = discussionData._id || discussionData.id;
-        toast.success('Discussion created successfully!');
+        toast.success(
+          <span>
+            Discussion created successfully! <b>+10 Points earned 🚀</b>
+          </span>,
+          { duration: 5000 }
+        );
         await queryClient.invalidateQueries(['discussions'], { refetchActive: true });
         endCreation();
         navigate(`/discussions/${discussionId}`);
@@ -186,9 +192,16 @@ const CreateDiscussion = () => {
           <button
             type="submit"
             disabled={createMutation.isLoading || isAnyCreationInProgress()}
-            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group transition-all"
           >
-            {createMutation.isLoading ? 'Posting...' : 'Post Discussion'}
+            {createMutation.isLoading ? 'Posting...' : (
+              <>
+                Post Discussion
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold animate-pulse">
+                  <Sparkles size={10} /> +10 PTS
+                </span>
+              </>
+            )}
           </button>
           <button
             type="button"

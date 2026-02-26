@@ -15,6 +15,12 @@ export const recognitionRewardApi = {
   getLeaderboard: (params) => api.get('/recognitions/leaderboard', { params }),
 
   // Monthly summary
-  getMonthlySummary: (params) => api.get('/recognitions/summary/monthly', { params })
+  getMonthlySummary: (params) => api.get('/recognitions/summary/monthly', { params }),
+
+  // Activity summary (gamification)
+  getActivitySummary: () => api.get('/recognitions/activity-summary'),
+
+  // Admin: All users activity dashboard
+  getAdminActivityDashboard: (params) => api.get('/recognitions/admin/activity-dashboard', { params })
 }
 

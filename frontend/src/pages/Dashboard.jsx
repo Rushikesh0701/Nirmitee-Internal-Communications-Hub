@@ -21,8 +21,13 @@ import {
   ArrowUpRight,
   Zap,
   Sparkles,
-  Activity
+  Activity,
+  Flame,
+  Trophy,
+  Star,
+  Target
 } from 'lucide-react'
+import { recognitionRewardApi } from '../services/recognitionRewardApi'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import EmptyState from '../components/EmptyState'
@@ -79,6 +84,12 @@ const Dashboard = () => {
 
   const announcements = announcementsData?.announcements || announcementsData || []
   const newsArticles = newsData?.results || newsData?.news || []
+
+  // Gamification Data
+  const { data: activityData } = useQuery('activitySummary', () =>
+    recognitionRewardApi.getActivitySummary()
+  )
+  const activity = activityData?.data?.data || null
 
   const quickLinks = useMemo(() => [
     { path: '/news', icon: Newspaper, label: 'News' },
@@ -204,6 +215,98 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Gamification "Your Progress" Widget */}
+        {activity && (
+          <motion.div variants={itemVariants}>
+            <div className={`rounded-lg border transition-all duration-200 overflow-hidden ${
+              theme === 'dark'
+                ? 'bg-[#0a0e17] border-[#151a28]'
+                : 'bg-white border-slate-200 shadow-sm'
+            }`}>
+              <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-100 dark:divide-slate-800">
+                {/* Level Progress */}
+                <div className="flex-1 p-4 flex flex-col justify-center">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                        <Trophy size={16} className="text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <span className="text-sm font-bold dark:text-slate-100">Level {activity.level?.current}</span>
+                    </div>
+                    <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 rounded-full">
+                      {activity.level?.title}
+                    </span>
+                  </div>
+                  {activity.level?.nextLevel ? (
+                    <>
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mb-2">
+                        <motion.div
+                          className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(100, activity.level?.progress || 0)}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{activity.level.nextLevel.pointsNeeded}</span> more points to reach <span className="italic">{activity.level.nextLevel.title}</span>
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs font-medium text-amber-600">🏆 Maximum Level Reached!</p>
+                  )}
+                </div>
+
+                {/* Stats Summary */}
+                <div className="lg:w-1/3 p-4 flex items-center justify-around gap-4 bg-slate-50/50 dark:bg-slate-900/20">
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 justify-center text-amber-500 mb-1">
+                      <Star size={14} fill="currentColor" />
+                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{activity.totalPoints}</span>
+                    </div>
+                    <p className="text-[10px] uppercase tracking-wider text-slate-500">Points</p>
+                  </div>
+                  <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 justify-center text-orange-500 mb-1">
+                      <Flame size={14} fill="currentColor" />
+                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{activity.currentStreak}d</span>
+                    </div>
+                    <p className="text-[10px] uppercase tracking-wider text-slate-500">Streak</p>
+                  </div>
+                  <Link 
+                    to="/recognitions/rewards"
+                    className="p-2 rounded-lg bg-[#ff4701] text-white hover:bg-[#ff4701]/90 transition-colors shadow-sm shadow-[#ff4701]/20"
+                  >
+                    <ArrowUpRight size={18} />
+                  </Link>
+                </div>
+
+                {/* Ways to Earn (Daily Missions) */}
+                <div className="lg:w-2/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target size={14} className="text-[#ff4701]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Daily Missions</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {activity.pointsConfig?.slice(0, 4).map((config) => (
+                      <Link 
+                        key={config.type}
+                        to={config.type.startsWith('BLOG') ? '/blogs' : config.type.startsWith('DISCUSSION') ? '/discussions' : '/recognitions/rewards'}
+                        className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#ff4701] transition-all group"
+                      >
+                        <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 truncate pr-1">
+                          {config.label}
+                        </span>
+                        <span className="text-[10px] font-bold text-[#ff4701]">+{config.points}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Enhanced Admin Stats Cards */}
         {isAdminOrModerator && (

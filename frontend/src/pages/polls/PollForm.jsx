@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from 'react-query'
 import { pollApi } from '../../services/pollApi'
-import { BarChart3, Plus, Trash2, ArrowLeft } from 'lucide-react'
+import { BarChart3, Plus, Trash2, ArrowLeft, Sparkles } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const EXPIRY_OPTIONS = [
   { label: '1 hour', value: 1 },
@@ -26,6 +27,12 @@ const PollForm = () => {
     (data) => pollApi.createPoll(data),
     {
       onSuccess: () => {
+        toast.success(
+          <span>
+            Poll created successfully! <b>+8 Points earned 🚀</b>
+          </span>,
+          { duration: 5000 }
+        );
         navigate('/polls')
       },
       onError: (err) => {
@@ -217,10 +224,17 @@ const PollForm = () => {
           <button
             type="submit"
             disabled={createMutation.isLoading}
-            className="btn-add"
+            className="btn-add flex items-center gap-2 group transition-all"
           >
             <BarChart3 size={16} />
-            {createMutation.isLoading ? 'Creating...' : 'Create Poll'}
+            {createMutation.isLoading ? 'Creating...' : (
+              <>
+                Create Poll
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold animate-pulse">
+                  <Sparkles size={10} /> +8 PTS
+                </span>
+              </>
+            )}
           </button>
         </div>
       </form>

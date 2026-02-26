@@ -1,5 +1,6 @@
 const { Discussion, DiscussionComment, User } = require('../models');
 const notificationService = require('./notificationService');
+const activityPointsService = require('./activityPointsService');
 const logger = require('../utils/logger');
 
 const getAllDiscussions = async (options = {}) => {
@@ -12,7 +13,7 @@ const getAllDiscussions = async (options = {}) => {
     query.tags = { $in: [tag] };
   }
   if (pinned !== undefined) query.isPinned = pinned;
-  
+
   // Full-text search in title and content
   if (search && search.trim()) {
     const searchRegex = new RegExp(search.trim(), 'i');
@@ -44,7 +45,7 @@ const getAllDiscussions = async (options = {}) => {
 
 const getDiscussionById = async (id, userId) => {
   const mongoose = require('mongoose');
-  
+
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid discussion ID format');
@@ -126,6 +127,13 @@ const createDiscussion = async (discussionData) => {
     );
   } catch (error) {
     logger.error('Error sending discussion notifications', { error });
+  }
+
+  // Award activity points for creating a discussion
+  try {
+    await activityPointsService.awardActivityPoints(discussion.authorId.toString(), 'DISCUSSION_CREATE', discussion._id.toString());
+  } catch (error) {
+    logger.error('Error awarding discussion create points', { error });
   }
 
   return await Discussion.findById(discussion._id)
@@ -270,6 +278,12 @@ const addComment = async (commentData) => {
     discussionId: commentData.discussionId,
     parentCommentId: commentData.parentCommentId || null
   });
+  // Award activity points for replying to a discussion
+  try {
+    await activityPointsService.awardActivityPoints(commentData.authorId.toString(), 'DISCUSSION_REPLY', commentData.discussionId.toString());
+  } catch (error) {
+    logger.error('Error awarding discussion reply points', { error });
+  }
 
   return await DiscussionComment.findById(comment._id)
     .populate('authorId', 'firstName lastName email avatar')

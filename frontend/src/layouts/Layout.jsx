@@ -37,7 +37,8 @@ import {
   Gift,
   Settings,
   Vote,
-  MessageSquarePlus
+  MessageSquarePlus,
+  TrendingUp
 } from 'lucide-react'
 import { useClerk } from '@clerk/clerk-react'
 import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react'
@@ -180,6 +181,7 @@ const Layout = () => {
       items: [
         { path: '/groups', icon: Users, label: 'Groups' },
         { path: '/recognitions', icon: Award, label: 'Recognitions' },
+        { path: '/recognitions/rewards', icon: Gift, label: 'Rewards' },
         { path: '/surveys', icon: ClipboardList, label: 'Surveys' },
         { path: '/polls', icon: Vote, label: 'Polls' },
         { path: '/feedback', icon: MessageSquarePlus, label: 'Feedback' }
@@ -198,6 +200,7 @@ const Layout = () => {
         items: [
           { path: '/moderation', icon: Shield, label: 'Moderation' },
           { path: '/admin/analytics', icon: BarChart3, label: 'Admin Analytics' },
+          { path: '/admin/activity-dashboard', icon: TrendingUp, label: 'Activity Dashboard' },
           { path: '/admin/rewards', icon: Award, label: 'Manage Rewards' },
           { path: '/admin/redemptions', icon: Gift, label: 'Redemptions' },
           { path: '/admin/rss', icon: Newspaper, label: 'RSS Sources' },
@@ -282,6 +285,10 @@ const Layout = () => {
   const isActivePath = useCallback((path) => {
     if (path === '/dashboard') {
       return location.pathname === '/dashboard' || location.pathname === '/'
+    }
+    // Exact match for paths that have child routes (e.g. /recognitions vs /recognitions/rewards)
+    if (path === '/recognitions') {
+      return location.pathname === '/recognitions'
     }
     return location.pathname.startsWith(path)
   }, [location.pathname])

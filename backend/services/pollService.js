@@ -1,4 +1,5 @@
 const { Poll, PollVote } = require('../models');
+const activityPointsService = require('./activityPointsService');
 const logger = require('../utils/logger');
 
 /**
@@ -18,6 +19,16 @@ const createPoll = async (pollData) => {
     if (!isAnonymous) {
         await poll.populate('createdBy', 'firstName lastName email avatar');
     }
+
+    // Award activity points for creating a poll
+    if (createdBy) {
+        try {
+            await activityPointsService.awardActivityPoints(createdBy.toString(), 'POLL_CREATE', poll._id.toString());
+        } catch (error) {
+            logger.error('Error awarding poll create points', { error });
+        }
+    }
+
     return poll;
 };
 
@@ -141,6 +152,13 @@ const votePoll = async (pollId, userId, optionIndex) => {
             [`options.${optionIndex}.voteCount`]: 1
         }
     });
+
+    // Award activity points for voting
+    try {
+        await activityPointsService.awardActivityPoints(userId.toString(), 'POLL_VOTE', pollId.toString());
+    } catch (error) {
+        logger.error('Error awarding poll vote points', { error });
+    }
 
     // Return updated poll
     return await getPollById(pollId, userId);

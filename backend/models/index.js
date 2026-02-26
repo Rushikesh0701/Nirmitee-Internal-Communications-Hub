@@ -29,5 +29,6 @@ module.exports = {
   Poll: require('./Poll'),
   PollVote: require('./PollVote'),
   Feedback: require('./Feedback'),
-  OrganizationThemeConfig: require('./OrganizationThemeConfig')
+  OrganizationThemeConfig: require('./OrganizationThemeConfig'),
+  ActivityLog: require('./ActivityLog')
 };

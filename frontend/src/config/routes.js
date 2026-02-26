@@ -64,6 +64,7 @@ const PollsList = lazy(() => import('../pages/polls/PollsList'))
 const PollForm = lazy(() => import('../pages/polls/PollForm'))
 const FeedbackSubmit = lazy(() => import('../pages/feedback/FeedbackSubmit'))
 const FeedbackDashboard = lazy(() => import('../pages/feedback/FeedbackDashboard'))
+const AdminActivityDashboard = lazy(() => import('../pages/admin/AdminActivityDashboard'))
 
 export const publicRoutes = [
   { path: '/login', component: Login },
@@ -135,5 +136,6 @@ export const protectedRoutes = [
   { path: '/polls/create', component: PollForm },
   { path: '/feedback', component: FeedbackSubmit },
   { path: '/admin/feedback', component: FeedbackDashboard, admin: true },
+  { path: '/admin/activity-dashboard', component: AdminActivityDashboard, admin: true },
 ]
 

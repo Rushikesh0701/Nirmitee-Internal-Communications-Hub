@@ -2,6 +2,7 @@ const { Blog, User, BlogComment } = require('../models');
 const { ROLES } = require('../constants/roles');
 const mongoose = require('mongoose');
 const notificationService = require('./notificationService');
+const activityPointsService = require('./activityPointsService');
 const logger = require('../utils/logger');
 
 const getAllBlogs = async (options = {}) => {
@@ -205,6 +206,15 @@ const createBlog = async (blogData) => {
     }
   }
 
+  // Award activity points for publishing a blog
+  if (blog.isPublished) {
+    try {
+      await activityPointsService.awardActivityPoints(blog.authorId.toString(), 'BLOG_POST', blog._id.toString());
+    } catch (error) {
+      logger.error('Error awarding blog post points', { error });
+    }
+  }
+
   return await Blog.findById(blog._id)
     .populate('authorId', 'firstName lastName displayName email avatar');
 };
@@ -380,6 +390,14 @@ const likeBlog = async (id, userId) => {
       }
     }
   }
+  // Award activity points for liking (not unliking)
+  if (!hasLiked) {
+    try {
+      await activityPointsService.awardActivityPoints(userId.toString(), 'BLOG_LIKE', id.toString());
+    } catch (error) {
+      logger.error('Error awarding blog like points', { error });
+    }
+  }
 
   return blogObj;
 };
@@ -456,6 +474,12 @@ const addComment = async (blogId, userId, content, parentCommentId = null) => {
     } catch (error) {
       logger.error('Error sending blog comment notification', { error });
     }
+  }
+  // Award activity points for commenting
+  try {
+    await activityPointsService.awardActivityPoints(userId.toString(), 'BLOG_COMMENT', blogId.toString());
+  } catch (error) {
+    logger.error('Error awarding blog comment points', { error });
   }
 
   return comment.toObject();

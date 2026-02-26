@@ -19,5 +19,17 @@ router.get('/leaderboard', authenticateToken, recognitionRewardController.getLea
 // Recognition summary
 router.get('/summary/monthly', authenticateToken, recognitionRewardController.getMonthlyRecognitionSummary);
 
+// Activity summary (gamification)
+router.get('/activity-summary', authenticateToken, recognitionRewardController.getActivitySummary);
+
+// Admin: Activity dashboard (all users)
+router.get('/admin/activity-dashboard', authenticateToken, (req, res, next) => {
+    const role = req.userRole;
+    if (!['Admin', 'Moderator', 'ADMIN', 'MODERATOR'].includes(role)) {
+        return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+    next();
+}, recognitionRewardController.getAdminActivityDashboard);
+
 module.exports = router;
 
