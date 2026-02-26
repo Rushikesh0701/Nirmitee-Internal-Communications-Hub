@@ -219,8 +219,8 @@ export const developerThoughts = [
 export const getThoughtOfTheDay = () => {
   const today = new Date()
   const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24)
-  const index = dayOfYear % thoughtsOfTheDay.length
-  return thoughtsOfTheDay[index]
+  const index = dayOfYear % developerThoughts.length
+  return developerThoughts[index]
 }
 
 
