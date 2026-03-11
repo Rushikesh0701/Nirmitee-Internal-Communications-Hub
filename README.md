@@ -22,13 +22,14 @@ A full-stack internal communications platform for **Nirmitee Infotech**, bringin
 | **Activity Feed** | Real-time timeline of company-wide activities |
 | **Moderation** | Admin tools for content moderation (blogs, announcements) |
 | **Theme Customization** | Organization-level theme and branding configuration |
+| **Push Notifications**| Real-time Firebase Cloud Messaging for important updates |
 
 ## 🛠️ Tech Stack
 
 | Layer | Technologies |
 |-------|-------------|
-| **Frontend** | React 18, Vite, TailwindCSS, Zustand, React Query, Clerk Auth, Framer Motion, Recharts, TipTap, Lucide Icons |
-| **Backend** | Node.js, Express.js, MongoDB (Mongoose), Clerk SDK, RSS Parser, Sentiment Analysis, Nodemailer, **node-cron** |
+| **Frontend** | React 18, Vite, TailwindCSS, Zustand, React Query, Clerk Auth, Firebase (Messaging), Framer Motion, Recharts, TipTap/CKEditor, Lucide Icons |
+| **Backend** | Node.js, Express.js, MongoDB (Mongoose), Clerk SDK, Firebase Admin SDK, RSS Parser, Sentiment Analysis, Nodemailer, node-cron |
 | **Auth** | Clerk (Google SSO + email), JWT, RBAC (admin / moderator / user) |
 | **Deployment** | Render (backend), Netlify (frontend), Docker, GitHub Actions (keep-alive) |
 
@@ -52,10 +53,16 @@ graph TD
         G[("MongoDB Atlas")]
     end
 
+    subgraph "External Services"
+        H["Firebase Cloud Messaging"]
+    end
+
     A <-->|API Calls / JWT| C
     B <-->|OAuth| D
     C <--> D
     C <--> G
+    A <-->|Web Push| H
+    C -->|Push Notifications| H
     E -->|News Prefetch| C
     E -->|Scheduled Announcements| C
 ```

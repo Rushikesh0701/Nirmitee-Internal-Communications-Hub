@@ -35,7 +35,7 @@ const getOrCreateRole = async (name, description = '') => {
 /**
  * Helper: Map Clerk user data (metadata/orgs) to application role
  */
-const mapClerkUserToAppRole = async (clerkUser) => {
+const mapClerkUserToAppRole = async (clerkUser, memberships = null) => {
   // 1. Check Public Metadata (Highest priority)
   const metadataRole = clerkUser.publicMetadata?.role;
   if (metadataRole) {
@@ -44,11 +44,11 @@ const mapClerkUserToAppRole = async (clerkUser) => {
     if (normalized === 'moderator') return 'Moderator';
   }
 
-  // 2. Check Organization Memberships (Fallback)
+  // 2. Check Organization Memberships (Fallback) - reuse if already fetched
   try {
-    const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
-    if (memberships.some(m => ['org:admin', 'admin'].includes(m.role))) return 'Admin';
-    if (memberships.some(m => ['org:moderator', 'moderator'].includes(m.role))) return 'Moderator';
+    const mems = memberships ?? await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+    if (mems.some(m => ['org:admin', 'admin'].includes(m.role))) return 'Admin';
+    if (mems.some(m => ['org:moderator', 'moderator'].includes(m.role))) return 'Moderator';
   } catch (err) {
     logger.warn(`Failed to fetch memberships for user ${clerkUser.id}: ${err.message}`);
   }
@@ -59,13 +59,14 @@ const mapClerkUserToAppRole = async (clerkUser) => {
 /**
  * Helper: Ensure user is in the default organization
  */
-const ensureDefaultOrganization = async (clerkUser, email) => {
+const ensureDefaultOrganization = async (clerkUser, email, memberships = null) => {
   try {
     const DEFAULT_ORG_ID = process.env.CLERK_ORGANIZATION_ID || 'org_39Ta00yBEDXWf5FIvx5j6xIA8uu';
     if (!email.toLowerCase().endsWith('@nirmitee.io')) return;
 
-    const memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
-    const isMember = memberships.some(m => m.organization.id === DEFAULT_ORG_ID);
+    // Reuse memberships fetched by caller to avoid a duplicate API call
+    const mems = memberships ?? await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+    const isMember = mems.some(m => m.organization.id === DEFAULT_ORG_ID);
 
     if (!isMember) {
       logger.info(`Adding user ${clerkUser.id} to default organization ${DEFAULT_ORG_ID}`);
@@ -286,7 +287,7 @@ const syncClerkUser = async (clerkData) => {
 /**
  * Verify Clerk session token and return synchronized user
  */
-const verifyClerkToken = async (sessionToken) => {
+const verifyClerkToken = async (sessionToken, { runHeavyOps = false } = {}) => {
   try {
     let session;
     try {
@@ -300,10 +301,23 @@ const verifyClerkToken = async (sessionToken) => {
     const clerkUser = await clerk.users.getUser(session.sub);
     const email = clerkUser.emailAddresses[0]?.emailAddress;
 
-    // Delegate role mapping and organization management
-    const appRole = await mapClerkUserToAppRole(clerkUser);
-    await ensureDefaultOrganization(clerkUser, email);
-    await revokeOtherSessions(clerkUser.id, session.sid);
+    // Fetch memberships ONCE and reuse across role mapping + org check
+    let memberships = null;
+    if (runHeavyOps) {
+      try {
+        memberships = await clerk.users.getOrganizationMembershipList({ userId: clerkUser.id });
+      } catch (err) {
+        logger.warn(`Could not fetch memberships for ${clerkUser.id}: ${err.message}`);
+      }
+    }
+
+    const appRole = await mapClerkUserToAppRole(clerkUser, memberships);
+
+    // Only run expensive operations (org sync, session revocation) at login time
+    if (runHeavyOps) {
+      await ensureDefaultOrganization(clerkUser, email, memberships);
+      await revokeOtherSessions(clerkUser.id, session.sid);
+    }
 
     const user = await syncClerkUser({
       clerkId: clerkUser.id,

@@ -104,7 +104,7 @@ const clerkLogin = async (req, res, next) => {
     }
 
     // Verify token with Clerk
-    const verification = await authService.verifyClerkToken(token);
+    const verification = await authService.verifyClerkToken(token, { runHeavyOps: true });
 
     if (!verification.success) {
       return sendError(res, verification.error || 'Clerk verification failed', 401);
@@ -172,22 +172,18 @@ const logout = async (req, res, next) => {
 
 const getMe = async (req, res, next) => {
   try {
-    if (!req.userId) {
+    if (!req.userId || !req.user) {
       return sendError(res, 'Not authenticated', 401);
     }
 
-    const { User } = require('../models'); // MongoDB User model
-    const user = await User.findById(req.userId).populate('roleId', 'name description');
-
-    if (!user) {
-      return sendError(res, 'User not found', 404);
-    }
+    // req.user is already populated by authenticateToken middleware — no extra DB query needed
+    const user = req.user;
 
     if (!user.isActive) {
       return sendError(res, 'User account is inactive', 403);
     }
 
-    return sendSuccess(res, { user: user.toJSON() });
+    return sendSuccess(res, { user });
   } catch (error) {
     next(error);
   }

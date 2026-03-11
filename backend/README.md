@@ -1,6 +1,6 @@
 # Nirmitee Internal Communications Hub — Backend
 
-Express.js REST API powering the Nirmitee Internal Communications Hub. Uses **MongoDB** (Mongoose), **Clerk SSO** for authentication, and provides 16 API route groups for all platform features.
+Express.js REST API powering the Nirmitee Internal Communications Hub. Uses **MongoDB** (Mongoose), **Firebase Cloud Messaging** (Push Notifications), **Clerk SSO** for authentication, and provides numerous API route groups for all platform features.
 
 ## 📁 Project Structure
 
@@ -274,8 +274,10 @@ Base URL: `/api`
 ## 🔧 Utility Scripts
 
 ```bash
-npm run create:test-user    # Create a test user
-npm run check:auth          # Verify auth configuration
+npm run dev                      # Run in development mode with nodemon
+npm start                        # Run in production mode
+npm run create:test-user         # Create a test user
+npm run check:auth               # Verify auth configuration
 node scripts/validateEnv.js      # Validate all environment variables
 node scripts/seedCategories.js   # Seed RSS news categories
 node scripts/seedRssSources.js   # Seed RSS feed sources
@@ -304,6 +306,7 @@ Create a `.env` file (copy from `.env.example`):
 | `EMAIL_HOST` | ❌ | SMTP host for email notifications |
 | `EMAIL_USER` | ❌ | SMTP username |
 | `EMAIL_PASS` | ❌ | SMTP password |
+| `LOG_LEVEL` | ❌ | Logging verbosity (trace, debug, info, warn, error, fatal) |
 
 ## 🚀 Running
 

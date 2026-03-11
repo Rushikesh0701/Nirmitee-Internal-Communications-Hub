@@ -118,12 +118,14 @@ frontend/
 | `vite` | Build tool & dev server |
 | `tailwindcss` | Utility-first CSS |
 | `@clerk/clerk-react` | SSO authentication (Google) |
+| `firebase` | Cloud messaging / notifications |
 | `zustand` | Lightweight state management |
 | `react-query` | Server state & caching |
 | `react-router-dom` | Client-side routing |
 | `framer-motion` | Animations & transitions |
 | `recharts` | Data visualization charts |
-| `@tiptap/*` | Rich text editor |
+| `@ckeditor/*` | Rich text editor for specialized content |
+| `@tiptap/*` | Extensible rich text editor |
 | `lucide-react` | Icon library |
 | `react-hot-toast` | Toast notifications |
 | `react-hook-form` | Form handling |
@@ -150,8 +152,16 @@ Create a `.env` file (copy from `.env.example`):
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `VITE_CLERK_PUBLISHABLE_KEY` | ✅ | Clerk publishable key |
+| `VITE_CLERK_REDIRECT_URL` | ❌ | Redirect URL for Clerk auth flows |
 | `VITE_CLERK_AFTER_SIGN_OUT_URL` | ❌ | Redirect URL after sign-out (default: `/`) |
 | `VITE_API_BASE_URL` | ✅ | Backend API base URL (e.g. `https://your-backend.onrender.com/api`) |
+| `VITE_FIREBASE_API_KEY` | ✅ | Firebase API key for notifications |
+| `VITE_FIREBASE_AUTH_DOMAIN` | ✅ | Firebase Auth domain |
+| `VITE_FIREBASE_PROJECT_ID` | ✅ | Firebase Project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | ✅ | Firebase Storage bucket |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID`| ✅ | Firebase Messaging Sender ID |
+| `VITE_FIREBASE_APP_ID` | ✅ | Firebase App ID |
+| `VITE_FIREBASE_VAPID_KEY` | ✅ | Firebase VAPID key for web push notifications |
 
 > **Note:** In local development, the Vite proxy in `vite.config.js` forwards `/api` requests to `http://localhost:5002`, so `VITE_API_BASE_URL` can be left empty for local dev.
 
